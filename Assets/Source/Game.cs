@@ -11,6 +11,7 @@ public class Game : MonoBehaviour {
 	public Datastream datastream;
 	public EnemySpawn enemySpawn;
 	public PurchaseMenu purchaseMenu;
+	public Dijkstra pathfinding;
 
 	public static Game game;
 
@@ -23,6 +24,8 @@ public class Game : MonoBehaviour {
 		game = this;
 		InitializeBattlefield ();
 		purchaseMenu.InitializePurchaseMenu ();
+		pathfinding.InitializeDijkstraField (battlefieldWidth, battlefieldHeight);
+		Debug.Log ("Done initializing!");
 	}
 
 	void InitializeBattlefield () {

@@ -10,16 +10,40 @@ public class GenericEnemy : MonoBehaviour {
 
 	public bool rotateSprite;
 
+	private Vector3[] path;
+	private int pathIndex;
+	private Vector3 offset;
+
 	// TODO Add pathfinding and, well, just improve overall
 
-	// Update is called once per frame
-	void Update () {
+	void Start () {
+		Vector3 off = Random.insideUnitSphere / 2f;
+		offset = new Vector3 (off.x, off.y, 0f);
+		path = Dijkstra.GetPath (transform.position);
+	}
 
-		transform.position += Vector3.down * speed * Time.deltaTime;
+	// Update is called once per frame
+	void FixedUpdate () {
+		Move ();
+	}
+
+	void Move () {
+		if (pathIndex == path.Length-1) {
+			transform.position += Vector3.down * Time.fixedDeltaTime;
+			return;
+		}
+
+		Vector3 loc = path[pathIndex] + offset;
+		float dist = Vector3.Distance (transform.position, loc);
+
+		if (dist < speed * Time.fixedDeltaTime) {
+			pathIndex++;
+		}
+
+		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime);
 
 		if (rotateSprite)
 			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, transform.position + Vector3.down));
-	
 	}
 
 	void OnTakeDamage (int d) {

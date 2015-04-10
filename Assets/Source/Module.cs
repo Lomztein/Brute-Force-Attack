@@ -18,14 +18,6 @@ public class Module : MonoBehaviour {
 	public Upgrade[] upgrades;
 	public bool isRoot;
 
-	public static float[] offsets = new float[4] {
-		0.5f, 0f, 0.5f, 1f
-	};
-
-	public static float[] gridOffsets = new float[4] {
-		0.5f, 0f, 0.5f, 1f
-	};
-
 	void Start () {
 		InitializeModule ();
 		StartModule ();
@@ -33,9 +25,6 @@ public class Module : MonoBehaviour {
 
 	void Update () {
 		UpdateModule ();
-	}
-
-	public virtual string FormatStats () {
 	}
 
 	public virtual void StartModule () {
@@ -56,6 +45,8 @@ public class Module : MonoBehaviour {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
+		if (FindRootModule () == this) isRoot = true;
+		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
 	}
 
 	public Module FindRootModule () {
@@ -64,6 +55,13 @@ public class Module : MonoBehaviour {
 			cur = cur.parent;
 		}
 		return cur.GetComponent<Module>();
+	}
+
+	public Rect GetModuleRect () {
+		Bounds b = GetComponent<BoxCollider>().bounds;
+		return new Rect (transform.position.x - b.size.x / 2f,
+		                 transform.position.y - b.size.y / 2f,
+		                 b.size.x, b.size.y);
 	}
 
 	void FindParentBase () {

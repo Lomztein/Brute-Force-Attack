@@ -3,6 +3,8 @@ using System.Collections;
 
 public class PlayerInput : MonoBehaviour {
 
+	public enum WallPlacement { Inactive, Adding, Removing };
+
 	public float cameraMovementSpeed;
 	public LayerMask turretLayer;
 
@@ -29,6 +31,8 @@ public class PlayerInput : MonoBehaviour {
 	public Vector3[] canPlaceTestPos;
 
 	public static PlayerInput cur;
+
+	public WallPlacement wallPlacementStatus;
 
 	void Start () {
 		cur = this;
@@ -64,10 +68,10 @@ public class PlayerInput : MonoBehaviour {
 
 			// Grap mouse position, and round it.
 			pos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			pos = new Vector3 (Mathf.Round (pos.x/1f - Module.offsets[pModule.moduleClass-1]) * 1, Mathf.Round (pos.y/1f - Module.offsets[pModule.moduleClass-1]) * 1, pos.z);
+			pos = new Vector3 (Mathf.Round (pos.x/1f) * 1, Mathf.Round (pos.y/1f) * 1, pos.z);
 
 			if (!isRotting) {
-				placePos = new Vector3 (pos.x + Module.offsets[pModule.moduleClass-1], pos.y + Module.offsets[pModule.moduleClass-1], 0f);
+				placePos = new Vector3 (pos.x, pos.y, 0f);
 				placeRot = Quaternion.Euler (0,0,90f);
 			}
 
@@ -161,7 +165,6 @@ public class PlayerInput : MonoBehaviour {
 
 			// Handle module placement on another module
 			placePos = hit.transform.position + (placePos - hit.collider.transform.position);
-			Debug.Log (placePos + ", " + allowPlacement);
 			allowPlacement = CanPlaceAtPos (placePos);
 		}
 
