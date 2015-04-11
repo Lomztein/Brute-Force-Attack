@@ -5,6 +5,7 @@ public class HomingProjectile : Projectile {
 
 	public float turnSpeed;
 	public float speed;
+	public bool autoFindTarget;
 
 	void Start () {
 		speed = velocity.magnitude;
@@ -18,6 +19,5 @@ public class HomingProjectile : Projectile {
 		velocity = transform.right * speed;
 		CastRay ();
 		transform.position += velocity * Time.fixedDeltaTime;
-
 	}
 }

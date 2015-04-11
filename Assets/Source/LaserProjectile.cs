@@ -13,7 +13,7 @@ public class LaserProjectile : Projectile {
 		line.SetPosition (0, transform.position);
 		if (Physics.Raycast (ray, out hit, range, Game.game.enemyLayer)) {
 			line.SetPosition (1, hit.point);
-			hit.collider.SendMessage ("OnTakeDamage", damage);
+			hit.collider.SendMessage ("OnTakeDamage", new Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
 		}else{
 			line.SetPosition (1, ray.GetPoint (range));
 		}

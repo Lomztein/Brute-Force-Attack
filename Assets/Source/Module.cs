@@ -12,6 +12,7 @@ public class Module : MonoBehaviour {
 
 	public Type moduleType;
 	public int moduleClass = 2;
+	public int moduleCost;
 
 	public int moduleLayer;
 
@@ -38,15 +39,20 @@ public class Module : MonoBehaviour {
 
 	void OnMouseDown () {
 		PlayerInput.cur.focusRoot = FindRootModule ();
-		PlayerInput.cur.OpenTowerMenu ();
+		PlayerInput.cur.OpenModuleMenu ();
 	}
 
 	void InitializeModule () {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
+		Game.CalculatePowerLevel ();
 		if (FindRootModule () == this) isRoot = true;
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
+	}
+
+	void SellModule () {
+		Destroy (gameObject);
 	}
 
 	public Module FindRootModule () {
@@ -86,4 +92,39 @@ public class Module : MonoBehaviour {
 		}
 		moduleLayer = amount;
 	}
+
+	public static float CalculateTotalPowerRequirements () {
+		GameObject[] modules = GameObject.FindGameObjectsWithTag ("Module");
+		float power = 0f;
+		foreach (GameObject m in modules) {
+			Module mod = m.GetComponent<Module>();
+			power += mod.moduleClass;
+		}
+
+		return power;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

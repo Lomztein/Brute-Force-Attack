@@ -22,6 +22,7 @@ public class Dijkstra : MonoBehaviour {
 	public static Dijkstra cur;
 
 	public int bakeSpeed = 10;
+	public EnemySpawn enemySpawn;
 
 	public void InitializeDijkstraField (int w, int h) {
 		cur = this;
@@ -45,8 +46,6 @@ public class Dijkstra : MonoBehaviour {
 				if (IsInsideField (x + (int)near[i].x, y + (int)near[i].y))
 					nodes[x,y].nearby[i] = nodes[x + (int)near[i].x, y + (int)near[i].y];
 			}
-
-		BakePaths ();
 	}
 
 	public bool IsInsideField (int x, int y) {
@@ -160,11 +159,13 @@ public class Dijkstra : MonoBehaviour {
 
 			paths[x] = new DPath (newPath.ToArray ());
 		}
+
+		enemySpawn.StartWave ();
 	}
 
 	public static Vector3[] GetPath (Vector3 start) {
 		int x = (int)cur.WorldToNode (start).x;
-		x = Mathf.Clamp (x, 1, cur.width-1);
+		x = Mathf.Clamp (x, 1, cur.paths.Length-1);
 		return cur.paths[x].nodes;
 	}
 

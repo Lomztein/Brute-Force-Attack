@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerInput : MonoBehaviour {
 
-	public enum WallPlacement { Inactive, Adding, Removing };
+	private enum WallDragStatus { Inactive, Adding, Removing };
 
 	public float cameraMovementSpeed;
 	public LayerMask turretLayer;
@@ -19,7 +19,7 @@ public class PlayerInput : MonoBehaviour {
 	private Vector3 pos;
 	private Vector3 placePos;
 	private Quaternion placeRot;
-
+	
 	private Module hitModule;
 
 	private float camDepth;
@@ -32,7 +32,11 @@ public class PlayerInput : MonoBehaviour {
 
 	public static PlayerInput cur;
 
-	public WallPlacement wallPlacementStatus;
+	private bool isEditingWalls;
+	private WallDragStatus wallDragStatus;
+	private Vector3 wallDragStart;
+	public Renderer wallDragGraphic;
+
 
 	void Start () {
 		cur = this;
@@ -55,54 +59,108 @@ public class PlayerInput : MonoBehaviour {
 		placementSprite.enabled = false;
 	}
 
-	public void OpenTowerMenu () {
+	public void OpenModuleMenu () {
 		contextMenu.gameObject.SetActive (true);
 		contextMenu.OpenModule (focusRoot);
+	}
+
+	public void EditWalls () {
+		CancelPurchase ();
+		isEditingWalls = !isEditingWalls;
+		wallDragGraphic.enabled = isEditingWalls;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		MoveCamera ();
+		// Grap mouse position, and round it.
+		pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
+		
+		if (!EnemySpawn.waveStarted) {
+			if (isPlacing && !isEditingWalls) {
 
-		if (isPlacing && !EnemySpawn.waveStarted) {
+				// Offset class 1 modules
+				if (pModule.moduleClass == 1)
+					pos += Vector3.one * 0.5f;
 
-			// Grap mouse position, and round it.
-			pos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			pos = new Vector3 (Mathf.Round (pos.x/1f) * 1, Mathf.Round (pos.y/1f) * 1, pos.z);
+				if (!isRotting) {
+					placePos = new Vector3 (pos.x, pos.y, 0f);
+					placeRot = Quaternion.Euler (0,0,90f);
+				}
 
-			if (!isRotting) {
-				placePos = new Vector3 (pos.x, pos.y, 0f);
-				placeRot = Quaternion.Euler (0,0,90f);
+				UpdatePlacementSprite ();
+				GetHitModule ();
+
+				if (hitModule)
+					placeRot = hitModule.transform.rotation;
+
+				if (isRotting) {
+					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 45f) * 45;
+						if (Input.GetButton ("LCtrl"))
+							placeRot = Quaternion.Euler (0,0,ang);
+				}
+
+				if (Input.GetMouseButtonDown (1))
+					CancelPurchase ();
+
+				if (!purchaseMenu.isOpen) {
+					if (Input.GetMouseButtonUp (0))
+						PlaceModule ();
+
+					if (Input.GetMouseButtonDown (0))
+						isRotting = true;
+				}
 			}
 
-			UpdatePlacementSprite ();
-			GetHitModule ();
+			if (!isPlacing && isEditingWalls) {
 
-			if (hitModule)
-				placeRot = hitModule.transform.rotation;
+				if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
+					wallDragStatus = WallDragStatus.Inactive;
+				}
 
-			if (isRotting) {
-				ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 45f) * 45;
-					if (Input.GetButton ("LCtrl"))
-						placeRot = Quaternion.Euler (0,0,ang);
-			}
+				if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
+					wallDragStatus = WallDragStatus.Adding;
+					wallDragStart = pos;
+					wallDragGraphic.material.color = Color.green;
+				}
 
-			if (Input.GetMouseButtonDown (1))
-				CancelPurchase ();
+				if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
+					wallDragStatus = WallDragStatus.Inactive;
+					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), true);
+					wallDragGraphic.material.color = Color.white;
+				}
 
-			if (!purchaseMenu.isOpen) {
-				if (Input.GetMouseButtonUp (0))
-					PlaceModule ();
+				if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
+					wallDragStatus = WallDragStatus.Removing;
+					wallDragStart = pos;
+					wallDragGraphic.material.color = Color.red;
+				}
 
-				if (Input.GetMouseButtonDown (0))
-					isRotting = true;
+				if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
+					wallDragStatus = WallDragStatus.Inactive;
+					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), false);
+					wallDragGraphic.material.color = Color.white;
+				}
+
+				if (wallDragStatus != WallDragStatus.Inactive) {
+					wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
+					wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+				}else{
+					wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
+				}
 			}
 		}
+	}
+
+	Vector3 RoundPos (Vector3 p) {
+		return new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
 	}
 
 	bool CanPlaceAtPos (Vector3 pos) {
 
 		int hits = 4;
+		if (pModule.moduleCost > Game.credits)
+			return false;
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
 
@@ -111,8 +169,14 @@ public class PlayerInput : MonoBehaviour {
 
 			Debug.DrawRay (ray.origin, ray.direction, Color.blue);
 
+			Module locModule = null;
 			if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
 				// Make sure you cannot place modules on weapons
+				if (locModule == null) {
+					locModule = hit.transform.GetComponent<Module>();
+				}else if (locModule != hit.transform.GetComponent<Module>())
+					return false;
+
 				if (hitModule)
 					if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent || hitModule.moduleClass < pModule.moduleClass || hitModule.moduleLayer >= 45)
 						hits--;
@@ -170,6 +234,7 @@ public class PlayerInput : MonoBehaviour {
 
 		if (allowPlacement) {
 			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placeRot);
+			Game.credits -= pModule.moduleCost;
 			m.transform.SetParent (hit.transform);
 		}
 
@@ -220,3 +285,4 @@ public class PlayerInput : MonoBehaviour {
 		}
 	}
 }
+	;

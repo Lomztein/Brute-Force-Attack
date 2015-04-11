@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PurchaseMenu : MonoBehaviour {
 
-	private float targetHeight = -Screen.height / 2 - 64;
+	private float targetHeight = -Screen.height / 2 - 120;
 
 	public bool isOpen;
 	public RectTransform rect;
@@ -71,14 +71,14 @@ public class PurchaseMenu : MonoBehaviour {
 		// Animate closing and opening
 		rect.localPosition = new Vector3 (rect.localPosition.x, Mathf.Lerp (rect.localPosition.y, targetHeight, 30f * Time.deltaTime));
 
-		if (isOpen && Input.mousePosition.y > 226) {
+		if (isOpen && Input.mousePosition.y > 300) {
 			isOpen = false;
-			targetHeight = -Screen.height / 2 - 64;
+			targetHeight = -Screen.height / 2 - 120;
 		}
 
-		if (Input.mousePosition.y < 53) {
+		if (Input.mousePosition.y < 30) {
 			isOpen = true;
-			targetHeight = -Screen.height / 2 + 117;
+			targetHeight = -Screen.height / 2 + 150;
 		}
 	
 	}

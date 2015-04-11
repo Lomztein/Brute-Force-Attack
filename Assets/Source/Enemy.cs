@@ -2,11 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GenericEnemy : MonoBehaviour {
+public class Enemy : MonoBehaviour {
+
+	public enum Type { Blue, Green, Yellow, Orange, Red, Purple };
+	public Type type;
 
 	public float speed;
 	public int health;
 	public int damage;
+	public int value;
 
 	public bool rotateSprite;
 
@@ -20,6 +24,7 @@ public class GenericEnemy : MonoBehaviour {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
 		path = Dijkstra.GetPath (transform.position);
+		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
 	}
 
 	// Update is called once per frame
@@ -46,11 +51,17 @@ public class GenericEnemy : MonoBehaviour {
 			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, transform.position + Vector3.down));
 	}
 
-	void OnTakeDamage (int d) {
-		health -= d;
-		if (health < 0)
-			Destroy (gameObject);
+	void OnTakeDamage (Projectile.Damage damage) {
+		if (damage.effectiveAgainst == type) {
+			health -= damage.damage;
+		}else{
+			health -= Mathf.RoundToInt ((float)damage.damage / 5f);
+		}
 
+		if (health < 0) {
+			Game.credits += Mathf.RoundToInt ((float)value * (int)EnemySpawn.gameProgress * 0.7f);
+			Destroy (gameObject);
+		}
 	}
 
 	void OnCollisionEnter (Collision col) {
