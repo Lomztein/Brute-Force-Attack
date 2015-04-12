@@ -26,7 +26,7 @@ public class PlayerInput : MonoBehaviour {
 	private float ang;
 
 	public Module focusRoot;
-	public TowerContextMenu contextMenu;
+	public ModuleContextMenu contextMenu;
 
 	public Vector3[] canPlaceTestPos;
 
@@ -37,13 +37,14 @@ public class PlayerInput : MonoBehaviour {
 	private Vector3 wallDragStart;
 	public Renderer wallDragGraphic;
 
-
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
 	}
 
 	public void SelectPurchaseable (GameObject purModule) {
+		if (isEditingWalls)
+			EditWalls ();
 		placementSprite.enabled = true;
 		placementSprite.sprite = purModule.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 		purchaseModule = purModule;
@@ -114,6 +115,9 @@ public class PlayerInput : MonoBehaviour {
 
 			if (!isPlacing && isEditingWalls) {
 
+				if (Input.GetButtonDown ("Cancel"))
+					EditWalls ();
+
 				if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
 					wallDragStatus = WallDragStatus.Inactive;
 				}
@@ -128,6 +132,7 @@ public class PlayerInput : MonoBehaviour {
 					wallDragStatus = WallDragStatus.Inactive;
 					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), true);
 					wallDragGraphic.material.color = Color.white;
+					HoverContext.ChangeText ("");
 				}
 
 				if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
@@ -140,13 +145,30 @@ public class PlayerInput : MonoBehaviour {
 					wallDragStatus = WallDragStatus.Inactive;
 					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), false);
 					wallDragGraphic.material.color = Color.white;
+					HoverContext.ChangeText ("");
 				}
 
 				if (wallDragStatus != WallDragStatus.Inactive) {
-					wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
-					wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+					if (wallDragStart.x <= pos.x && wallDragStart.y <= pos.y) {
+						wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
+						wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+
+						int startX = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).x);
+						int startY = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).y);
+						int w = Mathf.RoundToInt (pos.x - wallDragStart.x);
+						int h = Mathf.RoundToInt (pos.y - wallDragStart.y);
+						
+						if (wallDragStatus == WallDragStatus.Adding) {
+							HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (startX, startY, w, h, true));
+						}else{
+							HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (startX, startY, w, h, false));
+						}
+					}
+
 				}else{
 					wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
+					wallDragGraphic.transform.localScale = Vector3.one;
+					HoverContext.ChangeText ("");
 				}
 			}
 		}

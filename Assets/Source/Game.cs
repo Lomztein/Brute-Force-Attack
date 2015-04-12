@@ -35,6 +35,9 @@ public class Game : MonoBehaviour {
 	private Vector3[] norms;
 	private Vector2[] uvs;
 
+	public static bool isPaused;
+	public GameObject pauseMenu;
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("Initializing!");
@@ -48,24 +51,33 @@ public class Game : MonoBehaviour {
 
 	public void RestartMap () {
 		Application.LoadLevel (Application.loadedLevel);
+		Time.timeScale = 1f;
 	}
 
 	public void QuitToDesktop () {
 		Application.Quit ();
 	}
 
-	public static void ChangeWalls (Rect rect, bool doWall) {
+	public void TogglePause () {
+		if (isPaused) {
+			isPaused = false;
+			pauseMenu.SetActive (false);
+			Time.timeScale = 1f;
+		}else{
+			isPaused = true;
+			pauseMenu.SetActive (true);
+			Time.timeScale = 0f;
+		}
+	}
 
-		Debug.Log ("Changing walls: " + rect.ToString ());
+	public static void ChangeWalls (Rect rect, bool doWall) {
 
 		int startX = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (rect.x,rect.y)).x);
 		int startY = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (rect.x,rect.y)).y);
 		int w = Mathf.RoundToInt (rect.width);
 		int h = Mathf.RoundToInt (rect.height);
 
-		int cost = w * h * 10;
-		if (!doWall)
-			cost = -w * h * 5;
+		int cost = GetWallingCost (startX, startY, w, h, doWall);
 
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
@@ -78,6 +90,24 @@ public class Game : MonoBehaviour {
 			Game.game.GenerateWallMesh ();
 			credits -= cost;
 		}
+	}
+
+	public static int GetWallingCost (int startX, int startY, int w, int h, bool doWall) {
+		int cost = 0;
+
+		for (int y = startY; y < startY + h; y++) {
+			for (int x = startX; x < startX + w; x++) {
+				if (doWall) {
+					if (!isWalled[x,y])
+						cost += 10;
+				}else{
+					if (isWalled[x,y])
+						cost -= 5;
+				}
+			}
+		}
+
+		return cost;
 	}
 
 	public static void CalculatePowerLevel () {

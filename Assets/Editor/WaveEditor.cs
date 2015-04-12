@@ -17,7 +17,8 @@ public class WaveEditor : EditorWindow {
 	}
 
 	void OnGUI () {
-		spawner = (EnemySpawn)EditorGUILayout.ObjectField (spawner, typeof (EnemySpawn), true);
+		if (!spawner)
+			spawner = GameObject.Find ("EnemySpawn").GetComponent<EnemySpawn>();
 
 		if (windowStatus == WindowStatus.All) {
 			for (int i = 0; i < spawner.waves.Count; i++) {

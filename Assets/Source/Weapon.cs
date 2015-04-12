@@ -10,7 +10,7 @@ public class Weapon : MonoBehaviour {
 	public float bulletSpread = 5;
 	public int bulletDamage = 10;
 	public int bulletAmount = 1;
-	public float bulletRange;
+	public float maxRange;
 	public Transform target;
 
 	public float firerate;
@@ -35,10 +35,10 @@ public class Weapon : MonoBehaviour {
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
 				pro.damage = bulletDamage;
-				pro.range = bulletRange;
+				pro.range = maxRange;
 				pro.target = target;
 
-				Destroy (newBullet, bulletRange / bulletSpeed * 1.5f);
+				Destroy (newBullet, maxRange / bulletSpeed * 1.5f);
 			
 			}
 

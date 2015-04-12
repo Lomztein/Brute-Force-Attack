@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class PurchaseMenu : MonoBehaviour {
 
@@ -59,6 +60,9 @@ public class PurchaseMenu : MonoBehaviour {
 		button.onClick.AddListener (() => {
 			SelectPurchaseable (index);
 		});
+
+		Module m = purchaseables[index].GetComponent<Module>();
+		button.GetComponent<HoverContextElement>().text = m.moduleName + ", " + m.moduleCost.ToString () + " LoC";
 	}
 
 	public void SelectPurchaseable (int index) {

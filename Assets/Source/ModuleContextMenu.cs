@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class TowerContextMenu : MonoBehaviour {
+public class ModuleContextMenu : MonoBehaviour {
 
 	public Image moduleImage;
 	public Text moduleName;
@@ -14,7 +14,10 @@ public class TowerContextMenu : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (!module)
-			gameObject.SetActive (false);
+			ExitMenu ();
+
+		if (Input.GetButtonDown ("Cancel"))
+			ExitMenu ();
 	}
 
 	public void SellModule () {
