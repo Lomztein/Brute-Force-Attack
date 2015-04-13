@@ -184,7 +184,11 @@ public class Dijkstra : MonoBehaviour {
 				int yy = Mathf.RoundToInt (pos.y);
 
 				if (cur.IsInsideField (xx,yy)) {
+
 					cur.nodes[xx,yy].isClear = clear;
+					if (Game.isWalled[xx,yy])
+						cur.nodes[xx,yy].isClear = false;
+					
 				}
 			}
 		}

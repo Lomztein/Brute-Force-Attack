@@ -37,7 +37,7 @@ public class EnemySpawn : MonoBehaviour {
 
 	public void StartWave () {
 		waveNumber++;
-		if (waveNumber < waves.Count) {
+		if (waveNumber <= waves.Count) {
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();

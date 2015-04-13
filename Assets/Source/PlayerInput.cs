@@ -13,7 +13,7 @@ public class PlayerInput : MonoBehaviour {
 	public SpriteRenderer placementSprite;
 	private GameObject purchaseModule;
 	private Module pModule;
-	private bool isPlacing;
+	public bool isPlacing;
 	private bool isRotting;
 
 	private Vector3 pos;

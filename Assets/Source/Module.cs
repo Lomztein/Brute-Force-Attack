@@ -38,8 +38,10 @@ public class Module : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		PlayerInput.cur.focusRoot = FindRootModule ();
-		PlayerInput.cur.OpenModuleMenu ();
+		if (!PlayerInput.cur.isPlacing) {
+			PlayerInput.cur.focusRoot = FindRootModule ();
+			PlayerInput.cur.OpenModuleMenu ();
+		}
 	}
 
 	void InitializeModule () {
@@ -51,7 +53,8 @@ public class Module : MonoBehaviour {
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
 	}
 
-	void SellModule () {
+	public void SellModule () {
+		Dijkstra.ChangeArea (GetModuleRect (), true);
 		Destroy (gameObject);
 	}
 

@@ -21,8 +21,7 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	public void SellModule () {
-		Destroy (module.gameObject);
-
+		module.SellModule ();
 	}
 
 	public void ExitMenu () {

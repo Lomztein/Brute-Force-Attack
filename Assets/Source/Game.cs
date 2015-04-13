@@ -52,6 +52,7 @@ public class Game : MonoBehaviour {
 	public void RestartMap () {
 		Application.LoadLevel (Application.loadedLevel);
 		Time.timeScale = 1f;
+		EnemySpawn.gameProgress = 1f;
 	}
 
 	public void QuitToDesktop () {
