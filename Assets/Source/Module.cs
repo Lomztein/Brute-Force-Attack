@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum Colour { Blue, Green, Yellow, Orange, Red, Purple };
+
 public class Module : MonoBehaviour {
 
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
+	public Colour colour;
 
 	public BaseModule parentBase;
 

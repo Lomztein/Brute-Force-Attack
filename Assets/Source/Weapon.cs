@@ -6,6 +6,7 @@ public class Weapon : MonoBehaviour {
 	public Transform[] muzzles;
 
 	public GameObject bullet;
+	private Projectile bulletData;
 	public float bulletSpeed = 80;
 	public float bulletSpread = 5;
 	public int bulletDamage = 10;
@@ -21,6 +22,10 @@ public class Weapon : MonoBehaviour {
 
 	// TODO Implement projectile pooling
 
+	void Start () {
+		bulletData = bullet.GetComponent<Projectile>();
+	}
+
 	IEnumerator DoFire () {
 
 		Invoke ("ChamberBullet", firerate);
@@ -34,8 +39,8 @@ public class Weapon : MonoBehaviour {
 
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = bulletDamage;
-				pro.range = maxRange;
+				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)bulletData.effectiveAgainst]);
+				pro.range = maxRange * ResearchMenu.rangeMul[(int)bulletData.effectiveAgainst];
 				pro.target = target;
 
 				Destroy (newBullet, maxRange / bulletSpeed * 1.5f);

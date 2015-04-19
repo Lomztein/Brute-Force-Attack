@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour {
 
-	public enum Type { Blue, Green, Yellow, Orange, Red, Purple };
-	public Type type;
+	public Colour type;
 
 	public float speed;
 	public int health;

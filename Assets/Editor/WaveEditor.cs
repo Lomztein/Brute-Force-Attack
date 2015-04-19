@@ -11,7 +11,7 @@ public class WaveEditor : EditorWindow {
 	public EnemySpawn spawner;
 	public Wave wave;
 
-	[MenuItem ("Wave/Wave Editor")]
+	[MenuItem ("Project Virus/Wave Editor")]
 	public static void ShowWindow () {
 		EditorWindow.GetWindow (typeof(WaveEditor));
 	}

@@ -12,6 +12,7 @@ public class Game : MonoBehaviour {
 	public EnemySpawn enemySpawn;
 	public PurchaseMenu purchaseMenu;
 	public Dijkstra pathfinding;
+	public ResearchMenu researchMenu;
 
 	public Text creditsText;
 	public Text powerText;
@@ -45,6 +46,7 @@ public class Game : MonoBehaviour {
 		InitializeBattlefield ();
 		purchaseMenu.InitializePurchaseMenu ();
 		pathfinding.InitializeDijkstraField (battlefieldWidth, battlefieldHeight);
+		researchMenu.Initialize ();
 		CalculatePowerLevel ();
 		Debug.Log ("Done initializing!");
 	}

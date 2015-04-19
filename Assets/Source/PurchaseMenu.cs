@@ -18,6 +18,7 @@ public class PurchaseMenu : MonoBehaviour {
 	public GameObject buttonPrefab;
 	public Transform buttonMask;
 
+	public RectTransform scrollThingie;
 	public PlayerInput playerInput;
 
 	// Use this for initialization
@@ -53,6 +54,11 @@ public class PurchaseMenu : MonoBehaviour {
 			AddPurchaseButtonListener (button, i);
 
 		}
+
+		int max = Mathf.Max (w,o);
+		int newX = max * 94 + 30;
+		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
+		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
 	
 	}
 

@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour {
 	public float range;
 	public Transform target;
 
-	public Enemy.Type effectiveAgainst;
+	public Colour effectiveAgainst;
 
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -37,9 +37,9 @@ public class Projectile : MonoBehaviour {
 
 	public class Damage {
 		public int damage;
-		public Enemy.Type effectiveAgainst;
+		public Colour effectiveAgainst;
 
-		public Damage (int damage, Enemy.Type effectiveAgainst) {
+		public Damage (int damage, Colour effectiveAgainst) {
 			this.damage = damage;
 			this.effectiveAgainst = effectiveAgainst;
 		}
