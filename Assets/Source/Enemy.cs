@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Enemy : MonoBehaviour {
 
+	[Header ("Stats")]
 	public Colour type;
 
 	public float speed;
@@ -11,9 +12,10 @@ public class Enemy : MonoBehaviour {
 	public int damage;
 	public int value;
 	public bool isFlying;
-
+	
 	public bool rotateSprite;
 
+	[Header ("Pathing")]
 	public Vector3[] path;
 	public int pathIndex;
 	private Vector3 offset;

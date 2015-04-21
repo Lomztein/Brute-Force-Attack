@@ -1,70 +1,137 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using System.Collections.Generic;
 
 public class ResearchEditor : EditorWindow {
 
 	private ResearchMenu research;
-
-	public float zoomLevel;
 	public Vector2 offset;
 
-	private enum Action { Default, ChoosingPrerequisite };
-	private enum WindowState { All, Upgrade };
+	private enum Action { Default, ChoosingPrerequisite, MovingResearch };
+	private enum WindowState { All, Research };
 
 	private Action action = Action.Default;
 	private WindowState state = WindowState.All;
 
-	private Upgrade focusUpgrade;
+	private Research focusResearch;
 
 	[MenuItem ("Project Virus/Research")]
 	public static void ShowWindow () {
 		EditorWindow.GetWindow (typeof (ResearchEditor));
 	}
 
+	void DrawResearchButton (Vector3 pos, Research u) {
+		Rect rect = new Rect (pos.x * 30 - offset.x + position.width/2, pos.y * 30 - offset.y + 10f, 20, 20);
+
+		if (u != null) {
+			if (u.sprite) {
+				if (GUI.Button (rect, u.sprite.texture)) {
+					SelectResearch (u);
+				}
+			}else{
+				if (GUI.Button (rect, "")) {
+					SelectResearch (u);
+				}
+			}
+
+			if (u.prerequisite != null) {
+				Vector2 o = new Vector2 (position.width/2 + 10 + (u.x - u.prerequisite.x) * 15, 20);
+				Drawing.DrawLine (
+					new Vector2 (u.x, u.y) * 30 - offset + o
+				  , new Vector2 (u.prerequisite.x, u.prerequisite.y) * 30 - offset + o
+				  , Color.black, 2, false);
+			}
+		}else{
+			if (GUI.Button (rect, "")) {
+				SelectEmptyButton (Mathf.RoundToInt (pos.x), Mathf.RoundToInt (pos.y));
+			}
+		}
+	}
+
+	void SelectEmptyButton (int x, int y) {
+		if (action == Action.MovingResearch) {
+			focusResearch.x = x;
+			focusResearch.y = y;
+
+			action = Action.Default;
+		}
+	}
+	
 	void OnGUI () {
 		if (!research)
 			research = GameObject.Find ("ResearchMenu").GetComponent<ResearchMenu>();
 
 		if (state == WindowState.All) {
-			offset.y = GUI.VerticalSlider (new Rect (position.width - 15, 5, 10, position.height - 10), offset.y, position.height, 0);
-			if (GUI.Button (new Rect (position.width / 3, position.height - 25, position.width / 3, 20), "Add upgrade"))
-				research.upgrades.Add (new Upgrade());
-			
-			for (int i = 0; i < research.upgrades.Count; i++) {
+			if (action != Action.MovingResearch) {
+
+				offset.y = GUI.VerticalSlider (new Rect (position.width - 15, 5, 10, position.height - 10), offset.y, position.height, 0);
+				if (GUI.Button (new Rect (position.width / 3, position.height - 25, position.width / 3, 20), "Add Research")) {
+					research.research.Add (Research.CreateInstance<Research>());
+					SelectResearch (research.research[research.research.Count-1]);
+					state = WindowState.All;
+					action = Action.MovingResearch;
+				}
 				
-				Upgrade u = research.upgrades[i];
-				Vector3 pos = research.GetPos (u);
+				for (int i = 0; i < research.research.Count; i++) {
+					
+					Research u = research.research[i];
+					Vector3 pos = research.GetPos (u);
 
-				Rect rect = new Rect (pos.x * 30 - offset.x + position.width/2, pos.y * 30 - offset.y + 10f, 20, 20);
+					DrawResearchButton (pos, u);
+				}
 
-				if (u.upgradeSprite) {
-					if (GUI.Button (rect, u.upgradeSprite.texture)) {
-						SelectUpgrade (u, i);
-					}
-				}else{
-					if (GUI.Button (rect, "")) {
-						SelectUpgrade (u, i);
-					}
+				for (int i = (int)(offset.y / 30); i < (int)(position.height / 30) + (int)(offset.y / 30); i++) {
+					GUI.Label (new Rect (10, i * 30 + 10 - offset.y, 20, 20), i.ToString ()); 
 				}
 			}
 
-			for (int i = (int)(offset.y / 30); i < (int)(position.height / 30) + (int)(offset.y / 30); i++) {
-				GUI.Label (new Rect (10, i * 30 + 10 - offset.y, 20, 20), i.ToString ()); 
-			}
+			if (action == Action.MovingResearch) {
 
-			research.ResetDictionary ();
+				// Dis part gunna be heavy and hacky.
+				// I'm truely sorry you have to see this.
+
+				// Create and populate unfound research.
+				List<Research> unfound = new List<Research>();
+				foreach (Research r in research.research) {
+					unfound.Add (r);
+				}
+
+				// Foreach loops are major simple to work with, yay! :D
+
+				for (int y = (int)(offset.y / 30); y < (int)(position.height / 30) + (int)(offset.y / 30); y++) {
+					for (int x = (int)((offset.x - position.width/2) / 30); x < (int)((position.width/2) / 30); x++) {
+
+						// Figure out if there is research at current position, search in unfound.
+						Research atPos = null;
+						foreach (Research r in unfound) {
+							if (r.x == x && r.y == y) {
+								atPos = r;
+							}
+						}
+
+						if (atPos != null) {
+							DrawResearchButton (new Vector3 (x,y), atPos);
+							unfound.Remove (atPos);
+						}else{
+							DrawResearchButton (new Vector3 (x,y), null);
+						}
+					}
+				}
+			}
+				
 		}
 
-		if (state == WindowState.Upgrade) {
-			focusUpgrade.upgradeName = EditorGUILayout.TextField ("Name: ",focusUpgrade.upgradeName);
-			focusUpgrade.upgradeFunction = EditorGUILayout.TextField ("Function: ",focusUpgrade.upgradeFunction);
-			focusUpgrade.upgradeCost = EditorGUILayout.IntField ("Cost: ",focusUpgrade.upgradeCost);
-			focusUpgrade.upgradeSprite = (Sprite)EditorGUILayout.ObjectField ("Sprite: ",focusUpgrade.upgradeSprite, typeof (Sprite), false);
-			if (focusUpgrade.prerequisiteID >= 0) {
-				if (GUILayout.Button ("Remove Prerequisite: " + research.upgrades[focusUpgrade.prerequisiteID].upgradeName)) {
-					Debug.Log ("Removing prerequisitite");
-					focusUpgrade.prerequisiteID = -1;
+		if (state == WindowState.Research) {
+			focusResearch.name = EditorGUILayout.TextField ("Name: ",focusResearch.name);
+			focusResearch.desc = EditorGUILayout.TextArea (focusResearch.desc);
+			focusResearch.func = EditorGUILayout.TextField ("Function: ",focusResearch.func);
+			focusResearch.cost = EditorGUILayout.IntField ("Cost: ",focusResearch.cost);
+			focusResearch.sprite = (Sprite)EditorGUILayout.ObjectField ("Sprite: ",focusResearch.sprite, typeof (Sprite), false);
+			if (focusResearch.prerequisite != null) {
+				if (GUILayout.Button ("Remove Prerequisite: " + focusResearch.prerequisite.name)) {
+					Debug.Log ("Removing Prerequisitite");
+					focusResearch.prerequisite = null;
 				}
 			}else{
 				if (GUILayout.Button ("Add Prerequisite")) {
@@ -73,28 +140,36 @@ public class ResearchEditor : EditorWindow {
 				}
 			}
 
-			if (GUILayout.Button ("Delete")) {
-				research.upgrades.Remove (focusUpgrade);
+			if (GUILayout.Button ("Move")) {
 				state = WindowState.All;
-				focusUpgrade = null;
+				action = Action.MovingResearch;
+			}
+
+			if (GUILayout.Button ("Delete")) {
+				research.research.Remove (focusResearch);
+				DestroyImmediate (focusResearch);
+				state = WindowState.All;
+				action = Action.Default;
+				focusResearch = null;
 			}
 
 			if (GUILayout.Button ("Return")) {
 				state = WindowState.All;
-				focusUpgrade = null;
+				action = Action.Default;
+				focusResearch = null;
 			}
 		}
 	}
 
-	void SelectUpgrade (Upgrade u, int index) {
+	void SelectResearch (Research u) {
 		if (action == Action.Default)
-			focusUpgrade = u;
+			focusResearch = u;
 
 		if (action == Action.ChoosingPrerequisite) {
-			focusUpgrade.prerequisiteID = index;
+			focusResearch.prerequisite = u;
 			action = Action.Default;
 		}
 
-		state = WindowState.Upgrade;
+		state = WindowState.Research;
 	}
 }

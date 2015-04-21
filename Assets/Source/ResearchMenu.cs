@@ -5,12 +5,11 @@ using UnityEngine.UI;
 
 public class ResearchMenu : MonoBehaviour {
 
-	public List<Upgrade> upgrades;
+	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
 	public RectTransform startRect;
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
-	private Dictionary<int, int> levels = new Dictionary<int, int>();
 
 	public static float[] damageMul;
 	public static float[] rangeMul;
@@ -42,58 +41,62 @@ public class ResearchMenu : MonoBehaviour {
 		}
 	}
 
-	public Vector3 GetPos (Upgrade u) {
-		int y = u.upgradeCost;
-		int x = 0;
-		
-		if (levels.ContainsKey (y)) {
-			levels[y]++;
-			if (levels[y] % 2 == 0) {
-				x = -levels[y]/2;
-			}else{
-				x = levels[y]/2;
-				if (x >= 0)
-					x++;
-			}
-		}else{
-			levels.Add (y, 0);
+	public Vector3 GetPos (Research u) {
+		return new Vector3 (u.x,u.y);
+	}
+
+	Rect GetScrollRect () {
+		Rect ans = new Rect ();
+		Vector2 avg = new Vector2 ();
+		for (int i = 0; i < research.Count; i++) {
+
+			if (research[i].x > ans.width)
+				ans.width = research[i].x;
+
+			if (research[i].y > ans.height)
+				ans.height = research[i].y;
+
+			avg += new Vector2 (research[i].x, research[i].y);
+
 		}
 
-		return new Vector3 (x,y);
+		avg /= research.Count;
+		ans.x = avg.x;
+		ans.y = avg.y;
+
+		return ans;
 	}
 
-	public void ResetDictionary () {
-		levels = new Dictionary<int, int>();
-	}
-	
 	public void InitializeResearchMenu () {
 
-		for (int i = 0; i < upgrades.Count; i++) {
+		Rect newRect = GetScrollRect ();
+		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height) * 100;
+		startRect.position = transform.position - new Vector3 (newRect.x, newRect.y, 0) * 100 + Vector3.down * 150f;
 
-			Upgrade u = upgrades[i];
+		for (int i = 0; i < research.Count; i++) {
+
+			Research u = research[i];
 
 			Vector3 pos = GetPos (u) * 100f;
 			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
-			newU.GetComponent<HoverContextElement>().text = u.upgradeName;
+			newU.GetComponent<HoverContextElement>().text = u.name;
 			newU.transform.SetParent (startRect.parent, true);
-			newU.transform.GetChild (0).GetComponent<Image>().sprite = u.upgradeSprite;
+			newU.transform.GetChild (0).GetComponent<Image>().sprite = u.sprite;
 			u.button = newU;
 			buttons.Add (newU);
 
 		}
 
-		ResetDictionary ();
-
-		for (int i = 0; i < buttons.Count; i++) {
-			Upgrade u = upgrades[i];
+		/*for (int i = 0; i < buttons.Count; i++) {
+			Research u = research[i];
 			if (u.prerequisiteID >= 0) {
 				GameObject line = (GameObject)Instantiate (prerequisiteLine, buttons[i].transform.position, Quaternion.identity);
 				LineRenderer l = line.GetComponent<LineRenderer>();
 
 				l.SetPosition (0, Camera.main.ScreenToWorldPoint (buttons[i].transform.position) + Vector3.forward);
-				l.SetPosition (1, Camera.main.ScreenToWorldPoint (upgrades[u.prerequisiteID].button.transform.position) + Vector3.forward);
+				l.SetPosition (1, Camera.main.ScreenToWorldPoint (research[u.prerequisiteID].button.transform.position) + Vector3.forward);
 				line.transform.parent = Camera.main.transform;
 			}
-		}
+		}*/
 	}
 }
