@@ -40,7 +40,7 @@ public class Weapon : MonoBehaviour {
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
 				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)bulletData.effectiveAgainst]);
-				pro.range = maxRange * ResearchMenu.rangeMul[(int)bulletData.effectiveAgainst];
+				pro.range = maxRange * ResearchMenu.rangeMul;
 				pro.target = target;
 
 				Destroy (newBullet, maxRange / bulletSpeed * 1.5f);

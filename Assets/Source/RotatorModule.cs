@@ -35,12 +35,12 @@ public class RotatorModule : Module {
 				RotateToAngle ();
 			}
 		}else if (type == RotatorType.Spinner && EnemySpawn.waveStarted) {
-			transform.Rotate (0,0,turnSpeed * Time.deltaTime);
+			transform.Rotate (0,0,turnSpeed * ResearchMenu.turnrateMul * Time.deltaTime);
 		}
 	}
 
 	void RotateToAngle () {
-		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime);
+		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime * ResearchMenu.turnrateMul);
 	}
 
 	// Upgrades from here on out

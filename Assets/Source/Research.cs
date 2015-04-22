@@ -6,12 +6,13 @@ public class Research : ScriptableObject {
 	public string desc;
 	public string func;
 	public Sprite sprite;
-	public int cost;
+	public int value;
+
+	public Colour colour;
 	
 	public int x;
 	public int y;
 
-	public GameObject button;
 	public Research prerequisite;
 
 }

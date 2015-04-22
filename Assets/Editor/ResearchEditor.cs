@@ -125,11 +125,16 @@ public class ResearchEditor : EditorWindow {
 			}
 
 			if (state == WindowState.Research) {
+				if (!focusResearch) {
+					state = WindowState.All;
+					action = Action.Default;
+				}
 				focusResearch.name = EditorGUILayout.TextField ("Name: ",focusResearch.name);
 				focusResearch.desc = EditorGUILayout.TextArea (focusResearch.desc);
 				focusResearch.func = EditorGUILayout.TextField ("Function: ",focusResearch.func);
-				focusResearch.cost = EditorGUILayout.IntField ("Cost: ",focusResearch.cost);
+				focusResearch.value = EditorGUILayout.IntField ("Value: ",focusResearch.value);
 				focusResearch.sprite = (Sprite)EditorGUILayout.ObjectField ("Sprite: ",focusResearch.sprite, typeof (Sprite), false);
+				focusResearch.colour = (Colour)EditorGUILayout.EnumPopup ("Colour: ", focusResearch.colour);
 				if (focusResearch.prerequisite != null) {
 					if (GUILayout.Button ("Remove Prerequisite: " + focusResearch.prerequisite.name)) {
 						Debug.Log ("Removing Prerequisitite");

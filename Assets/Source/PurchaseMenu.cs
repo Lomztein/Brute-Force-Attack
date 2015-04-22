@@ -11,7 +11,8 @@ public class PurchaseMenu : MonoBehaviour {
 	public bool isOpen;
 	public RectTransform rect;
 
-	public GameObject[] purchaseables;
+	public List<GameObject> purchaseables;
+	public List<GameObject> buttons = new List<GameObject>();
 	public RectTransform firstTopButton;
 	public RectTransform firstButtomButton;
 
@@ -27,12 +28,18 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public void InitializePurchaseMenu () {
 
+		// Remove previous buttons;
+		foreach (GameObject b in buttons) {
+			Destroy (b);
+		}
+		buttons = new List<GameObject>();
+
 		// Count weapons and other types
 		int w = 0;
 		int o = 0;
 
 		// Itereate through each purchaseable, and instantiate a button for it.
-		for (int i = 0; i < purchaseables.Length; i++ ) {
+		for (int i = 0; i < purchaseables.Count; i++ ) {
 
 			Module m = purchaseables[i].GetComponent<Module>();
 
@@ -47,6 +54,8 @@ public class PurchaseMenu : MonoBehaviour {
 				newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.right * 94 * o, Quaternion.identity);
 				o++;
 			}
+
+			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();
 			newButton.transform.GetChild (0).GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			newButton.transform.SetParent (buttonMask, true);

@@ -12,9 +12,12 @@ public class ResearchMenu : MonoBehaviour {
 	public GameObject prerequisiteLine;
 
 	public static float[] damageMul;
-	public static float[] rangeMul;
+	public static float   rangeMul;
 	public static float[] costMul;
 	public static float[] firerateMul;
+	public static float   turnrateMul;
+
+	public GameObject[] unlockableModules;
 
 	private List<GameObject> buttons = new List<GameObject>();
 	public static ResearchMenu cur;
@@ -26,16 +29,14 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	void InitializeMultipliers () {
-		int types = 6;
+		int types = 7;
 
 		damageMul   = new float[types];
-		rangeMul    = new float[types];
-		costMul     = new float[types];
 		firerateMul = new float[types];
+		costMul     = new float[types];
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < types; i++) {
 			damageMul[i]   = 1f;
-			rangeMul[i]    = 1f;
 			costMul[i]     = 1f;
 			firerateMul[i] = 1f;
 		}
@@ -81,22 +82,58 @@ public class ResearchMenu : MonoBehaviour {
 			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
 			newU.GetComponent<HoverContextElement>().text = u.name;
 			newU.transform.SetParent (startRect.parent, true);
-			newU.transform.GetChild (0).GetComponent<Image>().sprite = u.sprite;
-			u.button = newU;
+			Image image = newU.transform.GetChild (0).GetComponent<Image>();
+			image.sprite = u.sprite;
 			buttons.Add (newU);
 
-		}
+			// Add color to colored research
 
-		/*for (int i = 0; i < buttons.Count; i++) {
-			Research u = research[i];
-			if (u.prerequisiteID >= 0) {
-				GameObject line = (GameObject)Instantiate (prerequisiteLine, buttons[i].transform.position, Quaternion.identity);
-				LineRenderer l = line.GetComponent<LineRenderer>();
+			switch (u.colour) {
 
-				l.SetPosition (0, Camera.main.ScreenToWorldPoint (buttons[i].transform.position) + Vector3.forward);
-				l.SetPosition (1, Camera.main.ScreenToWorldPoint (research[u.prerequisiteID].button.transform.position) + Vector3.forward);
-				line.transform.parent = Camera.main.transform;
+			case Colour.None:
+				break;
+
+			case Colour.Blue:
+				image.color = Color.blue;
+				break;
+
+			case Colour.Green:
+				image.color = Color.green;
+				break;
+			
+			case Colour.Orange:
+				image.color = (Color.red + Color.yellow) / 2;
+				break;
+
+			case Colour.Purple:
+				image.color = new Color (0.5f, 0, 0.5f);
+				break;
+
+			case Colour.Red:
+				image.color = Color.red;
+				break;
+
+			case Colour.Yellow:
+				image.color = Color.yellow;
+				break;
+
+			default:
+				Debug.LogWarning ("Colour not found, for whatever reason");
+				break;
 			}
-		}*/
+		}
+	}
+
+	public void UnlockModule (int index) {
+		Game.game.purchaseMenu.purchaseables.Add (unlockableModules[index]);
+		Game.game.purchaseMenu.InitializePurchaseMenu ();
+	}
+
+	public void IncreaseFirerate (int amount, Colour colour) {
+		firerateMul[(int)colour] *= (float)amount/100 + 1f;
+	}
+
+	public void IncreaseDamage (int amount, Colour colour) {
+		damageMul[(int)colour] *= (float)amount/100 + 1f;
 	}
 }
