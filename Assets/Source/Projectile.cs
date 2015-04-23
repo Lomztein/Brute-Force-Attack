@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour {
 	public GameObject parent;
 	public float range;
 	public Transform target;
+	public bool destroyOnTime = false;
 
 	public Colour effectiveAgainst;
 

@@ -41,9 +41,11 @@ public class Weapon : MonoBehaviour {
 				pro.parent = gameObject;
 				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)bulletData.effectiveAgainst]);
 				pro.range = maxRange * ResearchMenu.rangeMul;
+				Debug.Log (ResearchMenu.rangeMul);
 				pro.target = target;
 
-				Destroy (newBullet, maxRange / bulletSpeed * 1.5f);
+				if (pro.destroyOnTime)
+					Destroy (newBullet, maxRange / bulletSpeed * 1.5f);
 			
 			}
 

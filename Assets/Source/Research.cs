@@ -15,6 +15,7 @@ public class Research : ScriptableObject {
 
 	public Research prerequisite;
 
+	public int index;
 	public bool isBought;
 	public GameObject button;
 
@@ -31,9 +32,10 @@ public class Research : ScriptableObject {
 	}
 
 	void DoPurchase () {
+		Debug.Log ("Purchased " + name + " at index " + index);
 		isBought = true;
-		ResearchMenu.cur.InvalidateButton (button);
 		ResearchMenu.cur.SendMessage (func, this, SendMessageOptions.RequireReceiver);
 		Game.research -= y;
+		ResearchMenu.cur.InvalidateButton (button, index);
 	}
 }

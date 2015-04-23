@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour {
 	public int damage;
 	public int value;
 	public bool isFlying;
+	private int researchDropChance = 100;
 	
 	public bool rotateSprite;
 
@@ -19,6 +20,9 @@ public class Enemy : MonoBehaviour {
 	public Vector3[] path;
 	public int pathIndex;
 	private Vector3 offset;
+
+	[Header ("Other")]
+	public GameObject researchPoint;
 
 	// TODO Add pathfinding and, well, just improve overall
 
@@ -66,6 +70,10 @@ public class Enemy : MonoBehaviour {
 			Game.credits += Mathf.RoundToInt ((float)value * (int)EnemySpawn.gameProgress * 0.2f);
 			SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 			Destroy (gameObject);
+
+			if (Random.Range (0, researchDropChance) == 0)
+				Instantiate (researchPoint, transform.position, Quaternion.identity);
+
 		}
 	}
 
@@ -73,6 +81,9 @@ public class Enemy : MonoBehaviour {
 		
 		Datastream stream = col.gameObject.GetComponent<Datastream>();
 		List<Transform> nearest = new List<Transform>();
+
+		if (Datastream.enableFirewall)
+			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
 		for (int j = 0; j < damage; j++) {
 
@@ -90,6 +101,7 @@ public class Enemy : MonoBehaviour {
 
 			if (near) {
 				stream.pooledNumbers.Remove(near.gameObject);
+				stream.curruptNumbers.Add  (near.gameObject);
 				nearest.Add (near);
 			}
 

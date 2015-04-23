@@ -11,6 +11,7 @@ public class ResearchMenu : MonoBehaviour {
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
 
+	// Unlock research stuff
 	public static float[] damageMul;
 	public static float   rangeMul;
 	public static float[] costMul;
@@ -26,6 +27,15 @@ public class ResearchMenu : MonoBehaviour {
 		cur = this;
 		InitializeResearchMenu ();
 		InitializeMultipliers ();
+		ToggleResearchMenu ();
+	}
+
+	void FixedUpdate () {
+		UpdateButtons ();
+	}
+
+	public void ToggleResearchMenu () {
+		gameObject.SetActive (!cur.gameObject.activeInHierarchy);
 	}
 
 	void InitializeMultipliers () {
@@ -34,6 +44,9 @@ public class ResearchMenu : MonoBehaviour {
 		damageMul   = new float[types];
 		firerateMul = new float[types];
 		costMul     = new float[types];
+
+		rangeMul = 1f;
+		turnrateMul = 1f;
 
 		for (int i = 0; i < types; i++) {
 			damageMul[i]   = 1f;
@@ -68,11 +81,12 @@ public class ResearchMenu : MonoBehaviour {
 		return ans;
 	}
 
-	public void InvalidateButton (GameObject b) {
+	public void InvalidateButton (GameObject b, int index) {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
 		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
 
+		Destroy (research[index]);
 	}
 
 	public void UpdateImageColor (Research research, Image image) {
@@ -115,7 +129,13 @@ public class ResearchMenu : MonoBehaviour {
 
 	public void UpdateButtons () {
 		for (int i = 0; i < buttons.Count; i++) {
-
+			if (research[i] != null) {
+				if (research[i].y > Game.research) {
+					buttons[i].transform.GetChild (0).GetComponent<Image>().color = Color.black;
+				}else{
+					UpdateImageColor (research[i], buttons[i].transform.GetChild (0).GetComponent<Image>());
+				}
+			}
 		}
 	}
 
@@ -137,8 +157,8 @@ public class ResearchMenu : MonoBehaviour {
 			u.button = newU;
 			image.sprite = u.sprite;
 			buttons.Add (newU);
+			u.index = i;
 
-			UpdateImageColor (u, image);
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 		}
 	}
@@ -174,4 +194,26 @@ public class ResearchMenu : MonoBehaviour {
 	public void IncreaseRange (Research research) {
 		rangeMul *= (float)research.value/100 + 1f;
 	}
+
+	public void UnlockAutoBaseHeal (Research research) {
+		Datastream.healSpeed = 0.1f;
+	}
+
+	public void EnableBroadbandConnection (Research research) {
+		Datastream.healthAmount = 200;
+		Game.game.datastream.StartCoroutine ("InitializeNumbers");
+	}
+
+	public void EnableRepurposing (Research research) {
+		Datastream.repurposeEnemies = true;
+	}
+
+	public void EnableFirewall (Research research) {
+		Datastream.enableFirewall = true;
+	}
+
+	public void IncreasePixelThrowerFireSize (Research research) {
+		FireProjectile.fireWidth = 0.5f;
+	}
+	                                              
 }

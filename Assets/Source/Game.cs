@@ -178,7 +178,7 @@ public class Game : MonoBehaviour {
 
 		// Initialize resources
 		credits = startingCredits;
-		research = 500;
+		research = 0;
 
 		// Initialize background graphic
 		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);

@@ -10,9 +10,15 @@ public class Datastream : MonoBehaviour {
 
 	public GameObject[] numbers;
 
-	public static int corruptionLevel; // From 0 to 100.
-
 	public List<GameObject> pooledNumbers;
+	public List<GameObject> curruptNumbers;
+
+	public static bool repurposeEnemies;
+	public static bool enableFirewall;
+
+	public static int healthAmount = 100;
+	private float healProgress;
+	public static float healSpeed;
 
 	// TODO Implement pooling of ones and zeros.
 
@@ -20,11 +26,21 @@ public class Datastream : MonoBehaviour {
 		StartCoroutine ("InitializeNumbers");
 	}
 
+	void FixedUpdate () {
+		healProgress *= healSpeed * Time.fixedDeltaTime;
+		if (healProgress > 1f) {
+			GameObject n = curruptNumbers[Random.Range (0, curruptNumbers.Count)];
+			n.GetComponent<Renderer>().material.color = Color.green;
+			pooledNumbers.Add (n);
+		}
+	}
+
 	IEnumerator InitializeNumbers () {
 
-		pooledNumbers = new List<GameObject>();
+		if (pooledNumbers == null)
+			pooledNumbers = new List<GameObject>();
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = pooledNumbers.Count; i < healthAmount; i++) {
 			pooledNumbers.Add ((GameObject)Instantiate (numbers[Random.Range (0,numbers.Length)]));
 			DatastreamNumber num = pooledNumbers[pooledNumbers.Count-1].GetComponent<DatastreamNumber>();
 			num.transform.parent = transform;
