@@ -15,4 +15,25 @@ public class Research : ScriptableObject {
 
 	public Research prerequisite;
 
+	public bool isBought;
+	public GameObject button;
+
+	public void Purchase () {
+		if (Game.research >= y) {
+			if (prerequisite) {
+				if (prerequisite.isBought) {
+					DoPurchase ();
+				}
+			}else{
+				DoPurchase ();
+			}
+		}
+	}
+
+	void DoPurchase () {
+		isBought = true;
+		ResearchMenu.cur.InvalidateButton (button);
+		ResearchMenu.cur.SendMessage (func, this, SendMessageOptions.RequireReceiver);
+		Game.research -= y;
+	}
 }

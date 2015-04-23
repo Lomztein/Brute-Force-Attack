@@ -4,7 +4,7 @@ using System.Collections;
 public class HoverContextElement : MonoBehaviour {
 
 	public string text;
-	private Collider collider;
+	new private Collider collider;
 	private bool prevHit;
 
 	void Start () {

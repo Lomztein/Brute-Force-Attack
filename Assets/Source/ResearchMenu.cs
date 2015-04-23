@@ -68,6 +68,57 @@ public class ResearchMenu : MonoBehaviour {
 		return ans;
 	}
 
+	public void InvalidateButton (GameObject b) {
+		Button button = b.GetComponent<Button>();
+		button.interactable = false;
+		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
+
+	}
+
+	public void UpdateImageColor (Research research, Image image) {
+
+		switch (research.colour) {
+			
+		case Colour.None:
+			break;
+			
+		case Colour.Blue:
+			image.color = Color.blue;
+			break;
+			
+		case Colour.Green:
+			image.color = Color.green;
+			break;
+			
+		case Colour.Orange:
+			image.color = (Color.red + Color.yellow) / 2;
+			break;
+			
+		case Colour.Purple:
+			image.color = new Color (0.5f, 0, 0.5f);
+			break;
+			
+		case Colour.Red:
+			image.color = Color.red;
+			break;
+			
+		case Colour.Yellow:
+			image.color = Color.yellow;
+			break;
+			
+		default:
+			Debug.LogWarning ("Colour not found, for whatever reason");
+			break;
+		}
+
+	}
+
+	public void UpdateButtons () {
+		for (int i = 0; i < buttons.Count; i++) {
+
+		}
+	}
+
 	public void InitializeResearchMenu () {
 
 		Rect newRect = GetScrollRect ();
@@ -83,57 +134,44 @@ public class ResearchMenu : MonoBehaviour {
 			newU.GetComponent<HoverContextElement>().text = u.name;
 			newU.transform.SetParent (startRect.parent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
+			u.button = newU;
 			image.sprite = u.sprite;
 			buttons.Add (newU);
 
-			// Add color to colored research
-
-			switch (u.colour) {
-
-			case Colour.None:
-				break;
-
-			case Colour.Blue:
-				image.color = Color.blue;
-				break;
-
-			case Colour.Green:
-				image.color = Color.green;
-				break;
-			
-			case Colour.Orange:
-				image.color = (Color.red + Color.yellow) / 2;
-				break;
-
-			case Colour.Purple:
-				image.color = new Color (0.5f, 0, 0.5f);
-				break;
-
-			case Colour.Red:
-				image.color = Color.red;
-				break;
-
-			case Colour.Yellow:
-				image.color = Color.yellow;
-				break;
-
-			default:
-				Debug.LogWarning ("Colour not found, for whatever reason");
-				break;
-			}
+			UpdateImageColor (u, image);
+			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 		}
 	}
 
-	public void UnlockModule (int index) {
-		Game.game.purchaseMenu.purchaseables.Add (unlockableModules[index]);
+	void AddPurchaseButtonListener (Button button, int index) {
+		button.onClick.AddListener (() => {
+			research[index].Purchase ();
+		});
+	}
+
+	// Put research code here
+	public void UnlockModule (Research research) {
+		Game.game.purchaseMenu.purchaseables.Add (unlockableModules[research.value]);
 		Game.game.purchaseMenu.InitializePurchaseMenu ();
 	}
 
-	public void IncreaseFirerate (int amount, Colour colour) {
-		firerateMul[(int)colour] *= (float)amount/100 + 1f;
+	public void IncreaseFirerate (Research research) {
+		firerateMul[(int)research.colour] *= (float)research.value/100 + 1f;
 	}
 
-	public void IncreaseDamage (int amount, Colour colour) {
-		damageMul[(int)colour] *= (float)amount/100 + 1f;
+	public void IncreaseDamage (Research research) {
+		damageMul[(int)research.colour] *= (float)research.value/100 + 1f;
+	}
+
+	public void DecreaseCost (Research research) {
+		damageMul[(int)research.colour] *= 1f - (float)research.value/100;
+	}
+
+	public void IncreaseTurnrate (Research research) {
+		turnrateMul *= (float)research.value/100 + 1f;
+	}
+
+	public void IncreaseRange (Research research) {
+		rangeMul *= (float)research.value/100 + 1f;
 	}
 }
