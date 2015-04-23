@@ -54,6 +54,7 @@ public class Module : MonoBehaviour {
 		Game.CalculatePowerLevel ();
 		if (FindRootModule () == this) isRoot = true;
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
+		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
 	public void SellModule () {

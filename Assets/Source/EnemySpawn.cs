@@ -70,6 +70,7 @@ public class EnemySpawn : MonoBehaviour {
 		currentSubwave = null;
 		subwaveNumber = 0;
 		waveStartedIndicator.color = Color.green;
+		Game.credits += 25 * waveNumber;
 	}
 
 	Vector3 GetSpawnPosition () {

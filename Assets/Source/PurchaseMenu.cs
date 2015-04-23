@@ -8,14 +8,20 @@ public class PurchaseMenu : MonoBehaviour {
 
 	private float targetHeight = -Screen.height / 2 - 120;
 
+	[Header ("Menu Stuff")]
 	public bool isOpen;
 	public RectTransform rect;
 
-	public List<GameObject> purchaseables;
+	[Header ("Purchaseables")]
+	public List<GameObject> standard;
+	public List<GameObject> special;
+
 	public List<GameObject> buttons = new List<GameObject>();
 	public RectTransform firstTopButton;
 	public RectTransform firstButtomButton;
+	private GameObject[] currentMenu;
 
+	[Header ("References")]
 	public GameObject buttonPrefab;
 	public Transform buttonMask;
 
@@ -24,22 +30,30 @@ public class PurchaseMenu : MonoBehaviour {
 
 	// Use this for initialization
 	// TODO Implement multiple raycasts before placing objects.
-	// TODO Implement "collision check points" on structural modules.
 
-	public void InitializePurchaseMenu () {
+	public void LoadStandardButtons () {
+		InitializePurchaseMenu (standard.ToArray ());
+	}
 
+	public void LoadSpecialButtons () {
+		InitializePurchaseMenu (special.ToArray ());
+	}
+
+	public void InitializePurchaseMenu (GameObject[] purchaseables) {
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
 			Destroy (b);
 		}
+
 		buttons = new List<GameObject>();
+		currentMenu = purchaseables;
 
 		// Count weapons and other types
 		int w = 0;
 		int o = 0;
 
 		// Itereate through each purchaseable, and instantiate a button for it.
-		for (int i = 0; i < purchaseables.Count; i++ ) {
+		for (int i = 0; i < purchaseables.Length; i++ ) {
 
 			Module m = purchaseables[i].GetComponent<Module>();
 
@@ -76,12 +90,12 @@ public class PurchaseMenu : MonoBehaviour {
 			SelectPurchaseable (index);
 		});
 
-		Module m = purchaseables[index].GetComponent<Module>();
+		Module m = currentMenu[index].GetComponent<Module>();
 		button.GetComponent<HoverContextElement>().text = m.moduleName + ", " + m.moduleCost.ToString () + " LoC";
 	}
 
 	public void SelectPurchaseable (int index) {
-		playerInput.SelectPurchaseable (purchaseables[index]);
+		playerInput.SelectPurchaseable (currentMenu[index]);
 	}
 
 	// Update is called once per frame

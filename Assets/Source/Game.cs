@@ -44,7 +44,7 @@ public class Game : MonoBehaviour {
 		Debug.Log ("Initializing!");
 		game = this;
 		InitializeBattlefield ();
-		purchaseMenu.InitializePurchaseMenu ();
+		purchaseMenu.InitializePurchaseMenu (purchaseMenu.standard.ToArray ());
 		pathfinding.InitializeDijkstraField (battlefieldWidth, battlefieldHeight);
 		researchMenu.Initialize ();
 		CalculatePowerLevel ();

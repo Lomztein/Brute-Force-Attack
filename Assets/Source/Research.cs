@@ -32,7 +32,6 @@ public class Research : ScriptableObject {
 	}
 
 	void DoPurchase () {
-		Debug.Log ("Purchased " + name + " at index " + index);
 		isBought = true;
 		ResearchMenu.cur.SendMessage (func, this, SendMessageOptions.RequireReceiver);
 		Game.research -= y;

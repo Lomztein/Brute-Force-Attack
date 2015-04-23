@@ -85,8 +85,19 @@ public class ResearchMenu : MonoBehaviour {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
 		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
+		IncreaseAllCost ();
+		b.GetComponent<HoverContextElement>().text = research[index].name + ", Researched";
 
 		Destroy (research[index]);
+	}
+
+	void IncreaseAllCost () {
+		for (int i = 0; i < research.Count; i++) {
+			if (research[i] != null) {
+				research[i].y++;
+				research[i].button.GetComponent<HoverContextElement>().text = research[i].name + ", " + research[i].y + " Research";
+			}
+		}
 	}
 
 	public void UpdateImageColor (Research research, Image image) {
@@ -130,13 +141,20 @@ public class ResearchMenu : MonoBehaviour {
 	public void UpdateButtons () {
 		for (int i = 0; i < buttons.Count; i++) {
 			if (research[i] != null) {
+
 				if (research[i].y > Game.research) {
 					buttons[i].transform.GetChild (0).GetComponent<Image>().color = Color.black;
-				}else{
-					UpdateImageColor (research[i], buttons[i].transform.GetChild (0).GetComponent<Image>());
+				}else if (research[i].prerequisite != null) {
+						if (!research[i].prerequisite.isBought) {
+							buttons[i].transform.GetChild (0).GetComponent<Image>().color = Color.black;
+						}
+					}else if (research[i].y <= Game.research) {
+						UpdateImageColor (research[i], buttons[i].transform.GetChild (0).GetComponent<Image>());
 				}
 			}
 		}
+
+		Game.research++;
 	}
 
 	public void InitializeResearchMenu () {
@@ -151,7 +169,7 @@ public class ResearchMenu : MonoBehaviour {
 
 			Vector3 pos = GetPos (u) * 100f;
 			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
-			newU.GetComponent<HoverContextElement>().text = u.name;
+			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
 			newU.transform.SetParent (startRect.parent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
 			u.button = newU;
@@ -160,6 +178,8 @@ public class ResearchMenu : MonoBehaviour {
 			u.index = i;
 
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
+			if (u.name == "")
+				newU.SetActive (false);
 		}
 	}
 
@@ -171,8 +191,13 @@ public class ResearchMenu : MonoBehaviour {
 
 	// Put research code here
 	public void UnlockModule (Research research) {
-		Game.game.purchaseMenu.purchaseables.Add (unlockableModules[research.value]);
-		Game.game.purchaseMenu.InitializePurchaseMenu ();
+		Game.game.purchaseMenu.standard.Add (unlockableModules[research.value]);
+		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.standard.ToArray ());
+	}
+
+	public void UnlockSpecialModule (Research research) {
+		Game.game.purchaseMenu.special.Add (unlockableModules[research.value]);
+		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.special.ToArray ());
 	}
 
 	public void IncreaseFirerate (Research research) {
@@ -215,5 +240,8 @@ public class ResearchMenu : MonoBehaviour {
 	public void IncreasePixelThrowerFireSize (Research research) {
 		FireProjectile.fireWidth = 0.5f;
 	}
-	                                              
+
+	public void EnableAdvancedTracking (Research research) {
+		BaseModule.enableAdvancedTracking = true;
+	}
 }

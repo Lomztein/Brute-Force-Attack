@@ -28,7 +28,7 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate);
+		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)bulletData.effectiveAgainst]);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -41,7 +41,6 @@ public class Weapon : MonoBehaviour {
 				pro.parent = gameObject;
 				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)bulletData.effectiveAgainst]);
 				pro.range = maxRange * ResearchMenu.rangeMul;
-				Debug.Log (ResearchMenu.rangeMul);
 				pro.target = target;
 
 				if (pro.destroyOnTime)

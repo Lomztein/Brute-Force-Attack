@@ -8,7 +8,7 @@ public class ResearchEditor : EditorWindow {
 	private ResearchMenu research;
 	public Vector2 offset;
 
-	private enum Action { Default, ChoosingPrerequisite, MovingResearch };
+	private enum Action { Default, ChoosingPrerequisite, MovingResearch, CloningResearch };
 	private enum WindowState { All, Research };
 
 	private Action action = Action.Default;
@@ -53,9 +53,22 @@ public class ResearchEditor : EditorWindow {
 		if (action == Action.MovingResearch) {
 			focusResearch.x = x;
 			focusResearch.y = y;
-
-			action = Action.Default;
 		}
+
+		if (action == Action.CloningResearch) {
+			Research r = Research.CreateInstance <Research>();
+			r.x = x;
+			r.y = y;
+			r.colour = focusResearch.colour;
+			r.desc = focusResearch.desc;
+			r.name = focusResearch.name;
+			r.func = focusResearch.func;
+			r.value = focusResearch.value;
+			r.sprite = focusResearch.sprite;
+			research.research.Add (r);
+		}
+
+		action = Action.Default;
 	}
 	
 	void OnGUI () {
@@ -88,7 +101,7 @@ public class ResearchEditor : EditorWindow {
 					}
 				}
 
-				if (action == Action.MovingResearch) {
+				if (action == Action.MovingResearch || action == Action.CloningResearch) {
 
 					// Dis part gunna be heavy and hacky.
 					// I'm truely sorry you have to see this.
@@ -150,6 +163,11 @@ public class ResearchEditor : EditorWindow {
 				if (GUILayout.Button ("Move")) {
 					state = WindowState.All;
 					action = Action.MovingResearch;
+				}
+
+				if (GUILayout.Button ("Clone")) {
+					state = WindowState.All;
+					action = Action.CloningResearch;
 				}
 
 				if (GUILayout.Button ("Delete")) {

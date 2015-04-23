@@ -69,10 +69,9 @@ public class Dijkstra : MonoBehaviour {
 
 	public IEnumerator UpdatePathsToDatastream () {
 
-		Debug.Log ("Generating paths!");
 		paths = new DPath[width];
 		for (int x = 1; x < width; x++) {
-			enemySpawn.waveCounterIndicator.text = "Init. " + ((int)((float)x/(float)width*100f)).ToString ();
+			enemySpawn.waveCounterIndicator.text = "Initializing: " + ((int)((float)x/(float)width*100f)).ToString () + "%";
 			curPath = null;
 
 			Dictionary<Node, float> dist = new Dictionary<Node, float>();
