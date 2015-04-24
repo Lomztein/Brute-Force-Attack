@@ -13,7 +13,7 @@ public class ResearchMenu : MonoBehaviour {
 	public RectTransform startRect;
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
-	private bool isOpen = true;
+	public static bool isOpen = true;
 	private Vector3 startPos;
 
 	// Unlock research stuff
@@ -36,6 +36,7 @@ public class ResearchMenu : MonoBehaviour {
 		startPos = transform.position;
 		ToggleResearchMenu ();
 		UpdateButtons ();
+		Game.research = 1000;
 	}
 
 	public void ToggleResearchMenu () {
@@ -166,7 +167,6 @@ public class ResearchMenu : MonoBehaviour {
 		}else{
 			researchIndicator.color = Color.red;
 		}
-
 	}
 
 	bool CheckButtonAvailable (Research research) {
@@ -219,7 +219,7 @@ public class ResearchMenu : MonoBehaviour {
 
 		for (int i = 0; i < research.Count; i++) {
 			Research r = research[i];
-			if (r.prerequisite) {
+			if (r.prerequisite && r.name != "") {
 
 				Vector3 pPos = r.button.transform.position + (r.prerequisite.button.transform.position - r.button.transform.position) / 2;
 				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform, r.prerequisite.button.transform));
@@ -227,7 +227,6 @@ public class ResearchMenu : MonoBehaviour {
 				RectTransform lr = line.GetComponent<RectTransform>();
 				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.position, r.prerequisite.button.transform.position), 10);
 				line.transform.SetParent (lineParent, true);
-
 			}
 		}
 	}
@@ -292,5 +291,9 @@ public class ResearchMenu : MonoBehaviour {
 
 	public void EnableAdvancedTracking (Research research) {
 		BaseModule.enableAdvancedTracking = true;
+	}
+
+	public void DoubleRocketLauncherRockets (Research research) {
+		RocketLauncherWeapon.doubleRocketsEnabled[(int)research.colour] = true;
 	}
 }

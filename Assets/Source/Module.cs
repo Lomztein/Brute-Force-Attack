@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
@@ -21,6 +22,7 @@ public class Module : MonoBehaviour {
 
 	public Upgrade[] upgrades;
 	public bool isRoot;
+	private List<Module> requestedModules;
 
 	void Start () {
 		InitializeModule ();
@@ -41,8 +43,8 @@ public class Module : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		if (!PlayerInput.cur.isPlacing) {
-			PlayerInput.cur.focusRoot = FindRootModule ();
+		if (!PlayerInput.cur.isPlacing && !ResearchMenu.isOpen) {
+			PlayerInput.cur.focusRoot = this;
 			PlayerInput.cur.OpenModuleMenu ();
 		}
 	}
@@ -68,6 +70,11 @@ public class Module : MonoBehaviour {
 			cur = cur.parent;
 		}
 		return cur.GetComponent<Module>();
+	}
+
+	public Module[] GetModuleTree () {
+		RequestChildModules ();
+		return requestedModules.ToArray ();
 	}
 
 	public Rect GetModuleRect () {
@@ -109,6 +116,24 @@ public class Module : MonoBehaviour {
 		}
 
 		return power;
+	}
+
+	public void RequestChildModules () {
+		requestedModules = new List<Module>();
+		SendMessageUpwards ("ReturnModuleToRequester", this, SendMessageOptions.DontRequireReceiver);
+		BroadcastMessage ("ReturnModuleToRequester", this, SendMessageOptions.DontRequireReceiver);
+		requestedModules.Add (this);
+	}
+
+	void ReturnModuleToRequester (Module requester) {
+		if (requester == this)
+			return;
+
+		requester.SendMessage ("OnRecieveModuleFromRequest" ,this, SendMessageOptions.RequireReceiver);
+	}
+
+	void OnRecieveModuleFromRequest (Module sender) {
+		requestedModules.Add (sender);
 	}
 }
 

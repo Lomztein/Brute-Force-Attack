@@ -6,7 +6,7 @@ public class Weapon : MonoBehaviour {
 	public Transform[] muzzles;
 
 	public GameObject bullet;
-	private Projectile bulletData;
+	public Projectile bulletData;
 	public float bulletSpeed = 80;
 	public float bulletSpread = 5;
 	public int bulletDamage = 10;
@@ -22,7 +22,7 @@ public class Weapon : MonoBehaviour {
 
 	// TODO Implement projectile pooling
 
-	void Start () {
+	public void Start () {
 		bulletData = bullet.GetComponent<Projectile>();
 	}
 

@@ -127,22 +127,25 @@ public class Game : MonoBehaviour {
 		powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements ();
 
 		string pName = "";
-		if (powerPercentage > 200f)
+		if (powerPercentage > 2)
 			pName = "Plentiful";
 
-		if (powerPercentage > 120f && powerPercentage < 200f)
+		if (powerPercentage > 1.2f && powerPercentage <= 2f)
 			pName = "Formidable";
 
-		if (powerPercentage > 100f && powerPercentage < 120f)
+		if (powerPercentage > 1f && powerPercentage <= 1.2f)
 			pName = "Good";
 
-		if (powerPercentage > 80f && powerPercentage < 100f)
+		if (powerPercentage > 0.8f && powerPercentage <= 1f)
 			pName = "Low";
 
-		if (powerPercentage > 50f && powerPercentage < 80f)
+		if (powerPercentage > 0.5f && powerPercentage <= 0.8f)
 			pName = "Critical";
 
-		Game.game.powerText.text = "Powerlevel: " + pName;
+		if (powerPercentage <= 0.5f)
+			pName = "Outage";
+
+		Game.game.powerText.text = "Power: " + pName;
 	}
 
 	void GenerateWallMesh () {

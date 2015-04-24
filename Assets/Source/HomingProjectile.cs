@@ -13,6 +13,9 @@ public class HomingProjectile : Projectile {
 
 	void FixedUpdate () {
 
+		float startAngle = Angle.CalculateAngle (Vector3.zero, velocity);
+		transform.rotation = Quaternion.Euler (0, 0, startAngle);
+
 		if (target)
 			transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, Angle.CalculateAngle (transform, target)), turnSpeed * Time.fixedDeltaTime);
 

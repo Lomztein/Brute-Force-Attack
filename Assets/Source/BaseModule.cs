@@ -37,7 +37,7 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (this, range, targetLayer);
+		target = targetFinder.FindTarget (this, range * Game.powerPercentage, targetLayer);
 		if (target)
 			targetPos = target.position;
 	}
