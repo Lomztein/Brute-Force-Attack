@@ -5,11 +5,16 @@ using UnityEngine.UI;
 
 public class ResearchMenu : MonoBehaviour {
 
+	public Transform lineParent;
+	public Transform buttonParent;
+
 	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
 	public RectTransform startRect;
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
+	private bool isOpen = true;
+	private Vector3 startPos;
 
 	// Unlock research stuff
 	public static float[] damageMul;
@@ -19,6 +24,7 @@ public class ResearchMenu : MonoBehaviour {
 	public static float   turnrateMul;
 
 	public GameObject[] unlockableModules;
+	public Image researchIndicator;
 
 	private List<GameObject> buttons = new List<GameObject>();
 	public static ResearchMenu cur;
@@ -27,15 +33,19 @@ public class ResearchMenu : MonoBehaviour {
 		cur = this;
 		InitializeResearchMenu ();
 		InitializeMultipliers ();
+		startPos = transform.position;
 		ToggleResearchMenu ();
-	}
-
-	void FixedUpdate () {
 		UpdateButtons ();
 	}
 
 	public void ToggleResearchMenu () {
-		gameObject.SetActive (!cur.gameObject.activeInHierarchy);
+		if (isOpen) {
+			isOpen = false;
+			transform.position += Vector3.right * 100000;
+		}else{
+			isOpen = true;
+			transform.position = startPos;
+		}
 	}
 
 	void InitializeMultipliers () {
@@ -89,6 +99,8 @@ public class ResearchMenu : MonoBehaviour {
 		b.GetComponent<HoverContextElement>().text = research[index].name + ", Researched";
 
 		Destroy (research[index]);
+		research[index] = null;
+		UpdateButtons ();
 	}
 
 	void IncreaseAllCost () {
@@ -105,6 +117,7 @@ public class ResearchMenu : MonoBehaviour {
 		switch (research.colour) {
 			
 		case Colour.None:
+			image.color = Color.white;
 			break;
 			
 		case Colour.Blue:
@@ -139,23 +152,45 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void UpdateButtons () {
+		bool isButtonAvailable = false;
 		for (int i = 0; i < buttons.Count; i++) {
 			if (research[i] != null) {
-
-				if (research[i].y > Game.research) {
-					buttons[i].transform.GetChild (0).GetComponent<Image>().color = Color.black;
-				}else if (research[i].prerequisite != null) {
-						if (!research[i].prerequisite.isBought) {
-							buttons[i].transform.GetChild (0).GetComponent<Image>().color = Color.black;
-						}
-					}else if (research[i].y <= Game.research) {
-						UpdateImageColor (research[i], buttons[i].transform.GetChild (0).GetComponent<Image>());
-				}
+				bool temp = CheckButtonAvailable (research[i]);
+				if (temp)
+					isButtonAvailable = temp;
 			}
 		}
 
-		Game.research++;
+		if (isButtonAvailable) {
+			researchIndicator.color = Color.green;
+		}else{
+			researchIndicator.color = Color.red;
+		}
+
 	}
+
+	bool CheckButtonAvailable (Research research) {
+		Image image = research.button.transform.GetChild (0).GetComponent<Image>();
+		if (research.y > Game.research) {
+			image.color = Color.black;
+			return false;
+		}
+
+		if (research.prerequisite != null) {
+			if (!research.prerequisite.isBought) {
+				image.color = Color.black;
+				return false;
+			}
+		}
+
+		if (research.y <= Game.research) {
+			UpdateImageColor (research, image);
+			return true;
+		}
+
+		return true;
+	}
+	                                          
 
 	public void InitializeResearchMenu () {
 
@@ -170,7 +205,7 @@ public class ResearchMenu : MonoBehaviour {
 			Vector3 pos = GetPos (u) * 100f;
 			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
 			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
-			newU.transform.SetParent (startRect.parent, true);
+			newU.transform.SetParent (buttonParent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
 			u.button = newU;
 			image.sprite = u.sprite;
@@ -180,6 +215,20 @@ public class ResearchMenu : MonoBehaviour {
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
+		}
+
+		for (int i = 0; i < research.Count; i++) {
+			Research r = research[i];
+			if (r.prerequisite) {
+
+				Vector3 pPos = r.button.transform.position + (r.prerequisite.button.transform.position - r.button.transform.position) / 2;
+				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform, r.prerequisite.button.transform));
+				GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
+				RectTransform lr = line.GetComponent<RectTransform>();
+				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.position, r.prerequisite.button.transform.position), 10);
+				line.transform.SetParent (lineParent, true);
+
+			}
 		}
 	}
 

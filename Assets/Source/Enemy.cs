@@ -12,8 +12,8 @@ public class Enemy : MonoBehaviour {
 	public int damage;
 	public int value;
 	public bool isFlying;
-	private int researchDropChance = 100;
-	
+	public int researchDropChance;
+
 	public bool rotateSprite;
 
 	[Header ("Pathing")]

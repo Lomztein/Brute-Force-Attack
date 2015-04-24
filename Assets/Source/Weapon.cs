@@ -28,7 +28,7 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)bulletData.effectiveAgainst]);
+		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)bulletData.effectiveAgainst] / Game.powerPercentage);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {

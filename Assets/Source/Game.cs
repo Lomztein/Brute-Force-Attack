@@ -4,28 +4,39 @@ using System.Collections;
 
 public class Game : MonoBehaviour {
 
+	[Header ("Battlefield")]
 	public Transform background;
 	public int battlefieldWidth;
 	public int battlefieldHeight;
 
+	[Header ("References")]
 	public Datastream datastream;
 	public EnemySpawn enemySpawn;
 	public PurchaseMenu purchaseMenu;
 	public Dijkstra pathfinding;
 	public ResearchMenu researchMenu;
-
+	public GameObject pauseMenu;
+	
 	public Text creditsText;
 	public Text powerText;
 	public Text researchText;
 
 	public static Game game;
-
+	
 	public LayerMask enemyLayer;
 	public LayerMask moduleLayer;
 
+	[Header ("Resources")]
 	public int startingCredits;
 	public static int credits;
-	public static int research;
+	private static int _research;
+	public static int research {
+		get { return _research; }
+		set { _research = value;
+			Game.game.researchMenu.UpdateButtons ();
+		}
+	}
+
 	public static float powerPercentage;
 
 	public static bool[,] isWalled;
@@ -37,7 +48,6 @@ public class Game : MonoBehaviour {
 	private Vector2[] uvs;
 
 	public static bool isPaused;
-	public GameObject pauseMenu;
 
 	// Use this for initialization
 	void Start () {
@@ -114,8 +124,25 @@ public class Game : MonoBehaviour {
 	}
 
 	public static void CalculatePowerLevel () {
-		powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements () * 100f;
-		Game.game.powerText.text = "Power: " + powerPercentage.ToString () + "%";
+		powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements ();
+
+		string pName = "";
+		if (powerPercentage > 200f)
+			pName = "Plentiful";
+
+		if (powerPercentage > 120f && powerPercentage < 200f)
+			pName = "Formidable";
+
+		if (powerPercentage > 100f && powerPercentage < 120f)
+			pName = "Good";
+
+		if (powerPercentage > 80f && powerPercentage < 100f)
+			pName = "Low";
+
+		if (powerPercentage > 50f && powerPercentage < 80f)
+			pName = "Critical";
+
+		Game.game.powerText.text = "Powerlevel: " + pName;
 	}
 
 	void GenerateWallMesh () {
