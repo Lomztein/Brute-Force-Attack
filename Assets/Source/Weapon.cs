@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviour {
 	public int bulletAmount = 1;
 	public float maxRange;
 	public Transform target;
+	public GameObject fireParticle;
 
 	public float firerate;
 	public float reloadTime;

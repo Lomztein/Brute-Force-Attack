@@ -36,7 +36,6 @@ public class ResearchMenu : MonoBehaviour {
 		startPos = transform.position;
 		ToggleResearchMenu ();
 		UpdateButtons ();
-		Game.research = 1000;
 	}
 
 	public void ToggleResearchMenu () {

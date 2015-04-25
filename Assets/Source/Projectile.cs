@@ -9,6 +9,7 @@ public class Projectile : MonoBehaviour {
 	public float range;
 	public Transform target;
 	public bool destroyOnTime = false;
+	public GameObject hitParticle;
 
 	public Colour effectiveAgainst;
 
@@ -29,6 +30,7 @@ public class Projectile : MonoBehaviour {
 			if (hit.collider.gameObject.layer != parent.layer) {
 
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+				if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
 				Destroy (gameObject);
 
 			}

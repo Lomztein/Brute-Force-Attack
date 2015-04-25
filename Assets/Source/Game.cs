@@ -28,6 +28,7 @@ public class Game : MonoBehaviour {
 
 	[Header ("Resources")]
 	public int startingCredits;
+	public int startingResearch;
 	public static int credits;
 	private static int _research;
 	public static int research {
@@ -208,7 +209,7 @@ public class Game : MonoBehaviour {
 
 		// Initialize resources
 		credits = startingCredits;
-		research = 0;
+		research = startingResearch;
 
 		// Initialize background graphic
 		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
