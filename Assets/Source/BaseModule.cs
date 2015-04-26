@@ -3,21 +3,27 @@ using System.Collections;
 
 public class BaseModule : Module {
 
+	[Header ("Targeting")]
 	public Transform target;
 	public Vector3 targetPos;
 	private Vector3 prevPos;
 	private Vector3 targetVel;
 
 	public LayerMask targetLayer;
-	private TurretTargetFinder targetFinder = new TurretTargetFinder ();
+	private TargetFinder targetFinder = new TargetFinder ();
 
 	public static bool enableAdvancedTracking;
 
+	[Header ("Stats")]
 	public float range;
 	private float fastestBulletSpeed;
 
+	[Header ("Boosts")]
+	public float damageBoost = 1f;
+	public float firerateBoost = 1f;
+
 	// Update is called once per frame
-	public override void UpdateModule () {
+	void Update () {
 		if (!target) {
 			FindTarget ();
 		}else{
@@ -37,7 +43,7 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (this, range * Game.powerPercentage, targetLayer);
+		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer);
 		if (target)
 			targetPos = target.position;
 	}

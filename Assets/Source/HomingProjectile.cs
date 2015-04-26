@@ -5,7 +5,8 @@ public class HomingProjectile : Projectile {
 
 	public float turnSpeed;
 	public float speed;
-	public bool autoFindTarget;
+	public static bool autoFindTarget;
+	private TargetFinder targetFinder = new TargetFinder ();
 
 	void Start () {
 		speed = velocity.magnitude;
@@ -22,5 +23,8 @@ public class HomingProjectile : Projectile {
 		velocity = transform.right * speed;
 		CastRay ();
 		transform.position += velocity * Time.fixedDeltaTime;
+
+		if (autoFindTarget && !target)
+			target = targetFinder.FindTarget (transform.position, 5f, Game.game.enemyLayer);
 	}
 }

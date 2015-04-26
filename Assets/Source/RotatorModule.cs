@@ -12,11 +12,12 @@ public class RotatorModule : Module {
 	private float sprayAngle = 30f;
 
 	// Update is called once per frame
-	public override void UpdateModule () {
+	void Update () {
 		Turn ();
 	}
 
-	public override void StartModule () {
+	new void Start () {
+		base.Start ();
 		defualtRot = transform.eulerAngles.z;
 	}
 

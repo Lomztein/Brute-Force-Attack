@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TurretTargetFinder {
+public class TargetFinder {
 
-	public Transform FindTarget (BaseModule baseModule, float range, LayerMask targetLayer) {
+	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer) {
 
 		// If anything is nearby, proceed.
-		if (Physics.CheckSphere (baseModule.transform.position, range, targetLayer)) {
+		if (Physics.CheckSphere (position, range, targetLayer)) {
 
 			// Get everything nearby on targetLayer and iterate through them,
 			// checking distance and priorities of the base module.
@@ -14,7 +14,7 @@ public class TurretTargetFinder {
 			float dis = float.MaxValue;
 			Transform ner = null;
 
-			Collider[] nearby = Physics.OverlapSphere (baseModule.transform.position, range, targetLayer);
+			Collider[] nearby = Physics.OverlapSphere (position, range, targetLayer);
 			for (int i = 0; i < nearby.Length; i++) {
 
 				// TODO Add priority system.
@@ -22,7 +22,7 @@ public class TurretTargetFinder {
 
 				// Check distance compared to previous iteration, and if smaller, save current iteration.
 
-				float d = Vector3.Distance (baseModule.transform.position, nearby[i].transform.position);
+				float d = Vector3.Distance (position, nearby[i].transform.position);
 				if (d < dis) {
 					dis = d;
 					ner = nearby[i].transform;

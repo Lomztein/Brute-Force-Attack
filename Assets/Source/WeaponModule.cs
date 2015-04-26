@@ -8,16 +8,25 @@ public class WeaponModule : Module {
 	public bool useBaseRange = true;
 	
 	// Update is called once per frame
-	public override void StartModule () {
-		if (parentBase && useBaseRange) {
-			range = parentBase.range;
-			weapon.maxRange = range;
+	new void Start () {
+		base.Start ();
+		Debug.Log ("Hurr");
+		if (parentBase) {
+			if (useBaseRange) {
+				range = parentBase.range;
+				weapon.maxRange = range;
+			}else{
+				weapon.maxRange = range;
+			}
+
+			weapon.bulletDamage = Mathf.RoundToInt ((float)weapon.bulletDamage * parentBase.damageBoost);
+			weapon.firerate *= parentBase.damageBoost;
 		}else{
 			weapon.maxRange = range;
 		}
 	}
 
-	public override void UpdateModule () {
+	void Update () {
 
 		if (parentBase) {
 			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < range) {

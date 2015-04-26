@@ -24,22 +24,8 @@ public class Module : MonoBehaviour {
 	public bool isRoot;
 	private List<Module> requestedModules;
 
-	void Start () {
+	public void Start () {
 		InitializeModule ();
-		StartModule ();
-	}
-
-	void Update () {
-		UpdateModule ();
-	}
-
-	public virtual void StartModule () {
-		// Use this a replacement for the Start function, so that
-		// We don't get functions mixed up.
-	}
-
-	public virtual void UpdateModule () {
-		// Like the StartModule function
 	}
 
 	void OnMouseDown () {

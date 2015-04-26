@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour {
 	public int researchDropChance;
 
 	public bool rotateSprite;
+	public float freezeMultiplier = 1f;
 
 	[Header ("Pathing")]
 	public Vector3[] path;
@@ -53,10 +54,16 @@ public class Enemy : MonoBehaviour {
 			pathIndex++;
 		}
 
-		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime);
+		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
 
 		if (rotateSprite)
 			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, path[pathIndex] + offset));
+
+		if (freezeMultiplier < 1f) {
+			freezeMultiplier += 0.5f * Time.fixedDeltaTime;
+		}else{
+			freezeMultiplier = 1f;
+		}
 	}
 
 	void OnTakeDamage (Projectile.Damage damage) {
