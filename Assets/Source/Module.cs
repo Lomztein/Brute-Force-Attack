@@ -50,6 +50,16 @@ public class Module : MonoBehaviour {
 		Destroy (gameObject);
 	}
 
+	public void StockModule () {
+		BroadcastMessage ("Stockify");
+	}
+
+	void Stockify () {
+		Dijkstra.ChangeArea (GetModuleRect (), true);
+		Destroy (gameObject);
+		PurchaseMenu.AddStock (this);
+	}
+
 	public Module FindRootModule () {
 		Transform cur = transform;
 		while (cur.parent) {
@@ -121,6 +131,8 @@ public class Module : MonoBehaviour {
 	void OnRecieveModuleFromRequest (Module sender) {
 		requestedModules.Add (sender);
 	}
+
+
 }
 
 

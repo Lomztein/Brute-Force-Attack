@@ -29,6 +29,10 @@ public class ModuleContextMenu : MonoBehaviour {
 		module.SellModule ();
 	}
 
+	public void StockModule () {
+		module.StockModule ();
+	}
+
 	public void ExitMenu () {
 		gameObject.SetActive (false);
 	}

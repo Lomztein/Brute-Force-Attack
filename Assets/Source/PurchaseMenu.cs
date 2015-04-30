@@ -21,12 +21,15 @@ public class PurchaseMenu : MonoBehaviour {
 	public RectTransform firstButtomButton;
 	private GameObject[] currentMenu;
 
+	public Dictionary<GameObject, int> stockModules;
+
 	[Header ("References")]
 	public GameObject buttonPrefab;
 	public Transform buttonMask;
 
 	public RectTransform scrollThingie;
 	public PlayerInput playerInput;
+	public static PurchaseMenu cur;
 
 	// Use this for initialization
 	// TODO Implement multiple raycasts before placing objects.
@@ -39,7 +42,25 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
+	GameObject GetModulePrefab (Module module) {
+
+		foreach (GameObject obj in standard) {
+			if (obj.GetComponent<Module>().moduleName == module.moduleName) {
+				return obj;
+			}
+		}
+
+		foreach (GameObject obj in special) {
+			if (obj.GetComponent<Module>().moduleName == module.moduleName) {
+				return obj;
+			}
+		}
+
+		return null;
+	}
+
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
+		cur = this;
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
 			Destroy (b);
@@ -82,7 +103,46 @@ public class PurchaseMenu : MonoBehaviour {
 		int newX = max * 94 + 30;
 		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
 		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
-	
+		UpdateButtons ();
+	}
+
+	public static void UpdateButtons () {
+		PurchaseMenu menu = PurchaseMenu.cur;
+		int index = 0;
+		foreach (GameObject mod in menu.currentMenu) {
+
+			if (menu.buttons != null) {
+
+				if (menu.IsOptionAvailable (mod)) {
+					menu.buttons[index].transform.FindChild ("Image").GetComponent<Image>().color = Color.white;
+					if (menu.stockModules.ContainsKey (mod)) {
+						menu.buttons[index].transform.FindChild ("Amount").GetComponent<Text>().text = menu.stockModules[mod].ToString ();
+					}else{
+						menu.buttons[index].transform.FindChild ("Amount").GetComponent<Text>().text = "";
+					}
+				}else{
+					menu.buttons[index].transform.FindChild ("Image").GetComponent<Image>().color /= 2;
+				}
+
+				index++;
+			
+			}
+		}
+	}
+
+	bool IsOptionAvailable (GameObject purchaseable) {
+		if (stockModules.ContainsKey (purchaseable)) {
+			if (stockModules[purchaseable] > 0) {
+				return true;
+			}
+		}
+
+		Module m = purchaseable.GetComponent<Module>();
+		if (m.moduleCost <= Game.credits) {
+			return true;
+		}
+
+		return false;
 	}
 
 	void AddPurchaseButtonListener (Button button, int index) {
@@ -96,6 +156,18 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public void SelectPurchaseable (int index) {
 		playerInput.SelectPurchaseable (currentMenu[index]);
+	}
+
+	public static void AddStock (Module module) {
+		PurchaseMenu menu = PurchaseMenu.cur;
+		GameObject obj = menu.GetModulePrefab (module);
+		if (menu.stockModules.ContainsKey (obj)) {
+			menu.stockModules[obj]++;
+		}else{
+			menu.stockModules.Add (obj, 1);
+		}
+
+		UpdateButtons ();
 	}
 
 	// Update is called once per frame

@@ -256,7 +256,15 @@ public class PlayerInput : MonoBehaviour {
 
 		if (allowPlacement) {
 			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placeRot);
-			Game.credits -= pModule.moduleCost;
+			if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
+				purchaseMenu.stockModules[purchaseModule]--;
+				if (purchaseMenu.stockModules[purchaseModule] < 1) {
+					purchaseMenu.stockModules.Remove (purchaseModule);
+				}
+				PurchaseMenu.UpdateButtons ();
+			}else{
+				Game.credits -= pModule.moduleCost;
+			}
 			m.transform.SetParent (hit.transform);
 		}
 

@@ -29,7 +29,16 @@ public class Game : MonoBehaviour {
 	[Header ("Resources")]
 	public int startingCredits;
 	public int startingResearch;
-	public static int credits;
+
+	private static int _credits;
+	public static int credits {
+		get { return _credits; }
+		set { _credits = value;
+			if (PurchaseMenu.cur)
+				PurchaseMenu.UpdateButtons ();
+		}
+	}
+
 	private static int _research;
 	public static int research {
 		get { return _research; }
@@ -226,6 +235,9 @@ public class Game : MonoBehaviour {
 		// Initialize walls
 		isWalled = new bool[battlefieldWidth,battlefieldHeight];
 		GenerateWallMesh ();
+
+		// Initialize other
+		purchaseMenu.stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
 	}
 
 	void Update () {
