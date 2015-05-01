@@ -15,6 +15,7 @@ public class PurchaseMenu : MonoBehaviour {
 	[Header ("Purchaseables")]
 	public List<GameObject> standard;
 	public List<GameObject> special;
+	public List<GameObject> all;
 
 	public List<GameObject> buttons = new List<GameObject>();
 	public RectTransform firstTopButton;
@@ -42,16 +43,10 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
-	GameObject GetModulePrefab (Module module) {
+	public GameObject GetModulePrefab (string name) {
 
-		foreach (GameObject obj in standard) {
-			if (obj.GetComponent<Module>().moduleName == module.moduleName) {
-				return obj;
-			}
-		}
-
-		foreach (GameObject obj in special) {
-			if (obj.GetComponent<Module>().moduleName == module.moduleName) {
+		foreach (GameObject obj in all) {
+			if (obj.GetComponent<Module>().moduleName == name) {
 				return obj;
 			}
 		}
@@ -59,7 +54,19 @@ public class PurchaseMenu : MonoBehaviour {
 		return null;
 	}
 
+	void CollectAllPurchaseables () {
+		foreach (GameObject b in standard) {
+			all.Add (b);
+		}
+		
+		foreach (GameObject a in special) {
+			all.Add (a);
+		}
+	}
+
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
+		CollectAllPurchaseables ();
+
 		cur = this;
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
@@ -160,7 +167,7 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public static void AddStock (Module module) {
 		PurchaseMenu menu = PurchaseMenu.cur;
-		GameObject obj = menu.GetModulePrefab (module);
+		GameObject obj = menu.GetModulePrefab (module.moduleName);
 		if (menu.stockModules.ContainsKey (obj)) {
 			menu.stockModules[obj]++;
 		}else{

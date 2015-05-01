@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
 public class Module : MonoBehaviour {
 
+	public const string MODULE_FILE_EXTENSION = ".module";
+	
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
 	public Colour colour;
 
 	public BaseModule parentBase;
+	public Module rootModule;
 
 	public string moduleName;
 	public string moduleDesc;
@@ -17,6 +21,8 @@ public class Module : MonoBehaviour {
 	public Type moduleType;
 	public int moduleClass = 2;
 	public int moduleCost;
+	public int moduleIndex;
+	public int parentIndex;
 
 	public int moduleLayer;
 
@@ -24,8 +30,46 @@ public class Module : MonoBehaviour {
 	public bool isRoot;
 	private List<Module> requestedModules;
 
+	public int saveIndex;
+	public int GetModuleIndex () {
+		if (!isRoot) {
+			Debug.LogWarning ("Tried to get save index from a non-root module D:");
+		}
+
+		saveIndex++;
+		return saveIndex;
+	}
+
 	public void Start () {
 		InitializeModule ();
+	}
+
+	public StreamWriter writer;
+	
+	public void SaveModuleAssembly (string filename) {
+		string file = Application.persistentDataPath + "/" + filename + MODULE_FILE_EXTENSION;
+
+		rootModule.writer = File.CreateText (file);
+		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE FILE, EDIT WITH CAUTION");
+		rootModule.writer.WriteLine ("name:" + filename + "\n");
+		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
+		rootModule.writer.WriteLine ("END OF FILE");
+		rootModule.writer.WriteLine ("DO NOT REMOVE 'END OF FILE' NOTICE, IT'LL CRASH THE GAME");
+		rootModule.writer.WriteLine ("Ugh, this feels too professional.. *fartnoises*");
+		rootModule.writer.Close ();
+		rootModule.writer = null;
+	}
+	
+	void SaveModuleToAssemblyFile (string file) {
+		rootModule.writer.WriteLine ("type:" + moduleName.ToString ());
+		if (transform.parent) {
+			rootModule.writer.WriteLine ("\tindx:" + moduleIndex.ToString ());
+			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module>().moduleIndex.ToString ());
+			rootModule.writer.WriteLine ("\tposx:" + transform.localPosition.x.ToString ());
+			rootModule.writer.WriteLine ("\tposy:" + transform.localPosition.y.ToString ());
+		}else{
+			rootModule.writer.WriteLine ("\troot");
+		}
 	}
 
 	void OnMouseDown () {
@@ -34,13 +78,22 @@ public class Module : MonoBehaviour {
 			PlayerInput.cur.OpenModuleMenu ();
 		}
 	}
-
+	
 	void InitializeModule () {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
 		Game.CalculatePowerLevel ();
-		if (FindRootModule () == this) isRoot = true;
+
+		rootModule = FindRootModule ();
+		if (rootModule == this) {
+			isRoot = true;
+			moduleIndex = 0;
+			saveIndex = 0;
+		}else{
+			moduleIndex = rootModule.GetModuleIndex ();
+		}
+
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
@@ -63,7 +116,8 @@ public class Module : MonoBehaviour {
 	public Module FindRootModule () {
 		Transform cur = transform;
 		while (cur.parent) {
-			cur = cur.parent;
+			if (cur.parent.GetComponent<Module>())
+				cur = cur.parent;
 		}
 		return cur.GetComponent<Module>();
 	}
@@ -130,8 +184,7 @@ public class Module : MonoBehaviour {
 
 	void OnRecieveModuleFromRequest (Module sender) {
 		requestedModules.Add (sender);
-	}
-
+	}                                                                                   
 
 }
 

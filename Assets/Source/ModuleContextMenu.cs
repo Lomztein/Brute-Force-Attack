@@ -33,6 +33,10 @@ public class ModuleContextMenu : MonoBehaviour {
 		module.StockModule ();
 	}
 
+	public void SaveModuleAssembly () {
+		module.SaveModuleAssembly ("Badassness");
+	}
+
 	public void ExitMenu () {
 		gameObject.SetActive (false);
 	}
