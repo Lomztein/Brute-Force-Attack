@@ -47,14 +47,14 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 				
 				if (contents[i].Substring (0, 5) == "type:") {
 					modulePrefab = PurchaseMenu.cur.GetModulePrefab (contents[i].Substring (5));
-					moduleObjects.Add ((GameObject)Instantiate (modulePrefab, Vector3.zero, Quaternion.identity));
-					//moduleObjects[moduleObjects.Count - 1].SetActive (false);
-					moduleObjects[moduleObjects.Count - 1].transform.parent = transform;
-					module = moduleObjects[moduleObjects.Count - 1].GetComponent<Module>();
-					module.enabled = false;
-					totalCost += module.moduleCost;
-
-					if (!modulePrefab) {
+					if (modulePrefab) {
+						moduleObjects.Add ((GameObject)Instantiate (modulePrefab, Vector3.zero, Quaternion.identity));
+						//moduleObjects[moduleObjects.Count - 1].SetActive (false);
+						moduleObjects[moduleObjects.Count - 1].transform.parent = transform;
+						module = moduleObjects[moduleObjects.Count - 1].GetComponent<Module>();
+						module.enabled = false;
+						totalCost += module.moduleCost;
+					}else{
 						Debug.LogWarning ("Tried to load a non-existing or non-researched module");
 						return;
 					}
@@ -99,8 +99,9 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 			}
 
 			// Activate gameObject, but disable module components
-			PlayerInput.cur.SelectPurchaseable (rootModule);
+			PlayerInput.cur.SelectPurchaseable (rootModule, true);
 			PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
+			PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0,0, 90);
 		}else{
 			Debug.LogWarning ("File not found at " + file);
 		}

@@ -7,10 +7,11 @@ public class ModuleContextMenu : MonoBehaviour {
 	public Image moduleImage;
 	public Text moduleName;
 	public Text moduleDesc;
-	public GameObject upgradeButton;
+	public Text moduleStats;
 	public GameObject treeButtonPrefab;
 	public Transform treeButtonParent;
 	public RectTransform treeScrollContext;
+	public Text assemblyName;
 
 	private Module module;
 	private Module[] moduleTree;
@@ -34,11 +35,15 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	public void SaveModuleAssembly () {
-		module.SaveModuleAssembly ("Badassness");
+		module.SaveModuleAssembly (module.rootModule.assemblyName);
 	}
 
 	public void ExitMenu () {
 		gameObject.SetActive (false);
+	}
+
+	public void OnAssemblyNameChange () {
+		module.rootModule.assemblyName = assemblyName.text;
 	}
 
 	public void UpdateModuleTree () {
@@ -71,24 +76,13 @@ public class ModuleContextMenu : MonoBehaviour {
 		this.module = module;
 		moduleImage.sprite = module.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 		moduleName.text = module.moduleName;
+		moduleStats.text = module.ToString ();
 		moduleDesc.text = "A class " + module.moduleClass + " " + module.moduleType.ToString () + " module - " + module.moduleDesc;
-
-		GameObject butt = upgradeButton;
-		for (int i = 0; i < module.upgrades.Length; i++) {
-			if (i != 0)
-				butt = (GameObject)Instantiate (upgradeButton, upgradeButton.transform.position + Vector3.right * 98 * (i+1), Quaternion.identity);
-
-			Button b = butt.GetComponent<Button>();
-			AddListenerToUpgradeButton (b, module.upgrades[i]);
-
-			Image im = butt.transform.FindChild ("Image").GetComponent<Image>();
-			im.sprite = module.upgrades[i].upgradeSprite;
-			Text te = butt.transform.FindChild ("UpgradeDesc").GetComponent<Text>();
-			te.text = module.upgrades[i].upgradeName;
-			Text co = butt.transform.FindChild ("UpgradeCost").GetComponent<Text>();
-			co.text = module.upgrades[i].upgradeCost.ToString ();
+		if (module.assemblyName != "") {
+			assemblyName.text = module.rootModule.assemblyName;
+		}else{
+			module.rootModule.assemblyName = assemblyName.text;
 		}
-
 		UpdateModuleTree ();
 	}
 

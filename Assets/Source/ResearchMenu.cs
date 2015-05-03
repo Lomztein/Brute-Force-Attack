@@ -298,4 +298,8 @@ public class ResearchMenu : MonoBehaviour {
 	public void DoubleRocketLauncherRockets (Research research) {
 		RocketLauncherWeapon.doubleRocketsEnabled[(int)research.colour] = true;
 	}
+
+	public void EnableAutoFindTarget (Research research) {
+		HomingProjectile.autoFindTarget = true;
+	}
 }

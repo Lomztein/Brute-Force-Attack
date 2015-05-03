@@ -45,11 +45,13 @@ public class PlayerInput : MonoBehaviour {
 		camDepth = Camera.main.transform.position.z;
 	}
 
-	public void SelectPurchaseable (GameObject purModule) {
+	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
 		if (isEditingWalls)
 			EditWalls ();
 		GameObject loc = (GameObject)Instantiate (purModule);
 		loc.BroadcastMessage ("SetIsBeingPlaced", SendMessageOptions.DontRequireReceiver);
+		if (resetRotation)
+			loc.transform.rotation = Quaternion.Euler (0,0, loc.transform.eulerAngles.z + placementParent.eulerAngles.z);
 		loc.transform.parent = placementParent;
 		loc.transform.position = placementParent.position;
 		purchaseModule = purModule;
@@ -70,6 +72,7 @@ public class PlayerInput : MonoBehaviour {
 		foreach (Transform child in placementParent) {
 			Destroy (child.gameObject);
 		}
+		placementParent.rotation = Quaternion.identity;
 	}
 
 	public void OpenModuleMenu () {
@@ -111,6 +114,8 @@ public class PlayerInput : MonoBehaviour {
 					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 45f) * 45;
 						if (Input.GetButton ("LCtrl"))
 							placeRot = Quaternion.Euler (0,0,ang);
+				}else{
+					ang = placeRot.eulerAngles.z;
 				}
 
 				if (Input.GetMouseButtonDown (1))
@@ -137,26 +142,26 @@ public class PlayerInput : MonoBehaviour {
 				if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
 					wallDragStatus = WallDragStatus.Adding;
 					wallDragStart = pos;
-					wallDragGraphic.material.color = Color.green;
+					wallDragGraphic.sharedMaterial.color = Color.green;
 				}
 
 				if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
 					wallDragStatus = WallDragStatus.Inactive;
 					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), true);
-					wallDragGraphic.material.color = Color.white;
+					wallDragGraphic.sharedMaterial.color = Color.white;
 					HoverContext.ChangeText ("");
 				}
 
 				if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
 					wallDragStatus = WallDragStatus.Removing;
 					wallDragStart = pos;
-					wallDragGraphic.material.color = Color.red;
+					wallDragGraphic.sharedMaterial.color = Color.red;
 				}
 
 				if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
 					wallDragStatus = WallDragStatus.Inactive;
 					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), false);
-					wallDragGraphic.material.color = Color.white;
+					wallDragGraphic.sharedMaterial.color = Color.white;
 					HoverContext.ChangeText ("");
 				}
 
@@ -180,6 +185,7 @@ public class PlayerInput : MonoBehaviour {
 				}else{
 					wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
 					wallDragGraphic.transform.localScale = Vector3.one;
+					wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 					HoverContext.ChangeText ("");
 				}
 			}
@@ -267,7 +273,7 @@ public class PlayerInput : MonoBehaviour {
 		}
 
 		if (allowPlacement) {
-			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placeRot);
+			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
 			if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
 				purchaseMenu.stockModules[purchaseModule]--;
@@ -297,7 +303,9 @@ public class PlayerInput : MonoBehaviour {
 		placementParent.rotation = placeRot;
 
 		if (hitModule) {
-			placementParent.position += Vector3.forward * hitModule.transform.position.z;
+			placementParent.position += Vector3.forward * (hitModule.transform.position.z - 1);
+		}else{
+			placementParent.position -= Vector3.forward * placementParent.position.z;
 		}
 	}
 
@@ -318,6 +326,7 @@ public class PlayerInput : MonoBehaviour {
 	}
 
 	void OnDrawGizmos () {
+		Gizmos.DrawSphere (placePos, 0.5f);
 		if (pModule) {
 			if (pModule.moduleType == Module.Type.Structural) {
 				StructuralModule str = pModule.GetComponent<StructuralModule>();
@@ -331,4 +340,3 @@ public class PlayerInput : MonoBehaviour {
 		}
 	}
 }
-	;

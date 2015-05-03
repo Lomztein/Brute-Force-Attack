@@ -49,4 +49,8 @@ public class RotatorModule : Module {
 	void IncreaseRotationSpeed15 () {
 		turnSpeed *= 1.15f;
 	}
+
+	public override string ToString () {
+		return "Turn speed: " + turnSpeed.ToString () + " - ";
+	}
 }

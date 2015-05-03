@@ -60,9 +60,9 @@ public class Game : MonoBehaviour {
 
 	public static bool isPaused;
 
-	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY = Application.persistentDataPath + "/Module Assemblies/";
-	public static string WAVESET_SAVE_DIRECTORY = Application.persistentDataPath + "/Wave Sets/";
-	public static string BATTLEFIELD_SAVE_DIRECTORY = Application.persistentDataPath + "/Battlefield Sets/";
+	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
+	public static string WAVESET_SAVE_DIRECTORY;
+	public static string BATTLEFIELD_SAVE_DIRECTORY;
 
 	public string[] stockModuleNames;
 
@@ -128,10 +128,10 @@ public class Game : MonoBehaviour {
 			for (int x = startX; x < startX + w; x++) {
 				if (doWall) {
 					if (!isWalled[x,y])
-						cost += 10;
+						cost += 4;
 				}else{
 					if (isWalled[x,y])
-						cost -= 5;
+						cost -= 2;
 				}
 			}
 		}
@@ -224,6 +224,10 @@ public class Game : MonoBehaviour {
 	void InitializeBattlefield () {
 
 		// Initialize files
+		MODULE_ASSEMBLY_SAVE_DIRECTORY = Application.persistentDataPath + "/Module Assemblies/";
+		WAVESET_SAVE_DIRECTORY = Application.persistentDataPath + "/Wave Sets/";
+		BATTLEFIELD_SAVE_DIRECTORY = Application.persistentDataPath + "/Battlefield Sets/";
+
 		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
 			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
 	

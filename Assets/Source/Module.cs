@@ -17,6 +17,7 @@ public class Module : MonoBehaviour {
 
 	public string moduleName;
 	public string moduleDesc;
+	public string assemblyName;
 
 	public Type moduleType;
 	public int moduleClass = 2;
@@ -26,7 +27,6 @@ public class Module : MonoBehaviour {
 
 	public int moduleLayer;
 
-	public Upgrade[] upgrades;
 	public bool isRoot;
 	private List<Module> requestedModules;
 
@@ -71,12 +71,12 @@ public class Module : MonoBehaviour {
 		if (transform.parent) {
 			rootModule.writer.WriteLine ("\tindx:" + moduleIndex.ToString ());
 			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module>().moduleIndex.ToString ());
-			rootModule.writer.WriteLine ("\tposx:" + transform.localPosition.x.ToString ());
-			rootModule.writer.WriteLine ("\tposy:" + transform.localPosition.y.ToString ());
-			rootModule.writer.WriteLine ("\trotz:" + transform.eulerAngles.z.ToString ());
+			rootModule.writer.WriteLine ("\tposx:" + (transform.position.x - rootModule.transform.position.x).ToString ());
+			rootModule.writer.WriteLine ("\tposy:" + (transform.position.y - rootModule.transform.position.y).ToString ());
 		}else{
 			rootModule.writer.WriteLine ("\troot");
 		}
+		rootModule.writer.WriteLine ("\trotz:" + transform.eulerAngles.z.ToString ());
 		rootModule.assemblyCost += moduleCost;
 	}
 
@@ -203,6 +203,10 @@ public class Module : MonoBehaviour {
 		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.placementMaterial;
 		GetComponent<Collider>().enabled = false;
 		enabled = false;
+	}
+
+	public override string ToString () {
+		return "Uh, this is the base module functionality code. Why would you ever want to grap the stats of this?";
 	}
 
 }

@@ -73,7 +73,7 @@ public class PurchaseMenu : MonoBehaviour {
 		}
 
 		assemblyButtonStart.gameObject.SetActive (true);
-		scrollThingie.sizeDelta = new Vector2 (205 * assemblyButtonStart.childCount, scrollThingie.sizeDelta.y);
+		scrollThingie.sizeDelta = new Vector2 (220 * assemblyButtonStart.childCount, scrollThingie.sizeDelta.y);
 	}
 
 	public void CloseAssemblyButtons () {
@@ -119,6 +119,27 @@ public class PurchaseMenu : MonoBehaviour {
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
 		CollectAllPurchaseables ();
 
+		// Count weapons and other types
+		int w = 0;
+		int o = 0;
+
+		foreach (GameObject purchaseable in purchaseables) {
+			Module locM = purchaseable.GetComponent<Module>();
+			if (locM.moduleType == Module.Type.Weapon) {
+				w++;
+			}else{
+				o++;
+			}
+		}
+
+		int max = Mathf.Max (w,o);
+		int newX = max * 94 + 30;
+		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
+		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
+
+		w = 0;
+		o = 0;
+
 		cur = this;
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
@@ -127,10 +148,6 @@ public class PurchaseMenu : MonoBehaviour {
 
 		buttons = new List<GameObject>();
 		currentMenu = purchaseables;
-
-		// Count weapons and other types
-		int w = 0;
-		int o = 0;
 
 		// Itereate through each purchaseable, and instantiate a button for it.
 		for (int i = 0; i < purchaseables.Length; i++ ) {
@@ -151,17 +168,13 @@ public class PurchaseMenu : MonoBehaviour {
 
 			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();
-			newButton.transform.GetChild (0).GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+			newButton.transform.FindChild ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			newButton.transform.SetParent (buttonMask, true);
 			newButton.transform.localScale = Vector3.one;
 			AddPurchaseButtonListener (button, i);
 
 		}
 
-		int max = Mathf.Max (w,o);
-		int newX = max * 94 + 30;
-		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
-		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
 		UpdateButtons ();
 	}
 
@@ -223,7 +236,7 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public void SelectPurchaseable (int index) {
-		playerInput.SelectPurchaseable (currentMenu[index]);
+		playerInput.SelectPurchaseable (currentMenu[index], true);
 	}
 
 	public static void AddStock (Module module) {

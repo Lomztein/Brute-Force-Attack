@@ -62,4 +62,16 @@ public class BaseModule : Module {
 
 		return speed;
 	}
+
+	public override string ToString () {
+		string text = "";
+		text += "Range: " + range.ToString () + " - \n\n";
+		if (damageBoost != 1f) {
+			text += "Damage Multiplier: " + damageBoost.ToString () + " - \n\n";
+		}
+		if (firerateBoost != 1f) {
+			text += "Firerate Mulitplier: " + firerateBoost.ToString ();
+		}
+		return text;
+	}
 }
