@@ -45,19 +45,25 @@ public class Module : MonoBehaviour {
 	}
 
 	public StreamWriter writer;
+	public int assemblyCost;
 	
 	public void SaveModuleAssembly (string filename) {
-		string file = Application.persistentDataPath + "/" + filename + MODULE_FILE_EXTENSION;
+		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
 
 		rootModule.writer = File.CreateText (file);
 		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE FILE, EDIT WITH CAUTION");
-		rootModule.writer.WriteLine ("name:" + filename + "\n");
+		rootModule.writer.WriteLine ("name:" + filename);
 		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
+		rootModule.writer.WriteLine ("cost:" + assemblyCost);
 		rootModule.writer.WriteLine ("END OF FILE");
 		rootModule.writer.WriteLine ("DO NOT REMOVE 'END OF FILE' NOTICE, IT'LL CRASH THE GAME");
 		rootModule.writer.WriteLine ("Ugh, this feels too professional.. *fartnoises*");
 		rootModule.writer.Close ();
 		rootModule.writer = null;
+		assemblyCost = 0;
+
+		PurchaseMenu.cur.InitialzeAssemblyButtons ();
+		PurchaseMenu.cur.CloseAssemblyButtons ();
 	}
 	
 	void SaveModuleToAssemblyFile (string file) {
@@ -67,9 +73,11 @@ public class Module : MonoBehaviour {
 			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module>().moduleIndex.ToString ());
 			rootModule.writer.WriteLine ("\tposx:" + transform.localPosition.x.ToString ());
 			rootModule.writer.WriteLine ("\tposy:" + transform.localPosition.y.ToString ());
+			rootModule.writer.WriteLine ("\trotz:" + transform.eulerAngles.z.ToString ());
 		}else{
 			rootModule.writer.WriteLine ("\troot");
 		}
+		rootModule.assemblyCost += moduleCost;
 	}
 
 	void OnMouseDown () {
@@ -90,9 +98,8 @@ public class Module : MonoBehaviour {
 			isRoot = true;
 			moduleIndex = 0;
 			saveIndex = 0;
-		}else{
-			moduleIndex = rootModule.GetModuleIndex ();
 		}
+		moduleIndex = rootModule.GetModuleIndex ();
 
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
@@ -184,7 +191,19 @@ public class Module : MonoBehaviour {
 
 	void OnRecieveModuleFromRequest (Module sender) {
 		requestedModules.Add (sender);
-	}                                                                                   
+	}
+
+	void ResetMaterial () {
+		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.defualtMaterial;
+		GetComponent<Collider>().enabled = true;
+		enabled = true;
+	}
+
+	void SetIsBeingPlaced () {
+		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.placementMaterial;
+		GetComponent<Collider>().enabled = false;
+		enabled = false;
+	}
 
 }
 

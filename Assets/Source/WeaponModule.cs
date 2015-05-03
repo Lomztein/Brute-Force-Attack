@@ -10,7 +10,6 @@ public class WeaponModule : Module {
 	// Update is called once per frame
 	new void Start () {
 		base.Start ();
-		Debug.Log ("Hurr");
 		if (parentBase) {
 			if (useBaseRange) {
 				range = parentBase.range;

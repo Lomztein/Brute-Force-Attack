@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using System.IO;
 
 public class PurchaseMenu : MonoBehaviour {
 
@@ -27,6 +28,9 @@ public class PurchaseMenu : MonoBehaviour {
 	[Header ("References")]
 	public GameObject buttonPrefab;
 	public Transform buttonMask;
+	public GameObject assemblyLoader;
+	public GameObject assemblyButton;
+	public Transform assemblyButtonStart;
 
 	public RectTransform scrollThingie;
 	public PlayerInput playerInput;
@@ -36,11 +40,59 @@ public class PurchaseMenu : MonoBehaviour {
 	// TODO Implement multiple raycasts before placing objects.
 
 	public void LoadStandardButtons () {
+		CloseAssemblyButtons ();
 		InitializePurchaseMenu (standard.ToArray ());
 	}
 
 	public void LoadSpecialButtons () {
+		CloseAssemblyButtons ();
 		InitializePurchaseMenu (special.ToArray ());
+	}
+
+	public void InitialzeAssemblyButtons () {
+		foreach (Transform child in assemblyButtonStart) {
+			Destroy (child.gameObject);
+		}
+
+		string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY);
+
+		for (int i = 0; i < files.Length; i++) {
+			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (195 * i), Quaternion.identity);
+			butt.transform.SetParent (assemblyButtonStart, true);
+			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
+			button.path = files[i];
+			button.OnResearchUnlocked ();
+			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
+		}
+
+	}
+
+	public void OpenAssemblyButtons () {
+		foreach (GameObject b in buttons) {
+			Destroy (b);
+		}
+
+		assemblyButtonStart.gameObject.SetActive (true);
+		scrollThingie.sizeDelta = new Vector2 (205 * assemblyButtonStart.childCount, scrollThingie.sizeDelta.y);
+	}
+
+	public void CloseAssemblyButtons () {
+		if (assemblyButtonStart.gameObject.activeSelf) {
+			assemblyButtonStart.gameObject.SetActive (false);
+		}
+	}
+
+	public bool IsModuleAvailable (string name) {
+		return (bool)GetModulePrefab (name);
+	}
+
+	public void LoadAssembly (string path) {
+		if (!playerInput.isPlacing) {
+			GameObject ass = (GameObject)Instantiate (assemblyLoader);
+			ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
+			loader.LoadAssembly (path);
+			Destroy (ass);
+		}
 	}
 
 	public GameObject GetModulePrefab (string name) {
@@ -118,7 +170,7 @@ public class PurchaseMenu : MonoBehaviour {
 		int index = 0;
 		foreach (GameObject mod in menu.currentMenu) {
 
-			if (menu.buttons != null) {
+			if (menu.buttons != null && menu.buttons[index]) {
 
 				if (menu.IsOptionAvailable (mod)) {
 					menu.buttons[index].transform.FindChild ("Image").GetComponent<Image>().color = Color.white;
@@ -159,6 +211,15 @@ public class PurchaseMenu : MonoBehaviour {
 
 		Module m = currentMenu[index].GetComponent<Module>();
 		button.GetComponent<HoverContextElement>().text = m.moduleName + ", " + m.moduleCost.ToString () + " LoC";
+	}
+
+	void AddAssemblyButtonListener (Button button, LoadAssemblyButton loadButton) {
+		button.onClick.AddListener (() => {
+			loadButton.Purchase ();
+		});
+		
+		button.GetComponent<HoverContextElement>().text = loadButton.assemblyName + ", " + loadButton.cost.ToString () + " LoC";
+		button.transform.FindChild ("Text").GetComponent<Text>().text = loadButton.assemblyName;
 	}
 
 	public void SelectPurchaseable (int index) {

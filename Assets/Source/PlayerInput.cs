@@ -10,8 +10,8 @@ public class PlayerInput : MonoBehaviour {
 
 	public PurchaseMenu purchaseMenu;
 
-	public SpriteRenderer placementSprite;
-	private GameObject purchaseModule;
+	public Transform placementParent;
+	public GameObject purchaseModule;
 	private Module pModule;
 	public bool isPlacing;
 	private bool isRotting;
@@ -37,6 +37,9 @@ public class PlayerInput : MonoBehaviour {
 	private Vector3 wallDragStart;
 	public Renderer wallDragGraphic;
 
+	public Material placementMaterial;
+	public Material defualtMaterial;
+
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
@@ -45,11 +48,18 @@ public class PlayerInput : MonoBehaviour {
 	public void SelectPurchaseable (GameObject purModule) {
 		if (isEditingWalls)
 			EditWalls ();
-		placementSprite.enabled = true;
-		placementSprite.sprite = purModule.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+		GameObject loc = (GameObject)Instantiate (purModule);
+		loc.BroadcastMessage ("SetIsBeingPlaced", SendMessageOptions.DontRequireReceiver);
+		loc.transform.parent = placementParent;
+		loc.transform.position = placementParent.position;
 		purchaseModule = purModule;
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
+	}
+
+	public void SetPurchaseableFromSceneObject (GameObject purModule) {
+		purchaseModule = purModule;
+		pModule = purModule.GetComponent<Module>();
 	}
 
 	void CancelPurchase () {
@@ -57,7 +67,9 @@ public class PlayerInput : MonoBehaviour {
 		purchaseModule = null;
 		pModule = null;
 		isRotting = false;
-		placementSprite.enabled = false;
+		foreach (Transform child in placementParent) {
+			Destroy (child.gameObject);
+		}
 	}
 
 	public void OpenModuleMenu () {
@@ -256,6 +268,7 @@ public class PlayerInput : MonoBehaviour {
 
 		if (allowPlacement) {
 			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placeRot);
+			m.BroadcastMessage ("ResetMaterial");
 			if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
 				purchaseMenu.stockModules[purchaseModule]--;
 				if (purchaseMenu.stockModules[purchaseModule] < 1) {
@@ -269,20 +282,23 @@ public class PlayerInput : MonoBehaviour {
 		}
 
 		if (!Input.GetButton ("LShift")) {
-			isPlacing = false;
-			placementSprite.enabled = false;
+			CancelPurchase ();
 		}
 	}
 
 	void UpdatePlacementSprite () {
 		if (CanPlaceAtPos (placePos)) {
-			placementSprite.color = Color.green;
+			placementMaterial.color = Color.green;
 		}else{
-			placementSprite.color = Color.red;
+			placementMaterial.color = Color.red;
 		}
 
-		placementSprite.transform.position = placePos + Vector3.forward * (camDepth + 1f);
-		placementSprite.transform.rotation = placeRot;
+		placementParent.position = placePos;
+		placementParent.rotation = placeRot;
+
+		if (hitModule) {
+			placementParent.position += Vector3.forward * hitModule.transform.position.z;
+		}
 	}
 
 	void MoveCamera () {

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.IO;
 
 public class Game : MonoBehaviour {
 
@@ -59,12 +60,17 @@ public class Game : MonoBehaviour {
 
 	public static bool isPaused;
 
+	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY = Application.persistentDataPath + "/Module Assemblies/";
+	public static string WAVESET_SAVE_DIRECTORY = Application.persistentDataPath + "/Wave Sets/";
+	public static string BATTLEFIELD_SAVE_DIRECTORY = Application.persistentDataPath + "/Battlefield Sets/";
+
+	public string[] stockModuleNames;
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("Initializing!");
 		game = this;
 		InitializeBattlefield ();
-		purchaseMenu.InitializePurchaseMenu (purchaseMenu.standard.ToArray ());
 		pathfinding.InitializeDijkstraField (battlefieldWidth, battlefieldHeight);
 		researchMenu.Initialize ();
 		CalculatePowerLevel ();
@@ -84,12 +90,12 @@ public class Game : MonoBehaviour {
 	public void TogglePause () {
 		if (isPaused) {
 			isPaused = false;
-			pauseMenu.SetActive (false);
 			Time.timeScale = 1f;
+			pauseMenu.SetActive (false);
 		}else{
 			isPaused = true;
-			pauseMenu.SetActive (true);
 			Time.timeScale = 0f;
+			pauseMenu.SetActive (true);
 		}
 	}
 
@@ -134,25 +140,26 @@ public class Game : MonoBehaviour {
 	}
 
 	public static void CalculatePowerLevel () {
-		powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements ();
+		//powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements ();
+		powerPercentage = 1f;
 
 		string pName = "";
 		if (powerPercentage > 2)
 			pName = "Plentiful";
 
-		if (powerPercentage > 1.2f && powerPercentage <= 2f)
+		if (powerPercentage >= 1.2f && powerPercentage < 2f)
 			pName = "Formidable";
 
-		if (powerPercentage > 1f && powerPercentage <= 1.2f)
+		if (powerPercentage >= 1f && powerPercentage < 1.2f)
 			pName = "Good";
 
-		if (powerPercentage > 0.8f && powerPercentage <= 1f)
+		if (powerPercentage >= 0.8f && powerPercentage < 1f)
 			pName = "Low";
 
-		if (powerPercentage > 0.5f && powerPercentage <= 0.8f)
+		if (powerPercentage >= 0.5f && powerPercentage < 0.8f)
 			pName = "Critical";
 
-		if (powerPercentage <= 0.5f)
+		if (powerPercentage < 0.5f)
 			pName = "Outage";
 
 		Game.game.powerText.text = "Power: " + pName;
@@ -216,6 +223,16 @@ public class Game : MonoBehaviour {
 
 	void InitializeBattlefield () {
 
+		// Initialize files
+		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
+			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
+	
+		if (!Directory.Exists (WAVESET_SAVE_DIRECTORY))
+			Directory.CreateDirectory (WAVESET_SAVE_DIRECTORY);
+
+		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
+			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
+
 		// Initialize resources
 		credits = startingCredits;
 		research = startingResearch;
@@ -236,8 +253,11 @@ public class Game : MonoBehaviour {
 		isWalled = new bool[battlefieldWidth,battlefieldHeight];
 		GenerateWallMesh ();
 
-		// Initialize other
+		// Initialize purchase menu
 		purchaseMenu.stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
+		purchaseMenu.InitializePurchaseMenu (purchaseMenu.standard.ToArray ());
+		purchaseMenu.InitialzeAssemblyButtons ();
+		purchaseMenu.CloseAssemblyButtons ();
 	}
 
 	void Update () {

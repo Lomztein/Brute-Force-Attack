@@ -29,6 +29,8 @@ public class ResearchMenu : MonoBehaviour {
 	private List<GameObject> buttons = new List<GameObject>();
 	public static ResearchMenu cur;
 
+	public GameObject assemblyParent;
+
 	public void Initialize () {
 		cur = this;
 		InitializeResearchMenu ();
@@ -97,6 +99,7 @@ public class ResearchMenu : MonoBehaviour {
 		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
 		IncreaseAllCost ();
 		b.GetComponent<HoverContextElement>().text = research[index].name + ", Researched";
+		assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
 
 		Destroy (research[index]);
 		research[index] = null;
