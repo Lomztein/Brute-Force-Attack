@@ -224,9 +224,11 @@ public class Game : MonoBehaviour {
 	void InitializeBattlefield () {
 
 		// Initialize files
-		MODULE_ASSEMBLY_SAVE_DIRECTORY = Application.persistentDataPath + "/Module Assemblies/";
-		WAVESET_SAVE_DIRECTORY = Application.persistentDataPath + "/Wave Sets/";
-		BATTLEFIELD_SAVE_DIRECTORY = Application.persistentDataPath + "/Battlefield Sets/";
+		string dp = Application.dataPath;
+
+		MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
+		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
+		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
 
 		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
 			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
@@ -252,6 +254,7 @@ public class Game : MonoBehaviour {
 
 		// Initialize enemy spawn
 		enemySpawn.enemySpawnRect = new Rect (-battlefieldWidth/2, battlefieldHeight/2, battlefieldWidth, 3);
+		enemySpawn.waves = enemySpawn.LoadWaveset ("TEST");
 
 		// Initialize walls
 		isWalled = new bool[battlefieldWidth,battlefieldHeight];

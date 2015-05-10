@@ -7,7 +7,7 @@ public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
 public class Module : MonoBehaviour {
 
-	public const string MODULE_FILE_EXTENSION = ".module";
+	public const string MODULE_FILE_EXTENSION = ".mas";
 	
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
 	public Colour colour;
@@ -51,7 +51,7 @@ public class Module : MonoBehaviour {
 		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
 
 		rootModule.writer = File.CreateText (file);
-		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE FILE, EDIT WITH CAUTION");
+		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION");
 		rootModule.writer.WriteLine ("name:" + filename);
 		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
 		rootModule.writer.WriteLine ("cost:" + assemblyCost);

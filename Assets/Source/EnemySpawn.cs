@@ -2,8 +2,11 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.IO;
 
 public class EnemySpawn : MonoBehaviour {
+
+	public static string WAVESET_FILE_EXTENSION = ".wvs";
 	
 	public Rect enemySpawnRect;
 	public float spawnTime = 1f;
@@ -90,6 +93,87 @@ public class EnemySpawn : MonoBehaviour {
 
 	void OnDrawGizmos () {
 		Gizmos.DrawWireCube (enemySpawnRect.center, new Vector3 (enemySpawnRect.width, enemySpawnRect.height));
+	}
+
+	public void SaveWaveset (Wave[] waves, string name) {
+		string path = Game.WAVESET_SAVE_DIRECTORY + name + WAVESET_FILE_EXTENSION;
+		StreamWriter write = File.CreateText (path);
+
+		write.WriteLine ("PROJECT VIRUS WAVE SET FILE, EDIT WITH CAUTION");
+		write.WriteLine (name);
+
+		foreach (Wave wave in waves) {
+			write.WriteLine ("\twave:");
+			foreach (Wave.Subwave subwave in wave.subwaves) {
+				write.WriteLine ("\t\tsptm:" + subwave.spawnTime.ToString ());
+				write.WriteLine ("\t\tenms:");
+				foreach (Wave.Enemy enemy in subwave.enemies) {
+					write.WriteLine ("\t\t\tenmy:" + enemy.enemy.name);
+					write.WriteLine ("\t\t\tamnt:" + enemy.spawnAmount.ToString ());
+				}
+			}
+		}
+
+		write.WriteLine ("END OF FILE");
+		write.Close ();
+	}
+
+	public List<Wave> LoadWaveset (string name) {
+		string path = Game.WAVESET_SAVE_DIRECTORY + name + WAVESET_FILE_EXTENSION;
+		string[] content = ModuleAssemblyLoader.GetContents (path);
+
+		List<Wave> locWaves = new List<Wave> ();
+
+		Wave cw = null;
+		Wave.Subwave cs = null;
+		Wave.Enemy ce = null;
+		Debug.Log (content.Length);
+
+		for (int i = 0; i < content.Length; i++) {
+			string c = content [i];
+
+			// Find wave
+			if (c.Length > 4) {
+				if (c.Substring (0,5) == "\twave") {
+					cw = new Wave ();
+					locWaves.Add (cw);
+				}
+			}
+
+			// Find and read subwave
+			if (c.Length > 5) {
+				if (c.Substring (0,6) == "\t\tsptm") {
+					cs = new Wave.Subwave ();
+					cs.spawnTime = float.Parse (c.Substring (7));
+					cw.subwaves.Add (cs);
+				}
+			}
+
+			// Find and read enemy
+			if (c.Length > 6) {
+				if (c.Substring (0,7) == "\t\t\tenmy") {
+					ce =  new Wave.Enemy ();
+					ce.enemy = GetEnemyFromName (c.Substring (8));
+				}
+
+				if (c.Substring (0,7) == "\t\t\tamnt") {
+					ce.spawnAmount = int.Parse (c.Substring (8));
+					cs.enemies.Add (ce);
+				}
+			}
+		}
+
+		return locWaves;
+	}
+
+	GameObject GetEnemyFromName (string n) {
+		foreach (GameObject obj in enemyTypes) {
+			if (obj.name == n) {
+				return obj;
+			}
+		}
+
+		return null;
 	}
 
 	void Spawn0 () {

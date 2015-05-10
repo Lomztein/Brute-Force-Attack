@@ -117,14 +117,11 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 		return null;
 	}
 
-	static string[] GetContents (string file) {
-		int maxLength = 100;
+	public static string[] GetContents (string file) {
 		StreamReader reader = File.OpenText (file);
 		List<string> con = new List<string>();
 
-		int index = 0;
-		while (index < maxLength) {
-			index++;
+		while (true) {
 			string loc = reader.ReadLine ();
 			if (loc == "END OF FILE") {
 				break;

@@ -19,8 +19,11 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (!module)
+		if (!module) {
 			ExitMenu ();
+		}else{
+			module.rootModule.assemblyName = assemblyName.text;
+		}
 
 		if (Input.GetButtonDown ("Cancel"))
 			ExitMenu ();
@@ -40,10 +43,6 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	public void ExitMenu () {
 		gameObject.SetActive (false);
-	}
-
-	public void OnAssemblyNameChange () {
-		module.rootModule.assemblyName = assemblyName.text;
 	}
 
 	public void UpdateModuleTree () {
