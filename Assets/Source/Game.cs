@@ -254,7 +254,6 @@ public class Game : MonoBehaviour {
 
 		// Initialize enemy spawn
 		enemySpawn.enemySpawnRect = new Rect (-battlefieldWidth/2, battlefieldHeight/2, battlefieldWidth, 3);
-		enemySpawn.waves = enemySpawn.LoadWaveset ("TEST");
 
 		// Initialize walls
 		isWalled = new bool[battlefieldWidth,battlefieldHeight];
