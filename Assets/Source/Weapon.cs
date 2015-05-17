@@ -21,15 +21,18 @@ public class Weapon : MonoBehaviour {
 
 	private bool canFire = true;
 
-	// TODO Implement projectile pooling
-
-	public void Start () {
-		bulletData = bullet.GetComponent<Projectile>();
+	public Projectile GetBulletData () {
+		if (!bulletData) {
+			bulletData = bullet.GetComponent<Projectile> ();
+		}
+		return bulletData;
 	}
+
+	// TODO Implement projectile pooling
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)bulletData.effectiveAgainst] / Game.powerPercentage);
+		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / Game.powerPercentage);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -40,7 +43,7 @@ public class Weapon : MonoBehaviour {
 
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)bulletData.effectiveAgainst]);
+				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst]);
 				pro.range = maxRange * ResearchMenu.rangeMul;
 				pro.target = target;
 

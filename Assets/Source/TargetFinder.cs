@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class TargetFinder {
 
-	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer) {
+	public enum SortType { Closest, Furtherst, Base, Random, MostHealth, LeastHealth };
+
+	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities) {
 
 		// If anything is nearby, proceed.
 		if (Physics.CheckSphere (position, range, targetLayer)) {
@@ -13,11 +16,11 @@ public class TargetFinder {
 
 			float dis = float.MaxValue;
 			Transform ner = null;
+			Transform pri = null;
 
 			Collider[] nearby = Physics.OverlapSphere (position, range, targetLayer);
 			for (int i = 0; i < nearby.Length; i++) {
 
-				// TODO Add priority system.
 				// TODO Add multiple types of targeting, such as closest, random, most health, and the sorts.
 
 				// Check distance compared to previous iteration, and if smaller, save current iteration.
@@ -26,14 +29,24 @@ public class TargetFinder {
 				if (d < dis) {
 					dis = d;
 					ner = nearby[i].transform;
+
+					Enemy enemy = nearby[i].GetComponent<Enemy>();
+					if (enemy) {
+						if (priorities.Contains (enemy.type)) {
+							pri = nearby[i].transform;
+						}
+					}
 				}
 			}
 
 			if (!ner)
 				Debug.LogWarning ("Was iterated through nearby, but none was found");
 
-			return ner;
-
+			if (pri) {
+				return pri;
+			}else{
+				return ner;
+			}
 		}
 
 		return null;

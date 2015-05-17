@@ -44,12 +44,6 @@ public class RotatorModule : Module {
 		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime * ResearchMenu.turnrateMul);
 	}
 
-	// Upgrades from here on out
-
-	void IncreaseRotationSpeed15 () {
-		turnSpeed *= 1.15f;
-	}
-
 	public override string ToString () {
 		return "Turn speed: " + turnSpeed.ToString () + " - ";
 	}

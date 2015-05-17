@@ -7,8 +7,7 @@ public class RocketLauncherWeapon : Weapon {
 	public bool enableDoubleRocketResearch;
 
 	// Use this for initialization
-	new void Start () {
-		base.Start ();
+	void Start () {
 		if (doubleRocketsEnabled[(int)bulletData.effectiveAgainst] && enableDoubleRocketResearch) {
 			Transform[] newM = new Transform[muzzles.Length * 2];
 			for (int i = 0; i < muzzles.Length; i++) {

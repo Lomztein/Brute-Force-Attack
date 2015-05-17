@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BaseModule : Module {
 
@@ -17,6 +18,7 @@ public class BaseModule : Module {
 	[Header ("Stats")]
 	public float range;
 	private float fastestBulletSpeed;
+	public List<Colour> priorities;
 
 	[Header ("Boosts")]
 	public float damageBoost = 1f;
@@ -43,7 +45,7 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer);
+		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer, priorities.ToArray ());
 		if (target)
 			targetPos = target.position;
 	}
@@ -56,8 +58,14 @@ public class BaseModule : Module {
 		Weapon[] weapons = GetComponentsInChildren<Weapon>();
 		float speed = 0;
 		for (int i = 0; i < weapons.Length; i++) {
-			if (weapons[i].bulletSpeed > speed)
-				speed = weapons[i].bulletSpeed;
+			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
+				if (weapons[i].bulletSpeed > speed)
+					speed = weapons[i].bulletSpeed;
+
+				if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
+					priorities.Add (weapons[i].GetBulletData ().effectiveAgainst);
+				}
+			}
 		}
 
 		return speed;
