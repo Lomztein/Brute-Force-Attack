@@ -30,10 +30,10 @@ public class WeaponModule : Module {
 		if (parentBase) {
 			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < range) {
 				weapon.target = parentBase.target;
-				weapon.Fire ();
+				weapon.Fire (parentBase.targetPos);
 			}
 		}else{
-			weapon.Fire ();
+			weapon.Fire (weapon.transform.position + weapon.transform.right);
 		}
 	}
 

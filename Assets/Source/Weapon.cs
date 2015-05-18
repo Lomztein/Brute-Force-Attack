@@ -18,7 +18,8 @@ public class Weapon : MonoBehaviour {
 	public float firerate;
 	public float reloadTime;
 	public float sequenceTime;
-
+		
+	private Transform pointer;
 	private bool canFire = true;
 
 	public Projectile GetBulletData () {
@@ -29,6 +30,12 @@ public class Weapon : MonoBehaviour {
 	}
 
 	// TODO Implement projectile pooling
+
+	public virtual void Start () {
+		pointer = new GameObject ("Pointer").transform;
+		pointer.parent = transform;
+		pointer.transform.position = transform.position;
+	}
 
 	IEnumerator DoFire () {
 
@@ -58,9 +65,14 @@ public class Weapon : MonoBehaviour {
 
 	}
 
-	public void Fire () {
-		if (canFire)
-			StartCoroutine ("DoFire");
+	public void Fire (Vector3 position) {
+		if (canFire) {
+			float angle = Angle.CalculateAngle (transform.position, position);
+			pointer.eulerAngles = new Vector3 (0,0,angle);
+			if (Vector3.Distance (transform.eulerAngles, pointer.eulerAngles) < 1f) {
+				StartCoroutine ("DoFire");
+			}
+		}
 	}
 
 	void ChamberBullet () {

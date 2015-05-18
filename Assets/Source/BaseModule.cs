@@ -31,10 +31,15 @@ public class BaseModule : Module {
 		}else{
 
 			if (enableAdvancedTracking) {
-				targetVel = (target.position - prevPos)/Time.fixedDeltaTime;
-				targetPos = target.position + Vector3.Distance (transform.position, target.position)/fastestBulletSpeed * targetVel;
-				prevPos = target.position;
-				Debug.DrawLine (target.position, targetPos);
+				Vector3 delPos = target.position - prevPos;
+				if (delPos.magnitude > 0.1f) {
+					targetVel = delPos/Time.fixedDeltaTime;
+					targetPos = target.position + Vector3.Distance (transform.position, target.position)/fastestBulletSpeed * targetVel;
+					prevPos = target.position;
+					Debug.DrawLine (target.position, targetPos);
+				}else{
+					targetPos = target.position;
+				}
 			}else{
 				targetPos = target.position;
 			}

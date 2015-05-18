@@ -97,7 +97,7 @@ public class ResearchMenu : MonoBehaviour {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
 		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
-		IncreaseAllCost ();
+		// IncreaseAllCost ();
 		b.GetComponent<HoverContextElement>().text = research[index].name + ", Researched";
 		assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
 
@@ -206,14 +206,15 @@ public class ResearchMenu : MonoBehaviour {
 
 			Vector3 pos = GetPos (u) * 100f;
 			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
-			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
 			newU.transform.SetParent (buttonParent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
 			u.button = newU;
 			image.sprite = u.sprite;
 			buttons.Add (newU);
 			u.index = i;
+			u.y++;
 
+			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
@@ -251,7 +252,9 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void IncreaseFirerate (Research research) {
-		firerateMul[(int)research.colour] *= (float)research.value/100 + 1f;
+		float loc = 1f/firerateMul [(int)research.colour];
+		loc *= (float)research.value / 100f + 1f;
+		firerateMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseDamage (Research research) {
@@ -260,6 +263,10 @@ public class ResearchMenu : MonoBehaviour {
 
 	public void DecreaseCost (Research research) {
 		damageMul[(int)research.colour] *= 1f - (float)research.value/100;
+
+		float loc = 1f/costMul[(int)research.colour];
+		loc *= (float)research.value / 100f + 1f;
+		costMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseTurnrate (Research research) {

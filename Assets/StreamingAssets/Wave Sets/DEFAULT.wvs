@@ -60,8 +60,6 @@ DEFAULT
 		enms:
 			enmy:BasicEnemy
 			amnt:30
-			enmy:FastEnemy
-			amnt:15
 			enmy:HeavyEnemy
 			amnt:5
 		sptm:7.5
