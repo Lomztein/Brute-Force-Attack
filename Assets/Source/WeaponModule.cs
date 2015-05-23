@@ -4,36 +4,45 @@ using System.Collections;
 public class WeaponModule : Module {
 
 	public Weapon weapon;
-	public float range = 15f;
-	public bool useBaseRange = true;
+	public float rangeMultiplier = 1f;
+
+	public RotatorModule parentRotator;
 	
 	// Update is called once per frame
 	new void Start () {
 		base.Start ();
 		if (parentBase) {
-			if (useBaseRange) {
-				range = parentBase.range;
-				weapon.maxRange = range;
-			}else{
-				weapon.maxRange = range;
-			}
-
 			weapon.bulletDamage = Mathf.RoundToInt ((float)weapon.bulletDamage * parentBase.damageBoost);
 			weapon.firerate *= parentBase.damageBoost;
+			weapon.maxRange = parentBase.range * rangeMultiplier;
 		}else{
-			weapon.maxRange = range;
+			weapon.maxRange = 20f * rangeMultiplier;
 		}
+		FindParentRotator ();
 	}
 
 	void Update () {
 
 		if (parentBase) {
-			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < range) {
+			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange) {
 				weapon.target = parentBase.target;
-				weapon.Fire (parentBase.targetPos);
+				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
 			}
 		}else{
-			weapon.Fire (weapon.transform.position + weapon.transform.right);
+			weapon.Fire (parentRotator, transform.position, weapon.transform.position + weapon.transform.right);
+		}
+	}
+
+	void FindParentRotator () {
+		if (transform.parent == null) {
+			parentRotator = GetComponent<RotatorModule>();
+		}else{
+			Transform cur = transform;
+			while (parentRotator == null && cur.parent) {
+				parentRotator = cur.GetComponent<RotatorModule>();
+				if (!parentRotator) cur = cur.parent;
+			}
+			parentRotator = cur.GetComponent<RotatorModule>();
 		}
 	}
 

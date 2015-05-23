@@ -59,17 +59,21 @@ public class Weapon : MonoBehaviour {
 			
 			}
 
-			yield return new WaitForSeconds (sequenceTime);
+			yield return new WaitForSeconds (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst]);
 
 		}
 
 	}
 
-	public void Fire (Vector3 position) {
+	public void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position) {
 		if (canFire) {
-			float angle = Angle.CalculateAngle (transform.position, position);
+			if (!rotator) {
+				StartCoroutine ("DoFire");
+				return;
+			}
+			float angle = Angle.CalculateAngle (basePos, position);
 			pointer.eulerAngles = new Vector3 (0,0,angle);
-			if (Vector3.Distance (transform.eulerAngles, pointer.eulerAngles) < 1f) {
+			if (Vector3.Distance (rotator.transform.eulerAngles, pointer.eulerAngles) < 1f) {
 				StartCoroutine ("DoFire");
 			}
 		}

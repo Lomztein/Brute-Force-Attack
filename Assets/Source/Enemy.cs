@@ -76,6 +76,8 @@ public class Enemy : MonoBehaviour {
 		if (health < 0) {
 			Game.credits += Mathf.RoundToInt ((float)value * (int)EnemySpawn.gameProgress * 0.2f);
 			SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
+			EnemySpawn.cur.OnEnemyDeath ();
+
 			Destroy (gameObject);
 
 			if (Random.Range (0, researchDropChance) == 0)
@@ -119,5 +121,6 @@ public class Enemy : MonoBehaviour {
 		}
 
 		Destroy (gameObject);
+		EnemySpawn.cur.OnEnemyDeath ();
 	}
 }

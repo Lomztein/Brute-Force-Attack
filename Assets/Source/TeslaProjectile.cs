@@ -7,27 +7,35 @@ public class TeslaProjectile : Projectile {
 	public float segmentLength;
 	public float noiseAmount;
 	public LineRenderer lineRenderer;
+	private Vector3 end;
 
 	void Start () {
+
+		Debug.Log (transform.position);
 
 		Ray ray = new Ray (transform.position, velocity.normalized);
 		RaycastHit hit;
 
 		if (Physics.SphereCast (ray, spherecastWidth, out hit, range, Game.game.enemyLayer)) {
 			DrawTeslaBeam (hit.point);
+			end = hit.point;
 			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst));
 		}else{
 			DrawTeslaBeam (ray.GetPoint (range));
+			end = ray.GetPoint (range);
 		}
-
-		velocity = Vector3.zero;
 		Destroy (gameObject, 1f);
+	}
+
+	void FixedUpdate () {
+		if (Random.Range (0, 50) == 0)
+			DrawTeslaBeam (end);
 	}
 
 	void DrawTeslaBeam (Vector3 end) {
 		lineRenderer.SetPosition (0, transform.position);
 		
-		int segments = (Mathf.RoundToInt (Vector3.Distance (transform.position, end) / segmentLength));
+		int segments = (Mathf.CeilToInt (Vector3.Distance (transform.position, end) / segmentLength));
 		Vector3 dir = velocity.normalized * segmentLength;
 		lineRenderer.SetVertexCount (segments);
 

@@ -14,6 +14,8 @@ public class EnemySpawn : MonoBehaviour {
 	public GameObject[] enemyTypes;
 
 	public static bool waveStarted;
+	public static bool wavePrebbing;
+
 	public Image waveStartedIndicator;
 	public Text waveCounterIndicator;
 	public GameObject gameOverIndicator;
@@ -28,26 +30,56 @@ public class EnemySpawn : MonoBehaviour {
 	public static float gameProgress = 1f;
 	public float gameProgressSpeed = 1f;
 
+	public int currentEnemies;
+	public GameObject endBoss;
+
+	public static EnemySpawn cur;
+
 	void Start () {
+		cur = this;
 		EndWave ();
 	}
 
+	// TODO: Replace wavePrebbing and waveStarted with enums
+
 	public void ReadyWave () {
-		waveStartedIndicator.color = Color.yellow;
-		waveCounterIndicator.text = "Wave: Initialzing..";
-		Dijkstra.BakePaths ();
+		if (!waveStarted && !wavePrebbing) {
+			wavePrebbing = true;
+			waveStartedIndicator.color = Color.yellow;
+			waveCounterIndicator.text = "Wave: Initialzing..";
+			Dijkstra.BakePaths ();
+		}
+	}
+
+	public void OnEnemyDeath () {
+		currentEnemies--;
+		if (currentEnemies < 1) {
+			EndWave ();
+
+			if (waveNumber > waves.Count + 1) {
+				gameOverIndicator.SetActive (true);
+			}
+		}
 	}
 
 	public void StartWave () {
 		waveNumber++;
 		if (waveNumber <= waves.Count) {
+			wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
+
+			Wave cur = waves[waveNumber - 1];
+			foreach (Wave.Subwave sub in cur.subwaves) {
+				foreach (Wave.Enemy ene in sub.enemies) {
+					currentEnemies += ene.spawnAmount;
+				}
+			}
 		}else{
-			gameOverIndicator.SetActive (true);
+			Instantiate (endBoss, GetSpawnPosition (), Quaternion.identity);
 		}
 	}
 
@@ -55,16 +87,13 @@ public class EnemySpawn : MonoBehaviour {
 		if (!first)
 			subwaveNumber++;
 
-		if (subwaveNumber >= waves[waveNumber - 1].subwaves.Count) {
-			EndWave ();
-			return;
-		}
+		if (waves [waveNumber - 1].subwaves [subwaveNumber] != null) {
+			currentSubwave = waves [waveNumber - 1].subwaves [subwaveNumber];
+			spawnIndex = new int[currentSubwave.enemies.Count];
 
-		currentSubwave = waves[waveNumber - 1].subwaves[subwaveNumber];
-		spawnIndex = new int[currentSubwave.enemies.Count];
-
-		for (int i = 0; i < currentSubwave.enemies.Count; i++) {
-			Invoke ("Spawn" + i.ToString (), 0f);
+			for (int i = 0; i < currentSubwave.enemies.Count; i++) {
+				Invoke ("Spawn" + i.ToString (), 0f);
+			}
 		}
 	}
 
