@@ -72,6 +72,7 @@ public class EnemySpawn : MonoBehaviour {
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
 
+			currentEnemies = 0;
 			Wave cur = waves[waveNumber - 1];
 			foreach (Wave.Subwave sub in cur.subwaves) {
 				foreach (Wave.Enemy ene in sub.enemies) {
@@ -87,14 +88,19 @@ public class EnemySpawn : MonoBehaviour {
 		if (!first)
 			subwaveNumber++;
 
-		if (waves [waveNumber - 1].subwaves [subwaveNumber] != null) {
+		if (waves [waveNumber - 1].subwaves.Count > subwaveNumber) {
 			currentSubwave = waves [waveNumber - 1].subwaves [subwaveNumber];
 			spawnIndex = new int[currentSubwave.enemies.Count];
 
 			for (int i = 0; i < currentSubwave.enemies.Count; i++) {
 				Invoke ("Spawn" + i.ToString (), 0f);
 			}
+			Invoke ("ContinueFalseWave", currentSubwave.spawnTime + 2f);
 		}
+	}
+
+	void ContinueFalseWave () {
+		ContinueWave (false);
 	}
 
 	public void EndWave () {
@@ -115,8 +121,6 @@ public class EnemySpawn : MonoBehaviour {
 
 		if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount) {
 			Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / (float)currentSubwave.enemies[index].spawnAmount);
-		}else{
-			ContinueWave (false);
 		}
 	}
 
