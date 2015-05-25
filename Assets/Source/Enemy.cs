@@ -24,6 +24,7 @@ public class Enemy : MonoBehaviour {
 
 	[Header ("Other")]
 	public GameObject researchPoint;
+	private bool isDead;
 
 	// TODO Add pathfinding and, well, just improve overall
 
@@ -73,7 +74,8 @@ public class Enemy : MonoBehaviour {
 			health -= Mathf.RoundToInt ((float)damage.damage / 2f);
 		}
 
-		if (health < 0) {
+		if (health < 0 && !isDead) {
+			isDead = true;
 			Game.credits += Mathf.RoundToInt ((float)value * (int)EnemySpawn.gameProgress * 0.2f);
 			SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 			EnemySpawn.cur.OnEnemyDeath ();

@@ -6,7 +6,7 @@ public class RailgunProjectile : Projectile {
 	public float spherecastWidth;
 
 	void FixedUpdate () {
-		CastRay ();
+		CastSphereRay ();
 		transform.position += velocity * Time.fixedDeltaTime;
 	}
 

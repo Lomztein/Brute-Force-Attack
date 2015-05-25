@@ -17,6 +17,7 @@ public class BaseModule : Module {
 
 	[Header ("Stats")]
 	public float range;
+	private float targetingRange;
 	private float fastestBulletSpeed;
 	public List<Colour> priorities;
 
@@ -62,6 +63,7 @@ public class BaseModule : Module {
 	float GetFastestBulletSpeed () {
 		Weapon[] weapons = GetComponentsInChildren<Weapon>();
 		float speed = 0;
+		float r = 0;
 		for (int i = 0; i < weapons.Length; i++) {
 			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
 				if (weapons[i].bulletSpeed > speed)

@@ -26,6 +26,7 @@ public class EnemySpawn : MonoBehaviour {
 	public int waveNumber;
 	private int subwaveNumber;
 	private int[] spawnIndex;
+	private int endedIndex;
 	
 	public static float gameProgress = 1f;
 	public float gameProgressSpeed = 1f;
@@ -76,6 +77,8 @@ public class EnemySpawn : MonoBehaviour {
 			Wave cur = waves[waveNumber - 1];
 			foreach (Wave.Subwave sub in cur.subwaves) {
 				foreach (Wave.Enemy ene in sub.enemies) {
+					SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
+					if (split) currentEnemies += split.spawnPos.Length;
 					currentEnemies += ene.spawnAmount;
 				}
 			}
@@ -85,17 +88,20 @@ public class EnemySpawn : MonoBehaviour {
 	}
 
 	void ContinueWave (bool first) {
+
+		endedIndex = 0;
 		if (!first)
 			subwaveNumber++;
 
 		if (waves [waveNumber - 1].subwaves.Count > subwaveNumber) {
 			currentSubwave = waves [waveNumber - 1].subwaves [subwaveNumber];
 			spawnIndex = new int[currentSubwave.enemies.Count];
+			Debug.Log ("LOLOLOLOLOL :)");
 
 			for (int i = 0; i < currentSubwave.enemies.Count; i++) {
 				Invoke ("Spawn" + i.ToString (), 0f);
 			}
-			Invoke ("ContinueFalseWave", currentSubwave.spawnTime + 2f);
+			//Invoke ("ContinueFalseWave", currentSubwave.spawnTime + 2f);
 		}
 	}
 
@@ -116,11 +122,19 @@ public class EnemySpawn : MonoBehaviour {
 	}
 
 	void CreateEnemy (GameObject enemy, int index) {
-		Instantiate (enemy, GetSpawnPosition (), Quaternion.identity);
-		spawnIndex[index]++;
+		if (enemy) {
+			Instantiate (enemy, GetSpawnPosition (), Quaternion.identity);
+			spawnIndex[index]++;
 
-		if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount) {
-			Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / (float)currentSubwave.enemies[index].spawnAmount);
+			if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount) {
+				Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / (float)currentSubwave.enemies[index].spawnAmount);
+			}else{
+				endedIndex++;
+				Debug.Log ("LOLOL");
+				if (endedIndex == spawnIndex.Length) {
+					ContinueWave (false);
+				}
+			}
 		}
 	}
 
