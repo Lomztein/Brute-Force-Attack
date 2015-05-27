@@ -6,6 +6,7 @@ using System.IO;
 
 public class EnemySpawn : MonoBehaviour {
 
+	[Header ("References")]
 	public static string WAVESET_FILE_EXTENSION = ".wvs";
 	
 	public Rect enemySpawnRect;
@@ -20,6 +21,7 @@ public class EnemySpawn : MonoBehaviour {
 	public Text waveCounterIndicator;
 	public GameObject gameOverIndicator;
 
+	[Header ("Wave Stuffs")]
 	public List<Wave> waves = new List<Wave>();
 	public Wave.Subwave currentSubwave;
 
@@ -27,18 +29,38 @@ public class EnemySpawn : MonoBehaviour {
 	private int subwaveNumber;
 	private int[] spawnIndex;
 	private int endedIndex;
+	public int waveMastery = 1;
 	
 	public static float gameProgress = 1f;
 	public float gameProgressSpeed = 1f;
 
+	[Header ("Enemies")]
 	public int currentEnemies;
 	public GameObject endBoss;
 
 	public static EnemySpawn cur;
 
+	[Header ("Upcoming Wave")]
+	public RectTransform upcomingCanvas;
+	public RectTransform upcomingWindow;
+	public GameObject upcomingEnemyPrefab;
+	public GameObject upcomingSeperatorPrefab;
+	private List<GameObject> upcomingContent = new List<GameObject>();
+
+	public float buttonSize;
+	public float seperatorSize;
+	public float windowPosY;
+
 	void Start () {
 		cur = this;
 		EndWave ();
+	}
+
+	void Poop () {
+		// Hø hø hø hø..
+		waveNumber++;
+		UpdateUpcomingWaveScreen (waves [waveNumber]);
+		Invoke ("Poop", 1f);
 	}
 
 	// TODO: Replace wavePrebbing and waveStarted with enums
@@ -57,15 +79,62 @@ public class EnemySpawn : MonoBehaviour {
 		if (currentEnemies < 1) {
 			EndWave ();
 
-			if (waveNumber > waves.Count + 1) {
-				gameOverIndicator.SetActive (true);
+			if (waveNumber > waves.Count) {
+				if (waveMastery == 1) {
+					gameOverIndicator.SetActive (true);
+				}else{
+					ContinueMastery ();
+				}
 			}
 		}
+	}
+
+	public void ContinueMastery () {
+		waveNumber = 0;
+		waveMastery *= 2;
+		gameOverIndicator.SetActive (false);
+	}
+
+	void UpdateUpcomingWaveScreen (Wave upcoming) {
+
+		for (int i = 0; i < upcomingContent.Count; i++) {
+			Destroy (upcomingContent [i]);
+		}
+
+		int sIndex = 0;
+		int eIndex = 0;
+
+		foreach (Wave.Subwave sub in upcoming.subwaves) {
+
+			Vector3 sepPos = Vector3.down * (4 + eIndex * buttonSize) + Vector3.down * sIndex * seperatorSize;
+			GameObject newSep = (GameObject)Instantiate (upcomingSeperatorPrefab, sepPos, Quaternion.identity);
+			newSep.transform.SetParent (upcomingCanvas, false);
+			upcomingContent.Add (newSep);
+			sIndex++;
+			foreach (Wave.Enemy ene in sub.enemies) {
+
+				RectTransform rt = upcomingEnemyPrefab.GetComponent<RectTransform>();
+				Vector3 enePos = new Vector3 (-rt.sizeDelta.x ,-rt.sizeDelta.y, 0) / 2 + Vector3.down * sIndex * seperatorSize + Vector3.down * eIndex * buttonSize + Vector3.right * 45;
+				GameObject newEne = (GameObject)Instantiate (upcomingEnemyPrefab, enePos, Quaternion.identity);
+				newEne.transform.SetParent (upcomingCanvas, false);
+				upcomingContent.Add (newEne);
+
+				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+				Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
+				text.text = "x " + (ene.spawnAmount * waveMastery).ToString ();
+
+				eIndex++;
+			}
+		}
+
+		upcomingWindow.sizeDelta = new Vector2 (upcomingWindow.sizeDelta.x, sIndex * seperatorSize + eIndex * buttonSize + buttonSize);
+		upcomingWindow.position = new Vector3 (upcomingWindow.position.x, Screen.height - windowPosY - upcomingWindow.sizeDelta.y / 2);
 	}
 
 	public void StartWave () {
 		waveNumber++;
 		if (waveNumber <= waves.Count) {
+
 			wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
@@ -78,12 +147,16 @@ public class EnemySpawn : MonoBehaviour {
 			foreach (Wave.Subwave sub in cur.subwaves) {
 				foreach (Wave.Enemy ene in sub.enemies) {
 					SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
-					if (split) currentEnemies += split.spawnPos.Length;
-					currentEnemies += ene.spawnAmount;
+					if (split) currentEnemies += split.spawnPos.Length * waveMastery;
+					currentEnemies += ene.spawnAmount * waveMastery;
 				}
 			}
 		}else{
 			Instantiate (endBoss, GetSpawnPosition (), Quaternion.identity);
+			waveCounterIndicator.text = "Wave: HOLY SHIT WHAT THE FUCK IS THAT?!";
+			
+			wavePrebbing = false;
+			waveStarted = true;
 		}
 	}
 
@@ -96,7 +169,6 @@ public class EnemySpawn : MonoBehaviour {
 		if (waves [waveNumber - 1].subwaves.Count > subwaveNumber) {
 			currentSubwave = waves [waveNumber - 1].subwaves [subwaveNumber];
 			spawnIndex = new int[currentSubwave.enemies.Count];
-			Debug.Log ("LOLOLOLOLOL :)");
 
 			for (int i = 0; i < currentSubwave.enemies.Count; i++) {
 				Invoke ("Spawn" + i.ToString (), 0f);
@@ -115,6 +187,7 @@ public class EnemySpawn : MonoBehaviour {
 		subwaveNumber = 0;
 		waveStartedIndicator.color = Color.green;
 		Game.credits += 25 * waveNumber;
+		UpdateUpcomingWaveScreen (waves [waveNumber]);
 	}
 
 	Vector3 GetSpawnPosition () {
@@ -124,13 +197,13 @@ public class EnemySpawn : MonoBehaviour {
 	void CreateEnemy (GameObject enemy, int index) {
 		if (enemy) {
 			Instantiate (enemy, GetSpawnPosition (), Quaternion.identity);
+
 			spawnIndex[index]++;
 
-			if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount) {
-				Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / (float)currentSubwave.enemies[index].spawnAmount);
+			if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount * waveMastery) {
+				Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / ((float)currentSubwave.enemies[index].spawnAmount * waveMastery));
 			}else{
 				endedIndex++;
-				Debug.Log ("LOLOL");
 				if (endedIndex == spawnIndex.Length) {
 					ContinueWave (false);
 				}

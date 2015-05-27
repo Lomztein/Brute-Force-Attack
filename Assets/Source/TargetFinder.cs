@@ -4,9 +4,9 @@ using System.Linq;
 
 public class TargetFinder {
 
-	public enum SortType { Closest, Furtherst, Base, Random, MostHealth, LeastHealth };
+	public enum SortType { Closest, Furthest, MostHealth, LeastHealth, First, Last };
 
-	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities) {
+	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities, SortType sort) {
 
 		// If anything is nearby, proceed.
 		if (Physics.CheckSphere (position, range, targetLayer)) {
@@ -20,17 +20,47 @@ public class TargetFinder {
 
 			Collider[] nearby = Physics.OverlapSphere (position, range, targetLayer);
 			for (int i = 0; i < nearby.Length; i++) {
+					
+			// Check distance compared to previous iteration, and if smaller, save current iteration.
 
-				// TODO Add multiple types of targeting, such as closest, random, most health, and the sorts.
+				float d = 0f;
+				Enemy enemy = nearby[i].GetComponent<Enemy>();
 
-				// Check distance compared to previous iteration, and if smaller, save current iteration.
+				switch (sort) {
 
-				float d = Vector3.Distance (position, nearby[i].transform.position);
+				case SortType.LeastHealth:
+					d = (float)enemy.health;
+					break;
+						
+				case SortType.MostHealth:
+					d = -(float)enemy.health;
+					break;
+
+				case SortType.Last:
+					d = -(float)enemy.GetPathDistanceRemaining ();
+					break;
+
+				case SortType.First:
+					d = (float)enemy.GetPathDistanceRemaining ();
+					break;
+
+				case SortType.Closest:
+					d = Vector3.Distance (position, nearby[i].transform.position);
+					break;
+
+				case SortType.Furthest:
+					d = -float.MaxValue - Vector3.Distance (position, nearby[i].transform.position);
+					break;
+				
+				default:
+					d = Vector3.Distance (position, nearby[i].transform.position);
+					break;
+				}
+				
 				if (d < dis) {
 					dis = d;
 					ner = nearby[i].transform;
 
-					Enemy enemy = nearby[i].GetComponent<Enemy>();
 					if (enemy) {
 						if (priorities.Contains (enemy.type)) {
 							pri = nearby[i].transform;

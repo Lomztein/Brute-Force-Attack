@@ -17,6 +17,5 @@ public class TobyBoss : MonoBehaviour {
 		float percentage = 1 - (float)enemyComponent.health / (float)startHealth;
 		spriteIndex = Mathf.FloorToInt (percentage * (float)tobySprites.Length);
 		sprite.sprite = tobySprites [spriteIndex];
-		Debug.Log ("P: " + percentage + ", S: " + spriteIndex);
 	}
 }

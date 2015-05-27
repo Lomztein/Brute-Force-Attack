@@ -35,6 +35,10 @@ public class Enemy : MonoBehaviour {
 		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
 	}
 
+	public int GetPathDistanceRemaining () {
+		return path.Length - pathIndex;
+	}
+
 	// Update is called once per frame
 	void FixedUpdate () {
 		Move ();

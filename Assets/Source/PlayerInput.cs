@@ -15,6 +15,10 @@ public class PlayerInput : MonoBehaviour {
 	private Module pModule;
 	public bool isPlacing;
 	private bool isRotting;
+	
+	private bool enableFastBuild;
+	private Vector2 dragStart;
+	private Vector2 dragEnd;
 
 	private Vector3 pos;
 	private Vector3 placePos;

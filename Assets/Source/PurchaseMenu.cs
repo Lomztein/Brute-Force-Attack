@@ -193,7 +193,7 @@ public class PurchaseMenu : MonoBehaviour {
 						menu.buttons[index].transform.FindChild ("Amount").GetComponent<Text>().text = "";
 					}
 				}else{
-					menu.buttons[index].transform.FindChild ("Image").GetComponent<Image>().color = new Color (0.5f, 0.5f, 0.5f);
+					menu.buttons[index].transform.FindChild ("Image").GetComponent<Image>().color = new Color (0.5f, 0.5f, 0.5f, 0.5f);
 				}
 
 				index++;

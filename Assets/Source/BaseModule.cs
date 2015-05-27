@@ -9,6 +9,7 @@ public class BaseModule : Module {
 	public Vector3 targetPos;
 	private Vector3 prevPos;
 	private Vector3 targetVel;
+	public TargetFinder.SortType sortType = TargetFinder.SortType.Closest;
 
 	public LayerMask targetLayer;
 	private TargetFinder targetFinder = new TargetFinder ();
@@ -51,7 +52,7 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer, priorities.ToArray ());
+		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer, priorities.ToArray (), sortType);
 		if (target)
 			targetPos = target.position;
 	}
