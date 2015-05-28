@@ -93,6 +93,7 @@ public class EnemySpawn : MonoBehaviour {
 		waveNumber = 0;
 		waveMastery *= 2;
 		gameOverIndicator.SetActive (false);
+		UpdateUpcomingWaveScreen (waves[waveNumber]);
 	}
 
 	void UpdateUpcomingWaveScreen (Wave upcoming) {
@@ -187,7 +188,9 @@ public class EnemySpawn : MonoBehaviour {
 		subwaveNumber = 0;
 		waveStartedIndicator.color = Color.green;
 		Game.credits += 25 * waveNumber;
-		UpdateUpcomingWaveScreen (waves [waveNumber]);
+		if (waves.Count >= waveNumber + 1) {
+			UpdateUpcomingWaveScreen (waves [waveNumber]);
+		}
 	}
 
 	Vector3 GetSpawnPosition () {

@@ -81,7 +81,7 @@ public class BaseModule : Module {
 
 	public override string ToString () {
 		string text = "";
-		text += "Range: " + range.ToString () + " - \n\n";
+		text += "Range: " + (range * upgradeMul).ToString () + " - \n\n";
 		if (damageBoost != 1f) {
 			text += "Damage Multiplier: " + damageBoost.ToString () + " - \n\n";
 		}

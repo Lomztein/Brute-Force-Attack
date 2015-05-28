@@ -45,6 +45,6 @@ public class RotatorModule : Module {
 	}
 
 	public override string ToString () {
-		return "Turn speed: " + turnSpeed.ToString () + " - ";
+		return "Turn speed: " + (turnSpeed * upgradeMul).ToString () + " - ";
 	}
 }
