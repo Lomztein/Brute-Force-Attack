@@ -59,7 +59,8 @@ public class ChargingBeamWeapon : Weapon {
 			charge += chargeSpeed * Time.fixedDeltaTime * chargeSpeedMultiplier * upgradeMul;
 		}
 		
-		line.SetWidth (charge / maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul, maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul);
+		line.SetWidth (charge / maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul,
+		               charge / maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul);
 
 		if (Physics.Raycast (ray, out hit, maxRange * ResearchMenu.rangeMul * upgradeMul, Game.game.enemyLayer)) {
 			line.SetPosition (0, muzzles [0].position);

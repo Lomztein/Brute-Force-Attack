@@ -54,13 +54,13 @@ public class WeaponModule : Module {
 
 	public override string ToString () {
 		// This is gonna be a big one, hang on..
-		string text = "Damage: " + (weapon.bulletDamage * weapon.bulletAmount * ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst]).ToString () + "\n\n - " + 
-			"Firerate: " + (weapon.firerate * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst]).ToString () + "\n\n - " +
+		string text = "Damage: " + (weapon.bulletDamage * weapon.bulletAmount * ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] * upgradeMul).ToString () + "\n\n - " + 
+			"Firerate: " + (weapon.firerate * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst] / upgradeMul).ToString () + "\n\n - " +
 				"Spread: " + weapon.bulletSpread.ToString () + "\n\n - " + 
 				"Muzzles: " + weapon.muzzles.Length.ToString () + "\n\n - " +
-				"DPS: " + ((weapon.bulletDamage * weapon.bulletAmount * 
+				"DPS: " + ((weapon.bulletDamage * weapon.bulletAmount * upgradeMul *
 				ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] *
-				weapon.muzzles.Length) / weapon.firerate).ToString () + " - ";
+				weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData().effectiveAgainst])).ToString () + " - ";
 
 		return text;
 	}

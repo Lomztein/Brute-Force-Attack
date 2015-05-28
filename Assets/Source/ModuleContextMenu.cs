@@ -35,16 +35,23 @@ public class ModuleContextMenu : MonoBehaviour {
 		module.SellModule ();
 	}
 
+	void UpdateDescriptions () {
+		moduleStats.text = module.ToString ();
+	}
+
 	public void UpgradeModule () {
 		if (module.upgradeCost < Game.credits) {
 			Game.credits -= module.upgradeCost;
 			if (module.UpgradeModule ()) {
 				upgradeButton.interactable = false;
 				upgradeButton.GetComponent<HoverContextElement>().text = "Maxed Out";
+				UpdateDescriptions ();
 				return;
 			}
+			UpdateDescriptions ();
 			upgradeButton.GetComponent<HoverContextElement>().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
 		}
+		UpdateDescriptions ();
 		return;
 	}
 
