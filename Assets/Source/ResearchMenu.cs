@@ -309,4 +309,8 @@ public class ResearchMenu : MonoBehaviour {
 	public void EnableAutoFindTarget (Research research) {
 		HomingProjectile.autoFindTarget = true;
 	}
+
+	public void IncreaseBeamCannonChargeSpeed (Research research) {
+		ChargingBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
+	}
 }

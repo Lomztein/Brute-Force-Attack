@@ -52,7 +52,7 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (transform.position, range * Game.powerPercentage, targetLayer, priorities.ToArray (), sortType);
+		target = targetFinder.FindTarget (transform.position, range * upgradeMul, targetLayer, priorities.ToArray (), sortType);
 		if (target)
 			targetPos = target.position;
 	}

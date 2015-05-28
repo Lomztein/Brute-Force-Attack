@@ -41,7 +41,7 @@ public class RotatorModule : Module {
 	}
 
 	void RotateToAngle () {
-		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime * ResearchMenu.turnrateMul);
+		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime * ResearchMenu.turnrateMul * upgradeMul);
 	}
 
 	public override string ToString () {

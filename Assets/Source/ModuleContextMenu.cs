@@ -17,6 +17,8 @@ public class ModuleContextMenu : MonoBehaviour {
 	private Module[] moduleTree;
 	private GameObject[] moduleTreeButtons;
 
+	public Button upgradeButton;
+
 	// Update is called once per frame
 	void Update () {
 		if (!module) {
@@ -31,6 +33,19 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	public void SellModule () {
 		module.SellModule ();
+	}
+
+	public void UpgradeModule () {
+		if (module.upgradeCost < Game.credits) {
+			Game.credits -= module.upgradeCost;
+			if (module.UpgradeModule ()) {
+				upgradeButton.interactable = false;
+				upgradeButton.GetComponent<HoverContextElement>().text = "Maxed Out";
+				return;
+			}
+			upgradeButton.GetComponent<HoverContextElement>().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
+		}
+		return;
 	}
 
 	public void StockModule () {
@@ -73,6 +88,15 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	public void OpenModule (Module module) {
 		this.module = module;
+
+		if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
+			upgradeButton.GetComponent<HoverContextElement> ().text = "Maxed Out";
+			upgradeButton.interactable = false;
+		} else {
+			upgradeButton.GetComponent<HoverContextElement> ().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
+			upgradeButton.interactable = true;
+		}
+		
 		moduleImage.sprite = module.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 		moduleName.text = module.moduleName;
 		moduleStats.text = module.ToString ();

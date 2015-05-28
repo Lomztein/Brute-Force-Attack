@@ -21,6 +21,12 @@ public class WeaponModule : Module {
 		FindParentRotator ();
 	}
 
+	public override bool UpgradeModule () {
+		bool passed = base.UpgradeModule ();
+		weapon.upgradeMul = upgradeMul;
+		return passed;
+	}
+
 	void Update () {
 
 		if (parentBase) {

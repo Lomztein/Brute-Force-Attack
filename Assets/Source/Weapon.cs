@@ -14,13 +14,14 @@ public class Weapon : MonoBehaviour {
 	public float maxRange;
 	public Transform target;
 	public GameObject fireParticle;
+	public float upgradeMul = 1;
 
 	public float firerate;
 	public float reloadTime;
 	public float sequenceTime;
 		
-	private Transform pointer;
-	private bool canFire = true;
+	public Transform pointer;
+	public bool canFire = true;
 
 	public Projectile GetBulletData () {
 		if (!bulletData) {
@@ -39,7 +40,7 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / Game.powerPercentage);
+		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / Game.powerPercentage / upgradeMul);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -50,12 +51,12 @@ public class Weapon : MonoBehaviour {
 
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst]);
-				pro.range = maxRange * ResearchMenu.rangeMul;
+				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
+				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 
 				if (pro.destroyOnTime)
-					Destroy (newBullet, maxRange / bulletSpeed * 1.5f);
+					Destroy (newBullet, maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);
 			
 			}
 
@@ -65,7 +66,7 @@ public class Weapon : MonoBehaviour {
 
 	}
 
-	public void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position) {
+	public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position) {
 		if (canFire) {
 			if (!rotator) {
 				StartCoroutine ("DoFire");

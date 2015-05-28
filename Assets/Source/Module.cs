@@ -8,6 +8,7 @@ public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 public class Module : MonoBehaviour {
 
 	public const string MODULE_FILE_EXTENSION = ".mas";
+	public const int MAX_UPGRADE_AMOUNT = 5;
 	
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
 	public Colour colour;
@@ -24,7 +25,10 @@ public class Module : MonoBehaviour {
 	public int moduleCost;
 	public int moduleIndex;
 	public int parentIndex;
-
+	public int upgradeCount;
+	public int upgradeCost;
+	public float upgradeMul = 1f;
+	
 	public int moduleLayer;
 
 	public bool isRoot;
@@ -40,8 +44,22 @@ public class Module : MonoBehaviour {
 		return saveIndex;
 	}
 
-	public void Start () {
+	public virtual void Start () {
 		InitializeModule ();
+	}
+
+	public virtual bool UpgradeModule () {
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
+			return true;
+		}
+		upgradeCount++;
+		upgradeMul *= 1.2f;
+		upgradeCost = Mathf.RoundToInt ((float)upgradeCost * 1.5f);
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public StreamWriter writer;
@@ -88,6 +106,7 @@ public class Module : MonoBehaviour {
 	}
 	
 	void InitializeModule () {
+		upgradeCost = moduleCost * 2;
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
