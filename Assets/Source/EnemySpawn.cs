@@ -70,7 +70,8 @@ public class EnemySpawn : MonoBehaviour {
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
-			Dijkstra.BakePaths ();
+			Pathfinding.BakePaths (Game.game.battlefieldWidth, Game.game.battlefieldHeight);
+			StartWave ();
 		}
 	}
 

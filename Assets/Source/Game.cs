@@ -14,7 +14,8 @@ public class Game : MonoBehaviour {
 	public Datastream datastream;
 	public EnemySpawn enemySpawn;
 	public PurchaseMenu purchaseMenu;
-	public Dijkstra pathfinding;
+	public Pathfinding pathfinder;
+	public Map pathMap;
 	public ResearchMenu researchMenu;
 	public GameObject pauseMenu;
 	
@@ -63,7 +64,6 @@ public class Game : MonoBehaviour {
 	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
 	public static string WAVESET_SAVE_DIRECTORY;
 	public static string BATTLEFIELD_SAVE_DIRECTORY;
-
 	public string[] stockModuleNames;
 
 	// Use this for initialization
@@ -71,7 +71,7 @@ public class Game : MonoBehaviour {
 		Debug.Log ("Initializing!");
 		game = this;
 		InitializeBattlefield ();
-		pathfinding.InitializeDijkstraField (battlefieldWidth, battlefieldHeight);
+		pathMap.Initialize ();
 		researchMenu.Initialize ();
 		CalculatePowerLevel ();
 		Debug.Log ("Done initializing!");
@@ -101,8 +101,8 @@ public class Game : MonoBehaviour {
 
 	public static void ChangeWalls (Rect rect, bool doWall) {
 
-		int startX = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (rect.x,rect.y)).x);
-		int startY = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (rect.x,rect.y)).y);
+		int startX = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (rect.x,rect.y)).x);
+		int startY = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (rect.x,rect.y)).y);
 		int w = Mathf.RoundToInt (rect.width);
 		int h = Mathf.RoundToInt (rect.height);
 

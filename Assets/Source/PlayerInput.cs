@@ -174,8 +174,8 @@ public class PlayerInput : MonoBehaviour {
 						wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
 						wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
 
-						int startX = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).x);
-						int startY = Mathf.RoundToInt (Game.game.pathfinding.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).y);
+						int startX = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).x);
+						int startY = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).y);
 						int w = Mathf.RoundToInt (pos.x - wallDragStart.x);
 						int h = Mathf.RoundToInt (pos.y - wallDragStart.y);
 						

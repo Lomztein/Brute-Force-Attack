@@ -10,7 +10,6 @@ public class WeaponModule : Module {
 	
 	// Update is called once per frame
 	new void Start () {
-		base.Start ();
 		if (parentBase) {
 			weapon.bulletDamage = Mathf.RoundToInt ((float)weapon.bulletDamage * parentBase.damageBoost);
 			weapon.firerate *= parentBase.damageBoost;
@@ -19,6 +18,7 @@ public class WeaponModule : Module {
 			weapon.maxRange = 20f * rangeMultiplier;
 		}
 		FindParentRotator ();
+		base.Start ();
 	}
 
 	public override bool UpgradeModule () {
@@ -30,7 +30,7 @@ public class WeaponModule : Module {
 	void Update () {
 
 		if (parentBase) {
-			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange) {
+			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange * upgradeMul * ResearchMenu.rangeMul) {
 				weapon.target = parentBase.target;
 				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
 			}

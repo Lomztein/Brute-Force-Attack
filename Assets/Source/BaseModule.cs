@@ -46,25 +46,29 @@ public class BaseModule : Module {
 				targetPos = target.position;
 			}
 
-			if (Vector3.Distance (transform.position, targetPos) > range)
+			if (Vector3.Distance (transform.position, targetPos) > GetRange ())
 				target = null;
 		}
 	}
 
+	float GetRange () {
+		return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
+	}
+
 	void FindTarget () {
-		target = targetFinder.FindTarget (transform.position, range * upgradeMul, targetLayer, priorities.ToArray (), sortType);
+		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), sortType);
 		if (target)
 			targetPos = target.position;
 	}
 
 	void OnNewModuleAdded () {
-		fastestBulletSpeed = GetFastestBulletSpeed ();
+		GetFastestBulletSpeed ();
 	}
 
-	float GetFastestBulletSpeed () {
+	public void GetFastestBulletSpeed () {
 		Weapon[] weapons = GetComponentsInChildren<Weapon>();
 		float speed = 0;
-		float r = 0;
+		float r = float.MaxValue;
 		for (int i = 0; i < weapons.Length; i++) {
 			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
 				if (weapons[i].bulletSpeed > speed)
@@ -73,15 +77,20 @@ public class BaseModule : Module {
 				if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
 					priorities.Add (weapons[i].GetBulletData ().effectiveAgainst);
 				}
+
+				if (weapons[i].maxRange < r) {
+					r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
+				}
 			}
 		}
 
-		return speed;
+		targetingRange = r;
+		fastestBulletSpeed = speed;
 	}
 
 	public override string ToString () {
 		string text = "";
-		text += "Range: " + (range * upgradeMul).ToString () + " - \n\n";
+		text += "Range: " + (GetRange () * upgradeMul).ToString () + " - \n\n";
 		if (damageBoost != 1f) {
 			text += "Damage Multiplier: " + damageBoost.ToString () + " - \n\n";
 		}

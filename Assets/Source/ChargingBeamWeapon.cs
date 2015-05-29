@@ -12,7 +12,7 @@ public class ChargingBeamWeapon : Weapon {
 	public static float chargeSpeedMultiplier = 1f;
 
 	// Use this for initialization
-	public void Start () {
+	public override void Start () {
 		base.Start ();
 		if (muzzles.Length > 1) {
 			Debug.LogWarning ("Charging beam weapons currently only supports a single muzzle!");

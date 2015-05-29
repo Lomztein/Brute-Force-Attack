@@ -18,7 +18,7 @@ public class Enemy : MonoBehaviour {
 	public float freezeMultiplier = 1f;
 
 	[Header ("Pathing")]
-	public Vector3[] path;
+	public Vector2[] path;
 	public int pathIndex;
 	private Vector3 offset;
 
@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour {
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		path = Dijkstra.GetPath (transform.position);
+		path = Pathfinding.GetPath (transform.position);
 		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
 	}
 
@@ -52,7 +52,7 @@ public class Enemy : MonoBehaviour {
 			return;
 		}
 
-		Vector3 loc = path[pathIndex] + offset;
+		Vector3 loc = new Vector3 (path[pathIndex].x, path[pathIndex].y) + offset;
 		float dist = Vector3.Distance (transform.position, loc);
 
 		if (dist < speed * Time.fixedDeltaTime) {
@@ -62,7 +62,7 @@ public class Enemy : MonoBehaviour {
 		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
 
 		if (rotateSprite)
-			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, path[pathIndex] + offset));
+			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, loc));
 
 		if (freezeMultiplier < 1f) {
 			freezeMultiplier += 0.5f * Time.fixedDeltaTime;

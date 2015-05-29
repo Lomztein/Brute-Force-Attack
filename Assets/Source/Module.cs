@@ -121,6 +121,7 @@ public class Module : MonoBehaviour {
 		moduleIndex = rootModule.GetModuleIndex ();
 
 		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
+		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
