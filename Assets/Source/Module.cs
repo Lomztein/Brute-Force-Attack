@@ -120,13 +120,13 @@ public class Module : MonoBehaviour {
 		}
 		moduleIndex = rootModule.GetModuleIndex ();
 
-		if (isRoot) Dijkstra.ChangeArea (GetModuleRect (), false);
+		if (isRoot) Pathfinding.ChangeArea (GetModuleRect (), false);
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
 	public void SellModule () {
-		Dijkstra.ChangeArea (GetModuleRect (), true);
+		Pathfinding.ChangeArea (GetModuleRect (), true);
 		Destroy (gameObject);
 	}
 
@@ -135,7 +135,7 @@ public class Module : MonoBehaviour {
 	}
 
 	void Stockify () {
-		Dijkstra.ChangeArea (GetModuleRect (), true);
+		Pathfinding.ChangeArea (GetModuleRect (), true);
 		Destroy (gameObject);
 		PurchaseMenu.AddStock (this);
 	}

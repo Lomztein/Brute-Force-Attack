@@ -111,11 +111,13 @@ public class Game : MonoBehaviour {
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
-					isWalled[x,y] = doWall;
+					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth, y + game.battlefieldHeight)) {
+						isWalled [x + game.battlefieldWidth, y + game.battlefieldHeight] = doWall;	
+					}
 				}
 			}
 
-			Dijkstra.ChangeArea (rect, !doWall);
+			Pathfinding.ChangeArea (rect, !doWall);
 			Game.game.GenerateWallMesh ();
 			credits -= cost;
 		}
@@ -126,12 +128,15 @@ public class Game : MonoBehaviour {
 
 		for (int y = startY; y < startY + h; y++) {
 			for (int x = startX; x < startX + w; x++) {
-				if (doWall) {
-					if (!isWalled[x,y])
-						cost += 4;
-				}else{
-					if (isWalled[x,y])
-						cost -= 2;
+
+				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth,y + game.battlefieldHeight)) {
+					if (doWall) {
+						if (!isWalled[x + game.battlefieldWidth,y + game.battlefieldHeight])
+							cost += 4;
+					}else{
+						if (isWalled[x + game.battlefieldWidth,y + game.battlefieldHeight])
+							cost -= 2;
+					}
 				}
 			}
 		}

@@ -12,20 +12,21 @@ public class Map : MonoBehaviour {
 
 	public Color gridColor = Color.white;
 
-	private Node[,] nodes;
+	public Node[,] nodes;
 
 	public float cubeHeight;
 	public float cubeWidth;
 	public int gridX, gridY;
 	private float gridDiameter;
-	private Vector2 WorldBottomOfMap;
 
 	public void Initialize () {
 		gridDiameter = gridRadius * 2;
 
 		Game g = Game.game;
-		gridX = Mathf.RoundToInt(g.battlefieldWidth);
-		gridY = Mathf.RoundToInt(g.battlefieldHeight);
+		cubeWidth = g.battlefieldWidth;
+		cubeHeight = g.battlefieldHeight;
+		gridX = g.battlefieldWidth;
+		gridY = g.battlefieldHeight;
 
 		MakeGrid();
 	}
@@ -41,13 +42,9 @@ public class Map : MonoBehaviour {
 	void MakeGrid()
 	{
 		nodes = new Node[gridX,gridY];
-		WorldBottomOfMap = (new Vector2(transform.position.x, transform.position.y)) - Vector2.right * cubeWidth/2 - Vector2.up * cubeHeight/2;
-
-		for (int x = 0; x < gridX; x++)
-		{
-			for (int y = 0; y < gridY; y++)
-			{
-				nodes[x,y] = new Node(true,new Vector2 (x - gridX / 2, y - gridY / 2), x, y);
+		for (int x = 0; x < gridX; x++) {
+			for (int y = 0; y < gridY; y++) {
+				nodes[x,y] = new Node(true,new Vector2 (x - cubeWidth / 2f + gridRadius, y - cubeHeight / 2f + gridRadius), x, y);
 			}
 		}
 

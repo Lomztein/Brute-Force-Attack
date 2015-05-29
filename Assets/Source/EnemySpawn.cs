@@ -71,7 +71,7 @@ public class EnemySpawn : MonoBehaviour {
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
 			Pathfinding.BakePaths (Game.game.battlefieldWidth, Game.game.battlefieldHeight);
-			StartWave ();
+			Invoke ("StartWave", 2f);
 		}
 	}
 

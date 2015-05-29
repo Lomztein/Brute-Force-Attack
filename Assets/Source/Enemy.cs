@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour {
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		path = Pathfinding.GetPath (transform.position);
+		path = Pathfinding.GetBakedPath (transform.position);
 		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
 	}
 

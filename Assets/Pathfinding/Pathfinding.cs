@@ -25,30 +25,66 @@ public class Pathfinding : MonoBehaviour {
 	}
 
 	public Vector2 WorldToNode (Vector3 pos) {
-		return new Vector2 (pos.x + map.gridX/2, pos.y + map.gridY/2);
+		return new Vector2 (pos.x - map.gridX/2, pos.y - map.gridY/2);
 	}
 	
-	Vector3 NodeToWorld (Node node) {
-		return new Vector3 (-map.gridX/2f + node.nodeX, -map.gridY/2f + node.nodeY);
+	Vector3 NodeToWorld (Vector2 node) {
+		return new Vector3 (-map.gridX/2f + node.x, -map.gridY/2f + node.y);
 	}
 
 	public static void BakePaths (int width, int height) {
 		finder.paths = new DPath[width];
 		for (int x = 0; x < width; x++) {
-			finder.index = x;
-			PathManager.RequestPath (new Vector3 (x, height - 1), new Vector3 (x, 1), finder.OnFinished);
+			PathManager.RequestPath (finder.WorldToNode (new Vector3 (x, height - 1)), finder.WorldToNode (new Vector3 (x, 1)), finder.OnFinished);
 		}
+		finder.Invoke ("ResetIndex", 2f);
+	}
+
+	void ResetIndex () {
+		index = 0;
 	}
 
 	public void OnFinished(Vector2[] _path, bool success) {
 		if (success) {
 			paths [index] = new DPath (_path);
-			Debug.Log (_path.Length);
+			index++;
 		}
 	}
 
-	public static Vector2[] GetPath (Vector2 start) {
-		int x = finder.map.WorldPointToGridPoint (start).nodeX;
+	public static void ChangeArea (Rect rect, bool clear) {
+		
+		int startX = Mathf.RoundToInt (rect.x);
+		int startY = Mathf.RoundToInt (rect.y);
+		int w      = Mathf.RoundToInt (rect.width - 1);
+		int h	   = Mathf.RoundToInt (rect.height - 1);
+		
+		for (int y = startY; y < startY + h + 1; y++) {
+			for (int x = startX; x < startX + w + 1; x++) {
+				Vector2 pos = finder.WorldToNode (new Vector3 (x,y));
+				
+				int xx = Mathf.RoundToInt (pos.x) + finder.map.gridX;
+				int yy = Mathf.RoundToInt (pos.y) + finder.map.gridY;
+
+				
+				if (finder.IsInsideField (xx,yy)) {
+					
+					finder.map.nodes[xx,yy].isWalkable = clear;
+					if (Game.isWalled[xx,yy])
+						finder.map.nodes[xx,yy].isWalkable = false;
+					
+				}
+			}
+		}
+	}
+
+	public bool IsInsideField (int x, int y) {
+		if (x < 0 || x > map.gridX-1) return false;
+		if (y < 0 || y > map.gridY-1) return false;
+		return true;
+	}
+
+	public static Vector2[] GetBakedPath (Vector2 start) {
+		int x = Mathf.RoundToInt (start.x + finder.map.cubeWidth / 2f);
 		x = Mathf.Clamp (x, 1, finder.paths.Length-1);
 		return finder.paths[x].nodes;
 	}
@@ -124,7 +160,6 @@ public class Pathfinding : MonoBehaviour {
 			trackNode = trackNode.parent;
 		}
 		Vector2[] newPath;
-		Debug.Log (path.Count);
 		if (simple)
 		{
 			newPath = simplePath(path);
