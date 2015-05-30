@@ -20,6 +20,7 @@ public class RailgunProjectile : Projectile {
 				
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
 				if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
+				ReturnToPool ();
 				
 			}
 			

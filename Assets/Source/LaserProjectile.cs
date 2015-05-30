@@ -19,7 +19,7 @@ public class LaserProjectile : Projectile {
 			line.SetPosition (1, ray.GetPoint (range));
 		}
 
-		Destroy (gameObject, 0.5f);
+		Invoke ("ReturnToPool", 0.5f);
 	}
 
 	void FixedUpdate () {

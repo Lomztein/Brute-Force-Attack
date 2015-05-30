@@ -39,20 +39,18 @@ public class Enemy : MonoBehaviour {
 		return path.Length - pathIndex;
 	}
 
-	// Update is called once per frame
 	void FixedUpdate () {
 		Move ();
 	}
 
 	void Move () {
-		if (pathIndex == path.Length-1 || isFlying) {
+		while (pathIndex == path.Length - 1 || isFlying) {
 			transform.position += Vector3.down * Time.fixedDeltaTime * speed;
 			if (rotateSprite)
-				transform.rotation = Quaternion.Euler (0,0,270);
+				transform.rotation = Quaternion.Euler (0, 0, 270);
 			return;
 		}
-
-		Vector3 loc = new Vector3 (path[pathIndex].x, path[pathIndex].y) + offset;
+		Vector3 loc = new Vector3 (path [pathIndex].x, path [pathIndex].y) + offset;
 		float dist = Vector3.Distance (transform.position, loc);
 
 		if (dist < speed * Time.fixedDeltaTime) {
@@ -62,11 +60,11 @@ public class Enemy : MonoBehaviour {
 		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
 
 		if (rotateSprite)
-			transform.rotation = Quaternion.Euler (0,0,Angle.CalculateAngle (transform.position, loc));
+			transform.rotation = Quaternion.Euler (0, 0, Angle.CalculateAngle (transform.position, loc));
 
 		if (freezeMultiplier < 1f) {
 			freezeMultiplier += 0.5f * Time.fixedDeltaTime;
-		}else{
+		} else {
 			freezeMultiplier = 1f;
 		}
 	}

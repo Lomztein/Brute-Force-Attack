@@ -28,7 +28,6 @@ public class FireProjectile : Projectile {
 			if (hit.collider.gameObject.layer != parent.layer) {
 				
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
-				Destroy (gameObject);
 				
 			}
 			

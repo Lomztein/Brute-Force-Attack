@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Weapon : MonoBehaviour {
-
+	
 	public Transform[] muzzles;
 
 	public GameObject bullet;
@@ -15,6 +16,7 @@ public class Weapon : MonoBehaviour {
 	public Transform target;
 	public GameObject fireParticle;
 	public float upgradeMul = 1;
+	public static float bulletSleepTime = 1f;
 
 	public float firerate;
 	public float reloadTime;
@@ -22,6 +24,7 @@ public class Weapon : MonoBehaviour {
 		
 	public Transform pointer;
 	public bool canFire = true;
+	private List<GameObject> bulletPool = new List<GameObject>();
 
 	public Projectile GetBulletData () {
 		if (!bulletData) {
@@ -30,7 +33,24 @@ public class Weapon : MonoBehaviour {
 		return bulletData;
 	}
 
+	public void ReturnBulletToPool (GameObject toPool) {
+		bulletPool.Add (toPool);
+	}
+
 	// TODO Implement projectile pooling
+	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {
+		if (bulletPool.Count > 0) {
+			GameObject b = bulletPool [0];
+			b.transform.position = position;
+			b.transform.rotation = rotation;
+			b.SetActive (true);
+
+			bulletPool.RemoveAt (0);
+			return b;
+		}
+
+		return (GameObject)Instantiate (bullet, position, rotation);
+	}
 
 	public virtual void Start () {
 		pointer = new GameObject ("Pointer").transform;
@@ -46,9 +66,10 @@ public class Weapon : MonoBehaviour {
 		for (int m = 0; m < muzzles.Length; m++) {
 			for (int i = 0; i < bulletAmount; i++) {
 
-				GameObject newBullet = (GameObject)Instantiate (bullet, new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
+				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
 				Projectile pro = newBullet.GetComponent<Projectile>();
 
+				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
 				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
@@ -56,7 +77,7 @@ public class Weapon : MonoBehaviour {
 				pro.target = target;
 
 				if (pro.destroyOnTime)
-					Destroy (newBullet, maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);
+					pro.Invoke ("ReturnToPool", maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);
 			
 			}
 

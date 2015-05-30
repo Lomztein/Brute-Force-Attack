@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour {
 	public bool destroyOnTime = false;
 	public bool penetrative = false;
 	public GameObject hitParticle;
+	public Weapon parentWeapon;
 
 	public Colour effectiveAgainst;
 
@@ -32,11 +33,22 @@ public class Projectile : MonoBehaviour {
 
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
 				if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
-				if (!penetrative) Destroy (gameObject);
+				if (!penetrative) ReturnToPool ();
 
 			}
-
 		}
+	}
+
+	public void ReturnToPool () {
+		if (gameObject.activeSelf) {
+			gameObject.SetActive (false);
+			CancelInvoke ("ReturnToPool");
+			Invoke ("ActuallyReturnToPoolGoddammit", Weapon.bulletSleepTime);
+		}
+	}
+
+	void ActuallyReturnToPoolGoddammit () {
+		parentWeapon.ReturnBulletToPool (gameObject);
 	}
 
 	public class Damage {

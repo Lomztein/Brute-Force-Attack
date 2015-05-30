@@ -24,7 +24,7 @@ public class TeslaProjectile : Projectile {
 			DrawTeslaBeam (ray.GetPoint (range));
 			end = ray.GetPoint (range);
 		}
-		Destroy (gameObject, 1f);
+		Invoke ("ReturnToPool", 1f);
 	}
 
 	void FixedUpdate () {

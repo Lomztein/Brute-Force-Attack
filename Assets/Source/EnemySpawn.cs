@@ -30,6 +30,8 @@ public class EnemySpawn : MonoBehaviour {
 	private int[] spawnIndex;
 	private int endedIndex;
 	public int waveMastery = 1;
+
+	public static float readyWaitTime = 2f;
 	
 	public static float gameProgress = 1f;
 	public float gameProgressSpeed = 1f;
@@ -37,6 +39,8 @@ public class EnemySpawn : MonoBehaviour {
 	[Header ("Enemies")]
 	public int currentEnemies;
 	public GameObject endBoss;
+	private Dictionary<Wave.Enemy, List<GameObject>> pooledEnemies = new Dictionary<Wave.Enemy, List<GameObject>> ();
+	public Transform enemyPool;
 
 	public static EnemySpawn cur;
 
@@ -65,13 +69,57 @@ public class EnemySpawn : MonoBehaviour {
 
 	// TODO: Replace wavePrebbing and waveStarted with enums
 
+	IEnumerator PoolBaddies () {
+		Wave cur = waves [waveNumber - 1];
+		List<Wave.Enemy> spawnQueue = new List<Wave.Enemy> ();
+		float startTime = Time.time;
+
+		currentEnemies = 0;
+		foreach (Wave.Subwave sub in cur.subwaves) {
+			foreach (Wave.Enemy ene in sub.enemies) {
+
+				spawnQueue.Add (ene);
+
+				SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
+				if (split) currentEnemies += split.spawnPos.Length * waveMastery;
+				currentEnemies += ene.spawnAmount * waveMastery;
+			}
+		}
+
+		int spawnPerTick = Mathf.CeilToInt ((float)currentEnemies / readyWaitTime * Time.fixedDeltaTime);
+
+		int index = 0;
+		while (spawnQueue.Count > 0) {
+			for (int i = 0; i < spawnQueue[0].spawnAmount * waveMastery; i++) {
+				GameObject newEne = (GameObject)Instantiate (spawnQueue[0].enemy, enemyPool.position, Quaternion.identity);
+				newEne.SetActive (false);
+				newEne.transform.parent = enemyPool;
+				if (!pooledEnemies.ContainsKey (spawnQueue[0])) {
+					pooledEnemies.Add (spawnQueue[0], new List<GameObject>());
+				}
+				pooledEnemies[spawnQueue[0]].Add (newEne);
+				index++;
+
+				if (index >= spawnPerTick) {
+					yield return new WaitForFixedUpdate ();
+					index = 0;
+				}
+			}
+			spawnQueue.RemoveAt (0);
+		}
+
+		Invoke ("StartWave", readyWaitTime - (Time.time - startTime));
+		yield return null;
+	}
+
 	public void ReadyWave () {
 		if (!waveStarted && !wavePrebbing) {
+			waveNumber++;
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
 			Pathfinding.BakePaths (Game.game.battlefieldWidth, Game.game.battlefieldHeight);
-			Invoke ("StartWave", 2f);
+			StartCoroutine (PoolBaddies ());
 		}
 	}
 
@@ -134,7 +182,6 @@ public class EnemySpawn : MonoBehaviour {
 	}
 
 	public void StartWave () {
-		waveNumber++;
 		if (waveNumber <= waves.Count) {
 
 			wavePrebbing = false;
@@ -143,16 +190,6 @@ public class EnemySpawn : MonoBehaviour {
 			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
-
-			currentEnemies = 0;
-			Wave cur = waves[waveNumber - 1];
-			foreach (Wave.Subwave sub in cur.subwaves) {
-				foreach (Wave.Enemy ene in sub.enemies) {
-					SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
-					if (split) currentEnemies += split.spawnPos.Length * waveMastery;
-					currentEnemies += ene.spawnAmount * waveMastery;
-				}
-			}
 		}else{
 			Instantiate (endBoss, GetSpawnPosition (), Quaternion.identity);
 			waveCounterIndicator.text = "Wave: HOLY SHIT WHAT THE FUCK IS THAT?!";
@@ -198,19 +235,21 @@ public class EnemySpawn : MonoBehaviour {
 		return new Vector3 (Random.Range (enemySpawnRect.x, enemySpawnRect.width/2), Random.Range (enemySpawnRect.y, enemySpawnRect.y - enemySpawnRect.height/2));
 	}
 
-	void CreateEnemy (GameObject enemy, int index) {
-		if (enemy) {
-			Instantiate (enemy, GetSpawnPosition (), Quaternion.identity);
+	void CreateEnemy (int index) {
+		Wave.Enemy enemy = currentSubwave.enemies[index];
+		GameObject e = pooledEnemies [enemy] [0];
+		e.transform.position = GetSpawnPosition ();
+		e.SetActive (true);
 
-			spawnIndex[index]++;
+		pooledEnemies [enemy].RemoveAt (0);
+		spawnIndex[index]++;
 
-			if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount * waveMastery) {
-				Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / ((float)currentSubwave.enemies[index].spawnAmount * waveMastery));
-			}else{
-				endedIndex++;
-				if (endedIndex == spawnIndex.Length) {
-					ContinueWave (false);
-				}
+		if (spawnIndex[index] < currentSubwave.enemies[index].spawnAmount * waveMastery) {
+			Invoke ("Spawn" + index.ToString (), currentSubwave.spawnTime / ((float)currentSubwave.enemies[index].spawnAmount * waveMastery));
+		}else{
+			endedIndex++;
+			if (endedIndex == spawnIndex.Length) {
+				ContinueWave (false);
 			}
 		}
 	}
@@ -302,34 +341,34 @@ public class EnemySpawn : MonoBehaviour {
 
 	void Spawn0 () {
 		int index = 0;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn1 () {
 		int index = 1;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn2 () {
 		int index = 2;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn3 () {
 		int index = 3;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn4 () {
 		int index = 4;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn5 () {
 		int index = 5;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn6 () {
 		int index = 6;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 	void Spawn7 () {
 		int index = 7;
-		CreateEnemy (currentSubwave.enemies[index].enemy, index);
+		CreateEnemy (index);
 	}
 }
