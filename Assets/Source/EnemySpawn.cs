@@ -58,6 +58,20 @@ public class EnemySpawn : MonoBehaviour {
 	void Start () {
 		cur = this;
 		EndWave ();
+		AddFinalBoss ();
+	}
+
+	void AddFinalBoss () {
+		// What the fuck is this shit?
+		Wave.Enemy e = new Wave.Enemy ();
+		e.enemy = endBoss;
+		e.spawnAmount = 1;
+		Wave.Subwave s = new Wave.Subwave ();
+		s.enemies.Add (e);
+		s.spawnTime = 1f;
+		Wave w = new Wave ();
+		w.subwaves.Add (s);
+		waves.Add (w);
 	}
 
 	void Poop () {
@@ -128,7 +142,7 @@ public class EnemySpawn : MonoBehaviour {
 		if (currentEnemies < 1) {
 			EndWave ();
 
-			if (waveNumber > waves.Count) {
+			if (waveNumber >= waves.Count) {
 				if (waveMastery == 1) {
 					gameOverIndicator.SetActive (true);
 				}else{
@@ -190,12 +204,6 @@ public class EnemySpawn : MonoBehaviour {
 			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
-		}else{
-			Instantiate (endBoss, GetSpawnPosition (), Quaternion.identity);
-			waveCounterIndicator.text = "Wave: HOLY SHIT WHAT THE FUCK IS THAT?!";
-			
-			wavePrebbing = false;
-			waveStarted = true;
 		}
 	}
 

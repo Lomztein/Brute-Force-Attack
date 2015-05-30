@@ -8,14 +8,14 @@ public class Weapon : MonoBehaviour {
 
 	public GameObject bullet;
 	public Projectile bulletData;
-	public float bulletSpeed = 80;
-	public float bulletSpread = 5;
+	public float bulletSpeed = 80f;
+	public float bulletSpread = 5f;
 	public int bulletDamage = 10;
 	public int bulletAmount = 1;
 	public float maxRange;
 	public Transform target;
 	public GameObject fireParticle;
-	public float upgradeMul = 1;
+	public float upgradeMul = 1f;
 	public static float bulletSleepTime = 1f;
 
 	public float firerate;
@@ -60,7 +60,7 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / Game.powerPercentage / upgradeMul);
+		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -75,6 +75,7 @@ public class Weapon : MonoBehaviour {
 				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
+				pro.Initialize ();
 
 				if (pro.destroyOnTime)
 					pro.Invoke ("ReturnToPool", maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);

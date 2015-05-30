@@ -16,7 +16,7 @@ public class FireProjectile : Projectile {
 		distTraveled += velocity.magnitude * Time.fixedDeltaTime;
 
 		if (velocity.magnitude < dampen)
-			Destroy (gameObject);
+			ReturnToPool ();
 	}
 
 	void CastSphereRay () {
@@ -25,9 +25,10 @@ public class FireProjectile : Projectile {
 		
 		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
 			
-			if (hit.collider.gameObject.layer != parent.layer) {
+			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
 				
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+				damage /= 2;
 				
 			}
 			

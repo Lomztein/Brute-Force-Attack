@@ -5,8 +5,9 @@ public class LaserProjectile : Projectile {
 
 	public LineRenderer line;
 
-	void Start () {
+	public override void Initialize () {
 
+		line.material.color = new Color (1,1,1,1);
 		Ray ray = new Ray (transform.position, velocity.normalized * range);
 		RaycastHit hit;
 

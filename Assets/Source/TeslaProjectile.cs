@@ -9,9 +9,7 @@ public class TeslaProjectile : Projectile {
 	public LineRenderer lineRenderer;
 	private Vector3 end;
 
-	void Start () {
-
-		Debug.Log (transform.position);
+	public override void Initialize () {
 
 		Ray ray = new Ray (transform.position, velocity.normalized);
 		RaycastHit hit;

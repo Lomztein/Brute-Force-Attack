@@ -16,6 +16,6 @@ public class TobyBoss : MonoBehaviour {
 	void OnTakeDamage (Projectile.Damage damage) {
 		float percentage = 1 - (float)enemyComponent.health / (float)startHealth;
 		spriteIndex = Mathf.FloorToInt (percentage * (float)tobySprites.Length);
-		sprite.sprite = tobySprites [spriteIndex];
+		sprite.sprite = tobySprites [Mathf.Clamp (spriteIndex, 0, tobySprites.Length - 1)];
 	}
 }

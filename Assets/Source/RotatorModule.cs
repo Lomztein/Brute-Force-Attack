@@ -36,7 +36,7 @@ public class RotatorModule : Module {
 				RotateToAngle ();
 			}
 		}else if (type == RotatorType.Spinner && EnemySpawn.waveStarted) {
-			transform.Rotate (0,0,turnSpeed * ResearchMenu.turnrateMul * Time.deltaTime * Game.powerPercentage);
+			transform.Rotate (0,0,turnSpeed * ResearchMenu.turnrateMul * Time.deltaTime);
 		}
 	}
 

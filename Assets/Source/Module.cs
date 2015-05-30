@@ -110,7 +110,6 @@ public class Module : MonoBehaviour {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
-		Game.CalculatePowerLevel ();
 
 		rootModule = FindRootModule ();
 		if (rootModule == this) {

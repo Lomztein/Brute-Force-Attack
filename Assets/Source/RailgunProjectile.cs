@@ -16,7 +16,7 @@ public class RailgunProjectile : Projectile {
 		
 		if (Physics.SphereCast (ray, spherecastWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
 			
-			if (hit.collider.gameObject.layer != parent.layer) {
+			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "BulletIgnore") {
 				
 				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
 				if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);

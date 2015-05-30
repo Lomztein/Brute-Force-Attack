@@ -18,6 +18,7 @@ public class Game : MonoBehaviour {
 	public Map pathMap;
 	public ResearchMenu researchMenu;
 	public GameObject pauseMenu;
+	public Slider researchSlider;
 	
 	public Text creditsText;
 	public Text powerText;
@@ -41,6 +42,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	public static float researchProgress;
 	private static int _research;
 	public static int research {
 		get { return _research; }
@@ -73,7 +75,6 @@ public class Game : MonoBehaviour {
 		InitializeBattlefield ();
 		pathMap.Initialize ();
 		researchMenu.Initialize ();
-		CalculatePowerLevel ();
 		Debug.Log ("Done initializing!");
 	}
 
@@ -144,7 +145,7 @@ public class Game : MonoBehaviour {
 		return cost;
 	}
 
-	public static void CalculatePowerLevel () {
+	/* public static void CalculatePowerLevel () {
 		//powerPercentage = PowerModule.CalculateTotalPowerGenerationSpeed () / Module.CalculateTotalPowerRequirements ();
 		powerPercentage = 1f;
 
@@ -168,7 +169,7 @@ public class Game : MonoBehaviour {
 			pName = "Outage";
 
 		Game.game.powerText.text = "Power: " + pName;
-	}
+	}*/
 
 	void GenerateWallMesh () {
 
@@ -271,7 +272,7 @@ public class Game : MonoBehaviour {
 		purchaseMenu.CloseAssemblyButtons ();
 	}
 
-	void Update () {
+	void FixedUpdate () {
 
 		if (datastream.pooledNumbers.Count <= 0) {
 			RestartMap ();
@@ -279,5 +280,12 @@ public class Game : MonoBehaviour {
 
 		researchText.text = "Research: " + research.ToString ();
 		creditsText.text = "Credits: " + credits.ToString () + " LoC";
+		researchSlider.value = researchProgress;
+
+		if (researchProgress > 1) {
+			float excess = researchProgress - 1;
+			researchProgress = excess;
+			research++;
+		}
 	}
 }

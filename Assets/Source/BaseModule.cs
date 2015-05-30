@@ -32,13 +32,12 @@ public class BaseModule : Module {
 			FindTarget ();
 		}else{
 
-			if (enableAdvancedTracking) {
+			if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
 				Vector3 delPos = target.position - prevPos;
 				if (delPos.magnitude > 0.1f) {
 					targetVel = delPos/Time.fixedDeltaTime;
 					targetPos = target.position + Vector3.Distance (transform.position, target.position)/fastestBulletSpeed * targetVel;
 					prevPos = target.position;
-					Debug.DrawLine (target.position, targetPos);
 				}else{
 					targetPos = target.position;
 				}
