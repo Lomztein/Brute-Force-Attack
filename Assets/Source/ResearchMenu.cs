@@ -313,4 +313,12 @@ public class ResearchMenu : MonoBehaviour {
 	public void IncreaseBeamCannonChargeSpeed (Research research) {
 		ChargingBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
 	}
+
+	public void EnableSmallRocketLauncherSplit (Research research) {
+		SplitterHomingProjectile.amount = 6;
+	}
+
+	public void DecreaseSlowfieldSpeedMultiplier (Research research) {
+		SlowfieldModule.freezeMultiplier = 0.2f;
+	}
 }

@@ -17,7 +17,7 @@ public class TeslaProjectile : Projectile {
 		if (Physics.SphereCast (ray, spherecastWidth, out hit, range, Game.game.enemyLayer)) {
 			DrawTeslaBeam (hit.point);
 			end = hit.point;
-			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst));
+			OnHit (hit);
 		}else{
 			DrawTeslaBeam (ray.GetPoint (range));
 			end = ray.GetPoint (range);

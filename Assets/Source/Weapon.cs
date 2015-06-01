@@ -68,7 +68,7 @@ public class Weapon : MonoBehaviour {
 
 				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
 				Projectile pro = newBullet.GetComponent<Projectile>();
-
+				
 				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
@@ -76,7 +76,7 @@ public class Weapon : MonoBehaviour {
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 				pro.Initialize ();
-
+				
 				if (pro.destroyOnTime)
 					pro.Invoke ("ReturnToPool", maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);
 			

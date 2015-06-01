@@ -31,15 +31,16 @@ public class Projectile : MonoBehaviour {
 		RaycastHit hit;
 
 		if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
-
 			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "BulletIgnore") {
-
-				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
-				if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
-				if (!penetrative) ReturnToPool ();
-
+				OnHit (hit);
 			}
 		}
+	}
+
+	public virtual void OnHit (RaycastHit hit) {
+		hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+		if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
+		if (!penetrative) ReturnToPool ();
 	}
 
 	public void ReturnToPool () {
@@ -51,7 +52,11 @@ public class Projectile : MonoBehaviour {
 	}
 
 	void ActuallyReturnToPoolGoddammit () {
-		parentWeapon.ReturnBulletToPool (gameObject);
+		if (parentWeapon) {
+			parentWeapon.ReturnBulletToPool (gameObject);
+		}else{
+			Destroy (gameObject);
+		}
 	}
 
 	public class Damage {

@@ -24,14 +24,10 @@ public class FireProjectile : Projectile {
 		RaycastHit hit;
 		
 		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
-			
 			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
-				
-				hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+				OnHit (hit);
 				damage /= 2;
-				
 			}
-			
 		}
 	}
 }
