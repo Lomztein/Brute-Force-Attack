@@ -11,6 +11,7 @@ public class Pathfinding : MonoBehaviour {
 
 	public int index;
 	public DPath[] paths;
+	private int width;
 
 	public static Pathfinding finder;
 
@@ -33,11 +34,12 @@ public class Pathfinding : MonoBehaviour {
 	}
 
 	public static void BakePaths (int width, int height) {
+		finder.width = width;
 		finder.paths = new DPath[width];
 		for (int x = 0; x < width; x++) {
 			PathManager.RequestPath (finder.WorldToNode (new Vector3 (x, height - 1)), finder.WorldToNode (new Vector3 (x, 1)), finder.OnFinished);
 		}
-		finder.Invoke ("ResetIndex", 2f);
+		finder.Invoke ("ResetIndex", EnemySpawn.readyWaitTime);
 	}
 
 	void ResetIndex () {
@@ -48,6 +50,10 @@ public class Pathfinding : MonoBehaviour {
 		if (success) {
 			paths [index] = new DPath (_path);
 			index++;
+
+			if (index == width) {
+				EnemySpawn.cur.StartCoroutine (EnemySpawn.cur.PoolBaddies ());
+			}
 		}
 	}
 
@@ -64,7 +70,6 @@ public class Pathfinding : MonoBehaviour {
 				
 				int xx = Mathf.RoundToInt (pos.x) + finder.map.gridX;
 				int yy = Mathf.RoundToInt (pos.y) + finder.map.gridY;
-
 				
 				if (finder.IsInsideField (xx,yy)) {
 					

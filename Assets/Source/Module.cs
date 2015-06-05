@@ -7,7 +7,7 @@ public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
 public class Module : MonoBehaviour {
 
-	public const string MODULE_FILE_EXTENSION = ".mas";
+	public const string MODULE_FILE_EXTENSION = ".dat";
 	public const int MAX_UPGRADE_AMOUNT = 5;
 	
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
@@ -74,8 +74,6 @@ public class Module : MonoBehaviour {
 		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
 		rootModule.writer.WriteLine ("cost:" + assemblyCost);
 		rootModule.writer.WriteLine ("END OF FILE");
-		rootModule.writer.WriteLine ("DO NOT REMOVE 'END OF FILE' NOTICE, IT'LL CRASH THE GAME");
-		rootModule.writer.WriteLine ("Ugh, this feels too professional.. *fartnoises*");
 		rootModule.writer.Close ();
 		rootModule.writer = null;
 		assemblyCost = 0;

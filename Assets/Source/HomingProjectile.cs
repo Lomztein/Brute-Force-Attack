@@ -8,11 +8,11 @@ public class HomingProjectile : Projectile {
 	public static bool autoFindTarget;
 	private TargetFinder targetFinder = new TargetFinder ();
 
-	void Start () {
+	public override void Initialize () {
 		speed = velocity.magnitude;
 	}
 
-	void FixedUpdate () {
+	public virtual void FixedUpdate () {
 
 		float startAngle = Angle.CalculateAngle (Vector3.zero, velocity);
 		transform.rotation = Quaternion.Euler (0, 0, startAngle);

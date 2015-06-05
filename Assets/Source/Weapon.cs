@@ -24,7 +24,7 @@ public class Weapon : MonoBehaviour {
 		
 	public Transform pointer;
 	public bool canFire = true;
-	private List<GameObject> bulletPool = new List<GameObject>();
+	private Queue<GameObject> bulletPool = new Queue<GameObject>();
 
 	public Projectile GetBulletData () {
 		if (!bulletData) {
@@ -34,18 +34,16 @@ public class Weapon : MonoBehaviour {
 	}
 
 	public void ReturnBulletToPool (GameObject toPool) {
-		bulletPool.Add (toPool);
+		bulletPool.Enqueue (toPool);
 	}
 
 	// TODO Implement projectile pooling
 	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {
 		if (bulletPool.Count > 0) {
-			GameObject b = bulletPool [0];
+			GameObject b = bulletPool.Dequeue ();
 			b.transform.position = position;
 			b.transform.rotation = rotation;
 			b.SetActive (true);
-
-			bulletPool.RemoveAt (0);
 			return b;
 		}
 
@@ -82,7 +80,7 @@ public class Weapon : MonoBehaviour {
 			
 			}
 
-			yield return new WaitForSeconds (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst]);
+			yield return new WaitForSeconds (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
 
 		}
 

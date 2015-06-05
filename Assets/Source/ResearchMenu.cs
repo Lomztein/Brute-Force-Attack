@@ -29,8 +29,6 @@ public class ResearchMenu : MonoBehaviour {
 	private List<GameObject> buttons = new List<GameObject>();
 	public static ResearchMenu cur;
 
-	public GameObject assemblyParent;
-
 	public void Initialize () {
 		cur = this;
 		InitializeResearchMenu ();
@@ -98,8 +96,11 @@ public class ResearchMenu : MonoBehaviour {
 		button.interactable = false;
 		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
 		// IncreaseAllCost ();
-		b.GetComponent<HoverContextElement>().text = research[index].name + ", Researched";
-		assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
+		b.GetComponent<HoverContextElement> ().text = research [index].name + ", Researched";
+
+		foreach (Transform assemblyParent in Game.game.purchaseMenu.assemblyButtonStart) {
+			assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
+		}
 
 		Destroy (research[index]);
 		research[index] = null;
@@ -320,5 +321,9 @@ public class ResearchMenu : MonoBehaviour {
 
 	public void DecreaseSlowfieldSpeedMultiplier (Research research) {
 		SlowfieldModule.freezeMultiplier = 0.2f;
+	}
+
+	public void EnableChainLighting (Research research) {
+		TeslaProjectile.chainAmount = 6;
 	}
 }

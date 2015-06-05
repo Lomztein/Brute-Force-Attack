@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.IO;
@@ -248,6 +248,7 @@ public class Game : MonoBehaviour {
 		// Initialize resources
 		credits = startingCredits;
 		research = startingResearch;
+		researchProgress = 0f;
 
 		// Initialize background graphic
 		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);

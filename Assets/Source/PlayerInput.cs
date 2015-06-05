@@ -43,6 +43,7 @@ public class PlayerInput : MonoBehaviour {
 
 	public Material placementMaterial;
 	public Material defualtMaterial;
+	private int currentCost;
 
 	void Start () {
 		cur = this;
@@ -203,7 +204,7 @@ public class PlayerInput : MonoBehaviour {
 	bool CanPlaceAtPos (Vector3 pos) {
 
 		int hits = 4;
-		if (pModule.moduleCost > Game.credits)
+		if (pModule.moduleCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject))
 			return false;
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
@@ -247,6 +248,19 @@ public class PlayerInput : MonoBehaviour {
 		}
 
 		return true;
+	}
+
+	GameObject GetStandardModule (Module.Type moduleType, int moduleClass, out string message) {
+		message = "";
+		for (int i = 0; i < purchaseMenu.standard.Count; i++) {
+			Module mod = purchaseMenu.standard[i].GetComponent<Module>();
+			if (mod.moduleType == moduleType && mod.moduleClass == moduleClass) {
+				return purchaseMenu.standard[i];
+			}
+		}
+
+		message = "No " + moduleType.ToString () + " found.";
+		return null;
 	}
 
 	void GetHitModule () {

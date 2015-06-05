@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour {
 	public GameObject hitParticle;
 	public Weapon parentWeapon;
 
+	public bool hitOnlyTarget;
 	public Colour effectiveAgainst;
 
 	// Update is called once per frame
@@ -32,6 +33,10 @@ public class Projectile : MonoBehaviour {
 
 		if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
 			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "BulletIgnore") {
+
+				if (hitOnlyTarget && hit.transform != target)
+					return;
+
 				OnHit (hit);
 			}
 		}

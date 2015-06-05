@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class TargetFinder {
 
-	public enum SortType { Closest, Furthest, MostHealth, LeastHealth, First, Last };
+	public enum SortType { Closest, Furthest, MostHealth, LeastHealth, First, Last, Random};
 
 	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities, SortType sort) {
 
@@ -50,8 +50,11 @@ public class TargetFinder {
 					break;
 
 				case SortType.Furthest:
-					d = -float.MaxValue - Vector3.Distance (position, nearby[i].transform.position);
+					d = -Vector3.Distance (position, nearby[i].transform.position);
 					break;
+
+				case SortType.Random:
+					return nearby[Random.Range (0, nearby.Length)].transform;
 				
 				default:
 					d = Vector3.Distance (position, nearby[i].transform.position);

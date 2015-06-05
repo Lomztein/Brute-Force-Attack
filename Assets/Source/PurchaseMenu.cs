@@ -30,11 +30,14 @@ public class PurchaseMenu : MonoBehaviour {
 	public Transform buttonMask;
 	public GameObject assemblyLoader;
 	public GameObject assemblyButton;
-	public Transform assemblyButtonStart;
+	public Transform[] assemblyButtonStart;
+	public List<LoadAssemblyButton> assemblyButtonList = new List<LoadAssemblyButton> ();
 
 	public RectTransform scrollThingie;
 	public PlayerInput playerInput;
 	public static PurchaseMenu cur;
+
+	public int purchaseButtonSize = 75;
 
 	// Use this for initialization
 	// TODO Implement multiple raycasts before placing objects.
@@ -50,19 +53,24 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public void InitialzeAssemblyButtons () {
-		foreach (Transform child in assemblyButtonStart) {
-			Destroy (child.gameObject);
+		for (int i = 0; i < assemblyButtonStart.Length; i++) {
+			foreach (Transform child in assemblyButtonStart[i]) {
+				Destroy (child.gameObject);
+			}
 		}
 
-		string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY);
+		string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
+		int[] index = new int[assemblyButtonStart.Length];
 
 		for (int i = 0; i < files.Length; i++) {
-			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (195 * i), Quaternion.identity);
-			butt.transform.SetParent (assemblyButtonStart, true);
+			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart[i % 2].position + Vector3.right * (purchaseButtonSize * index[i % 2]), Quaternion.identity);
+			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
+			butt.transform.SetParent (assemblyButtonStart[i % 2], true);
 			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
 			button.path = files[i];
 			button.OnResearchUnlocked ();
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
+			index[i % 2]++;
 		}
 
 	}
@@ -72,13 +80,19 @@ public class PurchaseMenu : MonoBehaviour {
 			Destroy (b);
 		}
 
-		assemblyButtonStart.gameObject.SetActive (true);
-		scrollThingie.sizeDelta = new Vector2 (220 * assemblyButtonStart.childCount, scrollThingie.sizeDelta.y);
+		foreach (Transform start in assemblyButtonStart) {
+			start.gameObject.SetActive (true);
+		}
+
+		int size = Mathf.Max (assemblyButtonStart [0].childCount, assemblyButtonStart [1].childCount);
+		scrollThingie.sizeDelta = new Vector2 (purchaseButtonSize * size, scrollThingie.sizeDelta.y);
 	}
 
 	public void CloseAssemblyButtons () {
-		if (assemblyButtonStart.gameObject.activeSelf) {
-			assemblyButtonStart.gameObject.SetActive (false);
+		foreach (Transform start in assemblyButtonStart) {
+			if (start.gameObject.activeSelf) {
+				start.gameObject.SetActive (false);
+			}
 		}
 	}
 
@@ -114,6 +128,10 @@ public class PurchaseMenu : MonoBehaviour {
 		foreach (GameObject a in special) {
 			all.Add (a);
 		}
+
+		foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
+			all.Add (a);
+		}
 	}
 
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
@@ -133,7 +151,7 @@ public class PurchaseMenu : MonoBehaviour {
 		}
 
 		int max = Mathf.Max (w,o);
-		int newX = max * 94 + 30;
+		int newX = max * purchaseButtonSize + 30;
 		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
 		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
 
@@ -159,10 +177,10 @@ public class PurchaseMenu : MonoBehaviour {
 
 			GameObject newButton = null;
 			if (m.moduleType == Module.Type.Weapon) {
-				newButton = (GameObject)Instantiate (buttonPrefab, firstButtomButton.position + Vector3.right * 94 * w, Quaternion.identity);
+				newButton = (GameObject)Instantiate (buttonPrefab, firstButtomButton.position + Vector3.right * purchaseButtonSize * w, Quaternion.identity);
 				w++;
 			}else{
-				newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.right * 94 * o, Quaternion.identity);
+				newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.right * purchaseButtonSize * o, Quaternion.identity);
 				o++;
 			}
 
@@ -198,6 +216,12 @@ public class PurchaseMenu : MonoBehaviour {
 
 				index++;
 			
+			}
+		}
+
+		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
+			if (butt.cost > Game.credits) {
+				butt.button.interactable = false;
 			}
 		}
 	}

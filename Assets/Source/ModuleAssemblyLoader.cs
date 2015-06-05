@@ -8,7 +8,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 	public string file;
 	public List<GameObject> moduleObjects;
 
-	public static bool GetButtonData (string path, LoadAssemblyButton button) {
+	public static void GetButtonData (string path, LoadAssemblyButton button) {
 		string[] contents = GetContents (path);
 		List<GameObject> objects = new List<GameObject>();
 		int cost = 0;
@@ -18,8 +18,6 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 				if (module) {
 					objects.Add (module);
 					cost += module.GetComponent<Module>().moduleCost;
-				}else{
-					return false;
 				}
 			}
 
@@ -28,7 +26,6 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 		}
 		button.requiredModules = objects.ToArray ();
 		button.cost = cost;
-		return true;
 	}
 
 	public void LoadAssembly (string path) {
@@ -120,8 +117,10 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 	public static string[] GetContents (string file) {
 		StreamReader reader = File.OpenText (file);
 		List<string> con = new List<string>();
+		int maxTries = short.MaxValue;
 
-		while (true) {
+		while (true && maxTries > 0) {
+			maxTries--;
 			string loc = reader.ReadLine ();
 			if (loc == "END OF FILE") {
 				break;

@@ -83,19 +83,19 @@ public class EnemySpawn : MonoBehaviour {
 
 	// TODO: Replace wavePrebbing and waveStarted with enums
 
-	IEnumerator PoolBaddies () {
+	public IEnumerator PoolBaddies () {
 		Wave cur = waves [waveNumber - 1];
-		List<Wave.Enemy> spawnQueue = new List<Wave.Enemy> ();
+		Queue<Wave.Enemy> spawnQueue = new Queue<Wave.Enemy>();
 		float startTime = Time.time;
 
 		currentEnemies = 0;
 		foreach (Wave.Subwave sub in cur.subwaves) {
 			foreach (Wave.Enemy ene in sub.enemies) {
 
-				spawnQueue.Add (ene);
+				spawnQueue.Enqueue (ene);
 
 				SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
-				if (split) currentEnemies += split.spawnPos.Length * waveMastery;
+				if (split) currentEnemies += ene.spawnAmount * split.spawnPos.Length * waveMastery;
 				currentEnemies += ene.spawnAmount * waveMastery;
 			}
 		}
@@ -104,22 +104,23 @@ public class EnemySpawn : MonoBehaviour {
 
 		int index = 0;
 		while (spawnQueue.Count > 0) {
-			for (int i = 0; i < spawnQueue[0].spawnAmount * waveMastery; i++) {
-				GameObject newEne = (GameObject)Instantiate (spawnQueue[0].enemy, enemyPool.position, Quaternion.identity);
+			for (int i = 0; i < spawnQueue.Peek ().spawnAmount * waveMastery; i++) {
+				GameObject newEne = (GameObject)Instantiate (spawnQueue.Peek ().enemy, enemyPool.position, Quaternion.identity);
 				newEne.SetActive (false);
 				newEne.transform.parent = enemyPool;
-				if (!pooledEnemies.ContainsKey (spawnQueue[0])) {
-					pooledEnemies.Add (spawnQueue[0], new List<GameObject>());
+				if (!pooledEnemies.ContainsKey (spawnQueue.Peek ())) {
+					pooledEnemies.Add (spawnQueue.Peek (), new List<GameObject>());
 				}
-				pooledEnemies[spawnQueue[0]].Add (newEne);
+				pooledEnemies[spawnQueue.Peek ()].Add (newEne);
 				index++;
+
 
 				if (index >= spawnPerTick) {
 					yield return new WaitForFixedUpdate ();
 					index = 0;
 				}
 			}
-			spawnQueue.RemoveAt (0);
+			spawnQueue.Dequeue ();
 		}
 
 		Invoke ("StartWave", readyWaitTime - (Time.time - startTime));
@@ -133,7 +134,6 @@ public class EnemySpawn : MonoBehaviour {
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
 			Pathfinding.BakePaths (Game.game.battlefieldWidth, Game.game.battlefieldHeight);
-			StartCoroutine (PoolBaddies ());
 		}
 	}
 

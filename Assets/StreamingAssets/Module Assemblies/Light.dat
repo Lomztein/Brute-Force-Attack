@@ -1,0 +1,19 @@
+PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
+name:Light
+type:Standard Base
+	root
+	rotz:90.00001
+type:Standard Rotator
+	indx:3
+	pidx:1
+	posx:0
+	posy:0
+	rotz:90.00002
+type:Dual Laser Cannon
+	indx:4
+	pidx:3
+	posx:0
+	posy:0
+	rotz:90.00002
+cost:0
+END OF FILE

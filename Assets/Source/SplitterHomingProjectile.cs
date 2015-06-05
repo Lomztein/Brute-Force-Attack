@@ -15,6 +15,7 @@ public class SplitterHomingProjectile : HomingProjectile {
 			Vector2 ran = Random.insideUnitCircle.normalized;
 			pro.velocity = new Vector3 (ran.x, ran.y, 0) * speed;
 			pro.parent = parent;
+			pro.Initialize ();
 			Destroy (split, pro.range / speed);
 		}
 	}

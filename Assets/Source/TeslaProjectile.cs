@@ -9,7 +9,19 @@ public class TeslaProjectile : Projectile {
 	public LineRenderer lineRenderer;
 	private Vector3 end;
 
+	public static int chainAmount;
+	public int chainIndex;
+	public GameObject chainLighting;
+	public bool isMainLighting;
+
 	public override void Initialize () {
+
+		if (isMainLighting) {
+			chainIndex = chainAmount;
+			Invoke ("ReturnToPool", 1f);
+		} else {
+			Destroy (gameObject, 1f);
+		}
 
 		Ray ray = new Ray (transform.position, velocity.normalized);
 		RaycastHit hit;
@@ -22,7 +34,27 @@ public class TeslaProjectile : Projectile {
 			DrawTeslaBeam (ray.GetPoint (range));
 			end = ray.GetPoint (range);
 		}
-		Invoke ("ReturnToPool", 1f);
+	}
+
+	public override void OnHit (RaycastHit hit) {
+		base.OnHit (hit);
+		if (chainIndex > 0) {
+			TargetFinder finder = new TargetFinder ();
+			Transform t = finder.FindTarget (hit.point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, TargetFinder.SortType.Random);
+			if (t) {
+				Vector3 dir = (t.position - hit.point).normalized;
+				GameObject light = (GameObject)Instantiate (chainLighting, hit.point, Quaternion.identity);
+				TeslaProjectile pro = light.GetComponent<TeslaProjectile>();
+				pro.velocity = dir;
+				pro.chainIndex = chainIndex - 1;
+				pro.damage = Mathf.RoundToInt ((float)damage / 1.5f);
+				pro.parent = parent;
+				pro.target = t;
+				pro.range = 5f;
+
+				pro.Initialize ();
+			}
+		}
 	}
 
 	void FixedUpdate () {
