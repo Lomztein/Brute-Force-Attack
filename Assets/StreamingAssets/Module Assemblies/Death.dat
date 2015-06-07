@@ -1,0 +1,63 @@
+PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
+name:Death
+type:Standard Base
+	root
+	rotz:90.00002
+	levl:5
+type:Small Rotator
+	indx:2
+	pidx:1
+	posx:0.5
+	posy:-0.5
+	rotz:90.00004
+	levl:5
+type:Small Laser Cannon
+	indx:3
+	pidx:2
+	posx:0.5
+	posy:-0.5
+	rotz:90.00004
+	levl:5
+type:Small Rotator
+	indx:4
+	pidx:1
+	posx:-0.5
+	posy:-0.5
+	rotz:90.00004
+	levl:5
+type:Small Laser Cannon
+	indx:5
+	pidx:4
+	posx:-0.5
+	posy:-0.5
+	rotz:90.00004
+	levl:5
+type:Small Rotator
+	indx:6
+	pidx:1
+	posx:-0.5
+	posy:0.5
+	rotz:90.00004
+	levl:5
+type:Small Laser Cannon
+	indx:7
+	pidx:6
+	posx:-0.5
+	posy:0.5
+	rotz:90.00004
+	levl:5
+type:Small Rotator
+	indx:8
+	pidx:1
+	posx:0.5
+	posy:0.5
+	rotz:90.00004
+	levl:5
+type:Small Laser Cannon
+	indx:9
+	pidx:8
+	posx:0.5
+	posy:0.5
+	rotz:90.00004
+	levl:5
+END OF FILE

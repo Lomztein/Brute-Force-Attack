@@ -10,6 +10,7 @@ public class WeaponModule : Module {
 	
 	// Update is called once per frame
 	new void Start () {
+		weapon.upgradeMul = upgradeMul;
 		if (parentBase) {
 			weapon.bulletDamage = Mathf.RoundToInt ((float)weapon.bulletDamage * parentBase.damageBoost);
 			weapon.firerate *= parentBase.damageBoost;
@@ -28,7 +29,6 @@ public class WeaponModule : Module {
 	}
 
 	void Update () {
-
 		if (parentBase) {
 			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange * upgradeMul * ResearchMenu.rangeMul) {
 				weapon.target = parentBase.target;

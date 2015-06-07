@@ -70,6 +70,7 @@ public class PurchaseMenu : MonoBehaviour {
 			button.path = files[i];
 			button.OnResearchUnlocked ();
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
+			button.Initialize ();
 			index[i % 2]++;
 		}
 
@@ -220,9 +221,7 @@ public class PurchaseMenu : MonoBehaviour {
 		}
 
 		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
-			if (butt.cost > Game.credits) {
-				butt.button.interactable = false;
-			}
+			butt.button.interactable = butt.cost <= Game.credits;
 		}
 	}
 

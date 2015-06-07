@@ -48,6 +48,54 @@ public class Module : MonoBehaviour {
 		InitializeModule ();
 	}
 
+	public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
+		if (sprites.Length != positions.Length) {
+			Debug.LogError ("Spites array not equal length as positions array.");
+			return null;
+		}
+		// First, get total size;
+		int maxHeight = 0, maxWidth = 0, minHeight = 0, minWidth = 0, value = 0;
+		for (int i = 0; i < sprites.Length; i++) {
+			value =  Mathf.RoundToInt ((float)sprites[i].width / 2f + positions[i].x * (float)ppu);
+			if (value > maxWidth) {
+				maxWidth = value;
+			}
+			value =  Mathf.RoundToInt (-(float)sprites[i].width / 2f - positions[i].x * (float)ppu);
+			if (value < minWidth) {
+				minWidth = value;
+			}
+			value =  Mathf.RoundToInt ((float)sprites[i].height / 2f + positions[i].y * (float)ppu);
+			if (value > maxHeight) {
+				maxHeight = value;
+			}
+			value =  Mathf.RoundToInt (-(float)sprites[i].height / 2f - positions[i].y * (float)ppu);
+			if (value < minHeight) {
+				minHeight = value;
+			}
+		}
+
+		Texture2D spr = new Texture2D (maxWidth - minWidth, maxHeight - minHeight);
+		spr.filterMode = FilterMode.Point;
+		spr.wrapMode = TextureWrapMode.Clamp;
+
+		for (int i = 0; i < sprites.Length; i++) {
+			Vector3 center = positions[i] * (float)ppu;
+			center += new Vector3 (Mathf.Abs (positions[i].x * ppu),
+			                       Mathf.Abs (positions[i].y * ppu));
+
+			for (int y = 0; y < sprites[i].height; y++) {
+				for (int x = 0; x < sprites[i].width; x++) {
+					Color color = sprites[i].GetPixel (x, y);
+					if (color.a > 0.9f) {
+						spr.SetPixel ((int)center.x + x, (int)center.y + y, color);
+					}
+				}
+			}
+		}
+		spr.Apply ();
+		return spr;
+	}
+
 	public virtual bool UpgradeModule () {
 		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
@@ -62,8 +110,15 @@ public class Module : MonoBehaviour {
 		return false;
 	}
 
+	public static float CalculateUpgradeMul (int upgradeLevel) {
+		return 1f * Mathf.Pow (1.2f, (float)upgradeLevel);
+	}
+
+	public static int CalculateUpgradeCost (int startCost, int upgradeLevel) {
+		return Mathf.RoundToInt (startCost * 2 * Mathf.Pow (1.5f, upgradeLevel));
+	}
+
 	public StreamWriter writer;
-	public int assemblyCost;
 	
 	public void SaveModuleAssembly (string filename) {
 		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
@@ -72,11 +127,9 @@ public class Module : MonoBehaviour {
 		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION");
 		rootModule.writer.WriteLine ("name:" + filename);
 		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
-		rootModule.writer.WriteLine ("cost:" + assemblyCost);
 		rootModule.writer.WriteLine ("END OF FILE");
 		rootModule.writer.Close ();
 		rootModule.writer = null;
-		assemblyCost = 0;
 
 		PurchaseMenu.cur.InitialzeAssemblyButtons ();
 		PurchaseMenu.cur.CloseAssemblyButtons ();
@@ -86,14 +139,14 @@ public class Module : MonoBehaviour {
 		rootModule.writer.WriteLine ("type:" + moduleName.ToString ());
 		if (transform.parent) {
 			rootModule.writer.WriteLine ("\tindx:" + moduleIndex.ToString ());
-			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module>().moduleIndex.ToString ());
+			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module> ().moduleIndex.ToString ());
 			rootModule.writer.WriteLine ("\tposx:" + (transform.position.x - rootModule.transform.position.x).ToString ());
 			rootModule.writer.WriteLine ("\tposy:" + (transform.position.y - rootModule.transform.position.y).ToString ());
-		}else{
+		} else {
 			rootModule.writer.WriteLine ("\troot");
 		}
 		rootModule.writer.WriteLine ("\trotz:" + transform.eulerAngles.z.ToString ());
-		rootModule.assemblyCost += moduleCost;
+		rootModule.writer.WriteLine ("\tlevl:" + upgradeCount.ToString ());
 	}
 
 	void OnMouseDown () {
@@ -227,27 +280,3 @@ public class Module : MonoBehaviour {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

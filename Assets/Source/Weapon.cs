@@ -92,7 +92,7 @@ public class Weapon : MonoBehaviour {
 				StartCoroutine ("DoFire");
 				return;
 			}
-			float angle = Angle.CalculateAngle (basePos, position);
+			float angle = Angle.CalculateAngle (rotator.transform.position, position);
 			pointer.eulerAngles = new Vector3 (0,0,angle);
 			if (Vector3.Distance (rotator.transform.eulerAngles, pointer.eulerAngles) < 1f) {
 				StartCoroutine ("DoFire");

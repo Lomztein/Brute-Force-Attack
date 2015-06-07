@@ -27,7 +27,7 @@ public class RotatorModule : Module {
 
 			if (parentBase)
 				if (parentBase.target)
-					angleToTarget = Angle.CalculateAngle (parentBase.transform.position, parentBase.targetPos);
+					angleToTarget = Angle.CalculateAngle (transform.position, parentBase.targetPos);
 
 			RotateToAngle ();
 		}else if (type == RotatorType.Sprayer) {

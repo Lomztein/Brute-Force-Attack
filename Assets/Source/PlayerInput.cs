@@ -43,7 +43,7 @@ public class PlayerInput : MonoBehaviour {
 
 	public Material placementMaterial;
 	public Material defualtMaterial;
-	private int currentCost;
+	public int currentCost;
 
 	void Start () {
 		cur = this;
@@ -62,6 +62,10 @@ public class PlayerInput : MonoBehaviour {
 		purchaseModule = purModule;
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
+
+		if (!purchaseMenu.stockModules.ContainsKey (purModule)) {
+			currentCost = pModule.moduleCost;
+		}
 	}
 
 	public void SetPurchaseableFromSceneObject (GameObject purModule) {
@@ -300,7 +304,7 @@ public class PlayerInput : MonoBehaviour {
 				}
 				PurchaseMenu.UpdateButtons ();
 			}else{
-				Game.credits -= pModule.moduleCost;
+				Game.credits -= currentCost;
 			}
 			m.transform.SetParent (hit.transform);
 		}

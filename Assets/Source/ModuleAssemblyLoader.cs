@@ -8,18 +8,45 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 	public string file;
 	public List<GameObject> moduleObjects;
 
+	public static void GetButtonSprites (LoadAssemblyButton button, out Texture2D[] sprites, out Vector3[] positions) {
+		List<Texture2D> spr = new List<Texture2D> ();
+		List<Vector3> pos = new List<Vector3> ();
+		string[] contents = GetContents (button.path);
+
+		pos.Add (Vector3.zero);
+		for (int i = 0; i < contents.Length; i++) {
+			if (contents[i].Substring (0, 5) == "type:") {
+				spr.Add (PurchaseMenu.cur.GetModulePrefab (contents[i].Substring (5))
+				         .transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite.texture);
+			}
+
+			if (contents[i].Substring (0,5) == "\tposx") {
+				pos.Add (new Vector3 (float.Parse (contents[i].Substring (6)),
+				                                              float.Parse (contents[i + 1].Substring (6))));
+			}
+		}
+
+		sprites = spr.ToArray ();
+		positions = pos.ToArray ();
+	}
+
 	public static void GetButtonData (string path, LoadAssemblyButton button) {
 		string[] contents = GetContents (path);
 		List<GameObject> objects = new List<GameObject>();
 		int cost = 0;
+		GameObject module = null;
 		for (int i = 0; i < contents.Length; i++) {
 			if (contents[i].Substring (0, 5) == "type:") {
-				GameObject module = PurchaseMenu.cur.GetModulePrefab (contents[i].Substring (5));
+				module = PurchaseMenu.cur.GetModulePrefab (contents[i].Substring (5));
 				if (module) {
 					objects.Add (module);
 					cost += module.GetComponent<Module>().moduleCost;
 				}
 			}
+
+			if (contents[i].Substring (0,5) == "\tlevl") {
+				cost += Module.CalculateUpgradeCost (module.GetComponent<Module>().moduleCost, int.Parse (contents[i].Substring (6)));
+			}			
 
 			if (contents[i].Substring (0, 5) == "name:")
 				button.assemblyName = contents[i].Substring (5);
@@ -80,6 +107,13 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 					if (contents[i].Substring (0,5) == "\trotz") {
 						module.transform.eulerAngles = new Vector3 (0,0, float.Parse (contents[i].Substring (6)));
 					}
+
+					if (contents[i].Substring (0,5) == "\tlevl") {
+						int level = int.Parse (contents[i].Substring (6));
+						module.upgradeCount = level;
+						module.upgradeMul = Module.CalculateUpgradeMul (level);
+						totalCost += Module.CalculateUpgradeCost (module.moduleCost, level);
+					}
 				}
 			}
 
@@ -99,6 +133,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 			PlayerInput.cur.SelectPurchaseable (rootModule, true);
 			PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
 			PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0,0, 90);
+			PlayerInput.cur.currentCost = totalCost;
 		}else{
 			Debug.LogWarning ("File not found at " + file);
 		}

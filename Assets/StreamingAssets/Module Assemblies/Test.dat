@@ -1,0 +1,21 @@
+PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
+name:Test
+type:Small Base
+	root
+	rotz:90.00001
+	levl:0
+type:Small Rotator
+	indx:2
+	pidx:1
+	posx:0
+	posy:0
+	rotz:90.00002
+	levl:0
+type:Small Machine Gun
+	indx:3
+	pidx:2
+	posx:0
+	posy:0
+	rotz:90.00002
+	levl:0
+END OF FILE
