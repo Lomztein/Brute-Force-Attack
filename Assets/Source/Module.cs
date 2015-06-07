@@ -78,24 +78,32 @@ public class Module : MonoBehaviour {
 		spr.filterMode = FilterMode.Point;
 		spr.wrapMode = TextureWrapMode.Clamp;
 
-		for (int i = 0; i < sprites.Length; i++) {
-			Vector3 center = positions[i] * (float)ppu;
-			center += new Vector3 (Mathf.Abs (positions[i].x * ppu),
-			                       Mathf.Abs (positions[i].y * ppu));
-
-			for (int y = 0; y < sprites[i].height; y++) {
-				for (int x = 0; x < sprites[i].width; x++) {
-					Color color = sprites[i].GetPixel (x, y);
-					if (color.a > 0.9f) {
-						spr.SetPixel ((int)center.x + x, (int)center.y + y, color);
-					}
-				}
+		for (int y = 0; y < spr.height; y++) {
+			for (int x = 0; x < spr.width; x++) {
+				spr.SetPixel (x, y, Color.clear);
 			}
 		}
+
+		for (int i = 0; i < sprites.Length; i++) {
+			OverlaySprite (spr, sprites[i], positions[i]);
+		}
+
 		spr.Apply ();
 		return spr;
 	}
 
+	private static void OverlaySprite (Texture2D tex, Texture2D sprite, Vector3 pos, int ppu = 16) {
+		Vector3 center = (Quaternion.Euler (0,0, 90f) * pos) * (float)ppu + new Vector3 (tex.width / 2, tex.height / 2);
+		for (int y = -sprite.height / 2; y < sprite.height / 2; y++) {
+			for (int x = -sprite.width / 2; x < sprite.width / 2; x++) {
+				Color color = sprite.GetPixel (x + sprite.width / 2, y + sprite.height / 2);
+				if (color.a > 0.9f) {
+					tex.SetPixel ((int)center.x + x, (int)center.y + y, color);
+				}
+			}
+		}
+	}
+	
 	public virtual bool UpgradeModule () {
 		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
