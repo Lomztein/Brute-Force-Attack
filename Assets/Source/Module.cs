@@ -123,7 +123,12 @@ public class Module : MonoBehaviour {
 	}
 
 	public static int CalculateUpgradeCost (int startCost, int upgradeLevel) {
-		return Mathf.RoundToInt (startCost * 2 * Mathf.Pow (1.5f, upgradeLevel));
+		float value = 0f;
+		while (upgradeLevel > 0) {
+			upgradeLevel--;
+			value += (float)startCost * 2f * Mathf.Pow (1.5f, (float)upgradeLevel);
+		}
+		return Mathf.RoundToInt (value);
 	}
 
 	public StreamWriter writer;

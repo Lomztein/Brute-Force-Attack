@@ -1,5 +1,5 @@
 PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
-name:Porn
+name:Something
 type:Small Base
 	root
 	rotz:90.00001
@@ -18,24 +18,38 @@ type:Small 3x Strutural Module
 	posy:0
 	rotz:90.00002
 	levl:0
-type:Small Rocket Launcher
+type:Small Rotator
 	indx:4
 	pidx:3
-	posx:0
+	posx:-1
 	posy:0
-	rotz:90.00002
+	rotz:90.00004
 	levl:0
-type:Small Rocket Launcher
+type:Small Laser Cannon
+	indx:6
+	pidx:4
+	posx:-1
+	posy:0
+	rotz:90.00004
+	levl:0
+type:Small Rotator
 	indx:5
 	pidx:3
 	posx:1
 	posy:0
-	rotz:90.00002
+	rotz:90.00004
 	levl:0
-type:Small Rocket Launcher
-	indx:6
+type:Small Laser Cannon
+	indx:7
+	pidx:5
+	posx:1
+	posy:0
+	rotz:90.00004
+	levl:0
+type:Small Machine Gun
+	indx:8
 	pidx:3
-	posx:-1
+	posx:0
 	posy:0
 	rotz:90.00002
 	levl:0

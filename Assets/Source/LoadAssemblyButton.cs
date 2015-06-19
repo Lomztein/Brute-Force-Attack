@@ -18,7 +18,7 @@ public class LoadAssemblyButton : MonoBehaviour {
 		ModuleAssemblyLoader.GetButtonSprites (this, out sprites, out positions);
 		button.transform.FindChild ("Image").GetComponent<RawImage>().texture = Module.CombineSprites (sprites, positions);
 
-		button.GetComponent<HoverContextElement> ().text = cost.ToString () + " LoC";
+		button.GetComponent<HoverContextElement> ().text = assemblyName + ", " + cost.ToString () + " LoC";
 	}
 
 	public void OnResearchUnlocked () {

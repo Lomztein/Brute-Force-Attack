@@ -289,7 +289,7 @@ public class EnemySpawn : MonoBehaviour {
 		write.Close ();
 	}
 
-	public List<Wave> LoadWaveset (string name) {
+	public static List<Wave> LoadWaveset (string name) {
 		string path = Game.WAVESET_SAVE_DIRECTORY + name + WAVESET_FILE_EXTENSION;
 		string[] content = ModuleAssemblyLoader.GetContents (path);
 
@@ -324,7 +324,7 @@ public class EnemySpawn : MonoBehaviour {
 			if (c.Length > 6) {
 				if (c.Substring (0,7) == "\t\t\tenmy") {
 					ce =  new Wave.Enemy ();
-					ce.enemy = GetEnemyFromName (c.Substring (8));
+					ce.enemy = EnemySpawn.cur.GetEnemyFromName (c.Substring (8));
 				}
 
 				if (c.Substring (0,7) == "\t\t\tamnt") {
