@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using IngameEditors;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
@@ -163,7 +164,7 @@ public class Module : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		if (!PlayerInput.cur.isPlacing && !ResearchMenu.isOpen) {
+		if (!PlayerInput.cur.isPlacing && (!ResearchMenu.isOpen || AssemblyEditorScene.isActive)) {
 			PlayerInput.cur.focusRoot = this;
 			PlayerInput.cur.OpenModuleMenu ();
 		}
@@ -183,13 +184,13 @@ public class Module : MonoBehaviour {
 		}
 		moduleIndex = rootModule.GetModuleIndex ();
 
-		if (isRoot) Pathfinding.ChangeArea (GetModuleRect (), false);
+		if (isRoot && !AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), false);
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
 	public void SellModule () {
-		Pathfinding.ChangeArea (GetModuleRect (), true);
+		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
 		Destroy (gameObject);
 	}
 
@@ -198,7 +199,7 @@ public class Module : MonoBehaviour {
 	}
 
 	void Stockify () {
-		Pathfinding.ChangeArea (GetModuleRect (), true);
+		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
 		Destroy (gameObject);
 		PurchaseMenu.AddStock (this);
 	}

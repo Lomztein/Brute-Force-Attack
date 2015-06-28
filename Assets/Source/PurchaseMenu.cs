@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.IO;
+using IngameEditors;
 
 public class PurchaseMenu : MonoBehaviour {
 
@@ -39,8 +40,12 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public int purchaseButtonSize = 75;
 
-	// Use this for initialization
-	// TODO Implement multiple raycasts before placing objects.
+	public void Initialize () {
+		stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
+		InitializePurchaseMenu (standard.ToArray ());
+		InitialzeAssemblyButtons ();
+		CloseAssemblyButtons ();
+	}
 
 	public void LoadStandardButtons () {
 		CloseAssemblyButtons ();
@@ -136,7 +141,11 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
-		CollectAllPurchaseables ();
+		if (!AssemblyEditorScene.isActive) {
+			CollectAllPurchaseables ();
+		} else {
+			all = standard;
+		}
 
 		// Count weapons and other types
 		int w = 0;

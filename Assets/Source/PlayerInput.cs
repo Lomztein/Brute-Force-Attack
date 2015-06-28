@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using IngameEditors;
 
 public class PlayerInput : MonoBehaviour {
 
@@ -297,14 +298,16 @@ public class PlayerInput : MonoBehaviour {
 		if (allowPlacement) {
 			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
-			if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
-				purchaseMenu.stockModules[purchaseModule]--;
-				if (purchaseMenu.stockModules[purchaseModule] < 1) {
-					purchaseMenu.stockModules.Remove (purchaseModule);
+			if (!AssemblyEditorScene.isActive) {
+				if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
+					purchaseMenu.stockModules[purchaseModule]--;
+					if (purchaseMenu.stockModules[purchaseModule] < 1) {
+						purchaseMenu.stockModules.Remove (purchaseModule);
+					}
+					PurchaseMenu.UpdateButtons ();
+				}else{
+					Game.credits -= currentCost;
 				}
-				PurchaseMenu.UpdateButtons ();
-			}else{
-				Game.credits -= currentCost;
 			}
 			m.transform.SetParent (hit.transform);
 		}

@@ -33,9 +33,24 @@ public class ResearchMenu : MonoBehaviour {
 		cur = this;
 		InitializeResearchMenu ();
 		InitializeMultipliers ();
+		InitializeStatics ();
 		startPos = transform.position;
 		ToggleResearchMenu ();
 		UpdateButtons ();
+	}
+
+	void InitializeStatics () {
+		Datastream.healSpeed = 0f;
+		Datastream.healthAmount = 100;
+		Datastream.repurposeEnemies = false;
+		Datastream.enableFirewall = false;
+		FireProjectile.fireWidth = 0.2f;
+		BaseModule.enableAdvancedTracking = false;
+		HomingProjectile.autoFindTarget = false;
+		ChargingBeamWeapon.chargeSpeedMultiplier = 1f;
+		SplitterHomingProjectile.amount = 0;
+		SlowfieldModule.freezeMultiplier = 0.5f;
+		TeslaProjectile.chainAmount = 0;
 	}
 
 	public void ToggleResearchMenu () {
@@ -48,7 +63,7 @@ public class ResearchMenu : MonoBehaviour {
 		}
 	}
 
-	void InitializeMultipliers () {
+	public static void InitializeMultipliers () {
 		int types = 7;
 
 		damageMul   = new float[types];
@@ -62,6 +77,7 @@ public class ResearchMenu : MonoBehaviour {
 			damageMul[i]   = 1f;
 			costMul[i]     = 1f;
 			firerateMul[i] = 1f;
+			RocketLauncherWeapon.doubleRocketsEnabled[i] = false;
 		}
 	}
 

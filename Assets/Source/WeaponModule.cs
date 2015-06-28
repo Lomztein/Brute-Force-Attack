@@ -29,13 +29,15 @@ public class WeaponModule : Module {
 	}
 
 	void Update () {
-		if (parentBase) {
-			if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange * upgradeMul * ResearchMenu.rangeMul) {
-				weapon.target = parentBase.target;
-				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
+		if (!IngameEditors.AssemblyEditorScene.isActive) {
+			if (parentBase) {
+				if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange * upgradeMul * ResearchMenu.rangeMul) {
+					weapon.target = parentBase.target;
+					weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
+				}
+			} else {
+				weapon.Fire (parentRotator, transform.position, weapon.transform.position + weapon.transform.right);
 			}
-		}else{
-			weapon.Fire (parentRotator, transform.position, weapon.transform.position + weapon.transform.right);
 		}
 	}
 

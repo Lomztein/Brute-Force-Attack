@@ -227,14 +227,18 @@ public class Game : MonoBehaviour {
 
 	}
 
-	void InitializeBattlefield () {
-
-		// Initialize files
+	public static void InitializeSaveDictionaries () {
 		string dp = Application.dataPath;
-
+		
 		MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
 		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
 		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
+	}
+
+	void InitializeBattlefield () {
+
+		// Initialize files
+		InitializeSaveDictionaries ();
 
 		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
 			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
@@ -267,10 +271,7 @@ public class Game : MonoBehaviour {
 		GenerateWallMesh ();
 
 		// Initialize purchase menu
-		purchaseMenu.stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
-		purchaseMenu.InitializePurchaseMenu (purchaseMenu.standard.ToArray ());
-		purchaseMenu.InitialzeAssemblyButtons ();
-		purchaseMenu.CloseAssemblyButtons ();
+		purchaseMenu.Initialize ();
 	}
 
 	void FixedUpdate () {
