@@ -1,0 +1,21 @@
+PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
+name:Untitiled Module Assembly
+type:Long Range Base
+	root
+	rotz:90.00001
+	levl:5
+type:Standard Rotator
+	indx:2
+	pidx:1
+	posx:0
+	posy:0
+	rotz:90.00002
+	levl:5
+type:Beam Cannon
+	indx:3
+	pidx:2
+	posx:0
+	posy:0
+	rotz:90.00002
+	levl:5
+END OF FILE

@@ -39,7 +39,12 @@ public class ResearchMenu : MonoBehaviour {
 		UpdateButtons ();
 	}
 
-	void InitializeStatics () {
+	public static void InitializeAllStatics () {
+		InitializeStatics ();
+		InitializeMultipliers ();
+	}
+
+	public static void InitializeStatics () {
 		Datastream.healSpeed = 0f;
 		Datastream.healthAmount = 100;
 		Datastream.repurposeEnemies = false;

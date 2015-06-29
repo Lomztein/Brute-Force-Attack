@@ -14,6 +14,7 @@ namespace IngameEditors {
 		// Use this for initialization
 		void Start () {
 			Game.InitializeSaveDictionaries ();
+			ResearchMenu.InitializeAllStatics ();
 			isActive = true;
 			Game.credits = int.MaxValue;
 			purchaseMenu.standard = Resources.LoadAll<GameObject> ("Modules").ToList ();

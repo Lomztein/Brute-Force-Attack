@@ -8,7 +8,7 @@ public class MainMenuScene : MonoBehaviour {
 	}
 
 	public void Build () {
-		Application.LoadLevel ("pv_assemblyeditor");
+		Application.LoadLevel ("pv_assemblybuilder");
 	}
 
 	public void Quit () {
