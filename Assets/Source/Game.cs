@@ -19,6 +19,7 @@ public class Game : MonoBehaviour {
 	public ResearchMenu researchMenu;
 	public GameObject pauseMenu;
 	public Slider researchSlider;
+	public GameObject rangeIndicator;
 	
 	public Text creditsText;
 	public Text powerText;

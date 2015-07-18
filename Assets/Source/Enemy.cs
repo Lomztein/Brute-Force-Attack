@@ -82,12 +82,12 @@ public class Enemy : MonoBehaviour {
 			SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 			EnemySpawn.cur.OnEnemyDeath ();
 
-			Destroy (gameObject);
-
 			if (Random.Range (0, researchDropChance) == 0)
 				Instantiate (researchPoint, transform.position, Quaternion.identity);
 
 		}
+
+		Destroy (gameObject);
 	}
 
 	void OnCollisionEnter (Collision col) {

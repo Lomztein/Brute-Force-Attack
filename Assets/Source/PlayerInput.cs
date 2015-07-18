@@ -46,9 +46,13 @@ public class PlayerInput : MonoBehaviour {
 	public Material defualtMaterial;
 	public int currentCost;
 
+	private RangeIndicator rangeIndicator;
+	private float indicatorRange;
+
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
+		rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
@@ -63,6 +67,8 @@ public class PlayerInput : MonoBehaviour {
 		purchaseModule = purModule;
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
+
+		// rangeIndicator.ForceParent (loc, placePos);
 
 		if (!purchaseMenu.stockModules.ContainsKey (purModule)) {
 			currentCost = pModule.moduleCost;
@@ -83,6 +89,7 @@ public class PlayerInput : MonoBehaviour {
 			Destroy (child.gameObject);
 		}
 		placementParent.rotation = Quaternion.identity;
+		rangeIndicator.NullifyParent ();
 	}
 
 	public void OpenModuleMenu () {
@@ -101,9 +108,13 @@ public class PlayerInput : MonoBehaviour {
 		MoveCamera ();
 		// Grap mouse position, and round it.
 		pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
+
+		rangeIndicator.GetRange (0f);
 		
 		if (!EnemySpawn.waveStarted) {
 			if (isPlacing && !isEditingWalls) {
+
+				rangeIndicator.transform.position = placementParent.position;
 
 				// Offset class 1 modules
 				if (pModule.moduleClass == 1)
@@ -117,8 +128,21 @@ public class PlayerInput : MonoBehaviour {
 				UpdatePlacementSprite ();
 				GetHitModule ();
 
-				if (hitModule)
+				if (hitModule) {
 					placeRot = hitModule.transform.rotation;
+					RangeIndicator.ForceRequestRange (purchaseModule, gameObject);
+					if (pModule.moduleType == Module.Type.Weapon) {
+						if (hitModule.parentBase) {
+							rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.range);
+						}else{
+							rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+						}
+					}else{
+						rangeIndicator.GetRange (indicatorRange);
+					}
+				}else{
+					RangeIndicator.ForceRequestRange (purchaseModule, rangeIndicator.gameObject);
+				}
 
 				if (isRotting) {
 					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 45f) * 45;
@@ -204,6 +228,11 @@ public class PlayerInput : MonoBehaviour {
 
 	Vector3 RoundPos (Vector3 p) {
 		return new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
+	}
+
+	void GetRange (float _range) {
+		indicatorRange = _range;
+		Debug.Log (_range);
 	}
 
 	bool CanPlaceAtPos (Vector3 pos) {
@@ -298,6 +327,7 @@ public class PlayerInput : MonoBehaviour {
 		if (allowPlacement) {
 			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
+			rangeIndicator.NullifyParent ();
 			if (!AssemblyEditorScene.isActive) {
 				if (purchaseMenu.stockModules.ContainsKey (purchaseModule)) {
 					purchaseMenu.stockModules[purchaseModule]--;

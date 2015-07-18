@@ -16,6 +16,7 @@ public class ModuleContextMenu : MonoBehaviour {
 	private Module module;
 	private Module[] moduleTree;
 	private GameObject[] moduleTreeButtons;
+	private RangeIndicator rangeIndicator;
 
 	public Button upgradeButton;
 
@@ -33,6 +34,11 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	public void SellModule () {
 		module.SellModule ();
+	}
+
+	void OpenRangeIndicator () {
+		if (!rangeIndicator)
+			rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, true).GetComponent<RangeIndicator>();
 	}
 
 	void UpdateDescriptions () {
@@ -64,10 +70,13 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	public void ExitMenu () {
+		OpenRangeIndicator ();
 		gameObject.SetActive (false);
+		rangeIndicator.NullifyParent ();
 	}
 
 	public void UpdateModuleTree () {
+		OpenRangeIndicator ();
 		moduleTree = module.GetModuleTree ();
 
 		if (moduleTreeButtons != null)
@@ -95,6 +104,7 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	public void OpenModule (Module module) {
 		this.module = module;
+		rangeIndicator.ForceParent (module.gameObject, module.transform.position);
 
 		if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
 			upgradeButton.GetComponent<HoverContextElement> ().text = "Maxed Out";

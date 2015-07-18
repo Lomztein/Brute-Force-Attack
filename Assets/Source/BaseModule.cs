@@ -50,6 +50,11 @@ public class BaseModule : Module {
 		}
 	}
 
+	public override void Start () {
+		base.Start ();
+		targetingRange = range;
+	}
+
 	float GetRange () {
 		return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
 	}
@@ -80,6 +85,9 @@ public class BaseModule : Module {
 				if (weapons[i].maxRange < r) {
 					r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
 				}
+
+				weapons[i].damageMul = damageBoost;
+				weapons[i].firerateMul = (1f/firerateBoost);
 			}
 		}
 
@@ -87,9 +95,13 @@ public class BaseModule : Module {
 		fastestBulletSpeed = speed;
 	}
 
+	public void RequestRange (GameObject rangeIndicator) {
+		rangeIndicator.SendMessage ("GetRange", GetRange ());
+	}
+
 	public override string ToString () {
 		string text = "";
-		text += "Range: " + (GetRange () * upgradeMul).ToString () + " - \n\n";
+		text += "Range: " + (GetRange ()).ToString () + " - \n\n";
 		if (damageBoost != 1f) {
 			text += "Damage Multiplier: " + damageBoost.ToString () + " - \n\n";
 		}
@@ -97,5 +109,10 @@ public class BaseModule : Module {
 			text += "Firerate Mulitplier: " + firerateBoost.ToString ();
 		}
 		return text;
+	}
+
+	public override void SetIsBeingPlaced () {
+		base.SetIsBeingPlaced ();
+		targetingRange = range;
 	}
 }

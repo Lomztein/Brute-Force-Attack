@@ -18,6 +18,11 @@ public class Weapon : MonoBehaviour {
 	public float upgradeMul = 1f;
 	public static float bulletSleepTime = 1f;
 
+	public float damageMul = 1f;
+	public float firerateMul = 1f;
+	public float spreadMul = 1f;
+	public int amountMul = 1;
+
 	public float firerate;
 	public float reloadTime;
 	public float sequenceTime;
@@ -58,11 +63,11 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
+		Invoke ("ChamberBullet", firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
-			for (int i = 0; i < bulletAmount; i++) {
+			for (int i = 0; i < bulletAmount * amountMul; i++) {
 
 				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
 				Projectile pro = newBullet.GetComponent<Projectile>();
@@ -70,7 +75,7 @@ public class Weapon : MonoBehaviour {
 				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
+				pro.damage = (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 				pro.Initialize ();

@@ -7,16 +7,15 @@ public class WeaponModule : Module {
 	public float rangeMultiplier = 1f;
 
 	public RotatorModule parentRotator;
+	public static float indieRange = 10f;
 	
 	// Update is called once per frame
 	new void Start () {
 		weapon.upgradeMul = upgradeMul;
 		if (parentBase) {
-			weapon.bulletDamage = Mathf.RoundToInt ((float)weapon.bulletDamage * parentBase.damageBoost);
-			weapon.firerate *= parentBase.damageBoost;
 			weapon.maxRange = parentBase.range * rangeMultiplier;
 		}else{
-			weapon.maxRange = 20f * rangeMultiplier;
+			weapon.maxRange = indieRange * rangeMultiplier;
 		}
 		FindParentRotator ();
 		base.Start ();
@@ -54,13 +53,21 @@ public class WeaponModule : Module {
 		}
 	}
 
+	public void RequestRange (GameObject rangeIndicator) {
+		if (parentBase) {
+			rangeIndicator.SendMessage ("GetRange", rangeMultiplier);
+		} else {
+			rangeIndicator.SendMessage ("GetRange", rangeMultiplier);
+		}
+	}
+
 	public override string ToString () {
 		// This is gonna be a big one, hang on..
-		string text = "Damage: " + (weapon.bulletDamage * weapon.bulletAmount * ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] * upgradeMul).ToString () + "\n\n - " + 
-			"Firerate: " + (weapon.firerate * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst] / upgradeMul).ToString () + "\n\n - " +
-				"Spread: " + weapon.bulletSpread.ToString () + "\n\n - " + 
+		string text = "Damage: " + (weapon.bulletDamage * weapon.damageMul * (float)(weapon.bulletAmount * weapon.amountMul) * ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] * upgradeMul).ToString () + "\n\n - " + 
+			"Firerate: " + (1f/(weapon.firerate * weapon.firerateMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst] / upgradeMul)).ToString () + "\n\n - " +
+				"Spread: " + (weapon.bulletSpread * weapon.spreadMul).ToString () + "\n\n - " + 
 				"Muzzles: " + weapon.muzzles.Length.ToString () + "\n\n - " +
-				"DPS: " + ((weapon.bulletDamage * weapon.bulletAmount * upgradeMul *
+				"DPS: " + ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * upgradeMul *
 				ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] *
 				weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData().effectiveAgainst])).ToString () + " - ";
 

@@ -283,7 +283,7 @@ public class Module : MonoBehaviour {
 		enabled = true;
 	}
 
-	void SetIsBeingPlaced () {
+	public virtual void SetIsBeingPlaced () {
 		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.placementMaterial;
 		GetComponent<Collider>().enabled = false;
 		enabled = false;
