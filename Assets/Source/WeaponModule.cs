@@ -7,13 +7,13 @@ public class WeaponModule : Module {
 	public float rangeMultiplier = 1f;
 
 	public RotatorModule parentRotator;
-	public static float indieRange = 10f;
+	public static float indieRange = 5f;
 	
 	// Update is called once per frame
 	new void Start () {
 		weapon.upgradeMul = upgradeMul;
 		if (parentBase) {
-			weapon.maxRange = parentBase.range * rangeMultiplier;
+			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
 		}else{
 			weapon.maxRange = indieRange * rangeMultiplier;
 		}
@@ -30,7 +30,7 @@ public class WeaponModule : Module {
 	void Update () {
 		if (!IngameEditors.AssemblyEditorScene.isActive) {
 			if (parentBase) {
-				if (parentBase.target && Vector3.Distance (parentBase.transform.position, parentBase.targetPos) < weapon.maxRange * upgradeMul * ResearchMenu.rangeMul) {
+				if (parentBase.target) {
 					weapon.target = parentBase.target;
 					weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
 				}
@@ -54,11 +54,7 @@ public class WeaponModule : Module {
 	}
 
 	public void RequestRange (GameObject rangeIndicator) {
-		if (parentBase) {
-			rangeIndicator.SendMessage ("GetRange", rangeMultiplier);
-		} else {
-			rangeIndicator.SendMessage ("GetRange", rangeMultiplier);
-		}
+		rangeIndicator.SendMessage ("GetRange", rangeMultiplier);
 	}
 
 	public override string ToString () {

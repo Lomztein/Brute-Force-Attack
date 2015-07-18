@@ -55,7 +55,7 @@ public class BaseModule : Module {
 		targetingRange = range;
 	}
 
-	float GetRange () {
+	public float GetRange () {
 		return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
 	}
 

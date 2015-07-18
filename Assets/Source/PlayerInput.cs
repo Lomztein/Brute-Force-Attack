@@ -48,6 +48,7 @@ public class PlayerInput : MonoBehaviour {
 
 	private RangeIndicator rangeIndicator;
 	private float indicatorRange;
+	private GameObject activePurchaseCopy; // Activated copy of purchaseModule, ment for using SendMessage and stuffz.
 
 	void Start () {
 		cur = this;
@@ -73,6 +74,11 @@ public class PlayerInput : MonoBehaviour {
 		if (!purchaseMenu.stockModules.ContainsKey (purModule)) {
 			currentCost = pModule.moduleCost;
 		}
+
+		if (activePurchaseCopy)
+			Destroy (activePurchaseCopy);
+
+		activePurchaseCopy = (GameObject)Instantiate (purchaseModule, Vector3.right * 10000f, Quaternion.identity);
 	}
 
 	public void SetPurchaseableFromSceneObject (GameObject purModule) {
@@ -88,6 +94,7 @@ public class PlayerInput : MonoBehaviour {
 		foreach (Transform child in placementParent) {
 			Destroy (child.gameObject);
 		}
+		Destroy (activePurchaseCopy);
 		placementParent.rotation = Quaternion.identity;
 		rangeIndicator.NullifyParent ();
 	}
@@ -128,12 +135,17 @@ public class PlayerInput : MonoBehaviour {
 				UpdatePlacementSprite ();
 				GetHitModule ();
 
+				indicatorRange = 0f;
+				RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
+
 				if (hitModule) {
 					placeRot = hitModule.transform.rotation;
-					RangeIndicator.ForceRequestRange (purchaseModule, gameObject);
-					if (pModule.moduleType == Module.Type.Weapon) {
+
+					if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
+						rangeIndicator.GetRange (0f);
+					}else if (pModule.moduleType == Module.Type.Weapon) {
 						if (hitModule.parentBase) {
-							rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.range);
+							rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
 						}else{
 							rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
 						}
@@ -141,7 +153,11 @@ public class PlayerInput : MonoBehaviour {
 						rangeIndicator.GetRange (indicatorRange);
 					}
 				}else{
-					RangeIndicator.ForceRequestRange (purchaseModule, rangeIndicator.gameObject);
+					if (pModule.moduleType == Module.Type.Weapon) {
+						rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+					}else{
+						RangeIndicator.ForceRequestRange (activePurchaseCopy, rangeIndicator.gameObject);
+					}
 				}
 
 				if (isRotting) {
@@ -232,7 +248,6 @@ public class PlayerInput : MonoBehaviour {
 
 	void GetRange (float _range) {
 		indicatorRange = _range;
-		Debug.Log (_range);
 	}
 
 	bool CanPlaceAtPos (Vector3 pos) {

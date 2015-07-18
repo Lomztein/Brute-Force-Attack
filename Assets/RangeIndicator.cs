@@ -44,7 +44,7 @@ public class RangeIndicator : MonoBehaviour {
 	}
 
 	public static void ForceRequestRange (GameObject _gameObject, GameObject toGetRange) {
-		_gameObject.SendMessage ("RequestRange", toGetRange, SendMessageOptions.RequireReceiver);
+		_gameObject.SendMessage ("RequestRange", toGetRange, SendMessageOptions.DontRequireReceiver);
 	}
 
 	public void GetRange (float _range) {

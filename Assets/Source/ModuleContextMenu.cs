@@ -17,6 +17,7 @@ public class ModuleContextMenu : MonoBehaviour {
 	private Module[] moduleTree;
 	private GameObject[] moduleTreeButtons;
 	private RangeIndicator rangeIndicator;
+	private float indicatorRange;
 
 	public Button upgradeButton;
 
@@ -38,7 +39,7 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	void OpenRangeIndicator () {
 		if (!rangeIndicator)
-			rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, true).GetComponent<RangeIndicator>();
+			rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator>();
 	}
 
 	void UpdateDescriptions () {
@@ -58,6 +59,7 @@ public class ModuleContextMenu : MonoBehaviour {
 			upgradeButton.GetComponent<HoverContextElement>().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
 		}
 		UpdateDescriptions ();
+		UpdateRangeIndicator ();
 		return;
 	}
 
@@ -73,6 +75,10 @@ public class ModuleContextMenu : MonoBehaviour {
 		OpenRangeIndicator ();
 		gameObject.SetActive (false);
 		rangeIndicator.NullifyParent ();
+	}
+
+	void GetRange (float range) {
+		indicatorRange = range;
 	}
 
 	public void UpdateModuleTree () {
@@ -102,9 +108,25 @@ public class ModuleContextMenu : MonoBehaviour {
 		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x,moduleTree.Length * 60f + 5 - treeScrollContext.rect.height);
 	}
 
+	void UpdateRangeIndicator () {
+		indicatorRange = 0f;
+		RangeIndicator.ForceRequestRange (module.gameObject, gameObject);
+		rangeIndicator.transform.position = module.transform.position;
+		
+		if (module.moduleType == Module.Type.Weapon) {
+			if (module.parentBase) {
+				rangeIndicator.GetRange (module.parentBase.GetRange () * indicatorRange);
+			}else{
+				rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+			}
+		}else{
+			rangeIndicator.GetRange (indicatorRange);
+		}
+	}
+
 	public void OpenModule (Module module) {
 		this.module = module;
-		rangeIndicator.ForceParent (module.gameObject, module.transform.position);
+		UpdateRangeIndicator ();
 
 		if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
 			upgradeButton.GetComponent<HoverContextElement> ().text = "Maxed Out";
