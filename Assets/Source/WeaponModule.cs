@@ -7,7 +7,7 @@ public class WeaponModule : Module {
 	public float rangeMultiplier = 1f;
 
 	public RotatorModule parentRotator;
-	public static float indieRange = 5f;
+	public static float indieRange = 7.5f;
 	
 	// Update is called once per frame
 	new void Start () {

@@ -20,6 +20,8 @@ public class Game : MonoBehaviour {
 	public GameObject pauseMenu;
 	public Slider researchSlider;
 	public GameObject rangeIndicator;
+	public GameObject worldCanvas;
+	public GameObject enemyHealthSlider;
 	
 	public Text creditsText;
 	public Text powerText;

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour {
 
@@ -26,6 +27,8 @@ public class Enemy : MonoBehaviour {
 	public GameObject researchPoint;
 	private bool isDead;
 
+	private Slider healthSlider;
+
 	// TODO Add pathfinding and, well, just improve overall
 
 	void Start () {
@@ -33,6 +36,14 @@ public class Enemy : MonoBehaviour {
 		offset = new Vector3 (off.x, off.y, 0f);
 		path = Pathfinding.GetBakedPath (transform.position);
 		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
+		CreateHealthMeter ();
+	}
+
+	void CreateHealthMeter () {
+		GameObject loc = (GameObject)Instantiate (Game.game.enemyHealthSlider, transform.position + Vector3.up, Quaternion.identity);
+		healthSlider = loc.GetComponent<Slider>();
+		healthSlider.maxValue = health;
+		loc.transform.SetParent (Game.game.worldCanvas.transform, true);
 	}
 
 	public int GetPathDistanceRemaining () {
@@ -41,9 +52,29 @@ public class Enemy : MonoBehaviour {
 
 	void FixedUpdate () {
 		Move ();
+		UpdateHealthSlider ();
+	}
+
+	void UpdateHealthSlider () {
+		healthSlider.value = health;
+		healthSlider.transform.position = transform.position + Vector3.up;
+
+		Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		mousePos.z = 0;
+
+		if (Vector3.Distance (transform.position, mousePos) > 5) {
+			if (healthSlider.gameObject.activeInHierarchy) {
+				healthSlider.gameObject.SetActive (false);
+			}
+		}else{
+			if (!healthSlider.gameObject.activeInHierarchy) {
+				healthSlider.gameObject.SetActive (true);
+			}
+		}
 	}
 
 	void Move () {
+
 		while (pathIndex == path.Length - 1 || isFlying) {
 			transform.position += Vector3.down * Time.fixedDeltaTime * speed;
 			if (rotateSprite)
@@ -76,18 +107,19 @@ public class Enemy : MonoBehaviour {
 			health -= Mathf.RoundToInt ((float)damage.damage / 2f);
 		}
 
-		if (health < 0 && !isDead) {
-			isDead = true;
-			Game.credits += Mathf.RoundToInt ((float)value * (float)EnemySpawn.gameProgress * 0.2f);
-			SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
-			EnemySpawn.cur.OnEnemyDeath ();
+		if (health < 0) {
+			Destroy (gameObject);
+			Destroy (healthSlider.gameObject);
+			if (!isDead) {
+				isDead = true;
+				Game.credits += Mathf.RoundToInt ((float)value * (float)EnemySpawn.gameProgress * 0.2f);
+				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
+				EnemySpawn.cur.OnEnemyDeath ();
 
-			if (Random.Range (0, researchDropChance) == 0)
-				Instantiate (researchPoint, transform.position, Quaternion.identity);
-
+				if (Random.Range (0, researchDropChance) == 0)
+					Instantiate (researchPoint, transform.position, Quaternion.identity);
+			}
 		}
-
-		Destroy (gameObject);
 	}
 
 	void OnCollisionEnter (Collision col) {

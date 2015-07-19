@@ -106,13 +106,13 @@ public class Module : MonoBehaviour {
 	}
 	
 	public virtual bool UpgradeModule () {
-		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT - 1) {
 			return true;
 		}
 		upgradeCount++;
 		upgradeMul *= 1.2f;
 		upgradeCost = Mathf.RoundToInt ((float)upgradeCost * 1.5f);
-		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT - 1) {
 			return true;
 		}
 

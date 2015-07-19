@@ -53,6 +53,9 @@ public class ModuleContextMenu : MonoBehaviour {
 				upgradeButton.interactable = false;
 				upgradeButton.GetComponent<HoverContextElement>().text = "Maxed Out";
 				UpdateDescriptions ();
+				UpdateDescriptions ();
+				UpdateRangeIndicator ();
+				UpdateDescText ();
 				return;
 			}
 			UpdateDescriptions ();
@@ -60,6 +63,7 @@ public class ModuleContextMenu : MonoBehaviour {
 		}
 		UpdateDescriptions ();
 		UpdateRangeIndicator ();
+		UpdateDescText ();
 		return;
 	}
 
@@ -124,6 +128,10 @@ public class ModuleContextMenu : MonoBehaviour {
 		}
 	}
 
+	void UpdateDescText () {
+		moduleDesc.text = "A class " + module.moduleClass + ", rank " + (module.upgradeCount + 1).ToString () + " " + module.moduleType.ToString () + " module - " + module.moduleDesc;
+	}
+
 	public void OpenModule (Module module) {
 		this.module = module;
 		UpdateRangeIndicator ();
@@ -138,8 +146,8 @@ public class ModuleContextMenu : MonoBehaviour {
 		
 		moduleImage.sprite = module.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 		moduleName.text = module.moduleName;
+		UpdateDescText ();
 		moduleStats.text = module.ToString ();
-		moduleDesc.text = "A class " + module.moduleClass + " " + module.moduleType.ToString () + " module - " + module.moduleDesc;
 		if (module.assemblyName != "") {
 			assemblyName.text = module.rootModule.assemblyName;
 		}else{
