@@ -22,7 +22,11 @@ public class RotatorModule : Module {
 	}
 
 	void Turn () {
-		angleToTarget = defualtRot;
+		if (EnemySpawn.waveStarted) {
+			angleToTarget = transform.eulerAngles.z;
+		}else{
+			angleToTarget = defualtRot;
+		}
 		if (type == RotatorType.Standard) {
 
 			if (parentBase)

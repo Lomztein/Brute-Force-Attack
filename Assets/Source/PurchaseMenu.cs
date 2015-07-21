@@ -45,6 +45,7 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (standard.ToArray ());
 		InitialzeAssemblyButtons ();
 		CloseAssemblyButtons ();
+		UpdateButtons ();
 	}
 
 	public void LoadStandardButtons () {

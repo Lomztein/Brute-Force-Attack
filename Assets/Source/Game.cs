@@ -71,6 +71,16 @@ public class Game : MonoBehaviour {
 	public static string BATTLEFIELD_SAVE_DIRECTORY;
 	public string[] stockModuleNames;
 
+	[Header ("Settings")]
+	public static float musicVolume;
+	public static float soundVolume;
+	public GameObject optionsMenu;
+	public static bool enableMouseMovement = true;
+	public Toggle toggleMouseMovementButton;
+	public Toggle toggleOptionsMenuButton;
+	public Slider musicSlider;
+	public Slider soundSlider;
+
 	// Use this for initialization
 	void Start () {
 		Debug.Log ("Initializing!");
@@ -96,6 +106,7 @@ public class Game : MonoBehaviour {
 			isPaused = false;
 			Time.timeScale = 1f;
 			pauseMenu.SetActive (false);
+			optionsMenu.SetActive (false);
 		}else{
 			isPaused = true;
 			Time.timeScale = 0f;
@@ -103,25 +114,61 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	public void ToggleOptionsMenu () {
+		optionsMenu.SetActive (toggleOptionsMenuButton.isOn);
+	}
+
+	public void ToggleMouseMovement () {
+		enableMouseMovement = toggleMouseMovementButton.isOn;
+		if (enableMouseMovement) {
+			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "Mouse Movement";
+		}else{
+			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "WASD Movement";
+		}
+	}
+
+	/// <summary>
+	/// Positivizes a rectangle which, contrary to how a rect is normally set up, should be with a start and end, instead of start and size.
+	/// </summary>
+	/// <returns>The positivized rect, with start and size.</returns>
+	/// <param name="rect">Rect.</param>
+	public static Rect PositivizeRect (Rect rect) {
+
+		float startX = Mathf.Min (rect.x, rect.width);
+		float startY = Mathf.Min (rect.y, rect.height);
+		
+		float endX = Mathf.Max (rect.x, rect.width);
+		float endY = Mathf.Max (rect.y, rect.height);
+		
+		float w = endX - startX;
+		float h = endY - startY;
+
+		return new Rect (startX, startY, w, h);
+
+	}
+
 	public static void ChangeWalls (Rect rect, bool doWall) {
 
-		int startX = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (rect.x,rect.y)).x);
-		int startY = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (rect.x,rect.y)).y);
-		int w = Mathf.RoundToInt (rect.width);
-		int h = Mathf.RoundToInt (rect.height);
+		Rect loc = PositivizeRect (rect);
+
+		int startX = (int)loc.x;
+		int startY = (int)loc.y;
+
+		int w = (int)loc.width;
+		int h = (int)loc.height;
 
 		int cost = GetWallingCost (startX, startY, w, h, doWall);
 
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
-					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth, y + game.battlefieldHeight)) {
-						isWalled [x + game.battlefieldWidth, y + game.battlefieldHeight] = doWall;	
+					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)) {
+						isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = doWall;	
 					}
 				}
 			}
 
-			Pathfinding.ChangeArea (rect, !doWall);
+			Pathfinding.ChangeArea (loc, !doWall);
 			Game.game.GenerateWallMesh ();
 			credits -= cost;
 		}
@@ -133,12 +180,12 @@ public class Game : MonoBehaviour {
 		for (int y = startY; y < startY + h; y++) {
 			for (int x = startX; x < startX + w; x++) {
 
-				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth,y + game.battlefieldHeight)) {
+				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
 					if (doWall) {
-						if (!isWalled[x + game.battlefieldWidth,y + game.battlefieldHeight])
+						if (!isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2])
 							cost += 4;
 					}else{
-						if (isWalled[x + game.battlefieldWidth,y + game.battlefieldHeight])
+						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2])
 							cost -= 2;
 					}
 				}
@@ -278,6 +325,9 @@ public class Game : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+
+		musicVolume = musicSlider.value;
+		soundVolume = soundSlider.value;
 
 		if (datastream.pooledNumbers.Count <= 0) {
 			RestartMap ();

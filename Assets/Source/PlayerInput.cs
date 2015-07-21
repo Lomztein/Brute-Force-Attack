@@ -197,7 +197,7 @@ public class PlayerInput : MonoBehaviour {
 
 				if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
 					wallDragStatus = WallDragStatus.Inactive;
-					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), true);
+					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), true);
 					wallDragGraphic.sharedMaterial.color = Color.white;
 					HoverContext.ChangeText ("");
 				}
@@ -210,26 +210,23 @@ public class PlayerInput : MonoBehaviour {
 
 				if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
 					wallDragStatus = WallDragStatus.Inactive;
-					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x - wallDragStart.x, pos.y - wallDragStart.y), false);
+					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), false);
 					wallDragGraphic.sharedMaterial.color = Color.white;
 					HoverContext.ChangeText ("");
 				}
 
 				if (wallDragStatus != WallDragStatus.Inactive) {
-					if (wallDragStart.x <= pos.x && wallDragStart.y <= pos.y) {
-						wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
-						wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
 
-						int startX = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).x);
-						int startY = Mathf.RoundToInt (Game.game.pathfinder.WorldToNode (new Vector3 (wallDragStart.x,wallDragStart.y)).y);
-						int w = Mathf.RoundToInt (pos.x - wallDragStart.x);
-						int h = Mathf.RoundToInt (pos.y - wallDragStart.y);
+					wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
+					wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+					wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
+
+					Rect rect = Game.PositivizeRect (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y));
 						
-						if (wallDragStatus == WallDragStatus.Adding) {
-							HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (startX, startY, w, h, true));
-						}else{
-							HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (startX, startY, w, h, false));
-						}
+					if (wallDragStatus == WallDragStatus.Adding) {
+						HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), true));
+					}else{
+						HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), false));
 					}
 
 				}else{
@@ -325,7 +322,7 @@ public class PlayerInput : MonoBehaviour {
 
 	void PlaceModule () {
 
-		bool allowPlacement = true;
+		bool allowPlacement = CanPlaceAtPos (placePos);
 		isRotting = false;
 		
 		// Figure out if there is a module on mouse position, and figure out what type.
@@ -383,15 +380,31 @@ public class PlayerInput : MonoBehaviour {
 
 		Vector3 movement = new Vector3 ();
 
-		if (Input.mousePosition.x < 10)
-			movement.x = -cameraMovementSpeed;
-		if (Input.mousePosition.x > Screen.width - 10)
-			movement.x = cameraMovementSpeed;
-		if (Input.mousePosition.y < 10)
-			movement.y = -cameraMovementSpeed;
-		if (Input.mousePosition.y > Screen.height - 10)
-			movement.y = cameraMovementSpeed;
+		if (Game.enableMouseMovement) {
+			if (Input.mousePosition.x < 10)
+				movement.x = -cameraMovementSpeed;
+			if (Input.mousePosition.x > Screen.width - 10)
+				movement.x = cameraMovementSpeed;
+			if (Input.mousePosition.y < 10)
+				movement.y = -cameraMovementSpeed;
+			if (Input.mousePosition.y > Screen.height - 10)
+				movement.y = cameraMovementSpeed;
+		}else{
+			movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
+			movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
+		}
 
+		Vector3 camPos = transform.position;
+		if (camPos.x > Game.game.battlefieldWidth / 2f)
+			camPos.x = Game.game.battlefieldWidth / 2f;
+		if (camPos.y > Game.game.battlefieldHeight / 2f)
+			camPos.y = Game.game.battlefieldHeight / 2f;
+		if (camPos.x < -Game.game.battlefieldWidth / 2f)
+			camPos.x = -Game.game.battlefieldWidth / 2f;
+		if (camPos.y < -Game.game.battlefieldHeight / 2f)
+			camPos.y = -Game.game.battlefieldHeight / 2f;
+
+		transform.position = camPos;
 		transform.position += movement * Time.deltaTime;
 	}
 

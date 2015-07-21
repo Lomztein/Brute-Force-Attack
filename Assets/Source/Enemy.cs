@@ -109,7 +109,8 @@ public class Enemy : MonoBehaviour {
 
 		if (health < 0) {
 			Destroy (gameObject);
-			Destroy (healthSlider.gameObject);
+			if (healthSlider) Destroy (healthSlider.gameObject);
+
 			if (!isDead) {
 				isDead = true;
 				Game.credits += Mathf.RoundToInt ((float)value * (float)EnemySpawn.gameProgress * 0.2f);
