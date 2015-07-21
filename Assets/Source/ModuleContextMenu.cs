@@ -40,6 +40,7 @@ public class ModuleContextMenu : MonoBehaviour {
 	void OpenRangeIndicator () {
 		if (!rangeIndicator)
 			rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator>();
+		rangeIndicator.transform.GetChild (0).GetComponent<Renderer>().material.color = Color.green;
 	}
 
 	void UpdateDescriptions () {

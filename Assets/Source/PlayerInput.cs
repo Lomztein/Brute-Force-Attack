@@ -49,11 +49,13 @@ public class PlayerInput : MonoBehaviour {
 	private RangeIndicator rangeIndicator;
 	private float indicatorRange;
 	private GameObject activePurchaseCopy; // Activated copy of purchaseModule, ment for using SendMessage and stuffz.
+	private Material rangeIndicatorMaterial;
 
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
 		rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
+		rangeIndicatorMaterial = rangeIndicator.transform.GetChild (0).GetComponent<Renderer>().material;
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
@@ -161,7 +163,7 @@ public class PlayerInput : MonoBehaviour {
 				}
 
 				if (isRotting) {
-					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 45f) * 45;
+					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
 						if (Input.GetButton ("LCtrl"))
 							placeRot = Quaternion.Euler (0,0,ang);
 				}else{
@@ -252,6 +254,15 @@ public class PlayerInput : MonoBehaviour {
 		int hits = 4;
 		if (pModule.moduleCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject))
 			return false;
+
+		if (pModule.moduleType == Module.Type.Weapon) {
+			if (hitModule) {
+				if (!hitModule.parentBase)
+					return false;
+			}else{
+				return false;
+			}
+		}
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
 
@@ -362,8 +373,10 @@ public class PlayerInput : MonoBehaviour {
 	void UpdatePlacementSprite () {
 		if (CanPlaceAtPos (placePos)) {
 			placementMaterial.color = Color.green;
+			rangeIndicatorMaterial.color = Color.green;
 		}else{
 			placementMaterial.color = Color.red;
+			rangeIndicatorMaterial.color = Color.red;
 		}
 
 		placementParent.position = placePos;
