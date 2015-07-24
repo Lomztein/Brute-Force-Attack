@@ -81,6 +81,7 @@ public class PlayerInput : MonoBehaviour {
 			Destroy (activePurchaseCopy);
 
 		activePurchaseCopy = (GameObject)Instantiate (purchaseModule, Vector3.right * 10000f, Quaternion.identity);
+		activePurchaseCopy.GetComponent<Module>().isOnBattlefield = false;
 	}
 
 	public void SetPurchaseableFromSceneObject (GameObject purModule) {
@@ -124,10 +125,6 @@ public class PlayerInput : MonoBehaviour {
 			if (isPlacing && !isEditingWalls) {
 
 				rangeIndicator.transform.position = placementParent.position;
-
-				// Offset class 1 modules
-				if (pModule.moduleClass == 1)
-					pos += Vector3.one * 0.5f;
 
 				if (!isRotting) {
 					placePos = new Vector3 (pos.x, pos.y, 0f);
@@ -242,7 +239,17 @@ public class PlayerInput : MonoBehaviour {
 	}
 
 	Vector3 RoundPos (Vector3 p) {
-		return new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
+		pos = new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
+
+		if (pModule) {
+			if (pModule.moduleClass == 1) {
+				pos = new Vector3 (Mathf.Round (p.x/1f + 0.5f) * 1, Mathf.Round (p.y/1f + 0.5f) * 1, p.z);
+				pos -= Vector3.one * 0.5f;
+				// It's pretty hacky, but it works.
+			}
+		}
+
+		return pos;
 	}
 
 	void GetRange (float _range) {
@@ -265,6 +272,12 @@ public class PlayerInput : MonoBehaviour {
 		}
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
+
+			if (!Game.IsInsideBattlefield (pos + canPlaceTestPos[i]))
+				return false;
+
+			if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos [i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos [i]).y] == Game.WallType.Level)
+				return false;
 
 			Ray ray = new Ray (new Vector3 (pos.x + canPlaceTestPos[i].x * pModule.moduleClass, pos.y + canPlaceTestPos[i].y * pModule.moduleClass, camDepth), Vector3.forward * -camDepth * 2f);
 			RaycastHit hit;

@@ -185,7 +185,7 @@ public class Dijkstra : MonoBehaviour {
 				if (cur.IsInsideField (xx,yy)) {
 
 					cur.nodes[xx,yy].isClear = clear;
-					if (Game.isWalled[xx,yy])
+					if (Game.isWalled[xx,yy] != Game.WallType.None)
 						cur.nodes[xx,yy].isClear = false;
 					
 				}

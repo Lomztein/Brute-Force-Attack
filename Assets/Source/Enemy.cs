@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour {
 	public bool isFlying;
 	public int researchDropChance;
 
+	public EnemySpawnPoint spawnPoint;
+
 	public bool rotateSprite;
 	public float freezeMultiplier = 1f;
 
@@ -34,7 +36,6 @@ public class Enemy : MonoBehaviour {
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		path = Pathfinding.GetBakedPath (transform.position);
 		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
 		CreateHealthMeter ();
 	}

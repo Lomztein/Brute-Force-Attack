@@ -11,13 +11,8 @@ public class WeaponModule : Module {
 	
 	// Update is called once per frame
 	new void Start () {
-		weapon.upgradeMul = upgradeMul;
-		if (parentBase) {
-			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
-		}else{
-			weapon.maxRange = indieRange * rangeMultiplier;
-		}
 		FindParentRotator ();
+		UpdateWeaponRange ();
 		base.Start ();
 	}
 
@@ -27,14 +22,25 @@ public class WeaponModule : Module {
 		return passed;
 	}
 
+	void UpdateWeaponRange () {
+		if (parentBase) {
+			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
+		}else{
+			weapon.maxRange = indieRange * rangeMultiplier;
+		}
+	}
+		
+
 	void Update () {
 		if (!IngameEditors.AssemblyEditorScene.isActive) {
 			if (parentBase) {
+				weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
 				if (parentBase.target) {
 					weapon.target = parentBase.target;
 					weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
 				}
 			} else {
+				weapon.maxRange = indieRange * rangeMultiplier;
 				weapon.Fire (parentRotator, transform.position, weapon.transform.position + weapon.transform.right);
 			}
 		}

@@ -42,7 +42,6 @@ public class Weapon : MonoBehaviour {
 		bulletPool.Enqueue (toPool);
 	}
 
-	// TODO Implement projectile pooling
 	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {
 		if (bulletPool.Count > 0) {
 			GameObject b = bulletPool.Dequeue ();
@@ -56,6 +55,7 @@ public class Weapon : MonoBehaviour {
 	}
 
 	public virtual void Start () {
+		Debug.Log ("wat");
 		pointer = new GameObject ("Pointer").transform;
 		pointer.parent = transform;
 		pointer.transform.position = transform.position;

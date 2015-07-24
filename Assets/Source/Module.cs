@@ -10,6 +10,7 @@ public class Module : MonoBehaviour {
 
 	public const string MODULE_FILE_EXTENSION = ".dat";
 	public const int MAX_UPGRADE_AMOUNT = 5;
+	public bool isOnBattlefield = true;
 	
 	public enum Type { Base, Rotator, Weapon, Structural, Independent };
 	public Colour colour;
@@ -46,12 +47,12 @@ public class Module : MonoBehaviour {
 	}
 
 	public virtual void Start () {
-		InitializeModule ();
+		if (isOnBattlefield) InitializeModule ();
 	}
 
 	public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
 		if (sprites.Length != positions.Length) {
-			Debug.LogError ("Spites array not equal length as positions array.");
+			Debug.LogError ("Sprites array not equal length as positions array.");
 			return null;
 		}
 		// First, get total size;
@@ -175,6 +176,7 @@ public class Module : MonoBehaviour {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
+		Game.currentModules.Add (this);
 
 		rootModule = FindRootModule ();
 		if (rootModule == this) {
@@ -182,16 +184,20 @@ public class Module : MonoBehaviour {
 			moduleIndex = 0;
 			saveIndex = 0;
 		}
+		BlockArea ();
 		moduleIndex = rootModule.GetModuleIndex ();
 
-		if (isRoot && !AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), false);
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
 	public void SellModule () {
 		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
-		Destroy (gameObject);
+		DestroyModule ();
+	}
+
+	public void BlockArea () {
+		if (isRoot && !AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), false);
 	}
 
 	public void StockModule () {
@@ -200,8 +206,13 @@ public class Module : MonoBehaviour {
 
 	void Stockify () {
 		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
-		Destroy (gameObject);
+		DestroyModule ();
 		PurchaseMenu.AddStock (this);
+	}
+
+	void DestroyModule () {
+		Destroy (gameObject);
+		Game.currentModules.Remove (this);
 	}
 
 	public Module FindRootModule () {
@@ -261,8 +272,7 @@ public class Module : MonoBehaviour {
 
 	public void RequestChildModules () {
 		requestedModules = new List<Module>();
-		SendMessageUpwards ("ReturnModuleToRequester", this, SendMessageOptions.DontRequireReceiver);
-		BroadcastMessage ("ReturnModuleToRequester", this, SendMessageOptions.DontRequireReceiver);
+		rootModule.BroadcastMessage ("ReturnModuleToRequester", this, SendMessageOptions.DontRequireReceiver);
 		requestedModules.Add (this);
 	}
 

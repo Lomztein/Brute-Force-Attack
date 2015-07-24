@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class Game : MonoBehaviour {
 
@@ -9,6 +12,7 @@ public class Game : MonoBehaviour {
 	public Transform background;
 	public int battlefieldWidth;
 	public int battlefieldHeight;
+	public List<EnemySpawnPoint> enemySpawnPoints;
 
 	[Header ("References")]
 	public Datastream datastream;
@@ -22,6 +26,7 @@ public class Game : MonoBehaviour {
 	public GameObject rangeIndicator;
 	public GameObject worldCanvas;
 	public GameObject enemyHealthSlider;
+	public static List<Module> currentModules = new List<Module>();
 	
 	public Text creditsText;
 	public Text powerText;
@@ -56,7 +61,8 @@ public class Game : MonoBehaviour {
 
 	public static float powerPercentage;
 
-	public static bool[,] isWalled;
+	public enum WallType { None, Player, Level } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
+	public static WallType[,] isWalled;
 	public MeshFilter wallMeshFilter;
 
 	private Vector3[] verts;
@@ -127,6 +133,10 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	public static Vector2 WorldToWallPos (Vector3 pos) {
+		return new Vector2 (pos.x + game.battlefieldWidth / 2, pos.y + game.battlefieldHeight / 2);
+	}
+
 	/// <summary>
 	/// Positivizes a rectangle which, contrary to how a rect is normally set up, should be with a start and end, instead of start and size.
 	/// </summary>
@@ -162,13 +172,17 @@ public class Game : MonoBehaviour {
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
-					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)) {
-						isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = doWall;	
+					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2) && isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] != WallType.Level) {
+						if (doWall) {
+							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.Player;
+						}else{
+							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.None;
+						}
 					}
 				}
 			}
 
-			Pathfinding.ChangeArea (loc, !doWall);
+			//Pathfinding.ChangeArea (loc, !doWall);
 			Game.game.GenerateWallMesh ();
 			credits -= cost;
 		}
@@ -182,10 +196,10 @@ public class Game : MonoBehaviour {
 
 				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
 					if (doWall) {
-						if (!isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2])
+						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.None)
 							cost += 4;
 					}else{
-						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2])
+						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
 							cost -= 2;
 					}
 				}
@@ -221,6 +235,19 @@ public class Game : MonoBehaviour {
 		Game.game.powerText.text = "Power: " + pName;
 	}*/
 
+	public static bool IsInsideBattlefield (Vector3 pos) {
+		if (pos.x > game.battlefieldWidth / 2)
+			return false;
+		if (pos.x < -game.battlefieldWidth / 2)
+			return false;
+		if (pos.y > game.battlefieldHeight / 2)
+			return false;
+		if (pos.y < -game.battlefieldHeight / 2)
+			return false;
+		
+		return true;
+	}
+
 	void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
@@ -234,11 +261,20 @@ public class Game : MonoBehaviour {
 		for (int y = 0; y < battlefieldHeight; y++) {
 			for (int x = 0; x < battlefieldWidth; x++) {
 
-				if (isWalled[x,y]) {
-					AddFace (x, y, x + battlefieldWidth * y);
+				if (isWalled[x,y] == WallType.Player) {
+					AddFace (x, y, x + battlefieldWidth * y, 0);
+					pathfinder.map.nodes[x,y].isWalkable = false;
+				}else if (isWalled[x,y] == WallType.Level) {
+					AddFace (x, y, x + battlefieldWidth * y, 1);
+					pathfinder.map.nodes[x,y].isWalkable = false;
+				}else{
+					pathfinder.map.nodes[x,y].isWalkable = true;
 				}
-
 			}
+		}
+
+		for (int i = 0; i < currentModules.Count; i++) {
+			currentModules[i].BlockArea ();
 		}
 
 		Mesh mesh = new Mesh ();
@@ -250,7 +286,7 @@ public class Game : MonoBehaviour {
 		wallMeshFilter.mesh = mesh;
 	}
 
-	void AddFace (int x, int y, int index) {
+	void AddFace (int x, int y, int index, int id) {
 
 		verts[index * 4 + 0] = new Vector3 (x + 1 ,y + 1);
 		verts[index * 4 + 1] = new Vector3 (x + 1 ,y);
@@ -265,10 +301,12 @@ public class Game : MonoBehaviour {
 		tris[index * 6 + 4] = index * 4 + 0;
 		tris[index * 6 + 5] = index * 4 + 2;
 
-		uvs[index * 4 + 0] = new Vector2 (1f,1f);
-		uvs[index * 4 + 1] = new Vector2 (1f,0f);
-		uvs[index * 4 + 2] = new Vector2 (0f,0f);
-		uvs[index * 4 + 3] = new Vector2 (0f,1f);
+		float sizeX = 0.5f;
+		
+		uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX,	1); 			//1,1
+		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX,	0);   			//1,0
+		uvs[index * 4 + 2] = new Vector2 (id * sizeX,			0); 			//0,0
+		uvs[index * 4 + 3] = new Vector2 (id * sizeX,			1); 			//0,1
 
 		norms[index * 4 + 0] = Vector3.back;
 		norms[index * 4 + 1] = Vector3.back;
@@ -299,6 +337,10 @@ public class Game : MonoBehaviour {
 		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
 			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
 
+		// Load battlefield data
+		isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+		//LoadBattlefieldData ("TEST");
+
 		// Initialize resources
 		credits = startingCredits;
 		research = startingResearch;
@@ -308,19 +350,21 @@ public class Game : MonoBehaviour {
 		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
 		background.GetComponent<Renderer>().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
 
+		// Initialize walls
+		pathfinder.map.Initialize ();
+		//TestLevelWalls ();
+		GenerateWallMesh ();
+		
 		// Initialize datastream graphic
 		datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
 		datastream.flyDistance = battlefieldWidth;
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
 
 		// Initialize enemy spawn
-		enemySpawn.enemySpawnRect = new Rect (-battlefieldWidth/2, battlefieldHeight/2, battlefieldWidth, 3);
-
-		// Initialize walls
-		isWalled = new bool[battlefieldWidth,battlefieldHeight];
-		GenerateWallMesh ();
+		GenerateDefaultSpawnpoints ();
 
 		// Initialize purchase menu
+		currentModules = new List<Module>();
 		purchaseMenu.Initialize ();
 	}
 
@@ -341,6 +385,81 @@ public class Game : MonoBehaviour {
 			float excess = researchProgress - 1;
 			researchProgress = excess;
 			research++;
+		}
+	}
+
+	public void SaveBattlefieldData (string fileName) {
+
+		BinaryFormatter bf = new BinaryFormatter ();
+		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
+
+		BattlefieldData data = new BattlefieldData (battlefieldWidth, battlefieldHeight, isWalled);
+		bf.Serialize (file, data);
+		file.Close ();
+
+	}
+
+	public void TestLevelWalls () {
+		float perlinScale = 20;
+		for (int y = 0; y < battlefieldHeight; y++) {
+			for (int x = 0; x < battlefieldWidth; x++) {
+				Vector3 worldPos = new Vector3 (x - battlefieldWidth / 2f, y - battlefieldHeight / 2f);
+				if (Mathf.PerlinNoise (x / perlinScale, y / perlinScale) * Mathf.Abs (worldPos.x) / (battlefieldWidth / 2f) > 0.1)
+					isWalled[x,y] = WallType.Level;
+			}
+		}
+	}
+
+	public bool LoadBattlefieldData (string fileName) {
+
+		string fullFile = BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat";
+		if (File.Exists (fullFile)) {
+
+			BinaryFormatter bf = new BinaryFormatter ();
+			FileStream file = File.Open (fullFile, FileMode.Open);
+
+			BattlefieldData data = (BattlefieldData)bf.Deserialize (file);
+			file.Close ();
+
+			battlefieldWidth = data.width;
+			battlefieldHeight = data.height;
+			isWalled = data.walls;
+
+			return true;
+		}
+		return false;
+	}
+
+	void GenerateDefaultSpawnpoints () {
+		for (int x = 1; x < battlefieldWidth; x++) {
+			EnemySpawnPoint spawn = ScriptableObject.CreateInstance<EnemySpawnPoint>();
+			EnemyEndPoint end = ScriptableObject.CreateInstance<EnemyEndPoint>();
+
+			spawn.worldPosition = new Vector3 (x - battlefieldWidth / 2f, battlefieldHeight / 2f);
+			end.worldPosition = new Vector3 (x - battlefieldWidth / 2f, -battlefieldHeight / 2f);
+
+			spawn.endPoint = end;
+			enemySpawnPoints.Add (spawn);
+		}
+	}
+
+	[Serializable]
+	private class BattlefieldData {
+
+		public int width;
+		public int height;
+		public WallType[,] walls;
+
+		public BattlefieldData (int _w, int _h, WallType[,] _walls) {
+			width = _w;
+			height = _h;
+			walls = _walls;
+		}
+	}
+
+	void OnDrawGizmos () {
+		for (int i = 0; i < enemySpawnPoints.Count; i++) {
+			Gizmos.DrawLine (enemySpawnPoints[i].worldPosition, enemySpawnPoints[i].endPoint.worldPosition);
 		}
 	}
 }

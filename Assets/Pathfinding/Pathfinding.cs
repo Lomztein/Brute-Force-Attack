@@ -10,7 +10,6 @@ public class Pathfinding : MonoBehaviour {
 	public PathManager pathManager;
 
 	public int index;
-	public DPath[] paths;
 	private int width;
 
 	public static Pathfinding finder;
@@ -26,18 +25,17 @@ public class Pathfinding : MonoBehaviour {
 	}
 
 	public Vector2 WorldToNode (Vector3 pos) {
-		return new Vector2 (pos.x - map.gridX/2, pos.y - map.gridY/2);
+		return new Vector2 (pos.x + map.gridX/2, pos.y + map.gridY/2);
 	}
 	
 	Vector3 NodeToWorld (Vector2 node) {
 		return new Vector3 (-map.gridX/2f + node.x, -map.gridY/2f + node.y);
 	}
 
-	public static void BakePaths (int width, int height) {
-		finder.width = width;
-		finder.paths = new DPath[width];
-		for (int x = 0; x < width; x++) {
-			PathManager.RequestPath (finder.WorldToNode (new Vector3 (x, height - 1)), finder.WorldToNode (new Vector3 (x, 1)), finder.OnFinished);
+	public static void BakePaths () {
+		finder.width = Game.game.enemySpawnPoints.Count;
+		for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);
 		}
 		finder.Invoke ("ResetIndex", EnemySpawn.readyWaitTime);
 	}
@@ -48,7 +46,7 @@ public class Pathfinding : MonoBehaviour {
 
 	public void OnFinished(Vector2[] _path, bool success) {
 		if (success) {
-			paths [index] = new DPath (_path);
+			Game.game.enemySpawnPoints[index].path = _path;
 			index++;
 
 			if (index == width) {
@@ -74,7 +72,7 @@ public class Pathfinding : MonoBehaviour {
 				if (finder.IsInsideField (xx,yy)) {
 					
 					finder.map.nodes[xx,yy].isWalkable = clear;
-					if (Game.isWalled[xx,yy])
+					if (Game.isWalled[xx,yy] != Game.WallType.None)
 						finder.map.nodes[xx,yy].isWalkable = false;
 					
 				}
@@ -86,12 +84,6 @@ public class Pathfinding : MonoBehaviour {
 		if (x < 0 || x > map.gridX-1) return false;
 		if (y < 0 || y > map.gridY-1) return false;
 		return true;
-	}
-
-	public static Vector2[] GetBakedPath (Vector2 start) {
-		int x = Mathf.RoundToInt (start.x + finder.map.cubeWidth / 2f);
-		x = Mathf.Clamp (x, 1, finder.paths.Length-1);
-		return finder.paths[x].nodes;
 	}
 
 	IEnumerator FindPath(Vector2 startPos, Vector2 targetPos)

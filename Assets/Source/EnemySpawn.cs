@@ -9,7 +9,6 @@ public class EnemySpawn : MonoBehaviour {
 	[Header ("References")]
 	public static string WAVESET_FILE_EXTENSION = ".wvs";
 	
-	public Rect enemySpawnRect;
 	public float spawnTime = 1f;
 
 	public GameObject[] enemyTypes;
@@ -133,7 +132,7 @@ public class EnemySpawn : MonoBehaviour {
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
-			Pathfinding.BakePaths (Game.game.battlefieldWidth, Game.game.battlefieldHeight);
+			Pathfinding.BakePaths ();
 		}
 	}
 
@@ -239,15 +238,19 @@ public class EnemySpawn : MonoBehaviour {
 		}
 	}
 
-	Vector3 GetSpawnPosition () {
-		return new Vector3 (Random.Range (enemySpawnRect.x, enemySpawnRect.width/2), Random.Range (enemySpawnRect.y, enemySpawnRect.y - enemySpawnRect.height/2));
+	EnemySpawnPoint GetSpawnPosition () {
+		return Game.game.enemySpawnPoints[Random.Range (0, Game.game.enemySpawnPoints.Count)];
 	}
 
 	void CreateEnemy (int index) {
 		Wave.Enemy enemy = currentSubwave.enemies[index];
 		GameObject e = pooledEnemies [enemy] [0];
-		e.transform.position = GetSpawnPosition ();
 		e.SetActive (true);
+
+		Enemy ene = e.GetComponent<Enemy>();
+		ene.spawnPoint = GetSpawnPosition ();
+		ene.transform.position = ene.spawnPoint.worldPosition;
+		ene.path = ene.spawnPoint.path;
 
 		pooledEnemies [enemy].RemoveAt (0);
 		spawnIndex[index]++;
@@ -260,10 +263,6 @@ public class EnemySpawn : MonoBehaviour {
 				ContinueWave (false);
 			}
 		}
-	}
-
-	void OnDrawGizmos () {
-		Gizmos.DrawWireCube (enemySpawnRect.center, new Vector3 (enemySpawnRect.width, enemySpawnRect.height));
 	}
 
 	public void SaveWaveset (Wave[] waves, string name) {
