@@ -95,6 +95,8 @@ public class Game : MonoBehaviour {
 		pathMap.Initialize ();
 		researchMenu.Initialize ();
 		Debug.Log ("Done initializing!");
+
+		SaveBattlefieldData ("DEFAULT_TEST");
 	}
 
 	public void RestartMap () {
@@ -393,7 +395,7 @@ public class Game : MonoBehaviour {
 		BinaryFormatter bf = new BinaryFormatter ();
 		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
 
-		BattlefieldData data = new BattlefieldData (battlefieldWidth, battlefieldHeight, isWalled);
+		BattlefieldData data = new BattlefieldData (battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
 		bf.Serialize (file, data);
 		file.Close ();
 
@@ -425,6 +427,21 @@ public class Game : MonoBehaviour {
 			battlefieldHeight = data.height;
 			isWalled = data.walls;
 
+			for (int i = 0; i < data.spawnsX.Count; i++) {
+
+				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
+				Vector3 end = new Vector3 (data.endsX[i], data.endsY[i]);
+
+				EnemySpawnPoint spawn  = ScriptableObject.CreateInstance<EnemySpawnPoint>();
+				EnemyEndPoint endPoint = ScriptableObject.CreateInstance<EnemyEndPoint>();
+
+				spawn.worldPosition = start;
+				endPoint.worldPosition = end;
+
+				spawn.endPoint = endPoint;
+
+			}
+
 			return true;
 		}
 		return false;
@@ -450,10 +467,28 @@ public class Game : MonoBehaviour {
 		public int height;
 		public WallType[,] walls;
 
-		public BattlefieldData (int _w, int _h, WallType[,] _walls) {
+		public List<int> spawnsX;
+		public List<int> spawnsY;
+		public List<int> endsX;
+		public List<int> endsY;
+
+		public BattlefieldData (int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
+
 			width = _w;
 			height = _h;
 			walls = _walls;
+
+			spawnsX = new List<int>();
+			spawnsY = new List<int>();
+			endsX   = new List<int>();
+			endsY   = new List<int>();
+
+			for (int i = 0; i < _spawns.Count; i++) {
+				spawnsX.Add ((int)_spawns[i].worldPosition.x);
+				spawnsY.Add ((int)_spawns[i].worldPosition.y);
+				endsX.Add   ((int)_spawns[i].endPoint.worldPosition.x);
+				endsY.Add   ((int)_spawns[i].endPoint.worldPosition.y);
+			}
 		}
 	}
 
