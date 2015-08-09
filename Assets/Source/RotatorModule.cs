@@ -10,6 +10,8 @@ public class RotatorModule : Module {
 	public float defualtRot;
 	private float angleToTarget;
 	private float sprayAngle = 30f;
+	public int torque;
+	private float torqueSpeedMul;
 
 	// Update is called once per frame
 	void Update () {
@@ -19,6 +21,25 @@ public class RotatorModule : Module {
 	new void Start () {
 		base.Start ();
 		defualtRot = transform.eulerAngles.z;
+	}
+
+	int GetChildrenModuleWeight () {
+		Module[] modules = GetComponentsInChildren<Module> ();
+		int curWeight = 0;
+		for (int i = 0; i < modules.Length; i++) {
+			curWeight += modules [i].moduleClass;
+		}
+		return curWeight;
+	}
+
+	void OnNewModuleAdded () {
+		int weight = GetChildrenModuleWeight ();
+		if (weight < torque) {
+			torqueSpeedMul = 1f;
+		} else {
+			torqueSpeedMul = Mathf.Clamp ((1-(weight - torque) / torque), 0.1f, 1f);
+			// This may or may not be a clusterfuck of stuff. I don't math good at the moment.
+		}
 	}
 
 	void Turn () {
@@ -44,11 +65,16 @@ public class RotatorModule : Module {
 		}
 	}
 
+	float GetSpeed () {
+		return turnSpeed * ResearchMenu.turnrateMul * upgradeMul * torqueSpeedMul;
+	}
+
 	void RotateToAngle () {
-		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), turnSpeed * Time.deltaTime * ResearchMenu.turnrateMul * upgradeMul);
+		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), GetSpeed () * Time.deltaTime);
 	}
 
 	public override string ToString () {
-		return "Turn speed: " + (turnSpeed * upgradeMul).ToString () + " - ";
+		return "Turn speed: " + GetSpeed ().ToString () + " - \nWeight: " + 
+			GetChildrenModuleWeight ().ToString () + " / " + torque.ToString () + " - ";
 	}
 }

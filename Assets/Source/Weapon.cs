@@ -16,7 +16,6 @@ public class Weapon : MonoBehaviour {
 	public Transform target;
 	public GameObject fireParticle;
 	public float upgradeMul = 1f;
-	public static float bulletSleepTime = 1f;
 
 	public float damageMul = 1f;
 	public float firerateMul = 1f;
@@ -55,7 +54,6 @@ public class Weapon : MonoBehaviour {
 	}
 
 	public virtual void Start () {
-		Debug.Log ("wat");
 		pointer = new GameObject ("Pointer").transform;
 		pointer.parent = transform;
 		pointer.transform.position = transform.position;

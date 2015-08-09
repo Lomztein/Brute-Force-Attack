@@ -15,9 +15,12 @@ public class Projectile : MonoBehaviour {
 
 	public bool hitOnlyTarget;
 	public Colour effectiveAgainst;
+	public ParticleSystem particle;
+	public float bulletSleepTime = 1f; // Should be synced with particle fadeout time.
 
 	// Update is called once per frame
 	public virtual void Initialize () {
+		if (particle) particle.Play ();
 	}
 	
 	void FixedUpdate () {
@@ -37,6 +40,7 @@ public class Projectile : MonoBehaviour {
 				if (hitOnlyTarget && hit.transform != target)
 					return;
 
+				transform.position = hit.point;
 				OnHit (hit);
 			}
 		}
@@ -50,13 +54,22 @@ public class Projectile : MonoBehaviour {
 
 	public void ReturnToPool () {
 		if (gameObject.activeSelf) {
+			if (particle) {
+				particle.transform.parent = null;
+				particle.Stop ();
+			}
 			gameObject.SetActive (false);
 			CancelInvoke ("ReturnToPool");
-			Invoke ("ActuallyReturnToPoolGoddammit", Weapon.bulletSleepTime);
+			Invoke ("ActuallyReturnToPoolGoddammit", bulletSleepTime + 0.1f);
 		}
 	}
 
 	void ActuallyReturnToPoolGoddammit () {
+		if (particle) {
+			particle.transform.parent = transform;
+			particle.transform.position = transform.position;
+			particle.transform.rotation = transform.rotation;
+		}
 		if (parentWeapon) {
 			parentWeapon.ReturnBulletToPool (gameObject);
 		}else{

@@ -21,6 +21,8 @@ public class BaseModule : Module {
 	private float targetingRange;
 	private float fastestBulletSpeed;
 	public List<Colour> priorities;
+	public int maxSupportedWeight;
+	public int currentWeight;
 
 	[Header ("Boosts")]
 	public float damageBoost = 1f;
@@ -67,6 +69,9 @@ public class BaseModule : Module {
 
 	void OnNewModuleAdded () {
 		GetFastestBulletSpeed ();
+		Module[] modules = GetComponentsInChildren<Module> ();
+
+		//TODO Combine funtions, remove one GetComponentsInChildren command.
 	}
 
 	public void GetFastestBulletSpeed () {
