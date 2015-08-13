@@ -164,13 +164,6 @@ public class Module : MonoBehaviour {
 		rootModule.writer.WriteLine ("\tlevl:" + upgradeCount.ToString ());
 	}
 
-	void OnMouseDown () {
-		if (!PlayerInput.cur.isPlacing && (!ResearchMenu.isOpen || AssemblyEditorScene.isActive)) {
-			PlayerInput.cur.focusRoot = this;
-			PlayerInput.cur.OpenModuleMenu ();
-		}
-	}
-	
 	void InitializeModule () {
 		upgradeCost = moduleCost * 2;
 		FindParentBase ();
@@ -189,6 +182,16 @@ public class Module : MonoBehaviour {
 
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
+	}
+
+	void FixedUpdate () {
+		if (Input.GetMouseButton (0)) {
+			if (Physics.CheckSphere (transform.position, 0.5f, PlayerInput.cur.selectorMask)) {
+				PlayerInput.cur.contextMenu.AddModule (this);
+			}else if (PlayerInput.cur.contextMenu.gameObject.activeInHierarchy == false) {
+				PlayerInput.cur.contextMenu.RemoveModule (this);
+			}
+		}
 	}
 
 	public void SellModule () {

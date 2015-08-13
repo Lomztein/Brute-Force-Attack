@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ModuleContextMenu : MonoBehaviour {
 
@@ -13,8 +14,8 @@ public class ModuleContextMenu : MonoBehaviour {
 	public RectTransform treeScrollContext;
 	public Text assemblyName;
 
-	private Module module;
-	private Module[] moduleTree;
+	private Module focusModule;
+	public List<Module> modules = new List<Module> ();
 	private GameObject[] moduleTreeButtons;
 	private RangeIndicator rangeIndicator;
 	private float indicatorRange;
@@ -23,10 +24,13 @@ public class ModuleContextMenu : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (!module) {
+		if (modules.Count == 0) {
 			ExitMenu ();
-		}else{
-			module.rootModule.assemblyName = assemblyName.text;
+		} else if (focusModule) {
+			focusModule.assemblyName = assemblyName.text;
+		} else {
+			OpenFocusModule (modules[0]);
+			moduleTreeButtons[0].GetComponent<Button>().interactable = false;
 		}
 
 		if (Input.GetButtonDown ("Cancel"))
@@ -34,7 +38,18 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	public void SellModule () {
-		module.SellModule ();
+		Module[] temp = null;
+		if (Input.GetButtonDown ("LShift")) {
+			temp = modules.ToArray ();
+		} else {
+			temp = new Module[1];
+			temp [0] = focusModule;
+		}
+		
+		foreach (Module module in temp) {
+			module.SellModule ();
+			RemoveModule (module);
+		}
 	}
 
 	void OpenRangeIndicator () {
@@ -44,40 +59,63 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	void UpdateDescriptions () {
-		moduleStats.text = module.ToString ();
+		moduleStats.text = focusModule.ToString ();
 	}
 
 	public void UpgradeModule () {
-		if (module.upgradeCost < Game.credits) {
-			Game.credits -= module.upgradeCost;
-			if (module.UpgradeModule ()) {
-				upgradeButton.interactable = false;
-				upgradeButton.GetComponent<HoverContextElement>().text = "Maxed Out";
+
+		Module[] temp = null;
+		if (Input.GetButtonDown ("LShift")) {
+			temp = modules.ToArray ();
+		} else {
+			temp = new Module[1];
+			temp [0] = focusModule;
+		}
+
+		foreach (Module module in temp) {
+			if (module.upgradeCost < Game.credits) {
+				Game.credits -= module.upgradeCost;
+				if (module.UpgradeModule ()) {
+					upgradeButton.interactable = false;
+					upgradeButton.GetComponent<HoverContextElement> ().text = "Maxed Out";
+					UpdateDescriptions ();
+					UpdateDescriptions ();
+					UpdateRangeIndicator ();
+					UpdateDescText ();
+					return;
+				}
 				UpdateDescriptions ();
-				UpdateDescriptions ();
-				UpdateRangeIndicator ();
-				UpdateDescText ();
-				return;
+				upgradeButton.GetComponent<HoverContextElement> ().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
 			}
 			UpdateDescriptions ();
-			upgradeButton.GetComponent<HoverContextElement>().text = "Upgrade Module: " + module.upgradeCost.ToString () + " LoC";
+			UpdateRangeIndicator ();
+			UpdateDescText ();
+			return;
 		}
-		UpdateDescriptions ();
-		UpdateRangeIndicator ();
-		UpdateDescText ();
-		return;
 	}
 
 	public void StockModule () {
-		module.StockModule ();
+		Module[] temp = null;
+		if (Input.GetButtonDown ("LShift")) {
+			temp = modules.ToArray ();
+		} else {
+			temp = new Module[1];
+			temp [0] = focusModule;
+		}
+		
+		foreach (Module module in temp) {
+			module.StockModule ();
+			RemoveModule (module);
+		}
 	}
 
 	public void SaveModuleAssembly () {
-		module.SaveModuleAssembly (module.rootModule.assemblyName);
+		focusModule.SaveModuleAssembly (focusModule.rootModule.assemblyName);
 	}
 
 	public void ExitMenu () {
 		OpenRangeIndicator ();
+		modules.Clear ();
 		gameObject.SetActive (false);
 		rangeIndicator.NullifyParent ();
 	}
@@ -86,9 +124,24 @@ public class ModuleContextMenu : MonoBehaviour {
 		indicatorRange = range;
 	}
 
+	public void AddModule (Module module) {
+		if (module) {
+			if (!modules.Contains (module)) {
+				modules.Add (module);
+				UpdateModuleTree ();
+			}
+		}
+	}
+
+	public void RemoveModule (Module module) {
+		if (modules.Contains (module)) {
+			modules.Remove (module);
+			UpdateModuleTree ();
+		}
+	}
+
 	public void UpdateModuleTree () {
 		OpenRangeIndicator ();
-		moduleTree = module.GetModuleTree ();
 
 		if (moduleTreeButtons != null)
 			foreach (GameObject butt in moduleTreeButtons) {
@@ -96,31 +149,31 @@ public class ModuleContextMenu : MonoBehaviour {
 			}
 
 		GameObject nButton = null;
-		moduleTreeButtons = new GameObject[moduleTree.Length];
-		for (int i = 0; i < moduleTree.Length; i++) {
+		moduleTreeButtons = new GameObject[modules.Count];
+		for (int i = 0; i < modules.Count; i++) {
 
 			nButton = (GameObject)Instantiate (treeButtonPrefab, treeButtonParent.position + Vector3.down * 60f * i, Quaternion.identity);
 
 			nButton.transform.SetParent (treeButtonParent, true);
 			Button b = nButton.GetComponent<Button>();
 			AddListenerToModuleButton (b, i);
-			b.transform.GetChild (0).GetComponent<Image>().sprite = moduleTree[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-			b.GetComponent<HoverContextElement>().text = moduleTree[i].moduleName;
+			b.transform.GetChild (0).GetComponent<Image>().sprite = modules[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+			b.GetComponent<HoverContextElement>().text = modules[i].moduleName;
 			moduleTreeButtons[i] = nButton;
 
 		}
 
-		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x,moduleTree.Length * 60f + 5 - treeScrollContext.rect.height);
+		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x,modules.Count * 60f + 5 - treeScrollContext.rect.height);
 	}
 
 	void UpdateRangeIndicator () {
 		indicatorRange = 0f;
-		RangeIndicator.ForceRequestRange (module.gameObject, gameObject);
-		rangeIndicator.transform.position = module.transform.position;
+		RangeIndicator.ForceRequestRange (focusModule.gameObject, gameObject);
+		rangeIndicator.transform.position = focusModule.transform.position;
 		
-		if (module.moduleType == Module.Type.Weapon) {
-			if (module.parentBase) {
-				rangeIndicator.GetRange (module.parentBase.GetRange () * indicatorRange);
+		if (focusModule.moduleType == Module.Type.Weapon) {
+			if (focusModule.parentBase) {
+				rangeIndicator.GetRange (focusModule.parentBase.GetRange () * indicatorRange);
 			}else{
 				rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
 			}
@@ -130,11 +183,11 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	void UpdateDescText () {
-		moduleDesc.text = "A class " + module.moduleClass + ", rank " + (module.upgradeCount + 1).ToString () + " " + module.moduleType.ToString () + " module - " + module.moduleDesc;
+		moduleDesc.text = "A class " + focusModule.moduleClass + ", rank " + (focusModule.upgradeCount + 1).ToString () + " " + focusModule.moduleType.ToString () + " module - " + focusModule.moduleDesc;
 	}
 
-	public void OpenModule (Module module) {
-		this.module = module;
+	public void OpenFocusModule (Module module) {
+		this.focusModule = module;
 		UpdateRangeIndicator ();
 
 		if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
@@ -154,18 +207,16 @@ public class ModuleContextMenu : MonoBehaviour {
 		}else{
 			module.rootModule.assemblyName = assemblyName.text;
 		}
-		UpdateModuleTree ();
 	}
-
-	void AddListenerToUpgradeButton (Button button, Upgrade upgrade) {
-		button.onClick.AddListener (() => {
-			module.SendMessage (upgrade.upgradeFunction);
-		});
-	}
+	
 
 	void AddListenerToModuleButton (Button button, int index) {
 		button.onClick.AddListener (() => {
-			OpenModule (moduleTree[index]);
+			OpenFocusModule (modules[index]);
+			foreach (GameObject b in moduleTreeButtons) {
+				b.GetComponent<Button>().interactable = true;
+			}
+			button.interactable = false;
 		});
 	}
 }

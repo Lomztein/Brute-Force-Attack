@@ -250,6 +250,28 @@ public class Game : MonoBehaviour {
 		return true;
 	}
 
+	byte GetWallBitmask (int x, int y, WallType type) {
+		byte mask = 0;
+		if (pathfinder.IsInsideField (x + 1, y)) {
+			if (isWalled [x + 1, y] == type)
+				mask += 1;
+		}
+		if (pathfinder.IsInsideField (x, y + 1)) {
+			if (isWalled [x, y + 1] == type)
+				mask += 2;
+		}
+		if (pathfinder.IsInsideField (x - 1, y)) {
+			if (isWalled [x - 1, y] == type)
+				mask += 4;
+		}
+		if (pathfinder.IsInsideField (x, y - 1)) {
+			if (isWalled [x, y - 1] == type)
+				mask += 8;
+		}
+
+		return mask;
+	}
+
 	void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
@@ -264,10 +286,10 @@ public class Game : MonoBehaviour {
 			for (int x = 0; x < battlefieldWidth; x++) {
 
 				if (isWalled[x,y] == WallType.Player) {
-					AddFace (x, y, x + battlefieldWidth * y, 0);
+					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Player), 1);
 					pathfinder.map.nodes[x,y].isWalkable = false;
 				}else if (isWalled[x,y] == WallType.Level) {
-					AddFace (x, y, x + battlefieldWidth * y, 1);
+					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Level), 0);
 					pathfinder.map.nodes[x,y].isWalkable = false;
 				}else{
 					pathfinder.map.nodes[x,y].isWalkable = true;
@@ -288,7 +310,7 @@ public class Game : MonoBehaviour {
 		wallMeshFilter.mesh = mesh;
 	}
 
-	void AddFace (int x, int y, int index, int id) {
+	void AddFace (int x, int y, int index, int id, int horIndex) {
 
 		verts[index * 4 + 0] = new Vector3 (x + 1 ,y + 1);
 		verts[index * 4 + 1] = new Vector3 (x + 1 ,y);
@@ -303,12 +325,13 @@ public class Game : MonoBehaviour {
 		tris[index * 6 + 4] = index * 4 + 0;
 		tris[index * 6 + 5] = index * 4 + 2;
 
-		float sizeX = 0.5f;
+		float sizeX = 1f/16f;
+		float sizeY = 0.5f;
 		
-		uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX,	1); 			//1,1
-		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX,	0);   			//1,0
-		uvs[index * 4 + 2] = new Vector2 (id * sizeX,			0); 			//0,0
-		uvs[index * 4 + 3] = new Vector2 (id * sizeX,			1); 			//0,1
+		uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY + sizeY); 		//1,1
+		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY);   			//1,0
+		uvs[index * 4 + 2] = new Vector2 (id * sizeX,			horIndex * sizeY); 				//0,0
+		uvs[index * 4 + 3] = new Vector2 (id * sizeX,			horIndex * sizeY + sizeY); 		//0,1
 
 		norms[index * 4 + 0] = Vector3.back;
 		norms[index * 4 + 1] = Vector3.back;
@@ -341,6 +364,7 @@ public class Game : MonoBehaviour {
 
 		// Load battlefield data
 		isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+		currentModules = new List<Module>();
 		//LoadBattlefieldData ("TEST");
 
 		// Initialize resources
@@ -354,7 +378,7 @@ public class Game : MonoBehaviour {
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
-		//TestLevelWalls ();
+		TestLevelWalls ();
 		GenerateWallMesh ();
 		
 		// Initialize datastream graphic
@@ -363,10 +387,10 @@ public class Game : MonoBehaviour {
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
 
 		// Initialize enemy spawn
+		enemySpawn.waves = EnemySpawn.LoadWaveset ("waveset");
 		GenerateDefaultSpawnpoints ();
 
 		// Initialize purchase menu
-		currentModules = new List<Module>();
 		purchaseMenu.Initialize ();
 	}
 

@@ -51,6 +51,12 @@ public class PlayerInput : MonoBehaviour {
 	private GameObject activePurchaseCopy; // Activated copy of purchaseModule, ment for using SendMessage and stuffz.
 	private Material rangeIndicatorMaterial;
 
+	public BoxCollider selectorCollider;
+
+	private Vector3 startSelectorDrag;
+	private Vector3 endSelectorDrag;
+	public LayerMask selectorMask;
+
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
@@ -104,7 +110,7 @@ public class PlayerInput : MonoBehaviour {
 
 	public void OpenModuleMenu () {
 		contextMenu.gameObject.SetActive (true);
-		contextMenu.OpenModule (focusRoot);
+		contextMenu.AddModule (focusRoot);
 	}
 
 	public void EditWalls () {
@@ -120,7 +126,7 @@ public class PlayerInput : MonoBehaviour {
 		pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
 
 		rangeIndicator.GetRange (0f);
-		
+
 		if (!EnemySpawn.waveStarted) {
 			if (isPlacing && !isEditingWalls) {
 
@@ -233,6 +239,22 @@ public class PlayerInput : MonoBehaviour {
 					wallDragGraphic.transform.localScale = Vector3.one;
 					wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 					HoverContext.ChangeText ("");
+				}
+			}
+		}
+
+		if (!isPlacing && !isEditingWalls) {
+			if (Input.GetMouseButtonDown (0)) {
+				startSelectorDrag = Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.forward * camDepth / 2f;
+			}
+			if (Input.GetMouseButton (0)) {
+				endSelectorDrag = Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.forward * camDepth / 2f;
+				selectorCollider.center = new Vector3 (startSelectorDrag.x + (endSelectorDrag.x - startSelectorDrag.x) / 2f, startSelectorDrag.y + (endSelectorDrag.y - startSelectorDrag.y) / 2f, camDepth / 2f) - transform.position;
+				selectorCollider.size = new Vector3 (Mathf.Abs (endSelectorDrag.x - startSelectorDrag.x), Mathf.Abs (endSelectorDrag.y - startSelectorDrag.y), -camDepth);
+			}
+			if (Input.GetMouseButtonUp (0)) {
+				if (contextMenu.modules.Count > 0) {
+					OpenModuleMenu ();
 				}
 			}
 		}

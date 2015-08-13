@@ -7,7 +7,7 @@ using System.IO;
 public class EnemySpawn : MonoBehaviour {
 
 	[Header ("References")]
-	public static string WAVESET_FILE_EXTENSION = ".wvs";
+	public static string WAVESET_FILE_EXTENSION = ".dat";
 	
 	public float spawnTime = 1f;
 
@@ -297,7 +297,6 @@ public class EnemySpawn : MonoBehaviour {
 		Wave cw = null;
 		Wave.Subwave cs = null;
 		Wave.Enemy ce = null;
-		Debug.Log (content.Length);
 
 		for (int i = 0; i < content.Length; i++) {
 			string c = content [i];
