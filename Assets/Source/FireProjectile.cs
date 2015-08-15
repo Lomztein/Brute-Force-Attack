@@ -15,8 +15,10 @@ public class FireProjectile : Projectile {
 		transform.position += velocity * Time.fixedDeltaTime;
 		distTraveled += velocity.magnitude * Time.fixedDeltaTime;
 
-		if (velocity.magnitude < dampen)
+		if (velocity.magnitude < dampen) {
 			ReturnToPool ();
+			distTraveled = 0f;
+		}
 	}
 
 	void CastSphereRay () {
@@ -24,7 +26,7 @@ public class FireProjectile : Projectile {
 		RaycastHit hit;
 		
 		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
-			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
+			if (ShouldHit (hit)) {
 				OnHit (hit);
 				damage /= 2;
 			}

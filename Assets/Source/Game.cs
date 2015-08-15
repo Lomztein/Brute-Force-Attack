@@ -378,7 +378,6 @@ public class Game : MonoBehaviour {
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
-		TestLevelWalls ();
 		GenerateWallMesh ();
 		
 		// Initialize datastream graphic
@@ -386,8 +385,8 @@ public class Game : MonoBehaviour {
 		datastream.flyDistance = battlefieldWidth;
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
 
-		// Initialize enemy spawn
-		enemySpawn.waves = EnemySpawn.LoadWaveset ("waveset");
+		// Initialize enemy spawn.
+		//enemySpawn.waves = EnemySpawn.LoadWaveset ("waveset");
 		GenerateDefaultSpawnpoints ();
 
 		// Initialize purchase menu
@@ -423,17 +422,6 @@ public class Game : MonoBehaviour {
 		bf.Serialize (file, data);
 		file.Close ();
 
-	}
-
-	public void TestLevelWalls () {
-		float perlinScale = 20;
-		for (int y = 0; y < battlefieldHeight; y++) {
-			for (int x = 0; x < battlefieldWidth; x++) {
-				Vector3 worldPos = new Vector3 (x - battlefieldWidth / 2f, y - battlefieldHeight / 2f);
-				if (Mathf.PerlinNoise (x / perlinScale, y / perlinScale) * Mathf.Abs (worldPos.x) / (battlefieldWidth / 2f) > 0.1)
-					isWalled[x,y] = WallType.Level;
-			}
-		}
 	}
 
 	public bool LoadBattlefieldData (string fileName) {

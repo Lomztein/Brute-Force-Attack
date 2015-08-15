@@ -34,16 +34,31 @@ public class Projectile : MonoBehaviour {
 		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime);
 		RaycastHit hit;
 
-		if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
-			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "BulletIgnore") {
+		if (!penetrative) {
+			if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
+				if (ShouldHit (hit)) {
 
-				if (hitOnlyTarget && hit.transform != target)
-					return;
+					if (hitOnlyTarget && hit.transform != target)
+						return;
 
-				transform.position = hit.point;
-				OnHit (hit);
+					OnHit (hit);
+				}
+			}
+		}else{
+			RaycastHit[] hits = Physics.RaycastAll (ray, velocity.magnitude * Time.fixedDeltaTime);
+			for (int i = 0; i < hits.Length; i++) {
+				if (ShouldHit (hits[i])) {
+					OnHit (hits[i]);
+				}
 			}
 		}
+	}
+
+	public bool ShouldHit (RaycastHit hit) {
+		if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
+			return true;
+		}
+		return false;
 	}
 
 	public virtual void OnHit (RaycastHit hit) {
@@ -77,7 +92,7 @@ public class Projectile : MonoBehaviour {
 		}
 	}
 
-	public class Damage {
+	public struct Damage {
 		public int damage;
 		public Colour effectiveAgainst;
 

@@ -52,6 +52,7 @@ public class PlayerInput : MonoBehaviour {
 	private Material rangeIndicatorMaterial;
 
 	public BoxCollider selectorCollider;
+	public Transform selectorDragGraphic;
 
 	private Vector3 startSelectorDrag;
 	private Vector3 endSelectorDrag;
@@ -117,8 +118,13 @@ public class PlayerInput : MonoBehaviour {
 		CancelPurchase ();
 		isEditingWalls = !isEditingWalls;
 		wallDragGraphic.enabled = isEditingWalls;
+
+		if (!isEditingWalls) {
+			wallDragStart = Vector3.zero;
+			wallDragStatus = WallDragStatus.Inactive;
+		}
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		MoveCamera ();
@@ -246,13 +252,17 @@ public class PlayerInput : MonoBehaviour {
 		if (!isPlacing && !isEditingWalls) {
 			if (Input.GetMouseButtonDown (0)) {
 				startSelectorDrag = Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.forward * camDepth / 2f;
+				selectorDragGraphic.gameObject.SetActive (true);
 			}
 			if (Input.GetMouseButton (0)) {
 				endSelectorDrag = Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.forward * camDepth / 2f;
 				selectorCollider.center = new Vector3 (startSelectorDrag.x + (endSelectorDrag.x - startSelectorDrag.x) / 2f, startSelectorDrag.y + (endSelectorDrag.y - startSelectorDrag.y) / 2f, camDepth / 2f) - transform.position;
 				selectorCollider.size = new Vector3 (Mathf.Abs (endSelectorDrag.x - startSelectorDrag.x), Mathf.Abs (endSelectorDrag.y - startSelectorDrag.y), -camDepth);
+				selectorDragGraphic.transform.position = selectorCollider.center + transform.position;
+				selectorDragGraphic.transform.localScale = selectorCollider.size;
 			}
 			if (Input.GetMouseButtonUp (0)) {
+				selectorDragGraphic.gameObject.SetActive (false);
 				if (contextMenu.modules.Count > 0) {
 					OpenModuleMenu ();
 				}
