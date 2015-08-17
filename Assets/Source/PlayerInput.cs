@@ -58,6 +58,8 @@ public class PlayerInput : MonoBehaviour {
 	private Vector3 endSelectorDrag;
 	public LayerMask selectorMask;
 
+	private GameObject activeAbility;
+
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
@@ -66,8 +68,7 @@ public class PlayerInput : MonoBehaviour {
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
-		if (isEditingWalls)
-			EditWalls ();
+		CancelAll ();
 		GameObject loc = (GameObject)Instantiate (purModule);
 		loc.BroadcastMessage ("SetIsBeingPlaced", SendMessageOptions.DontRequireReceiver);
 		if (resetRotation)
@@ -89,6 +90,21 @@ public class PlayerInput : MonoBehaviour {
 
 		activePurchaseCopy = (GameObject)Instantiate (purchaseModule, Vector3.right * 10000f, Quaternion.identity);
 		activePurchaseCopy.GetComponent<Module>().isOnBattlefield = false;
+	}
+
+	public GameObject SelectAbilty (GameObject ability, AbilityButton button) {
+		CancelAll ();
+		if (activeAbility)
+			Destroy (activeAbility);
+		activeAbility = (GameObject)Instantiate (ability);
+		activeAbility.GetComponent<Ability>().button = button;
+		return activeAbility;
+	}
+
+	void CancelAll () {
+		CancelPurchase ();
+		if (isEditingWalls)
+			EditWalls ();
 	}
 
 	public void SetPurchaseableFromSceneObject (GameObject purModule) {

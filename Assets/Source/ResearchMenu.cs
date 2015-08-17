@@ -347,4 +347,9 @@ public class ResearchMenu : MonoBehaviour {
 	public void EnableChainLighting (Research research) {
 		TeslaProjectile.chainAmount = 6;
 	}
+
+	public void AddAbility (Research research) {
+		AbilityBar.AddAbility (research.value);
+	}
 }
+	

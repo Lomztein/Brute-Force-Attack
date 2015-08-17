@@ -24,8 +24,6 @@ public class PurchaseMenu : MonoBehaviour {
 	public RectTransform firstButtomButton;
 	private GameObject[] currentMenu;
 
-	public GameObject abilities;
-
 	public Dictionary<GameObject, int> stockModules;
 
 	[Header ("References")]
@@ -48,7 +46,6 @@ public class PurchaseMenu : MonoBehaviour {
 		InitialzeAssemblyButtons ();
 		CloseAssemblyButtons ();
 		UpdateButtons ();
-		Instantiate (abilities);
 	}
 
 	public void LoadStandardButtons () {

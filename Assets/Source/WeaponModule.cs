@@ -33,15 +33,10 @@ public class WeaponModule : Module {
 
 	void Update () {
 		if (!IngameEditors.AssemblyEditorScene.isActive) {
-			if (parentBase) {
-				weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
-				if (parentBase.target) {
-					weapon.target = parentBase.target;
-					weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
-				}
-			} else {
-				weapon.maxRange = indieRange * rangeMultiplier;
-				weapon.Fire (parentRotator, transform.position, weapon.transform.position + weapon.transform.right);
+			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
+			if (parentBase.target) {
+				weapon.target = parentBase.target;
+				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
 			}
 		}
 	}
