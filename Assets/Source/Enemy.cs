@@ -26,6 +26,7 @@ public class Enemy : MonoBehaviour {
 	private Vector3 offset;
 
 	[Header ("Other")]
+	public GameObject deathParticle;
 	public GameObject researchPoint;
 	private bool isDead;
 
@@ -118,6 +119,7 @@ public class Enemy : MonoBehaviour {
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 				EnemySpawn.cur.OnEnemyDeath ();
 
+				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
 				if (Random.Range (0, researchDropChance) == 0)
 					Instantiate (researchPoint, transform.position, Quaternion.identity);
 			}

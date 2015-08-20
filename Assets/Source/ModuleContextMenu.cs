@@ -114,8 +114,8 @@ public class ModuleContextMenu : MonoBehaviour {
 	}
 
 	public void ExitMenu () {
-		OpenRangeIndicator ();
 		modules.Clear ();
+		OpenRangeIndicator ();
 		gameObject.SetActive (false);
 		rangeIndicator.NullifyParent ();
 	}

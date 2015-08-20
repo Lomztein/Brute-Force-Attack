@@ -7,17 +7,20 @@ public class SlowfieldModule : Module {
 	public float rotateSpeed;
 	public float range;
 
-	public static float freezeMultiplier = 0.5f;
-	
-	void FixedUpdate () {
-		rotator.Rotate (Vector3.forward * rotateSpeed * Time.deltaTime * upgradeMul);
-		SlowNearby ();
-	}
+	public GameObject slowfieldArea;
+	private SlowfieldArea slowfield;
 
-	void SlowNearby () {
-		Collider[] nearby = Physics.OverlapSphere (transform.position, range * upgradeMul, Game.game.enemyLayer);
-		for (int i = 0; i < nearby.Length; i++) {
-			nearby[i].GetComponent<Enemy>().freezeMultiplier = freezeMultiplier;
+	new void FixedUpdate () {
+		base.FixedUpdate ();
+		rotator.Rotate (Vector3.forward * rotateSpeed * Time.deltaTime * upgradeMul);
+		if (!slowfield) {
+			GameObject slow = (GameObject)Instantiate (slowfieldArea, transform.position, Quaternion.identity);
+			slowfield = slow.GetComponent<SlowfieldArea> ();
+			slowfield.slowAmount = 0.5f;
+			slowfield.time = 0f;
+			slow.transform.parent = transform;
+		} else {
+			slowfield.range = range * upgradeMul;
 		}
 	}
 

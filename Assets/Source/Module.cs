@@ -164,7 +164,7 @@ public class Module : MonoBehaviour {
 		rootModule.writer.WriteLine ("\tlevl:" + upgradeCount.ToString ());
 	}
 
-	void InitializeModule () {
+	public void InitializeModule () {
 		upgradeCost = moduleCost * 2;
 		FindParentBase ();
 		FindModuleLayer ();
@@ -184,7 +184,7 @@ public class Module : MonoBehaviour {
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
-	void FixedUpdate () {
+	public void FixedUpdate () {
 		if (Input.GetMouseButton (0)) {
 			if (Physics.CheckSphere (transform.position, 0.5f, PlayerInput.cur.selectorMask)) {
 				PlayerInput.cur.contextMenu.AddModule (this);

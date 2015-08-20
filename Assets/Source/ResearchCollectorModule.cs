@@ -10,7 +10,8 @@ public class ResearchCollectorModule : Module {
 	public float multiplier = 2f;
 	public float speed;
 
-	void FixedUpdate () {
+	new void FixedUpdate () {
+		base.FixedUpdate ();
 		if (parentBase.target) {
 			float angle = Angle.CalculateAngle (transform.position, parentBase.target.position);
 			pointer.eulerAngles = new Vector3 (0,0,angle);
