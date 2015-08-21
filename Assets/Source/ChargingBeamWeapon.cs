@@ -6,14 +6,17 @@ public class ChargingBeamWeapon : Weapon {
 	public LineRenderer line;
 
 	public float charge;
-	public float chargeSpeed;
 	public float maxCharge;
+
+	public float chargeSpeed;
+	public float reloadTime;
 
 	public static float chargeSpeedMultiplier = 1f;
 
 	// Use this for initialization
 	public override void Start () {
 		base.Start ();
+		bulletDamage = (int)maxCharge;
 		if (muzzles.Length > 1) {
 			Debug.LogWarning ("Charging beam weapons currently only supports a single muzzle!");
 		}
@@ -47,25 +50,40 @@ public class ChargingBeamWeapon : Weapon {
 		canFire = true;
 	}
 
+	float GetChargeSpeed () {
+		return chargeSpeed * firerate * Time.fixedDeltaTime * chargeSpeedMultiplier * upgradeMul;
+	}
+
+	float GetMaxCharge () {
+		return maxCharge * ResearchMenu.damageMul [(int)GetBulletData ().effectiveAgainst] * upgradeMul;
+	}
+
+	void FixedUpdate () {
+		if (!target) {
+			BreakBeam ();
+		}
+	}
+
 	void UpdateBeam () {
+		bulletDamage = (int)maxCharge;
 		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * maxRange * ResearchMenu.rangeMul * upgradeMul);
 		RaycastHit hit;
 
-		if (charge > maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul) {
+		if (charge > GetMaxCharge ()) {
 			BreakBeam ();
 			canFire = false;
-			Invoke ("Reload", firerate * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst] / upgradeMul);
+			Invoke ("Reload", reloadTime * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst] / upgradeMul);
 		}else{
-			charge += chargeSpeed * Time.fixedDeltaTime * chargeSpeedMultiplier * upgradeMul;
+			charge += GetChargeSpeed ();
 		}
 		
-		line.SetWidth (Mathf.Clamp01 (charge / maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul),
-		               Mathf.Clamp01 (charge / maxCharge * ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] * upgradeMul));
+		line.SetWidth (Mathf.Clamp01 (charge / GetMaxCharge ()),
+		               Mathf.Clamp01 (charge / GetMaxCharge ()));
 
 		if (Physics.Raycast (ray, out hit, maxRange * ResearchMenu.rangeMul * upgradeMul, Game.game.enemyLayer)) {
 			line.SetPosition (0, muzzles [0].position);
 			line.SetPosition (1, hit.point);
-			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (charge * upgradeMul), GetBulletData ().effectiveAgainst));
+			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (charge * upgradeMul * Time.deltaTime), GetBulletData ().effectiveAgainst));
 		} else {
 			line.SetPosition (0, muzzles[0].position);
 			line.SetPosition (1, ray.GetPoint (maxRange));

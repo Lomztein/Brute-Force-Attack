@@ -48,7 +48,9 @@ public class EnemySpawn : MonoBehaviour {
 	public RectTransform upcomingWindow;
 	public GameObject upcomingEnemyPrefab;
 	public GameObject upcomingSeperatorPrefab;
+
 	private List<GameObject> upcomingContent = new List<GameObject>();
+	private List<UpcomingElement> upcomingElements = new List<UpcomingElement>();
 
 	public float buttonSize;
 	public float seperatorSize;
@@ -88,8 +90,11 @@ public class EnemySpawn : MonoBehaviour {
 		float startTime = Time.time;
 
 		currentEnemies = 0;
+		int index = -1;
 		foreach (Wave.Subwave sub in cur.subwaves) {
 			foreach (Wave.Enemy ene in sub.enemies) {
+				index++;
+				ene.index = index;
 
 				spawnQueue.Enqueue (ene);
 
@@ -101,12 +106,16 @@ public class EnemySpawn : MonoBehaviour {
 
 		int spawnPerTick = Mathf.CeilToInt ((float)currentEnemies / readyWaitTime * Time.fixedDeltaTime);
 
-		int index = 0;
+		index = 0;
 		while (spawnQueue.Count > 0) {
 			for (int i = 0; i < spawnQueue.Peek ().spawnAmount * waveMastery; i++) {
 				GameObject newEne = (GameObject)Instantiate (spawnQueue.Peek ().enemy, enemyPool.position, Quaternion.identity);
 				newEne.SetActive (false);
 				newEne.transform.parent = enemyPool;
+
+				Enemy e = newEne.GetComponent<Enemy>();
+				e.upcomingElement = upcomingElements[spawnQueue.Peek ().index];
+
 				if (!pooledEnemies.ContainsKey (spawnQueue.Peek ())) {
 					pooledEnemies.Add (spawnQueue.Peek (), new List<GameObject>());
 				}
@@ -164,6 +173,12 @@ public class EnemySpawn : MonoBehaviour {
 			Destroy (upcomingContent [i]);
 		}
 
+		for (int i = 0; i < upcomingElements.Count; i++) {
+			Destroy (upcomingElements [i]);
+		}
+
+		upcomingElements.Clear ();
+
 		int sIndex = 0;
 		int eIndex = 0;
 
@@ -184,7 +199,11 @@ public class EnemySpawn : MonoBehaviour {
 
 				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 				Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
-				text.text = "x " + (ene.spawnAmount * waveMastery).ToString ();
+
+				upcomingElements.Add (UpcomingElement.CreateInstance <UpcomingElement>());
+				upcomingElements[upcomingElements.Count - 1].upcomingText = text;
+				upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * waveMastery + 1;
+				upcomingElements[upcomingElements.Count - 1].Decrease ();
 
 				eIndex++;
 			}
@@ -251,6 +270,7 @@ public class EnemySpawn : MonoBehaviour {
 		ene.spawnPoint = GetSpawnPosition ();
 		ene.transform.position = ene.spawnPoint.worldPosition;
 		ene.path = ene.spawnPoint.path;
+
 
 		pooledEnemies [enemy].RemoveAt (0);
 		spawnIndex[index]++;
