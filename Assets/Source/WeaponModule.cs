@@ -32,7 +32,7 @@ public class WeaponModule : Module {
 		
 
 	void Update () {
-		if (!IngameEditors.AssemblyEditorScene.isActive) {
+		if (Game.currentScene == Scene.Play) {
 			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
 			if (parentBase.target) {
 				weapon.target = parentBase.target;

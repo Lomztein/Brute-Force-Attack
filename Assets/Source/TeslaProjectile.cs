@@ -14,11 +14,18 @@ public class TeslaProjectile : Projectile {
 	public GameObject chainLighting;
 	public bool isMainLighting;
 
+	public AnimationCurve arcingCurve;
+	public float arcingSpeed;
+	private int vertexCount;
+	private Vector3[] positions;
+	private int arcDir;
+
 	public override void Initialize () {
 
+		lineRenderer.material.color = new Color (1,1,1,1);
 		if (isMainLighting) {
 			chainIndex = chainAmount;
-			Invoke ("ReturnToPool", 1f);
+			Invoke ("ReturnToPool", 0.5f);
 		} else {
 			Destroy (gameObject, 1f);
 		}
@@ -58,21 +65,41 @@ public class TeslaProjectile : Projectile {
 	}
 
 	void FixedUpdate () {
-		if (Random.Range (0, 50) == 0)
+		if (Random.Range (0, 50) == 0) {
 			DrawTeslaBeam (end);
+		}else{
+			MakeBeamLookWicked ();
+		}
+		lineRenderer.material.color = new Color (1,1,1,lineRenderer.material.color.a - 2f * Time.fixedDeltaTime);
 	}
 
 	void DrawTeslaBeam (Vector3 end) {
-		lineRenderer.SetPosition (0, transform.position);
-		
-		int segments = (Mathf.CeilToInt (Vector3.Distance (transform.position, end) / segmentLength));
-		Vector3 dir = velocity.normalized * segmentLength;
-		lineRenderer.SetVertexCount (segments);
 
-		for (int i = 1; i < segments - 1; i++) {
-			lineRenderer.SetPosition (i, transform.position + dir * i + Random.insideUnitSphere * noiseAmount);
+		arcDir = Random.Range (-1, 2);
+		lineRenderer.SetPosition (0, transform.position);
+
+		Vector3 dir = velocity.normalized * segmentLength;
+		vertexCount = (Mathf.CeilToInt (Vector3.Distance (transform.position, end) / segmentLength));
+		lineRenderer.SetVertexCount (vertexCount);
+		positions = new Vector3[vertexCount];
+		positions[0] = transform.position;
+
+		
+		for (int i = 1; i < vertexCount - 1; i++) {
+			positions[i] = transform.position + dir * i + (Vector3)Random.insideUnitCircle * noiseAmount;
+			lineRenderer.SetPosition (i, positions[i]);
 		}
 
-		lineRenderer.SetPosition (segments - 1, end);
+		lineRenderer.SetPosition (vertexCount - 1, end);
+	}
+
+	void MakeBeamLookWicked () {
+
+		Vector3 rot = Quaternion.Euler (0f, 0f, 90f) * velocity.normalized;
+		for (int i = 1; i < vertexCount - 1; i++) {
+			positions[i] += (rot * arcingSpeed * Time.fixedDeltaTime * arcingCurve.Evaluate ((float)i / (float)vertexCount) * Random.Range (-arcDir * 1f, arcDir * 4f)) + ((Vector3)Random.insideUnitCircle * noiseAmount / 4f);
+			lineRenderer.SetPosition (i, positions[i]);
+		}
 	}
 }
+	

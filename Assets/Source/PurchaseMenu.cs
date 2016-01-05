@@ -41,10 +41,13 @@ public class PurchaseMenu : MonoBehaviour {
 	public int purchaseButtonSize = 75;
 
 	public void Initialize () {
+		cur = this;
 		stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
-		InitializePurchaseMenu (standard.ToArray ());
-		InitialzeAssemblyButtons ();
-		CloseAssemblyButtons ();
+		InitializeAssemblyButtons ();
+
+		if (Game.currentScene == Scene.AssemblyBuilder)
+			LoadStandardButtons ();
+
 		UpdateButtons ();
 	}
 
@@ -58,7 +61,8 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
-	public void InitialzeAssemblyButtons () {
+	public void InitializeAssemblyButtons () {
+		CollectAllPurchaseables ();
 		for (int i = 0; i < assemblyButtonStart.Length; i++) {
 			foreach (Transform child in assemblyButtonStart[i]) {
 				Destroy (child.gameObject);
@@ -136,13 +140,15 @@ public class PurchaseMenu : MonoBehaviour {
 			all.Add (a);
 		}
 
-		foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
-			all.Add (a);
+		if (Game.game) {
+			foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
+				all.Add (a);
+			}
 		}
 	}
 
 	public void InitializePurchaseMenu (GameObject[] purchaseables) {
-		if (!AssemblyEditorScene.isActive) {
+		if (Game.currentScene == Scene.Play) {
 			CollectAllPurchaseables ();
 		} else {
 			all = standard;
@@ -169,7 +175,6 @@ public class PurchaseMenu : MonoBehaviour {
 		w = 0;
 		o = 0;
 
-		cur = this;
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
 			Destroy (b);
@@ -210,7 +215,7 @@ public class PurchaseMenu : MonoBehaviour {
 	public static void UpdateButtons () {
 		PurchaseMenu menu = PurchaseMenu.cur;
 		int index = 0;
-		foreach (GameObject mod in menu.currentMenu) {
+		/*foreach (GameObject mod in menu.currentMenu) {
 
 			if (menu.buttons != null && menu.buttons[index]) {
 
@@ -228,7 +233,8 @@ public class PurchaseMenu : MonoBehaviour {
 				index++;
 			
 			}
-		}
+		}*/
+		// I'm really just hacking this stuff together at this point.
 
 		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
 			butt.button.interactable = butt.cost <= Game.credits;

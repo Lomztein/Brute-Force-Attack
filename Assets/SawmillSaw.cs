@@ -52,7 +52,6 @@ public class SawmillSaw : MonoBehaviour {
 	void CastRay (float speed) {
 		Ray ray = new Ray (transform.position, transform.rotation * Vector3.right);
 		RaycastHit[] hits = Physics.SphereCastAll (ray, width, speed * Time.fixedDeltaTime);
-		Debug.Log (hits.Length);
 		for (int i = 0; i < hits.Length; i++) {
 			hits[i].collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Yellow), SendMessageOptions.DontRequireReceiver);
 		}

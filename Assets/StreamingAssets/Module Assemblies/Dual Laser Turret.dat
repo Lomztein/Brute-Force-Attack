@@ -1,21 +1,21 @@
 PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION
-name:Neat Ass-Embly
-type:Small Base
+name:Dual Laser Turret
+type:Standard Base
 	root
 	rotz:90.00001
-	levl:4
-type:Small Rotator
+	levl:0
+type:Standard Rotator
 	indx:2
 	pidx:1
 	posx:0
 	posy:0
 	rotz:90.00002
-	levl:4
-type:Small Machine Gun
+	levl:0
+type:Dual Laser Cannon
 	indx:3
 	pidx:2
 	posx:0
 	posy:0
 	rotz:90.00002
-	levl:4
+	levl:0
 END OF FILE

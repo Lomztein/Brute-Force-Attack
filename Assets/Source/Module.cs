@@ -20,8 +20,10 @@ public class Module : MonoBehaviour {
 
 	public string moduleName;
 	public string moduleDesc;
+	public string assemblyDesc;
 	public string assemblyName;
-
+	public bool[] upgradeButtonDisabled;
+	
 	public Type moduleType;
 	public int moduleClass = 2;
 	public int moduleCost;
@@ -107,13 +109,13 @@ public class Module : MonoBehaviour {
 	}
 	
 	public virtual bool UpgradeModule () {
-		if (upgradeCount >= MAX_UPGRADE_AMOUNT - 1) {
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
 		}
 		upgradeCount++;
 		upgradeMul *= 1.2f;
 		upgradeCost = Mathf.RoundToInt ((float)upgradeCost * 1.5f);
-		if (upgradeCount >= MAX_UPGRADE_AMOUNT - 1) {
+		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
 		}
 
@@ -145,9 +147,6 @@ public class Module : MonoBehaviour {
 		rootModule.writer.WriteLine ("END OF FILE");
 		rootModule.writer.Close ();
 		rootModule.writer = null;
-
-		PurchaseMenu.cur.InitialzeAssemblyButtons ();
-		PurchaseMenu.cur.CloseAssemblyButtons ();
 	}
 	
 	void SaveModuleToAssemblyFile (string file) {
@@ -165,6 +164,7 @@ public class Module : MonoBehaviour {
 	}
 
 	void InitializeModule () {
+		upgradeButtonDisabled = new bool[3];
 		upgradeCost = moduleCost * 2;
 		FindParentBase ();
 		FindModuleLayer ();
@@ -184,23 +184,13 @@ public class Module : MonoBehaviour {
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
-	void FixedUpdate () {
-		if (Input.GetMouseButton (0)) {
-			if (Physics.CheckSphere (transform.position, 0.5f, PlayerInput.cur.selectorMask)) {
-				PlayerInput.cur.contextMenu.AddModule (this);
-			}else if (PlayerInput.cur.contextMenu.gameObject.activeInHierarchy == false) {
-				PlayerInput.cur.contextMenu.RemoveModule (this);
-			}
-		}
-	}
-
 	public void SellModule () {
-		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
+		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
 		DestroyModule ();
 	}
 
 	public void BlockArea () {
-		if (isRoot && !AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), false);
+		if (isRoot && Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), false);
 	}
 
 	public void StockModule () {
@@ -208,7 +198,7 @@ public class Module : MonoBehaviour {
 	}
 
 	void Stockify () {
-		if (!AssemblyEditorScene.isActive) Pathfinding.ChangeArea (GetModuleRect (), true);
+		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
 		DestroyModule ();
 		PurchaseMenu.AddStock (this);
 	}

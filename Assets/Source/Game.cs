@@ -6,7 +6,11 @@ using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 
+public enum Scene { Play, AssemblyBuilder, WaveBuilder };
+
 public class Game : MonoBehaviour {
+
+	public static Scene currentScene;
 
 	[Header ("Battlefield")]
 	public Transform background;
@@ -55,7 +59,7 @@ public class Game : MonoBehaviour {
 	public static int research {
 		get { return _research; }
 		set { _research = value;
-			Game.game.researchMenu.UpdateButtons ();
+			if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons ();
 		}
 	}
 
@@ -394,18 +398,22 @@ public class Game : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		if (currentScene == Scene.Play)
+			GameUpdate ();
+	}
 
+	void GameUpdate () {
 		musicVolume = musicSlider.value;
 		soundVolume = soundSlider.value;
-
+		
 		if (datastream.pooledNumbers.Count <= 0) {
 			RestartMap ();
 		}
-
+		
 		researchText.text = "Research: " + research.ToString ();
 		creditsText.text = "Credits: " + credits.ToString () + " LoC";
 		researchSlider.value = researchProgress;
-
+		
 		if (researchProgress > 1) {
 			float excess = researchProgress - 1;
 			researchProgress = excess;
