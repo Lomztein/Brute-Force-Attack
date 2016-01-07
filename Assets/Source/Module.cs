@@ -150,32 +150,28 @@ public class Module : MonoBehaviour {
 		return Mathf.RoundToInt (value);
 	}
 
-	public StreamWriter writer;
+	public Assembly assembly;
 	
 	public void SaveModuleAssembly (string filename) {
 		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
 
-        rootModule.writer = new StreamWriter (file, false);
-		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION");
-		rootModule.writer.WriteLine ("name:" + filename);
-		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
-		rootModule.writer.WriteLine ("END OF FILE");
-		rootModule.writer.Close ();
-		rootModule.writer = null;
+		assembly = new Assembly ();
+		rootModule.BroadcastMessage ("SaveModuleToAssembly", file, SendMessageOptions.RequireReceiver);
+		Assembly.SaveToFile ("Test of Awesome", assembly);
 	}
 	
-	void SaveModuleToAssemblyFile (string file) {
-		rootModule.writer.WriteLine ("type:" + moduleName.ToString ());
+	void SaveModuleToAssembly (string file) {
 		if (transform.parent) {
-			rootModule.writer.WriteLine ("\tindx:" + moduleIndex.ToString ());
-			rootModule.writer.WriteLine ("\tpidx:" + transform.parent.GetComponent<Module> ().moduleIndex.ToString ());
-			rootModule.writer.WriteLine ("\tposx:" + (transform.position.x - rootModule.transform.position.x).ToString ());
-			rootModule.writer.WriteLine ("\tposy:" + (transform.position.y - rootModule.transform.position.y).ToString ());
-		} else {
-			rootModule.writer.WriteLine ("\troot");
+			rootModule.assembly.parts.Add (new Assembly.Part (isRoot, moduleName, moduleIndex, transform.parent.GetComponent<Module> ().moduleIndex, 
+			                                                  (transform.position.x - rootModule.transform.position.x),
+			                                                  (transform.position.y - rootModule.transform.position.y)
+			                                                  , transform.eulerAngles.z));
+		}else{
+			rootModule.assembly.parts.Add (new Assembly.Part (isRoot, moduleName, moduleIndex, 0, 
+			                                                  (transform.position.x - rootModule.transform.position.x),
+			                                                  (transform.position.y - rootModule.transform.position.y)
+			                                                  , transform.eulerAngles.z));
 		}
-		rootModule.writer.WriteLine ("\trotz:" + transform.eulerAngles.z.ToString ());
-		rootModule.writer.WriteLine ("\tlevl:" + upgradeCount.ToString ());
 	}
 
 	void InitializeModule () {

@@ -39,6 +39,7 @@ public class PurchaseMenu : MonoBehaviour {
 	public static PurchaseMenu cur;
 
 	public int purchaseButtonSize = 75;
+	public static Assembly[] assemblies;
 
 	public void Initialize () {
 		cur = this;
@@ -61,6 +62,10 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
+	public void GetAssemblies (List<Assembly> _assemblies) {
+		assemblies = _assemblies.ToArray ();
+	}
+
 	public void InitializeAssemblyButtons () {
 		CollectAllPurchaseables ();
 		for (int i = 0; i < assemblyButtonStart.Length; i++) {
@@ -69,15 +74,14 @@ public class PurchaseMenu : MonoBehaviour {
 			}
 		}
 
-		string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
-		int[] index = new int[assemblyButtonStart.Length];
-
-		for (int i = 0; i < files.Length; i++) {
+		int[] index = new int[2];
+		for (int i = 0; i < assemblies.Length; i++) {
 			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart[i % 2].position + Vector3.right * (purchaseButtonSize * index[i % 2]), Quaternion.identity);
 			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
 			butt.transform.SetParent (assemblyButtonStart[i % 2], true);
 			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
-			button.path = files[i];
+			button.assembly = assemblies[i];
+
 			button.OnResearchUnlocked ();
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
 			button.Initialize ();
@@ -111,11 +115,11 @@ public class PurchaseMenu : MonoBehaviour {
 		return (bool)GetModulePrefab (name);
 	}
 
-	public void LoadAssembly (string path) {
+	public void LoadAssembly (Assembly assembly) {
 		if (!playerInput.isPlacing) {
 			GameObject ass = (GameObject)Instantiate (assemblyLoader);
 			ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
-			loader.LoadAssembly (path);
+			loader.LoadAssembly (assembly);
 			Destroy (ass);
 		}
 	}
@@ -131,7 +135,8 @@ public class PurchaseMenu : MonoBehaviour {
 		return null;
 	}
 
-	void CollectAllPurchaseables () {
+	public void CollectAllPurchaseables () {
+		all = new List<GameObject>();
 		foreach (GameObject b in standard) {
 			all.Add (b);
 		}
@@ -140,7 +145,7 @@ public class PurchaseMenu : MonoBehaviour {
 			all.Add (a);
 		}
 
-		if (Game.game) {
+		if (Game.currentScene == Scene.Play) {
 			foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
 				all.Add (a);
 			}

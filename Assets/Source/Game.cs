@@ -98,16 +98,23 @@ public class Game : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		Debug.Log ("Initializing!");
 		game = this;
-		InitializeBattlefield ();
-		pathMap.Initialize ();
+		PurchaseMenu.cur = purchaseMenu;
+		purchaseMenu.CollectAllPurchaseables ();
 		researchMenu.Initialize ();
-		Debug.Log ("Done initializing!");
-
-		SaveBattlefieldData ("DEFAULT_TEST");
+		
+		InitializeSaveDictionaries ();
+		ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
 	}
 
+	public void StartGame () {
+		Debug.Log ("Initializing!");
+		InitializeBattlefield ();
+		pathMap.Initialize ();
+		SaveBattlefieldData ("DEFAULT_TEST");
+		Debug.Log ("Done initializing!");
+	}
+		
 	public void RestartMap () {
 		Application.LoadLevel (Application.loadedLevel);
 		Time.timeScale = 1f;
@@ -360,7 +367,6 @@ public class Game : MonoBehaviour {
 	void InitializeBattlefield () {
 
 		// Initialize files
-		InitializeSaveDictionaries ();
 
 		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
 			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
@@ -370,6 +376,7 @@ public class Game : MonoBehaviour {
 
 		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
 			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
+
 
 		// Load battlefield data
 		isWalled = new WallType[battlefieldWidth,battlefieldHeight];
