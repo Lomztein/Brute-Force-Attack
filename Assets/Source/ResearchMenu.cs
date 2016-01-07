@@ -54,7 +54,7 @@ public class ResearchMenu : MonoBehaviour {
 		HomingProjectile.autoFindTarget = false;
 		ChargingBeamWeapon.chargeSpeedMultiplier = 1f;
 		SplitterHomingProjectile.amount = 0;
-		SlowfieldModule.freezeMultiplier = 0.5f;
+		SlowfieldArea.staticMultiplier = 1f;
 		TeslaProjectile.chainAmount = 0;
 	}
 
@@ -341,7 +341,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void DecreaseSlowfieldSpeedMultiplier (Research research) {
-		SlowfieldModule.freezeMultiplier = 0.2f;
+		SlowfieldArea.staticMultiplier = 0.5f;
 	}
 
 	public void EnableChainLighting (Research research) {

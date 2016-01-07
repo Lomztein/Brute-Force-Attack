@@ -26,7 +26,9 @@ public class Enemy : MonoBehaviour {
 	private Vector3 offset;
 
 	[Header ("Other")]
+	public GameObject deathParticle;
 	public GameObject researchPoint;
+	public UpcomingElement upcomingElement;
 	private bool isDead;
 
 	private Slider healthSlider;
@@ -115,9 +117,11 @@ public class Enemy : MonoBehaviour {
 			if (!isDead) {
 				isDead = true;
 				Game.credits += Mathf.RoundToInt ((float)value * (float)EnemySpawn.gameProgress * 0.2f);
+				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 				EnemySpawn.cur.OnEnemyDeath ();
 
+				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
 				if (Random.Range (0, researchDropChance) == 0)
 					Instantiate (researchPoint, transform.position, Quaternion.identity);
 			}

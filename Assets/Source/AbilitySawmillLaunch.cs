@@ -32,7 +32,7 @@ public class AbilitySawmillLaunch : Ability {
 	}
 
 	void LaunchSaw (float direction) {
-		Instantiate (saw, transform.position, Quaternion.Euler (0, 0, direction));
+		Instantiate (saw, new Vector3 (transform.position.x, transform.position.y), Quaternion.Euler (0, 0, direction));
 		Destroy (gameObject);
 		button.OnAbilityUsed ();
 	}

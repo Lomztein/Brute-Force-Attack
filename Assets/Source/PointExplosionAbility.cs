@@ -7,6 +7,7 @@ public class PointExplosionAbility : Ability {
 	public float range;
 	public GameObject explosionParticle;
 	public Transform crosshair;
+	public bool doExplodeDamage = true;
 
 	// Use this for initialization
 	void Start () {
@@ -18,7 +19,7 @@ public class PointExplosionAbility : Ability {
 		base.Update ();
 		Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
 		transform.position = mousePos + Vector3.forward;
-		RotateAnimateCrosshair (crosshair, range);
+		RotateAnimateCrosshair (crosshair, 2f);
 		if (Input.GetMouseButtonDown (0)) {
 			Explode (new Vector3 (mousePos.x, mousePos.y, 0));
 		}
@@ -26,12 +27,15 @@ public class PointExplosionAbility : Ability {
 	}
 
 	void Explode (Vector3 pos) {
-		Collider[] nearby = Physics.OverlapSphere (pos, range, Game.game.enemyLayer);
-		for (int i = 0; i < nearby.Length; i++) {
-			nearby[i].SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Red), SendMessageOptions.DontRequireReceiver);
+		if (doExplodeDamage) {
+			Collider[] nearby = Physics.OverlapSphere (pos, range, Game.game.enemyLayer);
+			for (int i = 0; i < nearby.Length; i++) {
+				nearby [i].SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Red), SendMessageOptions.DontRequireReceiver);
+			}
 		}
 		button.OnAbilityUsed ();
-		Destroy ((GameObject)Instantiate (explosionParticle, pos, Quaternion.identity), 2f);
+		GameObject obj = (GameObject)Instantiate (explosionParticle, pos, Quaternion.identity);
+		if (doExplodeDamage) Destroy (obj, 2f);
 		Destroy (gameObject);
 	}
 

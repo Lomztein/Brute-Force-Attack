@@ -23,7 +23,6 @@ public class Weapon : MonoBehaviour {
 	public int amountMul = 1;
 
 	public float firerate;
-	public float reloadTime;
 	public float sequenceTime;
 		
 	public Transform pointer;

@@ -17,5 +17,6 @@ public class Wave {
 	public class Enemy {
 		public GameObject enemy;
 		public int spawnAmount;
+		public int index;
 	}
 }
