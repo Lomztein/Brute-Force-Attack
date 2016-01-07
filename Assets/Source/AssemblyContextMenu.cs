@@ -55,6 +55,10 @@ public class AssemblyContextMenu : MonoBehaviour {
 		moduleStats.text = rootModule.ToString ();
 	}
 
+    void UpdateStats () {
+        moduleStats.text = rootModule.GetAssemblyDPS ().ToString () + " - ";
+    }
+
 	public void UpgradeAssembly (int t) {
 		Module.Type type = (Module.Type)t;
 
@@ -75,6 +79,8 @@ public class AssemblyContextMenu : MonoBehaviour {
 			rootModule.upgradeButtonDisabled[t] = !canUpgrade;
 			ChangeUpgradeCostText (t, GetUpgradeCost (t).ToString ());
 		}
+
+        UpdateStats ();
 	}
 
 	void ChangeUpgradeCostText (int buttonIndex, string newText) {
@@ -180,6 +186,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		}
 
 		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x, count * 60f + 5 - treeScrollContext.rect.height);
+        UpdateStats ();
 	}
 
 	void UpdateRangeIndicator () {

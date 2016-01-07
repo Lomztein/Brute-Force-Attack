@@ -24,6 +24,7 @@ public class Datastream : MonoBehaviour {
 
 	void Start () {
 		StartCoroutine ("InitializeNumbers");
+        Game.currentScene = Scene.Play;
 	}
 
 	void FixedUpdate () {

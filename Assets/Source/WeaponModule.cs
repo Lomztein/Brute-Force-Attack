@@ -70,4 +70,10 @@ public class WeaponModule : Module {
 
 		return text;
 	}
+
+    public float GetDPS () {
+        return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * upgradeMul *
+                ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] *
+                weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst]));
+    }
 }

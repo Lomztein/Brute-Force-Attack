@@ -52,6 +52,21 @@ public class Module : MonoBehaviour {
 		if (isOnBattlefield) InitializeModule ();
 	}
 
+    public float GetAssemblyDPS () {
+        if (isRoot) {
+            float dps = 0f;
+            WeaponModule[] weps = GetComponentsInChildren<WeaponModule> ();
+
+            for (int i = 0; i < weps.Length; i++) {
+                dps += weps[i].GetDPS ();
+            }
+            return dps;
+        } else {
+            Debug.LogWarning ("Tried to grap assembly DPS from non-root module.");
+        }
+        return 0f;
+    }
+
 	public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
 		if (sprites.Length != positions.Length) {
 			Debug.LogError ("Sprites array not equal length as positions array.");
@@ -140,7 +155,7 @@ public class Module : MonoBehaviour {
 	public void SaveModuleAssembly (string filename) {
 		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
 
-		rootModule.writer = File.CreateText (file);
+        rootModule.writer = new StreamWriter (file, false);
 		rootModule.writer.WriteLine ("PROJECT VIRUS MODULE ASSEMBLY FILE, EDIT WITH CAUTION");
 		rootModule.writer.WriteLine ("name:" + filename);
 		rootModule.BroadcastMessage ("SaveModuleToAssemblyFile", file, SendMessageOptions.RequireReceiver);
@@ -176,9 +191,9 @@ public class Module : MonoBehaviour {
 			isRoot = true;
 			moduleIndex = 0;
 			saveIndex = 0;
-		}
-		BlockArea ();
-		moduleIndex = rootModule.GetModuleIndex ();
+		    BlockArea ();
+        }
+        moduleIndex = rootModule.GetModuleIndex ();
 
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
@@ -190,7 +205,9 @@ public class Module : MonoBehaviour {
 	}
 
 	public void BlockArea () {
-		if (isRoot && Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), false);
+        if (isRoot && Game.currentScene == Scene.Play) {
+            Pathfinding.ChangeArea (GetModuleRect (), false);
+        }
 	}
 
 	public void StockModule () {
