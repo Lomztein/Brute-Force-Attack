@@ -18,6 +18,11 @@ public class Game : MonoBehaviour {
 	public int battlefieldHeight;
 	public List<EnemySpawnPoint> enemySpawnPoints;
 
+    [Header ("Difficulty Settings")]
+    public int assembliesAllowed = 10;
+    public float healthMultiplier = 1;
+    public float amountMultiplier = 1;
+
 	[Header ("References")]
 	public Datastream datastream;
 	public EnemySpawn enemySpawn;
@@ -92,7 +97,7 @@ public class Game : MonoBehaviour {
 	public Slider soundSlider;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		Debug.Log ("Initializing!");
 		game = this;
 		InitializeBattlefield ();

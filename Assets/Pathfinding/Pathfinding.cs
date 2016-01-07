@@ -65,11 +65,12 @@ public class Pathfinding : MonoBehaviour {
 		for (int y = startY; y < startY + h + 1; y++) {
 			for (int x = startX; x < startX + w + 1; x++) {
 				Vector2 pos = finder.WorldToNode (new Vector3 (x,y));
-				
-				int xx = Mathf.RoundToInt (pos.x) + finder.map.gridX;
-				int yy = Mathf.RoundToInt (pos.y) + finder.map.gridY;
-				
-				if (finder.IsInsideField (xx,yy)) {
+
+                int xx = Mathf.RoundToInt (pos.x);
+				int yy = Mathf.RoundToInt (pos.y);
+                Debug.Log (xx + ", " + yy);
+
+                if (finder.IsInsideField (xx,yy)) {
 					
 					finder.map.nodes[xx,yy].isWalkable = clear;
 					if (Game.isWalled[xx,yy] != Game.WallType.None)

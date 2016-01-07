@@ -287,7 +287,7 @@ public class EnemySpawn : MonoBehaviour {
 
 	public void SaveWaveset (Wave[] waves, string name) {
 		string path = Game.WAVESET_SAVE_DIRECTORY + name + WAVESET_FILE_EXTENSION;
-		StreamWriter write = File.CreateText (path);
+        StreamWriter write = new StreamWriter (path, false);
 
 		write.WriteLine ("PROJECT VIRUS WAVE SET FILE, EDIT WITH CAUTION");
 		write.WriteLine (name);
