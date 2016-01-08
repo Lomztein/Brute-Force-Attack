@@ -44,12 +44,9 @@ public class PurchaseMenu : MonoBehaviour {
 	public void Initialize () {
 		cur = this;
 		stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
-		InitializeAssemblyButtons ();
 
 		if (Game.currentScene == Scene.AssemblyBuilder)
 			LoadStandardButtons ();
-
-		UpdateButtons ();
 	}
 
 	public void LoadStandardButtons () {

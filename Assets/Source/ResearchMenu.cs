@@ -252,6 +252,7 @@ public class ResearchMenu : MonoBehaviour {
 				RectTransform lr = line.GetComponent<RectTransform>();
 				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.position, r.prerequisite.button.transform.position), 10);
 				line.transform.SetParent (lineParent, true);
+
 			}
 		}
 	}
@@ -265,7 +266,6 @@ public class ResearchMenu : MonoBehaviour {
 	// Put research code here
 	public void UnlockModule (Research research) {
 		Game.game.purchaseMenu.standard.Add (unlockableModules[research.value]);
-		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.standard.ToArray ());
 	}
 
 	public void UnlockSpecialModule (Research research) {

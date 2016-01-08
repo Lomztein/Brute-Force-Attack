@@ -116,7 +116,7 @@ public class Enemy : MonoBehaviour {
 
 			if (!isDead) {
 				isDead = true;
-				Game.credits += Mathf.RoundToInt ((float)value * (float)EnemySpawn.gameProgress * 0.2f);
+				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemySpawn.cur.waveNumber * 0.2f);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 				EnemySpawn.cur.OnEnemyDeath ();

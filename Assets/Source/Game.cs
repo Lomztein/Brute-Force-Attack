@@ -99,11 +99,11 @@ public class Game : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		game = this;
-		PurchaseMenu.cur = purchaseMenu;
+        purchaseMenu.Initialize ();
 		purchaseMenu.CollectAllPurchaseables ();
-		researchMenu.Initialize ();
-		
-		InitializeSaveDictionaries ();
+        researchMenu.Initialize ();
+
+        InitializeSaveDictionaries ();
 		ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
 	}
 
@@ -406,7 +406,6 @@ public class Game : MonoBehaviour {
 		GenerateDefaultSpawnpoints ();
 
 		// Initialize purchase menu
-		purchaseMenu.Initialize ();
 	}
 
 	void FixedUpdate () {

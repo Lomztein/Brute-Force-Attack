@@ -28,9 +28,9 @@ public class ChargingBeamWeapon : Weapon {
 				UpdateBeam ();
 				return;
 			}
-			float angle = Angle.CalculateAngle (basePos, position);
+			float angle = Angle.CalculateAngle (rotator.transform.position, position);
 			pointer.eulerAngles = new Vector3 (0, 0, angle);
-			if (Vector3.Distance (rotator.transform.eulerAngles, pointer.eulerAngles) < 1f) {
+			if (Vector3.Distance (rotator.transform.eulerAngles, pointer.eulerAngles) < 5f) {
 				UpdateBeam ();
 			} else {
 				BreakBeam ();

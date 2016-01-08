@@ -77,6 +77,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 		game.purchaseMenu.GetAssemblies (assemblies);
 		game.StartGame ();
 
+        game.purchaseMenu.InitializeAssemblyButtons ();
 		gameObject.SetActive (false);
     }
 
