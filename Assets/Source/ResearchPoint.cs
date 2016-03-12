@@ -19,7 +19,7 @@ public class ResearchPoint : MonoBehaviour {
 
 		float[] particlesMax = new float[particle.Length];
 		for (int i = 0; i < particle.Length; i++) {
-			particlesMax [i] = particle [i].emissionRate;
+			particlesMax [i] = particle [i].emission.rate.constantMax;
 		}
 
 		float startTime = time;
@@ -28,7 +28,7 @@ public class ResearchPoint : MonoBehaviour {
 			Game.researchProgress += speed * Time.fixedDeltaTime;
 			time -= Time.fixedDeltaTime;
 			for (int i = 0; i < particle.Length; i++) {
-				particle [i].emissionRate = time / startTime * particlesMax[i];
+				Utility.ChangeParticleEmmisionRate (particle[i], time / startTime * particlesMax[i]);
 			}
 			yield return new WaitForFixedUpdate ();
 		}

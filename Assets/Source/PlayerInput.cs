@@ -16,8 +16,11 @@ public class PlayerInput : MonoBehaviour {
 	private Module pModule;
 	public bool isPlacing;
 	private bool isRotting;
-	
-	private bool enableFastBuild;
+    public bool isUpgrading;
+    public GameObject hoverMarker;
+    public SpriteRenderer upgradingMarker;
+
+    private bool enableFastBuild;
 	private Vector2 dragStart;
 	private Vector2 dragEnd;
 
@@ -79,7 +82,7 @@ public class PlayerInput : MonoBehaviour {
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
 
-		// rangeIndicator.ForceParent (loc, placePos);
+		rangeIndicator.ForceParent (loc, placePos);
 
 		if (!purchaseMenu.stockModules.ContainsKey (purModule)) {
 			currentCost = pModule.moduleCost;
@@ -105,9 +108,23 @@ public class PlayerInput : MonoBehaviour {
 		CancelPurchase ();
 		if (isEditingWalls)
 			EditWalls ();
+        if (isUpgrading) {
+            ToggleUpgrading ();
+        }
 	}
 
-	public void SetPurchaseableFromSceneObject (GameObject purModule) {
+    public void ToggleUpgrading () {
+        isUpgrading = !isUpgrading;
+        for (int i = 0; i < Game.currentModules.Count; i++) {
+            Game.currentModules[i].UpdateHoverContextElement ();
+        }
+
+        upgradingMarker.gameObject.SetActive (isUpgrading);
+        if (!isUpgrading)
+            upgradingMarker.transform.position = Vector3.right * 10000f;
+    }
+
+    public void SetPurchaseableFromSceneObject (GameObject purModule) {
 		purchaseModule = purModule;
 		pModule = purModule.GetComponent<Module>();
 	}
@@ -141,143 +158,169 @@ public class PlayerInput : MonoBehaviour {
 		}
 	}
 
-	// Update is called once per frame
-	void Update () {
-		if (Game.currentScene == Scene.Play)
-			MoveCamera ();
-		// Grap mouse position, and round it.
-		pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
+    // Update is called once per frame
+    void Update () {
+        if (Game.currentScene == Scene.Play)
+            MoveCamera ();
+        // Grap mouse position, and round it.
+        pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
 
-		rangeIndicator.GetRange (0f);
+        rangeIndicator.GetRange (0f);
 
-		if (!EnemySpawn.waveStarted) {
-			if (isPlacing && !isEditingWalls) {
+        if (!EnemyManager.waveStarted) {
+            if (isPlacing && !isEditingWalls) {
 
-				rangeIndicator.transform.position = placementParent.position;
+                rangeIndicator.transform.position = placementParent.position;
 
-				if (!isRotting) {
-					placePos = new Vector3 (pos.x, pos.y, 0f);
-					placeRot = Quaternion.Euler (0,0,90f);
-				}
+                if (!isRotting) {
+                    placePos = new Vector3 (pos.x, pos.y, 0f);
+                    placeRot = Quaternion.Euler (0, 0, 90f);
+                }
 
-				UpdatePlacementSprite ();
-				GetHitModule ();
+                UpdatePlacementSprite ();
+                GetHitModule ();
 
-				indicatorRange = 0f;
-				RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
+                indicatorRange = 0f;
+                RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
 
-				if (hitModule) {
-					placeRot = hitModule.transform.rotation;
+                if (hitModule) {
+                    placeRot = hitModule.transform.rotation;
 
-					if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
-						rangeIndicator.GetRange (0f);
-					}else if (pModule.moduleType == Module.Type.Weapon) {
-						if (hitModule.parentBase) {
-							rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
-						}else{
-							rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
-						}
-					}else{
-						rangeIndicator.GetRange (indicatorRange);
-					}
-				}else{
-					if (pModule.moduleType == Module.Type.Weapon) {
-						rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
-					}else{
-						RangeIndicator.ForceRequestRange (activePurchaseCopy, rangeIndicator.gameObject);
-					}
-				}
+                    if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
+                        rangeIndicator.GetRange (0f);
+                    } else if (pModule.moduleType == Module.Type.Weapon) {
+                        if (hitModule.parentBase) {
+                            rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
+                        } else {
+                            rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+                        }
+                    } else {
+                        rangeIndicator.GetRange (indicatorRange);
+                    }
+                } else {
+                    if (pModule.moduleType == Module.Type.Weapon) {
+                        rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+                    } else if (pModule.moduleType == Module.Type.Base) {
+                        rangeIndicator.GetRange (pModule.GetComponent<BaseModule> ().GetRange ());
+                    }
+                }
 
-				if (isRotting) {
-					ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
-						if (Input.GetButton ("LCtrl"))
-							placeRot = Quaternion.Euler (0,0,ang);
-				}else{
-					ang = placeRot.eulerAngles.z;
-				}
+                if (isRotting) {
+                    ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
+                    if (Input.GetButton ("LCtrl"))
+                        placeRot = Quaternion.Euler (0, 0, ang);
+                } else {
+                    ang = placeRot.eulerAngles.z;
+                }
 
-				if (Input.GetMouseButtonDown (1))
-					CancelPurchase ();
+                if (Input.GetMouseButtonDown (1))
+                    CancelPurchase ();
 
-				if (!purchaseMenu.isOpen) {
-					if (Input.GetMouseButtonUp (0))
-						PlaceModule ();
+                if (!purchaseMenu.isOpen) {
+                    if (Input.GetMouseButtonUp (0))
+                        PlaceModule ();
 
-					if (Input.GetMouseButtonDown (0))
-						isRotting = true;
-				}
-			}
+                    if (Input.GetMouseButtonDown (0))
+                        isRotting = true;
+                }
+            }
 
-			if (!isPlacing && isEditingWalls) {
+            if (!isPlacing && isEditingWalls) {
 
-				if (Input.GetButtonDown ("Cancel"))
-					EditWalls ();
+                if (Input.GetButtonDown ("Cancel"))
+                    EditWalls ();
 
-				if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
-					wallDragStatus = WallDragStatus.Inactive;
-				}
+                if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
+                    wallDragStatus = WallDragStatus.Inactive;
+                }
 
-				if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
-					wallDragStatus = WallDragStatus.Adding;
-					wallDragStart = pos;
-					wallDragGraphic.sharedMaterial.color = Color.green;
-				}
+                if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
+                    wallDragStatus = WallDragStatus.Adding;
+                    wallDragStart = pos;
+                    wallDragGraphic.sharedMaterial.color = Color.green;
+                }
 
-				if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
-					wallDragStatus = WallDragStatus.Inactive;
-					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), true);
-					wallDragGraphic.sharedMaterial.color = Color.white;
-					HoverContext.ChangeText ("");
-				}
+                if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
+                    wallDragStatus = WallDragStatus.Inactive;
+                    Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), true);
+                    wallDragGraphic.sharedMaterial.color = Color.white;
+                    HoverContext.ChangeText ("");
+                }
 
-				if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
-					wallDragStatus = WallDragStatus.Removing;
-					wallDragStart = pos;
-					wallDragGraphic.sharedMaterial.color = Color.red;
-				}
+                if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
+                    wallDragStatus = WallDragStatus.Removing;
+                    wallDragStart = pos;
+                    wallDragGraphic.sharedMaterial.color = Color.red;
+                }
 
-				if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
-					wallDragStatus = WallDragStatus.Inactive;
-					Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), false);
-					wallDragGraphic.sharedMaterial.color = Color.white;
-					HoverContext.ChangeText ("");
-				}
+                if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
+                    wallDragStatus = WallDragStatus.Inactive;
+                    Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), false);
+                    wallDragGraphic.sharedMaterial.color = Color.white;
+                    HoverContext.ChangeText ("");
+                }
 
-				if (wallDragStatus != WallDragStatus.Inactive) {
+                if (wallDragStatus != WallDragStatus.Inactive) {
 
-					wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
-					wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
-					wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
+                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
+                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+                    wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 
-					Rect rect = Game.PositivizeRect (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y));
-						
-					if (wallDragStatus == WallDragStatus.Adding) {
-						HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), true));
-					}else{
-						HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), false));
-					}
+                    Rect rect = Game.PositivizeRect (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y));
 
-				}else{
-					wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
-					wallDragGraphic.transform.localScale = Vector3.one;
-					wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
-					HoverContext.ChangeText ("");
-				}
-			}
-		}
+                    if (wallDragStatus == WallDragStatus.Adding) {
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), true));
+                    } else {
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), false));
+                    }
 
-		if (!isPlacing && !isEditingWalls) {
-			if (Input.GetMouseButtonDown (0)) {
-				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-				RaycastHit hit;
+                } else {
+                    wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
+                    wallDragGraphic.transform.localScale = Vector3.one;
+                    wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
+                    HoverContext.ChangeText ("");
+                }
+            }
+        }
 
-				if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
-					focusRoot = hit.collider.GetComponent<Module>().rootModule;
-					OpenModuleMenu ();
-				}
-			}
-		}
-	}
+        if (!isPlacing && !isEditingWalls) {
+
+            Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
+
+                if (Input.GetMouseButtonDown (0) && !isUpgrading) {
+
+                    focusRoot = hit.collider.GetComponent<Module> ().rootModule;
+                    OpenModuleMenu ();
+                }
+
+                Module mod = hit.collider.GetComponent<Module> ();
+
+                hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);
+                hoverMarker.transform.localScale = Vector3.one * mod.moduleClass;
+
+                if (isUpgrading) {
+                    upgradingMarker.transform.position = hit.collider.transform.position + Vector3.right * mod.moduleClass * 2f;
+                    if (mod.GetUpgradeCost ((int)mod.moduleType) > Game.credits || !mod.IsUpgradeable ()) {
+                        upgradingMarker.color = Color.red;
+                    } else {
+                        upgradingMarker.color = Color.green;
+                    }
+                }
+            } else {
+                hoverMarker.transform.position = Vector3.right * 10000f;
+                upgradingMarker.transform.position = (Vector3)(Vector2)(Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.right * 2f) + Vector3.forward * (camDepth + 1f);
+                upgradingMarker.color = Color.white;
+            }
+        }
+
+        if (isUpgrading) {
+            if (Input.GetMouseButtonDown (1))
+                CancelAll ();
+        }
+    }
 
 	Vector3 RoundPos (Vector3 p) {
 		pos = new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
@@ -314,11 +357,13 @@ public class PlayerInput : MonoBehaviour {
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
 
-			if (!Game.IsInsideBattlefield (pos + canPlaceTestPos[i]))
-				return false;
+            if (Game.currentScene == Scene.Play) {
+                if (!Game.IsInsideBattlefield (pos + canPlaceTestPos[i]))
+                    return false;
 
-			if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos [i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos [i]).y] == Game.WallType.Level)
-				return false;
+                if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] == Game.WallType.Level)
+                    return false;
+            }
 
 			Ray ray = new Ray (new Vector3 (pos.x + canPlaceTestPos[i].x * pModule.moduleClass, pos.y + canPlaceTestPos[i].y * pModule.moduleClass, camDepth), Vector3.forward * -camDepth * 2f);
 			RaycastHit hit;
@@ -334,7 +379,11 @@ public class PlayerInput : MonoBehaviour {
 					return false;
 
 				if (hitModule)
-					if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent || hitModule.moduleClass < pModule.moduleClass || hitModule.moduleLayer >= 45)
+					if (hitModule.moduleType == Module.Type.Weapon
+                        || hitModule.moduleType == Module.Type.Independent
+                        || hitModule.moduleClass < pModule.moduleClass
+                        || hitModule.moduleLayer >= 45
+                        || Game.currentScene == Scene.Play)
 						hits--;
 			}else{
 				if (hitModule)

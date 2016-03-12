@@ -25,6 +25,6 @@ public class HomingProjectile : Projectile {
 		transform.position += velocity * Time.fixedDeltaTime;
 
 		if (autoFindTarget && !target)
-			target = targetFinder.FindTarget (transform.position, 5f, Game.game.enemyLayer, new Colour[1] { Colour.Red }, TargetFinder.SortType.Closest);
+			target = targetFinder.FindTarget (transform.position, 5f, Game.game.enemyLayer, new Colour[1] { Colour.Red }, new Colour[0], TargetFinder.SortType.Closest);
 	}
 }

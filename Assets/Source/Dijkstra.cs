@@ -22,7 +22,7 @@ public class Dijkstra : MonoBehaviour {
 	public static Dijkstra cur;
 
 	public int bakeSpeed = 10;
-	public EnemySpawn enemySpawn;
+	public EnemyManager enemySpawn;
 
 	public void InitializeDijkstraField (int w, int h) {
 		cur = this;

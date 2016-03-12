@@ -10,7 +10,7 @@ public class SlowfieldModule : Module {
 	public GameObject slowfieldArea;
 	private SlowfieldArea slowfield;
 
-	new void FixedUpdate () {
+	void FixedUpdate () {
 		rotator.Rotate (Vector3.forward * rotateSpeed * Time.deltaTime * upgradeMul);
 		if (!slowfield) {
 			GameObject slow = (GameObject)Instantiate (slowfieldArea, transform.position, Quaternion.identity);

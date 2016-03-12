@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine.SceneManagement;
 
 public enum Scene { Play, AssemblyBuilder, WaveBuilder };
+public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands }
 
 public class Game : MonoBehaviour {
 
@@ -23,9 +25,13 @@ public class Game : MonoBehaviour {
     public float healthMultiplier = 1;
     public float amountMultiplier = 1;
 
+    [Header ("Gamemodes")]
+    public Gamemode gamemode;
+    public string[] gamemodeDescriptions;
+
 	[Header ("References")]
 	public Datastream datastream;
-	public EnemySpawn enemySpawn;
+	public EnemyManager enemySpawn;
 	public PurchaseMenu purchaseMenu;
 	public Pathfinding pathfinder;
 	public Map pathMap;
@@ -35,6 +41,7 @@ public class Game : MonoBehaviour {
 	public GameObject rangeIndicator;
 	public GameObject worldCanvas;
 	public GameObject enemyHealthSlider;
+    public GameObject GUICanvas;
 	public static List<Module> currentModules = new List<Module>();
 	
 	public Text creditsText;
@@ -50,21 +57,27 @@ public class Game : MonoBehaviour {
 	public int startingCredits;
 	public int startingResearch;
 
+    private static bool _creditsUpdatedThisFrame = false;
 	private static int _credits;
 	public static int credits {
 		get { return _credits; }
 		set { _credits = value;
-			if (PurchaseMenu.cur)
-				PurchaseMenu.UpdateButtons ();
+            if (!_creditsUpdatedThisFrame) {
+                if (PurchaseMenu.cur)
+                    PurchaseMenu.UpdateButtons ();
+            }
 		}
 	}
 
+    private static bool _researchUpdatedThisFrame = false;
 	public static float researchProgress;
 	private static int _research;
 	public static int research {
 		get { return _research; }
 		set { _research = value;
-			if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons ();
+            if (!_researchUpdatedThisFrame) {
+                if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons ();
+            }
 		}
 	}
 
@@ -84,6 +97,7 @@ public class Game : MonoBehaviour {
 	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
 	public static string WAVESET_SAVE_DIRECTORY;
 	public static string BATTLEFIELD_SAVE_DIRECTORY;
+    public static string RESEARCH_BACKUP_DATA_DIRECTORY;
 	public string[] stockModuleNames;
 
 	[Header ("Settings")]
@@ -96,29 +110,63 @@ public class Game : MonoBehaviour {
 	public Slider musicSlider;
 	public Slider soundSlider;
 
+    [Header ("Default Assembly Roster Generator")]
+    public Module[] baseModules;
+    public Module[] rotatorModules;
+
+    public void GenerateDefaultAssembly (Module weaponModule) {
+        Assembly assembly = new Assembly ();
+
+        assembly.assemblyName = weaponModule.moduleName + " Turret";
+        assembly.assemblyDesc = weaponModule.moduleDesc;
+
+        assembly.parts.Add (new Assembly.Part (true, baseModules[weaponModule.moduleClass].moduleName, 1, 0, 0f, 0f, 90f));
+        assembly.parts.Add (new Assembly.Part (false, rotatorModules[weaponModule.moduleClass].moduleName, 2, 1, 0f, 0f, 90f));
+        assembly.parts.Add (new Assembly.Part (false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
+
+        Assembly.SaveToFile (assembly.assemblyName, assembly);
+    }
+
 	// Use this for initialization
 	void Awake () {
-		game = this;
-        purchaseMenu.Initialize ();
-		purchaseMenu.CollectAllPurchaseables ();
-        researchMenu.Initialize ();
 
+		game = this;
+        ResearchMenu.cur = researchMenu;
+
+        purchaseMenu.Initialize ();
         InitializeSaveDictionaries ();
+
+        /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
+            Module mod = purchaseMenu.all[i].GetComponent<Module> ();
+            if (mod.moduleType == Module.Type.Weapon) {
+                GenerateDefaultAssembly (mod);
+            }
+        }*/
+
 		ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
 	}
 
+    private void InitializeResources () {
+        ModuleTreeButton.buttonTypes = Resources.LoadAll<GameObject> ("Module Tree GUI");
+    }
+
 	public void StartGame () {
-		Debug.Log ("Initializing!");
-		InitializeBattlefield ();
+        Debug.Log ("Initializing!");
+        InitializeResources ();
+        researchMenu.gameObject.SetActive (true);
+        researchMenu.Initialize ();
+
+        InitializeBattlefield ();
 		pathMap.Initialize ();
-		SaveBattlefieldData ("DEFAULT_TEST");
+
+        researchMenu.SaveBackup ();
 		Debug.Log ("Done initializing!");
 	}
 		
 	public void RestartMap () {
-		Application.LoadLevel (Application.loadedLevel);
+        SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
 		Time.timeScale = 1f;
-		EnemySpawn.gameProgress = 1f;
+		EnemyManager.gameProgress = 1f;
 	}
 
 	public void QuitToDesktop () {
@@ -362,7 +410,8 @@ public class Game : MonoBehaviour {
 		MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
 		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
 		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
-	}
+		RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+    }
 
 	void InitializeBattlefield () {
 
@@ -377,11 +426,12 @@ public class Game : MonoBehaviour {
 		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
 			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
 
+        if (!Directory.Exists (RESEARCH_BACKUP_DATA_DIRECTORY))
+            Directory.CreateDirectory (RESEARCH_BACKUP_DATA_DIRECTORY);
 
-		// Load battlefield data
-		isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+        // Load battlefield data
+        isWalled = new WallType[battlefieldWidth,battlefieldHeight];
 		currentModules = new List<Module>();
-		//LoadBattlefieldData ("TEST");
 
 		// Initialize resources
 		credits = startingCredits;
@@ -402,8 +452,8 @@ public class Game : MonoBehaviour {
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
 
 		// Initialize enemy spawn.
-		//enemySpawn.waves = EnemySpawn.LoadWaveset ("waveset");
 		GenerateDefaultSpawnpoints ();
+        SaveBattlefieldData ("DEFAULT");
 
 		// Initialize purchase menu
 	}
@@ -430,7 +480,10 @@ public class Game : MonoBehaviour {
 			researchProgress = excess;
 			research++;
 		}
-	}
+
+        _creditsUpdatedThisFrame = false;
+        _researchUpdatedThisFrame = false;
+    }
 
 	public void SaveBattlefieldData (string fileName) {
 
@@ -443,21 +496,22 @@ public class Game : MonoBehaviour {
 
 	}
 
-	public bool LoadBattlefieldData (string fileName) {
+	public BattlefieldData LoadBattlefieldData (string fileName, bool isFullPath = false) {
 
 		string fullFile = BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat";
+        if (isFullPath)
+            fullFile = fileName;
+
 		if (File.Exists (fullFile)) {
 
 			BinaryFormatter bf = new BinaryFormatter ();
 			FileStream file = File.Open (fullFile, FileMode.Open);
 
 			BattlefieldData data = (BattlefieldData)bf.Deserialize (file);
+            data.spawns = new List<EnemySpawnPoint> ();
 			file.Close ();
 
-			battlefieldWidth = data.width;
-			battlefieldHeight = data.height;
-			isWalled = data.walls;
-
+            Debug.Log (fileName);
 			for (int i = 0; i < data.spawnsX.Count; i++) {
 
 				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
@@ -470,13 +524,12 @@ public class Game : MonoBehaviour {
 				endPoint.worldPosition = end;
 
 				spawn.endPoint = endPoint;
-
+                data.spawns.Add (spawn);
 			}
-
-			return true;
-		}
-		return false;
-	}
+		    return data;
+        }
+        return null;
+    }
 
 	void GenerateDefaultSpawnpoints () {
 		for (int x = 1; x < battlefieldWidth; x++) {
@@ -492,7 +545,10 @@ public class Game : MonoBehaviour {
 	}
 
 	[Serializable]
-	private class BattlefieldData {
+	public class BattlefieldData {
+
+        public string name;
+        public string desc;
 
 		public int width;
 		public int height;
@@ -502,6 +558,9 @@ public class Game : MonoBehaviour {
 		public List<int> spawnsY;
 		public List<int> endsX;
 		public List<int> endsY;
+
+        [System.NonSerialized]
+        public List<EnemySpawnPoint> spawns;
 
 		public BattlefieldData (int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
 
@@ -520,12 +579,6 @@ public class Game : MonoBehaviour {
 				endsX.Add   ((int)_spawns[i].endPoint.worldPosition.x);
 				endsY.Add   ((int)_spawns[i].endPoint.worldPosition.y);
 			}
-		}
-	}
-
-	void OnDrawGizmos () {
-		for (int i = 0; i < enemySpawnPoints.Count; i++) {
-			Gizmos.DrawLine (enemySpawnPoints[i].worldPosition, enemySpawnPoints[i].endPoint.worldPosition);
 		}
 	}
 }

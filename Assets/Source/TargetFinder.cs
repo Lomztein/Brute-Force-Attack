@@ -7,7 +7,7 @@ public class TargetFinder {
 
 	public enum SortType { Closest, Furthest, MostHealth, LeastHealth, First, Last, Random};
 
-	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities, SortType sort) {
+	public Transform FindTarget (Vector3 position, float range, LayerMask targetLayer, Colour[] priorities, Colour[] ignore, SortType sort) {
 
 		// If anything is nearby, proceed.
 		if (Physics.CheckSphere (position, range, targetLayer)) {
@@ -61,7 +61,7 @@ public class TargetFinder {
 					break;
 				}
 				
-				if (d < dis) {
+				if (d < dis && !ignore.Contains (enemy.type)) {
 					dis = d;
 					ner = nearby[i].transform;
 

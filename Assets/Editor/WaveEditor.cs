@@ -8,7 +8,7 @@ public class WaveEditor : EditorWindow {
 	private enum WindowStatus { All, Wave }
 	private WindowStatus windowStatus;
 
-	public EnemySpawn spawner;
+	public EnemyManager spawner;
 	public Wave wave;
 
 	[MenuItem ("Project Virus/Wave Editor")]
@@ -18,7 +18,7 @@ public class WaveEditor : EditorWindow {
 
 	void OnGUI () {
 		if (!spawner)
-			spawner = GameObject.Find ("EnemySpawn").GetComponent<EnemySpawn>();
+			spawner = GameObject.Find ("EnemyManager").GetComponent<EnemyManager>();
 
 		if (windowStatus == WindowStatus.All) {
 			for (int i = 0; i < spawner.waves.Count; i++) {

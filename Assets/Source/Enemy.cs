@@ -23,7 +23,7 @@ public class Enemy : MonoBehaviour {
 	[Header ("Pathing")]
 	public Vector2[] path;
 	public int pathIndex;
-	private Vector3 offset;
+	public Vector3 offset;
 
 	[Header ("Other")]
 	public GameObject deathParticle;
@@ -31,18 +31,25 @@ public class Enemy : MonoBehaviour {
 	public UpcomingElement upcomingElement;
 	private bool isDead;
 
-	private Slider healthSlider;
+	public Slider healthSlider;
 
 	// TODO Add pathfinding and, well, just improve overall
 
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		health = Mathf.RoundToInt ((float)health * EnemySpawn.gameProgress);
-		CreateHealthMeter ();
-	}
+		health = Mathf.RoundToInt ((float)health * EnemyManager.gameProgress);
 
-	void CreateHealthMeter () {
+        if (Game.game.gamemode == Gamemode.GlassEnemies) {
+            health /= 10;
+        }else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
+            health *= 10;
+        }
+
+        CreateHealthMeter ();
+    }
+
+    void CreateHealthMeter () {
 		GameObject loc = (GameObject)Instantiate (Game.game.enemyHealthSlider, transform.position + Vector3.up, Quaternion.identity);
 		healthSlider = loc.GetComponent<Slider>();
 		healthSlider.maxValue = health;
@@ -53,55 +60,53 @@ public class Enemy : MonoBehaviour {
 		return path.Length - pathIndex;
 	}
 
-	void FixedUpdate () {
-		Move ();
-		UpdateHealthSlider ();
-	}
+    /*
+    void CombinedUpdate () {
 
-	void UpdateHealthSlider () {
-		healthSlider.value = health;
-		healthSlider.transform.position = transform.position + Vector3.up;
+        // Movement code.
+        while (pathIndex == path.Length - 1 || isFlying) {
+            transform.position += Vector3.down * Time.fixedDeltaTime * speed;
+            if (rotateSprite)
+                transform.rotation = Quaternion.Euler (0, 0, 270);
+            return;
+        }
+        Vector3 loc = new Vector3 (path[pathIndex].x, path[pathIndex].y) + offset;
+        float dist = Vector3.Distance (transform.position, loc);
 
-		Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-		mousePos.z = 0;
+        if (dist < speed * Time.fixedDeltaTime) {
+            pathIndex++;
+        }
 
-		if (Vector3.Distance (transform.position, mousePos) > 5) {
-			if (healthSlider.gameObject.activeInHierarchy) {
-				healthSlider.gameObject.SetActive (false);
-			}
-		}else{
-			if (!healthSlider.gameObject.activeInHierarchy) {
-				healthSlider.gameObject.SetActive (true);
-			}
-		}
-	}
+        transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
 
-	void Move () {
+        if (rotateSprite)
+            transform.rotation = Quaternion.Euler (0, 0, Angle.CalculateAngle (transform.position, loc));
 
-		while (pathIndex == path.Length - 1 || isFlying) {
-			transform.position += Vector3.down * Time.fixedDeltaTime * speed;
-			if (rotateSprite)
-				transform.rotation = Quaternion.Euler (0, 0, 270);
-			return;
-		}
-		Vector3 loc = new Vector3 (path [pathIndex].x, path [pathIndex].y) + offset;
-		float dist = Vector3.Distance (transform.position, loc);
+        if (freezeMultiplier < 1f) {
+            freezeMultiplier += 0.5f * Time.fixedDeltaTime;
+        } else {
+            freezeMultiplier = 1f;
+        }
 
-		if (dist < speed * Time.fixedDeltaTime) {
-			pathIndex++;
-		}
+        // Healthslider Code
+        healthSlider.value = health;
+        healthSlider.transform.position = transform.position + Vector3.up;
 
-		transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+        mousePos.z = 0;
 
-		if (rotateSprite)
-			transform.rotation = Quaternion.Euler (0, 0, Angle.CalculateAngle (transform.position, loc));
+        if (Vector3.Distance (transform.position, mousePos) > 5) {
+            if (healthSlider.gameObject.activeSelf) {
+                healthSlider.gameObject.SetActive (false);
+            }
+        } else {
+            if (!healthSlider.gameObject.activeSelf) {
+                healthSlider.gameObject.SetActive (true);
+            }
+        }
 
-		if (freezeMultiplier < 1f) {
-			freezeMultiplier += 0.5f * Time.fixedDeltaTime;
-		} else {
-			freezeMultiplier = 1f;
-		}
-	}
+    }
+    */
 
 	void OnTakeDamage (Projectile.Damage damage) {
 		if (damage.effectiveAgainst == type) {
@@ -111,15 +116,15 @@ public class Enemy : MonoBehaviour {
 		}
 
 		if (health < 0) {
-			Destroy (gameObject);
-			if (healthSlider) Destroy (healthSlider.gameObject);
+            gameObject.SetActive (false);
+            if (healthSlider) healthSlider.transform.SetParent (transform);
 
 			if (!isDead) {
 				isDead = true;
-				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemySpawn.cur.waveNumber * 0.2f);
+				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemyManager.cur.waveNumber * 0.2f);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
-				EnemySpawn.cur.OnEnemyDeath ();
+				EnemyManager.cur.OnEnemyDeath ();
 
 				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
 				if (Random.Range (0, researchDropChance) == 0)
@@ -129,7 +134,7 @@ public class Enemy : MonoBehaviour {
 	}
 
 	void OnCollisionEnter (Collision col) {
-		
+
 		Datastream stream = col.gameObject.GetComponent<Datastream>();
 		List<Transform> nearest = new List<Transform>();
 
@@ -162,7 +167,7 @@ public class Enemy : MonoBehaviour {
 			nearest[i].GetComponent<SpriteRenderer>().color = Color.red;
 		}
 
-		Destroy (gameObject);
-		EnemySpawn.cur.OnEnemyDeath ();
+        gameObject.SetActive (false);
+		EnemyManager.cur.OnEnemyDeath ();
 	}
 }

@@ -17,6 +17,8 @@ public class Module : MonoBehaviour {
 
 	public BaseModule parentBase;
 	public Module rootModule;
+    public List<Module> modules;
+    public ModuleMod[] moduleMods;
 
 	public string moduleName;
 	public string moduleDesc;
@@ -65,6 +67,22 @@ public class Module : MonoBehaviour {
             Debug.LogWarning ("Tried to grap assembly DPS from non-root module.");
         }
         return 0f;
+    }
+
+    public float GetAssemblyAVGTurnSpeed () {
+        if (isRoot) {
+            float turnSpeed = 0f;
+            RotatorModule[] rots = GetComponentsInChildren<RotatorModule> ();
+
+            for (int i = 0; i < rots.Length; i++) {
+                turnSpeed += rots[i].GetSpeed ();
+            }
+            turnSpeed /= rots.Length;
+            return turnSpeed;
+        } else {
+            Debug.LogWarning ("Tried to grap assembly turnspeed from non-root module.");
+        }
+        return 0;
     }
 
 	public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
@@ -122,20 +140,80 @@ public class Module : MonoBehaviour {
 			}
 		}
 	}
+
+    public const float UPGRADE_CONST = 0.2f;
 	
 	public virtual bool UpgradeModule () {
 		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
 		}
 		upgradeCount++;
-		upgradeMul *= 1.2f;
+        // Debug.Log (GetUpgradePercentage ());
+        upgradeMul *= 1 + GetUpgradePercentage ();
 		upgradeCost = Mathf.RoundToInt ((float)upgradeCost * 1.5f);
 		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
 		}
 
+        UpdateHoverContextElement ();
 		return false;
 	}
+
+    public bool IsAssemblyUpgradeable (int t) {
+        Module.Type type = (Module.Type)t;
+        bool upgradeable = true;
+
+        for (int i = 0; i < modules.Count; i++) {
+            if (modules[i].moduleType == type && !modules[i].IsUpgradeable ()) {
+                upgradeable = false;
+            }
+        }
+
+        return upgradeable;
+    }
+
+    public bool UpgradeAssembly (int t) {
+        Module.Type type = (Module.Type)t;
+
+        if (Game.currentScene == Scene.Play && Game.credits >= rootModule.GetUpgradeCost (t) && IsAssemblyUpgradeable (t)) {
+
+            bool canUpgrade = true;
+            Game.credits -= rootModule.GetUpgradeCost (t);
+
+            foreach (Module module in modules) {
+                if (module.moduleType == type) {
+                    canUpgrade = !module.UpgradeModule ();
+                }
+            }
+
+            rootModule.upgradeButtonDisabled[t] = !canUpgrade;
+            return canUpgrade;
+        }
+
+        return true;
+    }
+
+    public bool IsUpgradeable () {
+        return upgradeCount < MAX_UPGRADE_AMOUNT;
+    }
+
+    public int GetUpgradeCost (int t) {
+
+        int cost = 0;
+        Module.Type type = (Module.Type)t;
+
+        foreach (Module module in modules) {
+            if (module.moduleType == type && module.IsUpgradeable ()) {
+                cost += module.upgradeCost;
+            }
+        }
+
+        return cost;
+    }
+
+    public float GetUpgradePercentage () {
+        return upgradeCount / 10f;
+    }
 
 	public static float CalculateUpgradeMul (int upgradeLevel) {
 		return 1f * Mathf.Pow (1.2f, (float)upgradeLevel);
@@ -188,12 +266,35 @@ public class Module : MonoBehaviour {
 			moduleIndex = 0;
 			saveIndex = 0;
 		    BlockArea ();
+
+            UpdateHoverContextElement ();
+
+            for (int i = 0; i < modules.Count; i++) {
+                if (modules[i] != this) {
+                    modules[i].GetComponent<Collider> ().enabled = false;
+                }
+            }
         }
         moduleIndex = rootModule.GetModuleIndex ();
 
 		if (parentBase) parentBase.GetFastestBulletSpeed ();
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
+
+    int GetFullUpgradeCost () {
+        return GetUpgradeCost (0) + GetUpgradeCost (1) + GetUpgradeCost (2);
+    }
+
+    public void UpdateHoverContextElement () {
+        if (isRoot) {
+            HoverContextElement el = GetComponent<HoverContextElement> ();
+            if (PlayerInput.cur.isUpgrading) {
+                el.text = "Upgrade Cost: " + GetFullUpgradeCost ().ToString () + " LoC";
+            } else {
+                el.text = assemblyName + " - " + ((int)GetAssemblyDPS ()).ToString () + " DPS";
+            }
+        }
+    }
 
 	public void SellModule () {
 		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
@@ -241,6 +342,16 @@ public class Module : MonoBehaviour {
 		                 transform.position.y - b.size.y / 2f,
 		                 b.size.x, b.size.y);
 	}
+
+    void OnMouseClick () {
+        if (PlayerInput.cur.isUpgrading && isRoot && Game.credits >= GetFullUpgradeCost ()) {
+            UpgradeAssembly (0);
+            UpgradeAssembly (1);
+            UpgradeAssembly (2);
+
+            GetComponent<HoverContextElement> ().ForceUpdate ();
+        }
+    }
 
 	void FindParentBase () {
 		if (transform.parent == null) {

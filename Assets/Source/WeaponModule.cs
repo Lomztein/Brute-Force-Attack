@@ -19,6 +19,7 @@ public class WeaponModule : Module {
 	public override bool UpgradeModule () {
 		bool passed = base.UpgradeModule ();
 		weapon.upgradeMul = upgradeMul;
+        weapon.damageUpgradeMul *= 1 + GetUpgradePercentage () * 2f;
 		return passed;
 	}
 
@@ -72,7 +73,7 @@ public class WeaponModule : Module {
 	}
 
     public float GetDPS () {
-        return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * upgradeMul *
+        return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * weapon.damageUpgradeMul *
                 ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] *
                 weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst]));
     }

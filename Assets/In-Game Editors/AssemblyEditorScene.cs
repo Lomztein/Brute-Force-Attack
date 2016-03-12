@@ -2,6 +2,7 @@
 using System.Collections;
 using IngameEditors;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 namespace IngameEditors {
 
@@ -22,7 +23,7 @@ namespace IngameEditors {
 
 		public void QuitScene () {
 			Game.currentScene = Scene.Play;
-			Application.LoadLevel ("pv_menu");
+            SceneManager.LoadScene ("pv_menu");
 		}
 
 		void Update () {

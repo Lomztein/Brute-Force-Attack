@@ -3,9 +3,11 @@ using System.Collections;
 
 public class HoverContextElement : MonoBehaviour {
 
+    public static HoverContextElement activeElement;
 	public string text;
 	new private Collider collider;
 	private bool prevHit;
+    public bool isWorldElement;
 
 	void Start () {
 		collider = GetComponent<Collider>();
@@ -21,14 +23,32 @@ public class HoverContextElement : MonoBehaviour {
 
 	void FixedUpdate () {
 		RaycastHit hit;
-		Ray ray = new Ray (Input.mousePosition + Vector3.back * 5f, Vector3.forward * 10f);
-		Debug.DrawRay (ray.origin, ray.direction);
-		if (collider.Raycast (ray, out hit, 100)) {
-			OnMouseEnter ();
-			prevHit = true;
-		}else if (prevHit) {
+        Vector3 pos = Input.mousePosition;  
+
+        if (isWorldElement) {
+            pos = Camera.main.ScreenToWorldPoint (pos);
+        }
+
+		Ray ray = new Ray ((Vector3)(Vector2)pos + Vector3.back * 5f, Vector3.forward * 10f);
+
+        if (collider.Raycast (ray, out hit, 100)) {
+            if (!activeElement) {
+                SendMessage ("OnMouseEnter");
+                activeElement = this;
+            }
+		}else if (activeElement = this) {
+
+            SendMessage ("OnMouseExit");
 			OnMouseExit ();
-			prevHit = false;
+            activeElement = null;
 		}
+
+        if (activeElement == this && Input.GetMouseButtonDown (0)) {
+            SendMessage ("OnMouseClick", SendMessageOptions.DontRequireReceiver);
+        }
 	}
+
+    public void ForceUpdate () {
+        activeElement = null;
+    }
 }

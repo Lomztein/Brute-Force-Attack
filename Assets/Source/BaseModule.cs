@@ -21,6 +21,7 @@ public class BaseModule : Module {
 	private float targetingRange;
 	private float fastestBulletSpeed;
 	public List<Colour> priorities;
+    public List<Colour> ignore;
 	public int maxSupportedWeight;
 	public int currentWeight;
 
@@ -47,7 +48,7 @@ public class BaseModule : Module {
 				targetPos = target.position;
 			}
 
-			if (Vector3.Distance (transform.position, targetPos) > GetRange ())
+			if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf)
 				target = null;
 		}
 	}
@@ -62,14 +63,90 @@ public class BaseModule : Module {
 	}
 
 	void FindTarget () {
-		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), sortType);
+		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), ignore.ToArray (), sortType);
 		if (target)
 			targetPos = target.position;
 	}
 
+    public void OnToggleModBlue (int newIndex) {
+        ChangePriority (Colour.Blue, newIndex);
+    }
+    public void OnToggleModGreen (int newIndex) {
+        ChangePriority (Colour.Green, newIndex);
+    }
+    public void OnToggleModYellow (int newIndex) {
+        ChangePriority (Colour.Yellow, newIndex);
+    }
+    public void OnToggleModOrange (int newIndex) {
+        ChangePriority (Colour.Orange, newIndex);
+    }
+    public void OnToggleModRed (int newIndex) {
+        ChangePriority (Colour.Red, newIndex);
+    }
+    public void OnToggleModPurple (int newIndex) {
+        ChangePriority (Colour.Purple, newIndex);
+    }
+
+    public void OnInitializeToggleModBlue (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Blue));
+    }
+    public void OnInitializeToggleModGreen (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Green));
+    }
+    public void OnInitializeToggleModYellow (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Yellow));
+    }
+    public void OnInitializeToggleModOrange (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Orange));
+    }
+    public void OnInitializeToggleModRed (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Red));
+    }
+    public void OnInitializeToggleModPurple (ModuleMod mod) {
+        mod.GetReturnedMeta (GetSortMeta (Colour.Purple));
+    }
+
+    public void OnInitializeToggleModSort (ModuleMod mod) {
+        mod.GetReturnedMeta ((int)sortType);
+    }
+
+    public int GetSortMeta (Colour colour) {
+        if (priorities.Contains (colour)) {
+            return 1;
+        } else if (ignore.Contains (colour))
+            return 2;
+        return 0;
+    }
+
+    public void ChangePriority (Colour colour, int newPriority) {
+        switch (newPriority) {
+            case 0:
+                if (priorities.Contains (colour))
+                    priorities.Remove (colour);
+                if (ignore.Contains (colour))
+                    ignore.Remove (colour);
+                break;
+
+            case 1:
+                if (!priorities.Contains (colour))
+                    priorities.Add (colour);
+                if (ignore.Contains (colour))
+                    ignore.Remove (colour);
+                break;
+
+            case 2:
+                if (priorities.Contains (colour))
+                    priorities.Remove (colour);
+                if (!ignore.Contains (colour))
+                    ignore.Add (colour);
+                break;
+        }
+
+    }
+
 	void OnNewModuleAdded () {
 		GetFastestBulletSpeed ();
-		Module[] modules = GetComponentsInChildren<Module> ();
+		// Module[] modules = GetComponentsInChildren<Module> ();
 
 		//TODO Combine funtions, remove one GetComponentsInChildren command.
 	}
@@ -115,6 +192,10 @@ public class BaseModule : Module {
 		}
 		return text;
 	}
+
+    public void OnToggleModSort (int newSort) {
+        sortType = (TargetFinder.SortType)newSort;
+    }
 
 	public override void SetIsBeingPlaced () {
 		base.SetIsBeingPlaced ();

@@ -23,7 +23,7 @@ namespace IngameEditors {
 		public int waveBorderSize;
 
 		void Awake () {
-			waves = EnemySpawn.LoadWaveset (Game.WAVESET_SAVE_DIRECTORY + "DEFAULT");
+			waves = EnemyManager.LoadWaveset (Game.WAVESET_SAVE_DIRECTORY + "DEFAULT");
 			UpdateEditor ();
 		}
 

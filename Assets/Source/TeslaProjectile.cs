@@ -47,7 +47,7 @@ public class TeslaProjectile : Projectile {
 		base.OnHit (hit);
 		if (chainIndex > 0) {
 			TargetFinder finder = new TargetFinder ();
-			Transform t = finder.FindTarget (hit.point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, TargetFinder.SortType.Random);
+			Transform t = finder.FindTarget (hit.point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, new Colour[0], TargetFinder.SortType.Random);
 			if (t) {
 				Vector3 dir = (t.position - hit.point).normalized;
 				GameObject light = (GameObject)Instantiate (chainLighting, hit.point, Quaternion.identity);

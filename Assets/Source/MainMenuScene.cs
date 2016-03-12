@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MainMenuScene : MonoBehaviour {
 
 	public void Play () {
-		Application.LoadLevel ("pv_play");
+        SceneManager.LoadScene ("pv_play");
 	}
 
 	public void Build () {
-		Application.LoadLevel ("pv_assemblybuilder");
+        SceneManager.LoadScene ("pv_assemblybuilder");
 	}
 
 	public void Quit () {

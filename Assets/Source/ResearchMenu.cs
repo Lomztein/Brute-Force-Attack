@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.IO;
+using System;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class ResearchMenu : MonoBehaviour {
 
@@ -31,10 +34,11 @@ public class ResearchMenu : MonoBehaviour {
 
 	public void Initialize () {
 		cur = this;
+        isOpen = true;
 		InitializeResearchMenu ();
 		InitializeMultipliers ();
 		InitializeStatics ();
-		startPos = transform.position;
+		startPos = transform.localPosition;
 		ToggleResearchMenu ();
 		UpdateButtons ();
 	}
@@ -52,7 +56,7 @@ public class ResearchMenu : MonoBehaviour {
 		FireProjectile.fireWidth = 0.2f;
 		BaseModule.enableAdvancedTracking = false;
 		HomingProjectile.autoFindTarget = false;
-		ChargingBeamWeapon.chargeSpeedMultiplier = 1f;
+		FocusBeamWeapon.chargeSpeedMultiplier = 1f;
 		SplitterHomingProjectile.amount = 0;
 		SlowfieldArea.staticMultiplier = 1f;
 		TeslaProjectile.chainAmount = 0;
@@ -61,12 +65,20 @@ public class ResearchMenu : MonoBehaviour {
 	public void ToggleResearchMenu () {
 		if (isOpen) {
 			isOpen = false;
-			transform.position += Vector3.right * 100000;
+			transform.localPosition += Vector3.right * 100000;
 		}else{
 			isOpen = true;
-			transform.position = startPos;
+			transform.localPosition = startPos;
 		}
+
+        UpdateButtonActiveness ();
 	}
+
+    void UpdateButtonActiveness () {
+        for (int i = 0; i < buttons.Count; i++) {
+            buttons[i].SetActive (isOpen);
+        }
+    }
 
 	public static void InitializeMultipliers () {
 		int types = 7;
@@ -115,7 +127,6 @@ public class ResearchMenu : MonoBehaviour {
 	public void InvalidateButton (GameObject b, int index) {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
-		b.transform.GetChild (0).GetComponent<Image>().color /= 2f;
 		// IncreaseAllCost ();
 		b.GetComponent<HoverContextElement> ().text = research [index].name + ", Researched";
 
@@ -123,8 +134,8 @@ public class ResearchMenu : MonoBehaviour {
 			assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
 		}
 
-		Destroy (research[index]);
-		research[index] = null;
+		//Destroy (research[index]);
+		//research[index] = null;
 		UpdateButtons ();
 	}
 
@@ -195,13 +206,19 @@ public class ResearchMenu : MonoBehaviour {
 
 	bool CheckButtonAvailable (Research research) {
 		Image image = research.button.transform.GetChild (0).GetComponent<Image>();
-		if (research.y > Game.research) {
+
+        if (research.isBought) {
+            image.color /= 2f;
+            return false;
+        }
+
+        if (research.y > Game.research) {
 			image.color = Color.black;
 			return false;
 		}
 
-		if (research.prerequisite != null) {
-			if (!research.prerequisite.isBought) {
+		if (research.prerequisite != -1) {
+			if (!research.GetPrerequisite ().isBought) {
 				image.color = Color.black;
 				return false;
 			}
@@ -212,7 +229,7 @@ public class ResearchMenu : MonoBehaviour {
 			return true;
 		}
 
-		return true;
+        return true;
 	}
 	                                          
 
@@ -236,28 +253,95 @@ public class ResearchMenu : MonoBehaviour {
 			u.index = i;
 			u.y++;
 
+            u.highlighter = newU.transform.FindChild ("Highlighter").GetComponent<Image> ();
 			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
+
+            newU.transform.localScale = Vector3.one;
 		}
 
 		for (int i = 0; i < research.Count; i++) {
 			Research r = research[i];
-			if (r.prerequisite && r.name != "") {
+			if (r.prerequisite != -1 && r.name != "") {
 
-				Vector3 pPos = r.button.transform.position + (r.prerequisite.button.transform.position - r.button.transform.position) / 2;
-				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform, r.prerequisite.button.transform));
+				Vector3 pPos = r.button.transform.position + (r.GetPrerequisite ().button.transform.position - r.button.transform.position) / 2;
+				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
 				GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
 				RectTransform lr = line.GetComponent<RectTransform>();
-				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.position, r.prerequisite.button.transform.position), 10);
+				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
 				line.transform.SetParent (lineParent, true);
+
+                lr.transform.localScale = Vector3.one;
 
 			}
 		}
-	}
 
-	void AddPurchaseButtonListener (Button button, int index) {
+        UpdateButtonActiveness ();
+    }
+
+    // I should not be having to do this, but apparently Unity finds it fun to delete the entire Research tree from time to time.
+    // Also, for whatever reason, classes without inheritance doesn't work well with a self-type member, and ScriptableObjects
+    // are unable to be serialized to an external file, essentially locking them to a scene. This is fucking horrible Unity.
+    // I mean if you're already going to write the code to save them in a file amongst a whole load of other junk, why the
+    // fuck aren't we able to just save them to a file by themselves? Whomever wrote that code should step on a lego or something.   /rant
+    [System.Serializable]
+    private class SimpleResearch {
+        public string name;
+        public string desc;
+        public string func;
+        public int value;
+
+        public Colour colour;
+
+        public int x;
+        public int y;
+
+        public int prerequisite;
+
+        public SimpleResearch (Research res) {
+            name = res.name;
+            desc = res.desc;
+            func = res.func;
+            value = res.value;
+            colour = res.colour;
+            x = res.x;
+            y = res.y;
+            prerequisite = res.prerequisite;
+        }
+    }
+    public void SaveBackup () {
+        for (int i = 0; i < research.Count; i++) {
+            BinaryFormatter bf = new BinaryFormatter ();
+            FileStream file = File.Create (Game.RESEARCH_BACKUP_DATA_DIRECTORY + research[i].name + ".dat");
+
+            bf.Serialize (file, new SimpleResearch (research[i]));
+            file.Close ();
+        }
+    }
+
+    public void LoadResearchBackup () {
+
+        string fullFile = Game.RESEARCH_BACKUP_DATA_DIRECTORY + "BACKUP.dat";
+
+        if (File.Exists (fullFile)) {
+
+            BinaryFormatter bf = new BinaryFormatter ();
+            FileStream file = File.Open (fullFile, FileMode.Open);
+
+            Research[] data = (Research[])bf.Deserialize (file);
+            file.Close ();
+        }
+    }
+
+    public void ResearchAll () {
+        for (int i = 0; i < research.Count; i++) {
+            research[i].Purchase ();
+        }
+    }
+
+    void AddPurchaseButtonListener (Button button, int index) {
 		button.onClick.AddListener (() => {
 			research[index].Purchase ();
 		});
@@ -333,7 +417,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void IncreaseBeamCannonChargeSpeed (Research research) {
-		ChargingBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
+		FocusBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
 	}
 
 	public void EnableSmallRocketLauncherSplit (Research research) {

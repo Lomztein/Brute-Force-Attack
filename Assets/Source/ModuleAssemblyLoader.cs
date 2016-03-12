@@ -70,14 +70,22 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 				if (part.isRoot) {
 					rootModule = module.gameObject;
 					module.moduleIndex = 1;
-				}
 
-				module.moduleIndex = part.index;
+                    module.assemblyName = assembly.assemblyName;
+                    module.assemblyDesc = assembly.assemblyDesc;
+                    module.assembly = assembly;
+
+                    HoverContextElement el = module.gameObject.AddComponent<HoverContextElement> ();
+                    el.isWorldElement = true;
+                }
+
+                module.moduleIndex = part.index;
 				module.parentIndex = part.parentIndex;
 
 				module.transform.localPosition = new Vector3 (part.x, part.y);
 				module.transform.eulerAngles = new Vector3 (0,0, part.angle);
 
+                rootModule.GetComponent<Module> ().modules.Add (module);
 			}
 		}
 

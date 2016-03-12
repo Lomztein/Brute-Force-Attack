@@ -23,7 +23,7 @@ public class SawmillSaw : MonoBehaviour {
 	IEnumerator Attack () {
 		float charge = 0f;
 		while (charge < attackWaitTime) {
-			particle.emissionRate = Mathf.Lerp (0, maxEmmisionSpeed, charge / attackWaitTime);
+            Utility.ChangeParticleEmmisionRate (particle, Mathf.Lerp (0, maxEmmisionSpeed, charge / attackWaitTime));
 			charge += Time.fixedDeltaTime;
 			yield return new WaitForFixedUpdate ();
 		}
@@ -39,7 +39,10 @@ public class SawmillSaw : MonoBehaviour {
 		float remainingSpeed = speed;
 		while (remainingSpeed > 0.2f) {
 			CastRay (remainingSpeed);
-			particle.emissionRate = Mathf.Lerp (0, maxEmmisionSpeed, remainingSpeed / speed);
+
+            ParticleSystem.EmissionModule em = particle.emission;
+            float rate = Mathf.Lerp (0, maxEmmisionSpeed, remainingSpeed / speed);
+            em.rate = new ParticleSystem.MinMaxCurve (rate);
 			trailRenderer.startWidth = Mathf.Lerp (0, 1, remainingSpeed / speed);
 			transform.position += transform.rotation * Vector3.right * remainingSpeed * Time.fixedDeltaTime;
 			remainingSpeed *= dampen;

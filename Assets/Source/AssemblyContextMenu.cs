@@ -6,7 +6,7 @@ using System.Linq;
 
 public class AssemblyContextMenu : MonoBehaviour {
 
-	public Image moduleImage;
+	public RawImage moduleImage;
 	public Text moduleName;
 	public Text moduleDesc;
 	public Text moduleStats;
@@ -36,6 +36,10 @@ public class AssemblyContextMenu : MonoBehaviour {
 			rootModule.assemblyDesc = moduleDesc.text;
 			rootModule.assemblyName = moduleName.text;
 		}
+
+        if (Input.GetMouseButtonDown (1))
+            if (ModuleMod.currentMenu[0])
+                Destroy (ModuleMod.currentMenu[0]);
 	}
 
 	public void SellAssembly () {
@@ -56,52 +60,50 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
     void UpdateStats () {
-        moduleStats.text = rootModule.GetAssemblyDPS ().ToString () + " - ";
+        moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
+            " - \n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
+            " - \n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString() + " - ";
+        rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
     }
 
 	public void UpgradeAssembly (int t) {
 		Module.Type type = (Module.Type)t;
-
-		if (Game.currentScene == Scene.Play && Game.credits >= GetUpgradeCost (t)) {
-
-			Module m = null;
-			bool canUpgrade = true;
-
-			foreach (Module module in modules) {
-				if (module.moduleType == type) {
-					m = module;
-					canUpgrade = !module.UpgradeModule ();
-				}
-			}
-
-			Game.credits -= GetUpgradeCost (t);
+		if (Game.currentScene == Scene.Play && Game.credits >= rootModule.GetUpgradeCost (t)) {
+            bool canUpgrade = rootModule.UpgradeAssembly (t);
+		
 			upgradeButton[t].interactable = canUpgrade;
-			rootModule.upgradeButtonDisabled[t] = !canUpgrade;
-			ChangeUpgradeCostText (t, GetUpgradeCost (t).ToString ());
+            UpdateUpgradeCostText (t);
 		}
 
         UpdateStats ();
 	}
 
-	void ChangeUpgradeCostText (int buttonIndex, string newText) {
-		upgradeButton[buttonIndex].GetComponent<HoverContextElement>().text = "Upgrade " + ((Module.Type)buttonIndex).ToString () + "s: " + newText + " credits";
-	}
+    void AddTreeButtonListener (Button button, int index) {
+        button.onClick.AddListener (() => {
+            OpenModuleMods (index);
+        });
+    }
 
-	public int GetUpgradeCost (int t) {
-
-		int cost = 0;
+    void UpdateUpgradeCostText (int t) {
 		Module.Type type = (Module.Type)t;
+        if (!rootModule.IsAssemblyUpgradeable (t)) {
+            ChangeUpgradeCostText (t, "Upgrade " + type.ToString () + "s, Maxed Out");
+        } else {
+            ChangeUpgradeCostTextPrebuild (t, rootModule.GetUpgradeCost (t).ToString ());
+        }
+    }
 
-		foreach (Module module in modules) {
-			if (module.moduleType == type) {
-				cost += module.upgradeCost;
-			}
-		}
-
-		return cost;
+	void ChangeUpgradeCostTextPrebuild (int buttonIndex, string newText) {
+		ChangeUpgradeCostText (buttonIndex, "Upgrade " + ((Module.Type)buttonIndex).ToString () + "s: " + newText + " credits");
 	}
 
-	public void SaveModuleAssembly () {
+    void ChangeUpgradeCostText (int buttonIndex, string newText) {
+        HoverContextElement el = upgradeButton[buttonIndex].GetComponent<HoverContextElement> ();
+        el.text = newText;
+        el.ForceUpdate ();
+    }
+
+    public void SaveModuleAssembly () {
 		rootModule.SaveModuleAssembly (rootModule.rootModule.assemblyName);
 	}
 
@@ -110,7 +112,9 @@ public class AssemblyContextMenu : MonoBehaviour {
 		modules.Clear ();
 		gameObject.SetActive (false);
 		rangeIndicator.NullifyParent ();
-	}
+        if (ModuleMod.currentMenu[0])
+            Destroy (ModuleMod.currentMenu[0]);
+    }
 
 	void GetRange (float range) {
 		indicatorRange = range;
@@ -123,7 +127,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 
 		for (int i = 0; i < upgradeButton.Length; i++) {
 			Module.Type type = (Module.Type)i;
-			ChangeUpgradeCostText (i, GetUpgradeCost (i).ToString ());
+			ChangeUpgradeCostText (i, rootModule.GetUpgradeCost (i).ToString ());
 			
 			foreach (Module module in modules) {
 				if (module.moduleType == type) {
@@ -141,12 +145,14 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void UpdateUpgradeButtons () {
-		for (int i = 0; i < upgradeButton.Length; i++)
-			if (GetUpgradeCost (i) >= Game.credits || rootModule.upgradeButtonDisabled[i]) {
-				upgradeButton[i].interactable = false;
-			}else{
-				upgradeButton[i].interactable = true;
-		}
+        for (int i = 0; i < upgradeButton.Length; i++) {
+            UpdateUpgradeCostText (i);
+            if (rootModule.GetUpgradeCost (i) >= Game.credits || rootModule.upgradeButtonDisabled[i]) {
+                upgradeButton[i].interactable = false;
+            } else {
+                upgradeButton[i].interactable = true;
+            }
+        }
 	}
 
 	public void UpdateModuleTree () {
@@ -158,7 +164,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		OpenRangeIndicator ();
 
 		Dictionary<string, int> loc = new Dictionary<string, int>();
-		List<string> indexedNames = new List<string>();
+		// List<string> indexedNames = new List<string>();
 		int count = 0;
 
 		for (int i = 0; i < modules.Count; i++) {
@@ -182,11 +188,13 @@ public class AssemblyContextMenu : MonoBehaviour {
 
 			button.transform.FindChild ("Image").GetComponent<Image>().sprite = m.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			button.GetComponentInChildren<Text>().text = "x " + loc[lName];
+            AddTreeButtonListener (button.GetComponent<Button> (), i);
 			moduleTreeButtons[i] = button;
 		}
 
 		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x, count * 60f + 5 - treeScrollContext.rect.height);
         UpdateStats ();
+        UpdateDescText ();
 	}
 
 	void UpdateRangeIndicator () {
@@ -205,11 +213,18 @@ public class AssemblyContextMenu : MonoBehaviour {
 		}
 	}
 
-	void UpdateDescText () {
-		moduleDesc.text = rootModule.assemblyDesc;
-	}
+    public void OpenModuleMods (int index) {
+        ModuleMod.OpenMods (Input.mousePosition, modules[index].moduleMods, 0, modules[index]);
+    }
 
-	/*public void OpenFocusModule (Module module) {
+	void UpdateDescText () {
+        moduleName.text = rootModule.assemblyName;
+		moduleDesc.text = rootModule.assemblyDesc;
+        moduleImage.texture = rootModule.assembly.texture;
+        UpdateRangeIndicator ();
+    }
+
+    /*public void OpenFocusModule (Module module) {
 		this.rootModule = module;
 		UpdateRangeIndicator ();
 

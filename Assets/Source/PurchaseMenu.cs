@@ -44,6 +44,7 @@ public class PurchaseMenu : MonoBehaviour {
 	public void Initialize () {
 		cur = this;
 		stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
+        CollectAllPurchaseables ();
 
 		if (Game.currentScene == Scene.AssemblyBuilder)
 			LoadStandardButtons ();
@@ -79,7 +80,6 @@ public class PurchaseMenu : MonoBehaviour {
 			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
 			button.assembly = assemblies[i];
 
-			button.OnResearchUnlocked ();
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
 			button.Initialize ();
 			index[i % 2]++;
@@ -118,6 +118,7 @@ public class PurchaseMenu : MonoBehaviour {
 			ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
 			loader.LoadAssembly (assembly);
 			Destroy (ass);
+            
 		}
 	}
 
@@ -215,8 +216,8 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public static void UpdateButtons () {
-		PurchaseMenu menu = PurchaseMenu.cur;
-		int index = 0;
+		//PurchaseMenu menu = PurchaseMenu.cur;
+		//int index = 0;
 		/*foreach (GameObject mod in menu.currentMenu) {
 
 			if (menu.buttons != null && menu.buttons[index]) {
@@ -239,7 +240,7 @@ public class PurchaseMenu : MonoBehaviour {
 		// I'm really just hacking this stuff together at this point.
 
 		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
-			butt.button.interactable = butt.cost <= Game.credits;
+            butt.ButtonUpdate ();
 		}
 	}
 

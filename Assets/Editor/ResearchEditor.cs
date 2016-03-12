@@ -35,11 +35,11 @@ public class ResearchEditor : EditorWindow {
 				}
 			}
 
-			if (u.prerequisite != null) {
-				Vector2 o = new Vector2 (position.width/2 + 10 + (u.x - u.prerequisite.x) * 15, 20);
+			if (u.prerequisite != -1) {
+				Vector2 o = new Vector2 (position.width/2 + 10 + (u.x - u.GetPrerequisite ().x) * 15, 20);
 				Drawing.DrawLine (
 					new Vector2 (u.x, u.y) * 30 - offset + o
-				  , new Vector2 (u.prerequisite.x, u.prerequisite.y) * 30 - offset + o
+				  , new Vector2 (u.GetPrerequisite ().x, u.GetPrerequisite().y) * 30 - offset + o
 				  , Color.black, 2, false);
 			}
 		}else{
@@ -56,7 +56,7 @@ public class ResearchEditor : EditorWindow {
 		}
 
 		if (action == Action.CloningResearch) {
-			Research r = Research.CreateInstance <Research>();
+            Research r = new Research ();
 			r.x = x;
 			r.y = y;
 			r.colour = focusResearch.colour;
@@ -65,6 +65,8 @@ public class ResearchEditor : EditorWindow {
 			r.func = focusResearch.func;
 			r.value = focusResearch.value;
 			r.sprite = focusResearch.sprite;
+            r.index = research.research.Count;
+            r.prerequisite = -1;
 			research.research.Add (r);
 		}
 
@@ -82,10 +84,12 @@ public class ResearchEditor : EditorWindow {
 
 					offset.y = GUI.VerticalSlider (new Rect (position.width - 15, 5, 10, position.height - 10), offset.y, position.height, 0);
 					if (GUI.Button (new Rect (position.width / 3, position.height - 25, position.width / 3, 20), "Add Research")) {
-						research.research.Add (Research.CreateInstance<Research>());
-						SelectResearch (research.research[research.research.Count-1]);
-						state = WindowState.All;
-						action = Action.MovingResearch;
+						research.research.Add (new Research ());
+                        SelectResearch (research.research[research.research.Count-1]);
+                        research.research[research.research.Count - 1].index = research.research.Count - 1;
+                        research.research[research.research.Count - 1].prerequisite = -1;
+                        state = WindowState.All;
+                        action = Action.MovingResearch;
 					}
 					
 					for (int i = 0; i < research.research.Count; i++) {
@@ -138,7 +142,7 @@ public class ResearchEditor : EditorWindow {
 			}
 
 			if (state == WindowState.Research) {
-				if (!focusResearch) {
+				if (focusResearch == null) {
 					state = WindowState.All;
 					action = Action.Default;
 				}
@@ -148,10 +152,10 @@ public class ResearchEditor : EditorWindow {
 				focusResearch.value = EditorGUILayout.IntField ("Value: ",focusResearch.value);
 				focusResearch.sprite = (Sprite)EditorGUILayout.ObjectField ("Sprite: ",focusResearch.sprite, typeof (Sprite), false);
 				focusResearch.colour = (Colour)EditorGUILayout.EnumPopup ("Colour: ", focusResearch.colour);
-				if (focusResearch.prerequisite != null) {
-					if (GUILayout.Button ("Remove Prerequisite: " + focusResearch.prerequisite.name)) {
+				if (focusResearch.prerequisite != -1) {
+					if (GUILayout.Button ("Remove Prerequisite: " + focusResearch.GetPrerequisite ().name)) {
 						Debug.Log ("Removing Prerequisitite");
-						focusResearch.prerequisite = null;
+						focusResearch.prerequisite = -1;
 					}
 				}else{
 					if (GUILayout.Button ("Add Prerequisite")) {
@@ -172,11 +176,14 @@ public class ResearchEditor : EditorWindow {
 
 				if (GUILayout.Button ("Delete")) {
 					research.research.Remove (focusResearch);
-					DestroyImmediate (focusResearch);
 					state = WindowState.All;
 					action = Action.Default;
 					focusResearch = null;
 				}
+
+                if (GUILayout.Button ("Suggest Name")) {
+                    focusResearch.name = SuggestTitle (focusResearch);
+                }
 
 				if (GUILayout.Button ("Return")) {
 					state = WindowState.All;
@@ -187,12 +194,35 @@ public class ResearchEditor : EditorWindow {
 		}
 	}
 
+    private string SuggestTitle (Research r) {
+        switch (r.func) {
+            case "UnlockModule":
+                return "Research the " + research.unlockableModules[r.value].GetComponent<Module> ().moduleName + " module";
+
+            case "UnlockSpecialModule":
+                return "Research the specialized " + research.unlockableModules[r.value].GetComponent<Module> ().moduleName + " module";
+
+            case "IncreaseFirerate":
+                return "Increase " + r.colour.ToString ().ToLower () + " firerate by " + r.value.ToString () + "%";
+            case "IncreaseDamage":
+                return "Increase " + r.colour.ToString ().ToLower () + " damage by " + r.value.ToString () + "%";
+            case "DecreaseCost":
+                return "Decrease " + r.colour.ToString ().ToLower () + " cost by " + r.value.ToString () + "%";
+            case "IncreaseRange":
+                return "Increase base range by " + r.value.ToString () + "%";
+            case "IncreaseTurnrate":
+                return "Increase rotator turnrate by " + r.value.ToString () + "%";
+            default:
+                return r.name;
+        }
+    }
+
 	void SelectResearch (Research u) {
 		if (action == Action.Default)
 			focusResearch = u;
 
 		if (action == Action.ChoosingPrerequisite) {
-			focusResearch.prerequisite = u;
+			focusResearch.prerequisite = u.index;
 			action = Action.Default;
 		}
 

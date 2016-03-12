@@ -37,7 +37,7 @@ public class Pathfinding : MonoBehaviour {
 		for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
 			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);
 		}
-		finder.Invoke ("ResetIndex", EnemySpawn.readyWaitTime);
+		finder.Invoke ("ResetIndex", EnemyManager.readyWaitTime);
 	}
 
 	void ResetIndex () {
@@ -50,7 +50,7 @@ public class Pathfinding : MonoBehaviour {
 			index++;
 
 			if (index == width) {
-				EnemySpawn.cur.StartCoroutine (EnemySpawn.cur.PoolBaddies ());
+				EnemyManager.cur.StartCoroutine (EnemyManager.cur.PoolBaddies ());
 			}
 		}
 	}
@@ -68,7 +68,6 @@ public class Pathfinding : MonoBehaviour {
 
                 int xx = Mathf.RoundToInt (pos.x);
 				int yy = Mathf.RoundToInt (pos.y);
-                Debug.Log (xx + ", " + yy);
 
                 if (finder.IsInsideField (xx,yy)) {
 					

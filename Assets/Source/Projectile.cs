@@ -10,12 +10,15 @@ public class Projectile : MonoBehaviour {
 	public Transform target;
 	public bool destroyOnTime = false;
 	public bool penetrative = false;
-	public GameObject hitParticle;
 	public Weapon parentWeapon;
 
 	public bool hitOnlyTarget;
 	public Colour effectiveAgainst;
+
 	public ParticleSystem particle;
+    public ParticleSystem hitParticle;
+    public int particleCount;
+
 	public float bulletSleepTime = 1f; // Should be synced with particle fadeout time.
 
 	// Update is called once per frame
@@ -63,8 +66,12 @@ public class Projectile : MonoBehaviour {
 
 	public virtual void OnHit (RaycastHit hit) {
 		hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
-		if (hitParticle) Destroy ((GameObject)Instantiate (hitParticle, hit.point, transform.rotation), 1f);
-		if (!penetrative) ReturnToPool ();
+        if (hitParticle) {
+            hitParticle.Emit (particleCount);
+            hitParticle.transform.position = hit.point;
+            hitParticle.transform.rotation = transform.rotation;
+        }
+        if (!penetrative) ReturnToPool ();
 	}
 
 	public void ReturnToPool () {
@@ -73,6 +80,9 @@ public class Projectile : MonoBehaviour {
 				particle.transform.parent = null;
 				particle.Stop ();
 			}
+            if (hitParticle) {
+                hitParticle.transform.parent = null;
+            }
 			gameObject.SetActive (false);
 			CancelInvoke ("ReturnToPool");
 			Invoke ("ActuallyReturnToPoolGoddammit", bulletSleepTime + 0.1f);
@@ -85,7 +95,8 @@ public class Projectile : MonoBehaviour {
 			particle.transform.position = transform.position;
 			particle.transform.rotation = transform.rotation;
 		}
-		if (parentWeapon) {
+
+        if (parentWeapon) {
 			parentWeapon.ReturnBulletToPool (gameObject);
 		}else{
 			Destroy (gameObject);

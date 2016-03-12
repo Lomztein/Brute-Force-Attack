@@ -43,35 +43,45 @@ public class RotatorModule : Module {
 	}
 
 	void Turn () {
-		if (EnemySpawn.waveStarted) {
+		if (EnemyManager.waveStarted) {
 			angleToTarget = transform.eulerAngles.z;
 		}else{
 			angleToTarget = defualtRot;
 		}
-		if (type == RotatorType.Standard) {
+        switch (type) {
+            case RotatorType.Standard:
 
-			if (parentBase)
-				if (parentBase.target)
-					angleToTarget = Angle.CalculateAngle (transform.position, parentBase.targetPos);
+			    if (parentBase)
+				    if (parentBase.target)
+					    angleToTarget = Angle.CalculateAngle (transform.position, parentBase.targetPos);
 
-			RotateToAngle ();
-		}else if (type == RotatorType.Sprayer) {
-			if (EnemySpawn.waveStarted) {
-				angleToTarget = defualtRot + Mathf.Sin (Time.time * (360 / turnSpeed)) * sprayAngle;
-				RotateToAngle ();
-			}
-		}else if (type == RotatorType.Spinner && EnemySpawn.waveStarted) {
-			transform.Rotate (0,0,turnSpeed * ResearchMenu.turnrateMul * Time.deltaTime);
+			    RotateToAngle ();
+                break;
+
+            case RotatorType.Sprayer:
+			    if (EnemyManager.waveStarted) {
+				    angleToTarget = defualtRot + Mathf.Sin (Time.time * (360 / GetSpeed ())) * sprayAngle;
+				    RotateToAngle ();
+			    }
+                break;
+            case RotatorType.Spinner:
+                if (EnemyManager.waveStarted)
+                    angleToTarget += GetSpeed ();
+                break;
 		}
 	}
 
-	float GetSpeed () {
+	public float GetSpeed () {
 		return turnSpeed * ResearchMenu.turnrateMul * upgradeMul * torqueSpeedMul;
 	}
 
 	void RotateToAngle () {
 		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), GetSpeed () * Time.deltaTime);
 	}
+
+    public void OnToggleModType (int index) {
+        type = (RotatorType)index;
+    }
 
 	public override string ToString () {
 		return "Turn speed: " + GetSpeed ().ToString () + " - \nWeight: " + 

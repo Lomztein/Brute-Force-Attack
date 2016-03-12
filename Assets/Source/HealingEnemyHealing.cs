@@ -11,7 +11,7 @@ public class HealingEnemyHealing : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		healSpeed *= EnemySpawn.gameProgress;
+		healSpeed *= EnemyManager.gameProgress;
 		healMax = enemy.health;
 	}
 	

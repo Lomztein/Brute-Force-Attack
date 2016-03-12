@@ -15,7 +15,9 @@ public class Weapon : MonoBehaviour {
 	public float maxRange;
 	public Transform target;
 	public GameObject fireParticle;
+
 	public float upgradeMul = 1f;
+    public float damageUpgradeMul = 1f;
 
 	public float damageMul = 1f;
 	public float firerateMul = 1f;
@@ -72,7 +74,7 @@ public class Weapon : MonoBehaviour {
 				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * upgradeMul);
+				pro.damage = (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul);
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 				pro.Initialize ();
@@ -88,16 +90,16 @@ public class Weapon : MonoBehaviour {
 
 	}
 
-	public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position) {
+	public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
 		if (canFire) {
 			if (!rotator) {
-				StartCoroutine ("DoFire");
+				StartCoroutine (fireFunc);
 				return;
 			}
 			float angle = Angle.CalculateAngle (rotator.transform.position, position);
 			pointer.eulerAngles = new Vector3 (0,0,angle);
 			if (Vector3.Distance (rotator.transform.eulerAngles, pointer.eulerAngles) < 1f) {
-				StartCoroutine ("DoFire");
+				StartCoroutine (fireFunc);
 			}
 		}
 	}

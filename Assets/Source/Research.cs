@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
-public class Research : ScriptableObject {
+[System.Serializable]
+public class Research {
 
+    public string name;
 	public string desc;
 	public string func;
-	public Sprite sprite;
+    public Sprite sprite;
 	public int value;
 
 	public Colour colour;
@@ -13,16 +16,26 @@ public class Research : ScriptableObject {
 	public int x;
 	public int y;
 
-	public Research prerequisite;
+	public int prerequisite;
 
 	public int index;
+    [System.NonSerialized]
 	public bool isBought;
-	public GameObject button;
+    [System.NonSerialized]
+    public GameObject button;
+    [System.NonSerialized]
+    public Image highlighter;
+
+    public Research GetPrerequisite () {
+        if (Game.game)
+            return Game.game.researchMenu.research[prerequisite];
+        return GameObject.Find ("ResearchMenu").GetComponent<ResearchMenu> ().research[prerequisite];
+    }
 
 	public void Purchase () {
 		if (Game.research >= y) {
-			if (prerequisite) {
-				if (prerequisite.isBought) {
+			if (prerequisite != -1) {
+				if (GetPrerequisite ().isBought) {
 					DoPurchase ();
 				}
 			}else{
