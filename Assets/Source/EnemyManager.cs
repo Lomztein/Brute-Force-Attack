@@ -127,6 +127,7 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void UpdateAmountModifier () {
+        amountModifier = waveMastery;
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
             amountModifier = (int)((float)waveMastery * 10f);
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
@@ -138,7 +139,7 @@ public class EnemyManager : MonoBehaviour {
         int destroyPerTick = Mathf.CeilToInt ((float)spawnedEnemies.Count / readyWaitTime * Time.fixedDeltaTime);
 
         for (int i = 0; i < spawnedEnemies.Count; i++) {
-            Destroy (spawnedEnemies[i]);
+            Destroy (spawnedEnemies[i].gameObject);
             if (i % destroyPerTick == 0)
                 yield return new WaitForFixedUpdate ();
         }
