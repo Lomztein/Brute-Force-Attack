@@ -41,7 +41,7 @@ public class EnemyManager : MonoBehaviour {
 	public GameObject endBoss;
 	private Dictionary<Wave.Enemy, List<GameObject>> pooledEnemies = new Dictionary<Wave.Enemy, List<GameObject>> ();
 	public Transform enemyPool;
-    private Enemy[] spawnedEnemies = new Enemy[0];
+    private List<Enemy> spawnedEnemies = new List<Enemy> ();
 
 	public static EnemyManager cur;
 
@@ -65,13 +65,17 @@ public class EnemyManager : MonoBehaviour {
 		AddFinalBoss ();
 	}
 
+    public static void AddEnemy (Enemy enemy) {
+        cur.spawnedEnemies.Add (enemy);
+    }
+
     void FixedUpdate () {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
         mousePos.z = 0;
 
 
         // Enemy movement code:
-        for (int i = 0; i < spawnedEnemies.Length; i++) {
+        for (int i = 0; i < spawnedEnemies.Count; i++) {
             if (spawnedEnemies[i] && spawnedEnemies[i].gameObject.activeSelf) {
 
                 Enemy enemy = spawnedEnemies[i];
@@ -114,6 +118,7 @@ public class EnemyManager : MonoBehaviour {
                         }
                     } else if (Vector3.Distance (enemy.transform.position, mousePos) < 5f) {
                         enemy.healthSlider.transform.SetParent (Game.game.worldCanvas.transform);
+                        enemy.healthSlider.transform.rotation = Quaternion.identity;
                         //enemy.healthSlider.gameObject.SetActive (true);
                     }
                 }
@@ -130,15 +135,15 @@ public class EnemyManager : MonoBehaviour {
     }
 
     private IEnumerator CleanEnemyArray () {
-        int destroyPerTick = Mathf.CeilToInt ((float)spawnedEnemies.Length / readyWaitTime * Time.fixedDeltaTime);
+        int destroyPerTick = Mathf.CeilToInt ((float)spawnedEnemies.Count / readyWaitTime * Time.fixedDeltaTime);
 
-        for (int i = 0; i < spawnedEnemies.Length; i++) {
+        for (int i = 0; i < spawnedEnemies.Count; i++) {
             Destroy (spawnedEnemies[i]);
             if (i % destroyPerTick == 0)
                 yield return new WaitForFixedUpdate ();
         }
 
-        spawnedEnemies = new Enemy[0];
+        spawnedEnemies.Clear ();
     }
 
 	void AddFinalBoss () {
@@ -213,7 +218,7 @@ public class EnemyManager : MonoBehaviour {
 			spawnQueue.Dequeue ();
 		}
 
-        spawnedEnemies = toArray.ToArray ();
+        spawnedEnemies = toArray;
 		Invoke ("StartWave", readyWaitTime - (Time.time - startTime));
 		yield return null;
 	}

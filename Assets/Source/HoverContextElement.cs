@@ -13,13 +13,13 @@ public class HoverContextElement : MonoBehaviour {
 		collider = GetComponent<Collider>();
 	}
 
-	void OnMouseEnter () {
+	void OnMouseEnterElement () {
 		HoverContext.ChangeText (text);
 	}
 
-	void OnMouseExit () {
+	void OnMouseExitElement () {
 		HoverContext.ChangeText ("");
-	}
+    }
 
 	void FixedUpdate () {
 		RaycastHit hit;
@@ -30,17 +30,20 @@ public class HoverContextElement : MonoBehaviour {
         }
 
 		Ray ray = new Ray ((Vector3)(Vector2)pos + Vector3.back * 5f, Vector3.forward * 10f);
+        Debug.DrawRay (ray.origin, ray.direction + Vector3.right);
+        bool raycast = collider.Raycast (ray, out hit, 100);
 
-        if (collider.Raycast (ray, out hit, 100)) {
-            if (!activeElement) {
-                SendMessage ("OnMouseEnter");
+        // This code might cause cancer, need optimizations if possible. I mean, you might as well just use Rect.Contains ().
+        if (activeElement == null) {
+            if (raycast) {
+                SendMessage ("OnMouseEnterElement");
                 activeElement = this;
             }
-		}else if (activeElement = this) {
-
-            SendMessage ("OnMouseExit");
-			OnMouseExit ();
-            activeElement = null;
+		}else if (activeElement == this) {
+            if (!raycast) {
+                SendMessage ("OnMouseExitElement");
+                activeElement = null;
+            }
 		}
 
         if (activeElement == this && Input.GetMouseButtonDown (0)) {

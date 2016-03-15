@@ -90,9 +90,6 @@ public class ModuleMod {
             return;
         }
 
-        if (currentMenu == null)
-            currentMenu = new GameObject[MAX_DEPTH];
-
         if (currentMenu[depth]) {
             GameObject.Destroy (currentMenu[depth]);
             List<GameObject> newList = new List<GameObject> ();

@@ -116,8 +116,6 @@ public class Enemy : MonoBehaviour {
 		}
 
 		if (health < 0) {
-            gameObject.SetActive (false);
-            if (healthSlider) healthSlider.transform.SetParent (transform);
 
 			if (!isDead) {
 				isDead = true;
@@ -130,8 +128,10 @@ public class Enemy : MonoBehaviour {
 				if (Random.Range (0, researchDropChance) == 0)
 					Instantiate (researchPoint, transform.position, Quaternion.identity);
 			}
-		}
-	}
+            if (healthSlider) healthSlider.transform.SetParent (transform);
+            gameObject.SetActive (false);
+        }
+    }
 
 	void OnCollisionEnter (Collision col) {
 
@@ -167,6 +167,7 @@ public class Enemy : MonoBehaviour {
 			nearest[i].GetComponent<SpriteRenderer>().color = Color.red;
 		}
 
+        if (healthSlider) healthSlider.transform.SetParent (transform);
         gameObject.SetActive (false);
 		EnemyManager.cur.OnEnemyDeath ();
 	}

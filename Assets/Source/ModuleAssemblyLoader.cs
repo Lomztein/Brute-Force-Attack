@@ -87,6 +87,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 
                 rootModule.GetComponent<Module> ().modules.Add (module);
 			}
+
 		}
 
 		// Set parents
@@ -105,9 +106,9 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 		PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
 		PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0,0, 90);
 		PlayerInput.cur.currentCost = totalCost;
-	}
+    }
 
-	public static void ConvertLegacyAssemblyFiles () {
+    public static void ConvertLegacyAssemblyFiles () {
 		string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
 
 		for (int i = 0; i < files.Length; i++) {

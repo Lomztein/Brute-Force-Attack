@@ -14,6 +14,7 @@ public class SplitterEnemySplit : MonoBehaviour {
 
 			that.path = my.path;
 			that.pathIndex = my.pathIndex;
+            EnemyManager.AddEnemy (that);
 		}
 	}
 

@@ -25,6 +25,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
     public ColorBlock unselectedColors;
     public ColorBlock selectedColors;
+    public Button startButton;
 
     [Header ("Graphics")]
 	public Text header;
@@ -124,6 +125,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 			GetAssemblyDescData (tempLoaded[i], out cost, out rootClass, out tech);
 
 			buttons[buttons.Count - 1].transform.FindChild ("DescText").GetComponent<Text>().text = "Cost: " + cost.ToString () + " - Class: " + rootClass.ToString () + " - Tech Level: " + tech.ToString();
+            buttons[buttons.Count - 1].transform.name = tech.ToString ();
         }
     }
 
@@ -189,6 +191,19 @@ public class AssembliesSelectionMenu : MonoBehaviour {
             }
         }
 
-		footer.text = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+        string message = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+        startButton.interactable = true;
+
+        bool anyZero = false;
+        for (int i = 0; i < selected.Count; i++) {
+            if (int.Parse (selected[i].name) == 0)
+                anyZero = true;
+        }
+        if (!anyZero) {
+            message = "No tier 0 detected";
+            startButton.interactable = false;
+        }
+
+        footer.text = message;
     }
 }

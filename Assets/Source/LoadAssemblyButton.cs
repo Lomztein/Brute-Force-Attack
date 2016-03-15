@@ -27,11 +27,11 @@ public class LoadAssemblyButton : MonoBehaviour {
         ButtonUpdate ();
     }
 
-    void OnMouseEnter () {
+    void OnMouseEnterElement () {
         assembly.ChangeHighlightRequiredResearch (true);
     }
 
-    void OnMouseExit () {
+    void OnMouseExitElement () {
         assembly.ChangeHighlightRequiredResearch (false);
     }
 

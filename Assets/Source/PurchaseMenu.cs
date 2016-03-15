@@ -43,7 +43,7 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public void Initialize () {
 		cur = this;
-		stockModules = new System.Collections.Generic.Dictionary<GameObject, int>();
+		stockModules = new Dictionary<GameObject, int>();
         CollectAllPurchaseables ();
 
 		if (Game.currentScene == Scene.AssemblyBuilder)
@@ -74,15 +74,15 @@ public class PurchaseMenu : MonoBehaviour {
 
 		int[] index = new int[2];
 		for (int i = 0; i < assemblies.Length; i++) {
-			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart[i % 2].position + Vector3.right * (purchaseButtonSize * index[i % 2]), Quaternion.identity);
+			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart[i % assemblyButtonStart.Length].position + Vector3.right * (purchaseButtonSize * index[i % assemblyButtonStart.Length]), Quaternion.identity);
 			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
-			butt.transform.SetParent (assemblyButtonStart[i % 2], true);
+			butt.transform.SetParent (assemblyButtonStart[i % assemblyButtonStart.Length], true);
 			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
 			button.assembly = assemblies[i];
 
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
 			button.Initialize ();
-			index[i % 2]++;
+			index[i % assemblyButtonStart.Length]++;
 		}
 
 	}
@@ -118,8 +118,7 @@ public class PurchaseMenu : MonoBehaviour {
 			ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
 			loader.LoadAssembly (assembly);
 			Destroy (ass);
-            
-		}
+        }
 	}
 
 	public GameObject GetModulePrefab (string name) {
@@ -293,21 +292,16 @@ public class PurchaseMenu : MonoBehaviour {
 		UpdateButtons ();
 	}
 
-	// Update is called once per frame
 	void Update () {
 
-		// Animate closing and opening
-		rect.localPosition = new Vector3 (rect.localPosition.x, Mathf.Lerp (rect.localPosition.y, targetHeight, 30f * Time.deltaTime));
+		// Detect mouse position
 
-		if (isOpen && Input.mousePosition.y > 300) {
+		if (isOpen && Input.mousePosition.y > 75) {
 			isOpen = false;
-			targetHeight = -Screen.height / 2 - 120;
 		}
 
-		if (Input.mousePosition.y < 30) {
+		if (Input.mousePosition.y < 75) {
 			isOpen = true;
-			targetHeight = -Screen.height / 2 + 150;
 		}
-	
 	}
 }

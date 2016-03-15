@@ -6,6 +6,7 @@ public class ResearchPoint : MonoBehaviour {
 	public float researchValue;
 	private bool isCapturing;
 	public ParticleSystem[] particle;
+    new public Collider collider;
 	
 	public void Capture (float multiplier, float speed) {
 		if (!isCapturing) {
@@ -37,7 +38,15 @@ public class ResearchPoint : MonoBehaviour {
 		yield return null;
 	}
 
-	void OnMouseDown () {
-		Capture (1, 1);
+	void Update () {
+        if (Input.GetMouseButtonDown (0)) {
+            Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+            ray.direction *= 50;
+            RaycastHit hit;
+
+            if (collider.Raycast (ray, out hit, 50)) {
+                Capture (1, 1);
+            }
+        }
 	}
 }
