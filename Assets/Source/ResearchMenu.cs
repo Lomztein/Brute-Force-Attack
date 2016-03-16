@@ -321,7 +321,7 @@ public class ResearchMenu : MonoBehaviour {
         }
     }
 
-    public void LoadResearchBackup () {
+    /*public void LoadResearchBackup () {
 
         string fullFile = Game.RESEARCH_BACKUP_DATA_DIRECTORY + "BACKUP.dat";
 
@@ -333,7 +333,7 @@ public class ResearchMenu : MonoBehaviour {
             Research[] data = (Research[])bf.Deserialize (file);
             file.Close ();
         }
-    }
+    }*/
 
     public void ResearchAll () {
         for (int i = 0; i < research.Count; i++) {

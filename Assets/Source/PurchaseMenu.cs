@@ -8,8 +8,6 @@ using IngameEditors;
 
 public class PurchaseMenu : MonoBehaviour {
 
-	private float targetHeight = -Screen.height / 2 - 120;
-
 	[Header ("Menu Stuff")]
 	public bool isOpen;
 	public RectTransform rect;
@@ -56,7 +54,6 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public void LoadSpecialButtons () {
-		CloseAssemblyButtons ();
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
@@ -188,19 +185,12 @@ public class PurchaseMenu : MonoBehaviour {
 		// Itereate through each purchaseable, and instantiate a button for it.
 		for (int i = 0; i < purchaseables.Length; i++ ) {
 
-			Module m = purchaseables[i].GetComponent<Module>();
+			//Module m = purchaseables[i].GetComponent<Module>();
 
 			// Instantiate weapon buttons on lower button row,
 			// and all other types on top row.
 
-			GameObject newButton = null;
-			if (m.moduleType == Module.Type.Weapon) {
-				newButton = (GameObject)Instantiate (buttonPrefab, firstButtomButton.position + Vector3.right * purchaseButtonSize * w, Quaternion.identity);
-				w++;
-			}else{
-				newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.right * purchaseButtonSize * o, Quaternion.identity);
-				o++;
-			}
+			GameObject newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.left * purchaseButtonSize * i, Quaternion.identity);
 
 			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();

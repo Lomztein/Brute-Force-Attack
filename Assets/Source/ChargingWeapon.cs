@@ -7,7 +7,6 @@ public class ChargingWeapon : Weapon {
     public ParticleSystem chargeParticle;
     public bool continuousFiring;
 
-    private bool isCharged;
     public float endParticleRate;
 
     public override void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
@@ -28,7 +27,6 @@ public class ChargingWeapon : Weapon {
             Utility.ChangeParticleEmmisionRate (chargeParticle, Mathf.Lerp (0f, endParticleRate, (float)i / (float)(chargeTime / Time.fixedDeltaTime)));
             yield return new WaitForFixedUpdate ();
         }
-        isCharged = true;
         Utility.ChangeParticleEmmisionRate (chargeParticle, 0f);
         StartCoroutine ("DoFire");
     }

@@ -298,8 +298,14 @@ public class Module : MonoBehaviour {
 
 	public void SellModule () {
 		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
+        Game.credits += GetSellAmount ();
 		DestroyModule ();
 	}
+
+    public int GetSellAmount () {
+        // I honestly have no idea why this math works, but it does.
+        return Mathf.FloorToInt (moduleCost * (float)(upgradeCount + 1) * 0.75f) + 1;
+    }
 
 	public void BlockArea () {
         if (isRoot && Game.currentScene == Scene.Play) {

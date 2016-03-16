@@ -58,6 +58,10 @@ public class EnemyManager : MonoBehaviour {
 	public float seperatorSize;
 	public float windowPosY;
 
+    public static int researchPerWave = 1;
+    public static int spawnedResearch = 0;
+    public static int chanceToSpawnResearch;
+
 	void Start () {
 		cur = this;
         UpdateAmountModifier ();
@@ -220,6 +224,7 @@ public class EnemyManager : MonoBehaviour {
 		}
 
         spawnedEnemies = toArray;
+        chanceToSpawnResearch = currentEnemies;
 		Invoke ("StartWave", readyWaitTime - (Time.time - startTime));
 		yield return null;
 	}
@@ -230,6 +235,7 @@ public class EnemyManager : MonoBehaviour {
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
+            spawnedResearch = 0;
 			Pathfinding.BakePaths ();
 		}
 	}

@@ -14,6 +14,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	public Transform treeButtonParent;
 	public RectTransform treeScrollContext;
 	public Text assemblyName;
+    public HoverContextElement sellContextElement;
 
 	private Module rootModule;
 	public List<Module> modules = new List<Module> ();
@@ -55,10 +56,6 @@ public class AssemblyContextMenu : MonoBehaviour {
 		rangeIndicator.transform.GetChild (0).GetComponent<Renderer>().material.color = Color.green;
 	}
 
-	void UpdateDescriptions () {
-		moduleStats.text = rootModule.ToString ();
-	}
-
     void UpdateStats () {
         moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
             " - \n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
@@ -67,7 +64,7 @@ public class AssemblyContextMenu : MonoBehaviour {
     }
 
 	public void UpgradeAssembly (int t) {
-		Module.Type type = (Module.Type)t;
+		//Module.Type type = (Module.Type)t;
 		if (Game.currentScene == Scene.Play && Game.credits >= rootModule.GetUpgradeCost (t)) {
             bool canUpgrade = rootModule.UpgradeAssembly (t);
 		
@@ -138,6 +135,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 				}
 			}
 		}
+
 	}
 
 	void FixedUpdate () {
@@ -222,6 +220,11 @@ public class AssemblyContextMenu : MonoBehaviour {
 		moduleDesc.text = rootModule.assemblyDesc;
         moduleImage.texture = rootModule.assembly.texture;
         UpdateRangeIndicator ();
+
+        int total = 0;
+        foreach (Module mod in modules)
+            total += mod.GetSellAmount ();
+        sellContextElement.text = "Sell Assembly - " + total.ToString () + "LoC";
     }
 
     /*public void OpenFocusModule (Module module) {

@@ -122,12 +122,18 @@ public class Enemy : MonoBehaviour {
 				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemyManager.cur.waveNumber * 0.2f);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
-				EnemyManager.cur.OnEnemyDeath ();
 
 				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
-				if (Random.Range (0, researchDropChance) == 0)
-					Instantiate (researchPoint, transform.position, Quaternion.identity);
-			}
+                if (EnemyManager.spawnedResearch < EnemyManager.researchPerWave) {
+                    if ((Random.Range (0, EnemyManager.chanceToSpawnResearch) == 0)
+                    || EnemyManager.cur.currentEnemies == 1) {
+
+                        Instantiate (researchPoint, transform.position, Quaternion.identity);
+                        EnemyManager.spawnedResearch++;
+                    }
+                }
+                EnemyManager.cur.OnEnemyDeath ();
+            }
             if (healthSlider) healthSlider.transform.SetParent (transform);
             gameObject.SetActive (false);
         }

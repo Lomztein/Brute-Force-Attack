@@ -91,8 +91,7 @@ public class ModuleMod {
         }
 
         if (currentMenu[depth]) {
-            GameObject.Destroy (currentMenu[depth]);
-            List<GameObject> newList = new List<GameObject> ();
+            Object.Destroy (currentMenu[depth]);
         }
         currentMenu[depth] = new GameObject ("ModuleMods");
         if (depth == 0)
