@@ -114,6 +114,7 @@ MonoBehaviour:
   bulletSleepTime: 1
   turnSpeed: 270
   speed: 0
+  slowWhenTurning: 1
 --- !u!198 &19802466
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -1684,6 +1685,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: hitParticle
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: slowWhenTurning
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
 
 public enum Scene { Play, AssemblyBuilder, WaveBuilder };
-public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands }
+public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
 
@@ -109,6 +109,7 @@ public class Game : MonoBehaviour {
 	public Toggle toggleOptionsMenuButton;
 	public Slider musicSlider;
 	public Slider soundSlider;
+    public static bool fastGame;
 
     [Header ("Default Assembly Roster Generator")]
     public Module[] baseModules;
@@ -170,9 +171,24 @@ public class Game : MonoBehaviour {
 		EnemyManager.gameProgress = 1f;
 	}
 
-	public void QuitToDesktop () {
-		Application.Quit ();
-	}
+    public void QuitToDesktop () {
+        Application.Quit ();
+    }
+
+    public static void ToggleFastGameSpeed () {
+        HoverContextElement ele = EnemyManager.cur.waveStartedIndicator.GetComponentInParent<HoverContextElement> ();
+        if (fastGame) {
+            Time.timeScale = 1f;
+            EnemyManager.cur.waveStartedIndicator.color = Color.red;
+            ele.text = "Speed up the game";
+        } else {
+            Time.timeScale = 2f;
+            EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
+            ele.text = "Slow down the game";
+        }
+        HoverContextElement.activeElement = null;
+        fastGame = !fastGame;
+    }
 
 	public void TogglePause () {
 		if (isPaused) {

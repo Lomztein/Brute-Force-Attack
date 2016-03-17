@@ -19,7 +19,6 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public List<GameObject> buttons = new List<GameObject>();
 	public RectTransform firstTopButton;
-	public RectTransform firstButtomButton;
 	private GameObject[] currentMenu;
 
 	public Dictionary<GameObject, int> stockModules;
@@ -29,7 +28,7 @@ public class PurchaseMenu : MonoBehaviour {
 	public Transform buttonMask;
 	public GameObject assemblyLoader;
 	public GameObject assemblyButton;
-	public Transform[] assemblyButtonStart;
+	public Transform assemblyButtonStart;
 	public List<LoadAssemblyButton> assemblyButtonList = new List<LoadAssemblyButton> ();
 
 	public RectTransform scrollThingie;
@@ -63,23 +62,19 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public void InitializeAssemblyButtons () {
 		CollectAllPurchaseables ();
-		for (int i = 0; i < assemblyButtonStart.Length; i++) {
-			foreach (Transform child in assemblyButtonStart[i]) {
-				Destroy (child.gameObject);
-			}
+        foreach (Transform child in assemblyButtonStart) {
+			Destroy (child.gameObject);
 		}
 
-		int[] index = new int[2];
 		for (int i = 0; i < assemblies.Length; i++) {
-			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart[i % assemblyButtonStart.Length].position + Vector3.right * (purchaseButtonSize * index[i % assemblyButtonStart.Length]), Quaternion.identity);
+			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (purchaseButtonSize) * i, Quaternion.identity);
 			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
-			butt.transform.SetParent (assemblyButtonStart[i % assemblyButtonStart.Length], true);
+			butt.transform.SetParent (assemblyButtonStart, true);
 			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
 			button.assembly = assemblies[i];
 
 			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
 			button.Initialize ();
-			index[i % assemblyButtonStart.Length]++;
 		}
 
 	}
@@ -92,9 +87,6 @@ public class PurchaseMenu : MonoBehaviour {
 		foreach (Transform start in assemblyButtonStart) {
 			start.gameObject.SetActive (true);
 		}
-
-		int size = Mathf.Max (assemblyButtonStart [0].childCount, assemblyButtonStart [1].childCount);
-		scrollThingie.sizeDelta = new Vector2 (purchaseButtonSize * size, scrollThingie.sizeDelta.y);
 	}
 
 	public void CloseAssemblyButtons () {
@@ -153,27 +145,6 @@ public class PurchaseMenu : MonoBehaviour {
 			all = standard;
 		}
 
-		// Count weapons and other types
-		int w = 0;
-		int o = 0;
-
-		foreach (GameObject purchaseable in purchaseables) {
-			Module locM = purchaseable.GetComponent<Module>();
-			if (locM.moduleType == Module.Type.Weapon) {
-				w++;
-			}else{
-				o++;
-			}
-		}
-
-		int max = Mathf.Max (w,o);
-		int newX = max * purchaseButtonSize + 30;
-		scrollThingie.sizeDelta = new Vector2 (newX, scrollThingie.sizeDelta.y);
-		scrollThingie.localPosition += new Vector3 (scrollThingie.localPosition.x + newX/4f, scrollThingie.localPosition.y);
-
-		w = 0;
-		o = 0;
-
 		// Remove previous buttons;
 		foreach (GameObject b in buttons) {
 			Destroy (b);
@@ -195,7 +166,7 @@ public class PurchaseMenu : MonoBehaviour {
 			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();
 			newButton.transform.FindChild ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-			newButton.transform.SetParent (buttonMask, true);
+			newButton.transform.SetParent (firstTopButton, true);
 			newButton.transform.localScale = Vector3.one;
 			AddPurchaseButtonListener (button, i);
 

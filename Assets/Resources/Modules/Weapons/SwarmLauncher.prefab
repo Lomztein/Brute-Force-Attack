@@ -457,8 +457,8 @@ MonoBehaviour:
   firerateMul: 1
   spreadMul: 1
   amountMul: 1
-  firerate: 15
-  sequenceTime: 0.1
+  firerate: 5
+  sequenceTime: 0.5
   pointer: {fileID: 0}
   canFire: 1
   enableDoubleRocketResearch: 1
@@ -503,6 +503,14 @@ Prefab:
       propertyPath: moduleDesc
       value: The Swarm Launcher launches many smaller missles towards your enemies,
         generating death in the general direction it points.
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: firerate
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: sequenceTime
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

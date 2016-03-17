@@ -59,8 +59,11 @@ public class BaseModule : Module {
 	}
 
 	public float GetRange () {
-		return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
-	}
+        if (Game.game.gamemode != Gamemode.VDay)
+            return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
+        else
+            return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul * 2.5f;
+    }
 
 	void FindTarget () {
 		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), ignore.ToArray (), sortType);

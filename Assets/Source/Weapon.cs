@@ -66,6 +66,7 @@ public class Weapon : MonoBehaviour {
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
+
 			for (int i = 0; i < bulletAmount * amountMul; i++) {
 
 				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);

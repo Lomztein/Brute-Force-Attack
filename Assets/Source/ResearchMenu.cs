@@ -135,11 +135,11 @@ public class ResearchMenu : MonoBehaviour {
 		}
 
 		//Destroy (research[index]);
-		//research[index] = null;
 		UpdateButtons ();
-	}
+		research[index].name = "RESEARCHED";
+    }
 
-	void IncreaseAllCost () {
+    void IncreaseAllCost () {
 		for (int i = 0; i < research.Count; i++) {
 			if (research[i] != null) {
 				research[i].y++;
@@ -190,11 +190,14 @@ public class ResearchMenu : MonoBehaviour {
 	public void UpdateButtons () {
 		bool isButtonAvailable = false;
 		for (int i = 0; i < buttons.Count; i++) {
-			if (research[i] != null) {
+			if (research[i].name != "RESEARCHED") {
 				bool temp = CheckButtonAvailable (research[i]);
+                research[i].button.GetComponent<Button> ().interactable = temp;
 				if (temp)
 					isButtonAvailable = temp;
-			}
+            } else {
+                research[i].button.GetComponent<Button> ().interactable = false;
+            }
 		}
 
 		if (isButtonAvailable) {
@@ -428,7 +431,7 @@ public class ResearchMenu : MonoBehaviour {
 		SlowfieldArea.staticMultiplier = 0.5f;
 	}
 
-	public void EnableChainLighting (Research research) {
+	public void EnableChainLightning (Research research) {
 		TeslaProjectile.chainAmount = 6;
 	}
 

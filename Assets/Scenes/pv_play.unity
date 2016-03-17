@@ -219,6 +219,7 @@ GameObject:
   - 114: {fileID: 35835989}
   - 65: {fileID: 35835988}
   - 114: {fileID: 35835987}
+  - 95: {fileID: 35835992}
   m_Layer: 5
   m_Name: TogglePause
   m_TagString: ProjectileIgnore
@@ -290,7 +291,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -360,6 +361,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 35835985}
+--- !u!95 &35835992
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 35835985}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &45720338
 GameObject:
   m_ObjectHideFlags: 0
@@ -1698,6 +1716,7 @@ GameObject:
   - 114: {fileID: 302705959}
   - 65: {fileID: 302705958}
   - 114: {fileID: 302705957}
+  - 95: {fileID: 302705962}
   m_Layer: 5
   m_Name: ToggleUpgradeMode
   m_TagString: ProjectileIgnore
@@ -1769,7 +1788,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1839,6 +1858,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 302705955}
+--- !u!95 &302705962
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 302705955}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &325358560
 GameObject:
   m_ObjectHideFlags: 0
@@ -2683,7 +2719,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5879974cca259e147b1030ad4f3b13e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Start Next Wave
+  text: Start wave 1
   isWorldElement: 0
 --- !u!65 &397503012
 BoxCollider:
@@ -3304,7 +3340,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3581,7 +3617,7 @@ GameObject:
   m_Component:
   - 224: {fileID: 594757162}
   m_Layer: 5
-  m_Name: ButtonStart
+  m_Name: AssemblyStart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5230,6 +5266,7 @@ GameObject:
   - 114: {fileID: 975669444}
   - 65: {fileID: 975669443}
   - 114: {fileID: 975669442}
+  - 95: {fileID: 975669447}
   m_Layer: 5
   m_Name: UpgradeRotatorsButton
   m_TagString: Untagged
@@ -5301,7 +5338,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -5371,6 +5408,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 975669440}
+--- !u!95 &975669447
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 975669440}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1030951928
 GameObject:
   m_ObjectHideFlags: 0
@@ -5696,7 +5750,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.64999}
+  m_AnchoredPosition: {x: 0.5, y: -29.649998}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1067827565
@@ -6016,6 +6070,7 @@ RectTransform:
   - {fileID: 1657634070}
   - {fileID: 302705956}
   - {fileID: 2032161156}
+  - {fileID: 1289358610}
   m_Father: {fileID: 1143145210}
   m_RootOrder: 10
   m_AnchorMin: {x: 0, y: 0}
@@ -6042,17 +6097,16 @@ MonoBehaviour:
   - {fileID: 197850, guid: 22c18e1ae74ffa14aa90dfb57002488a, type: 2}
   - {fileID: 137174, guid: 068e990d051b6ef4781c49614970c129, type: 2}
   - {fileID: 125260, guid: 9a1a7b900fe380b4fbc640af993f1800, type: 2}
-  special: []
+  special:
+  - {fileID: 144988, guid: b33b08ed3c6d3c64592665a2d0b05566, type: 2}
   all: []
   buttons: []
-  firstTopButton: {fileID: 594757162}
-  firstButtomButton: {fileID: 0}
+  firstTopButton: {fileID: 1289358610}
   buttonPrefab: {fileID: 121516, guid: f4d43a2173fe2d4488b1773c4b3e21c3, type: 2}
   buttonMask: {fileID: 594757162}
   assemblyLoader: {fileID: 111872, guid: 8ab4fe4a3eb88384793b15ad7381a0f7, type: 2}
   assemblyButton: {fileID: 186708, guid: e95a3f6c8ea4fb1438e2b92107dbbc8b, type: 2}
-  assemblyButtonStart:
-  - {fileID: 594757162}
+  assemblyButtonStart: {fileID: 594757162}
   assemblyButtonList: []
   scrollThingie: {fileID: 0}
   playerInput: {fileID: 1877207634}
@@ -6727,6 +6781,7 @@ GameObject:
   - 222: {fileID: 1156494369}
   - 114: {fileID: 1156494368}
   - 114: {fileID: 1156494367}
+  - 95: {fileID: 1156494370}
   m_Layer: 5
   m_Name: Accept
   m_TagString: Untagged
@@ -6769,7 +6824,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -6837,6 +6892,23 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1156494365}
+--- !u!95 &1156494370
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1156494365}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1172584882
 GameObject:
   m_ObjectHideFlags: 0
@@ -6850,6 +6922,7 @@ GameObject:
   - 114: {fileID: 1172584884}
   - 65: {fileID: 1172584888}
   - 114: {fileID: 1172584887}
+  - 95: {fileID: 1172584889}
   m_Layer: 5
   m_Name: SellButton
   m_TagString: Untagged
@@ -6891,7 +6964,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -6984,6 +7057,23 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 82.4, y: 82.4, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!95 &1172584889
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1172584882}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1179652470
 GameObject:
   m_ObjectHideFlags: 0
@@ -7258,6 +7348,38 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1238671332}
+--- !u!1 &1289358609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 1289358610}
+  m_Layer: 5
+  m_Name: SpecialStart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1289358610
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1289358609}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1091029456}
+  m_RootOrder: 5
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -35, y: -33}
+  m_SizeDelta: {x: 50, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1289806268
 GameObject:
   m_ObjectHideFlags: 0
@@ -9456,6 +9578,7 @@ GameObject:
   - 114: {fileID: 1657634073}
   - 65: {fileID: 1657634072}
   - 114: {fileID: 1657634071}
+  - 95: {fileID: 1657634076}
   m_Layer: 5
   m_Name: SaveGame
   m_TagString: ProjectileIgnore
@@ -9527,7 +9650,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -9550,7 +9673,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1877207628}
-        m_MethodName: TogglePause
+        m_MethodName: ToggleFastGameSpeed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9597,6 +9720,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1657634069}
+--- !u!95 &1657634076
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1657634069}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1739461075
 GameObject:
   m_ObjectHideFlags: 0
@@ -9981,9 +10121,15 @@ MonoBehaviour:
   enemySpawnPoints: []
   assembliesAllowed: 10
   healthMultiplier: 1
-  amountMultiplier: 1
+  amountMultiplier: 5
   gamemode: 0
-  gamemodeDescriptions: []
+  gamemodeDescriptions:
+  - The standard gamemode, the way the game originally was intended to be.
+  - Enemies spawn with only a fraction of their health, but many more spawn.
+  - Enemies spawn with lesser amounts, but way more tanky health.
+  - Research is disabled, and all modules are unlocked per default.
+  - I have yet to figure out, I just like the name.
+  - Walls are disabled, but your turrets have more than twice the range.
   datastream: {fileID: 480467735}
   enemySpawn: {fileID: 360752202}
   purchaseMenu: {fileID: 1091029457}
@@ -10005,7 +10151,7 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
-  startingCredits: 5000
+  startingCredits: 750
   startingResearch: 0
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
@@ -10959,6 +11105,7 @@ GameObject:
   - 114: {fileID: 2032161159}
   - 65: {fileID: 2032161158}
   - 114: {fileID: 2032161157}
+  - 95: {fileID: 2032161162}
   m_Layer: 5
   m_Name: ToggleWallConstruction
   m_TagString: ProjectileIgnore
@@ -11030,7 +11177,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -11100,6 +11247,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2032161155}
+--- !u!95 &2032161162
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2032161155}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &2048868879
 GameObject:
   m_ObjectHideFlags: 0
@@ -11180,6 +11344,7 @@ GameObject:
   - 114: {fileID: 2065643615}
   - 65: {fileID: 2065643614}
   - 114: {fileID: 2065643613}
+  - 95: {fileID: 2065643618}
   m_Layer: 5
   m_Name: UpgradeWeaponsButton
   m_TagString: Untagged
@@ -11251,7 +11416,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -11321,6 +11486,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2065643611}
+--- !u!95 &2065643618
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2065643611}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &2072584269
 GameObject:
   m_ObjectHideFlags: 0
@@ -11403,6 +11585,7 @@ GameObject:
   - 114: {fileID: 2083532052}
   - 65: {fileID: 2083532056}
   - 114: {fileID: 2083532055}
+  - 95: {fileID: 2083532058}
   m_Layer: 5
   m_Name: UpgradeBasesButton
   m_TagString: Untagged
@@ -11428,7 +11611,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -11544,6 +11727,23 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2083532051}
+--- !u!95 &2083532058
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2083532051}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &2090497446
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,10 @@ public class ResearchCollectorModule : Module {
 	public float multiplier = 2f;
 	public float speed;
 
+    new public int GetAssemblyDPS () {
+        return (int)(multiplier * speed);
+    }
+
 	void FixedUpdate () {
 		if (parentBase.target) {
 			float angle = Angle.CalculateAngle (transform.position, parentBase.target.position);

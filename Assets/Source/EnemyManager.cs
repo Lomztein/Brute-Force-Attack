@@ -231,13 +231,18 @@ public class EnemyManager : MonoBehaviour {
 
 	public void ReadyWave () {
 		if (!waveStarted && !wavePrebbing) {
-			waveNumber++;
+            waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
+            HoverContextElement.activeElement = null;
+
+            waveNumber++;
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initialzing..";
             spawnedResearch = 0;
 			Pathfinding.BakePaths ();
-		}
+		}else if (waveStarted) {
+            Game.ToggleFastGameSpeed ();
+        }
 	}
 
 	public void OnEnemyDeath () {
@@ -312,7 +317,10 @@ public class EnemyManager : MonoBehaviour {
 	public void StartWave () {
 		if (waveNumber <= waves.Count) {
 
-			wavePrebbing = false;
+            waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Speed up the game";
+            HoverContextElement.activeElement = null;
+
+            wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();
@@ -348,11 +356,15 @@ public class EnemyManager : MonoBehaviour {
 		waveStarted = false;
 		currentSubwave = null;
 		subwaveNumber = 0;
-		waveStartedIndicator.color = Color.green;
+        if (Game.fastGame)
+            Game.ToggleFastGameSpeed ();
+        waveStartedIndicator.color = Color.green;
 		Game.credits += 25 * waveNumber;
 		if (waves.Count >= waveNumber + 1) {
 			UpdateUpcomingWaveScreen (waves [waveNumber]);
 		}
+        waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
+        HoverContextElement.activeElement = null;
 	}
 
 	EnemySpawnPoint GetSpawnPosition () {
