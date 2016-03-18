@@ -138,6 +138,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     public void SelectAssemblies () {
         // battlefieldSelector.StartGame ();
 		game.purchaseMenu.GetAssemblies (assemblies);
+        Game.ForceDarkOverlay (false);
 		game.StartGame ();
 
         game.purchaseMenu.InitializeAssemblyButtons ();

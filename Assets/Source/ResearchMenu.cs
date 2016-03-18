@@ -290,7 +290,7 @@ public class ResearchMenu : MonoBehaviour {
     // I mean if you're already going to write the code to save them in a file amongst a whole load of other junk, why the
     // fuck aren't we able to just save them to a file by themselves? Whomever wrote that code should step on a lego or something.   /rant
     [System.Serializable]
-    private class SimpleResearch {
+    public class SimpleResearch {
         public string name;
         public string desc;
         public string func;

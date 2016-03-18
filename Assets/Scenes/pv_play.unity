@@ -1983,6 +1983,7 @@ MonoBehaviour:
   waveStartedIndicator: {fileID: 500727183}
   waveCounterIndicator: {fileID: 368163846}
   gameOverIndicator: {fileID: 1739461075}
+  pathDemonstrator: {fileID: 107568, guid: 05405b34b8c891a4688c94d5c91ae0c6, type: 2}
   waves:
   - subwaves:
     - enemies:
@@ -2733,6 +2734,73 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 34, y: 64, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &399368786
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 399368787}
+  - 222: {fileID: 399368789}
+  - 114: {fileID: 399368788}
+  m_Layer: 5
+  m_Name: DarkOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &399368787
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 399368786}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1143145210}
+  m_RootOrder: 9
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &399368788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 399368786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: 60427d2b9b08eca4cb24fdf64487ca8b, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &399368789
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 399368786}
 --- !u!1 &417117464
 GameObject:
   m_ObjectHideFlags: 0
@@ -3569,7 +3637,7 @@ RectTransform:
   - {fileID: 151904009}
   - {fileID: 1122164757}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -32.6}
@@ -5529,7 +5597,7 @@ RectTransform:
   - {fileID: 1156494366}
   - {fileID: 1547107392}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 8
+  m_RootOrder: 11
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.000030517578, y: 23.699993}
@@ -5750,7 +5818,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649998}
+  m_AnchoredPosition: {x: 0.5, y: -29.649996}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1067827565
@@ -6072,7 +6140,7 @@ RectTransform:
   - {fileID: 2032161156}
   - {fileID: 1289358610}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 10
+  m_RootOrder: 8
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 75}
@@ -6658,9 +6726,10 @@ RectTransform:
   - {fileID: 1739461076}
   - {fileID: 2003845757}
   - {fileID: 2072584270}
-  - {fileID: 1035021421}
-  - {fileID: 587920089}
   - {fileID: 1091029456}
+  - {fileID: 399368787}
+  - {fileID: 587920089}
+  - {fileID: 1035021421}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_AnchorMin: {x: 0, y: 0}
@@ -9617,7 +9686,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5879974cca259e147b1030ad4f3b13e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Save Game (NYI)
+  text: Save Game (EXPERIMENTAL)
   isWorldElement: 0
 --- !u!65 &1657634072
 BoxCollider:
@@ -9667,20 +9736,20 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 1657634074}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1877207628}
-        m_MethodName: ToggleFastGameSpeed
+      - m_Target: {fileID: 360752202}
+        m_MethodName: DemonstratePaths
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: GAME
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -10094,7 +10163,6 @@ GameObject:
   - 114: {fileID: 1877207628}
   - 114: {fileID: 1877207634}
   - 114: {fileID: 1877207635}
-  - 114: {fileID: 1877207636}
   - 65: {fileID: 1877207637}
   - 114: {fileID: 1877207638}
   m_Layer: 13
@@ -10142,6 +10210,7 @@ MonoBehaviour:
   worldCanvas: {fileID: 788128801}
   enemyHealthSlider: {fileID: 114106, guid: 0cfe99c8625b3194ea31a26ca4a27d81, type: 2}
   GUICanvas: {fileID: 1143145209}
+  darkOverlay: {fileID: 399368786}
   creditsText: {fileID: 171813872}
   powerText: {fileID: 0}
   researchText: {fileID: 635627074}
@@ -10151,8 +10220,8 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
-  startingCredits: 750
-  startingResearch: 0
+  startingCredits: 50000
+  startingResearch: 5000
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
   - Rektinator
@@ -10300,7 +10369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tweakMode: 0
   screenBlendMode: 1
-  hdr: 0
+  hdr: 1
   sepBlurSpread: 1.5
   quality: 1
   bloomIntensity: 0.8
@@ -10325,32 +10394,6 @@ MonoBehaviour:
   blurAndFlaresShader: {fileID: 4800000, guid: be6e39cf196f146d5be72fbefb18ed75, type: 3}
   brightPassFilterShader: {fileID: 4800000, guid: 0aeaa4cb29f5d4e9c8455f04c8575c8c,
     type: 3}
---- !u!114 &1877207636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1877207627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9191284b058eef549b7108b5f04e1117, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  intensityMultiplier: 0.25
-  generalIntensity: 0.5
-  blackIntensity: 1
-  whiteIntensity: 1
-  midGrey: 0.2
-  dx11Grain: 0
-  softness: 0
-  monochrome: 0
-  intensities: {x: 1, y: 1, z: 1}
-  tiling: {x: 64, y: 64, z: 64}
-  monochromeTiling: 64
-  filterMode: 1
-  noiseTexture: {fileID: 2800000, guid: 7a632f967e8ad42f5bd275898151ab6a, type: 3}
-  noiseShader: {fileID: 4800000, guid: b0249d8c935344451aa4de6db76f0688, type: 3}
-  dx11NoiseShader: {fileID: 4800000, guid: 8b30686bb4322ab42ad5eb50a0210b58, type: 3}
 --- !u!65 &1877207637
 BoxCollider:
   m_ObjectHideFlags: 0

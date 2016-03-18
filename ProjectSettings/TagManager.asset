@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Module
   - ProjectileIgnore
+  - PathDemonstrator
   layers:
   - Default
   - TransparentFX

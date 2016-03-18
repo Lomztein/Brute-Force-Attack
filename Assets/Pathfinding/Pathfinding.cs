@@ -35,6 +35,7 @@ public class Pathfinding : MonoBehaviour {
 	public static void BakePaths () {
 		finder.width = Game.game.enemySpawnPoints.Count;
 		for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            Game.game.enemySpawnPoints[i].path = null;
 			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);
 		}
 		finder.Invoke ("ResetIndex", EnemyManager.readyWaitTime);
@@ -48,10 +49,6 @@ public class Pathfinding : MonoBehaviour {
 		if (success) {
 			Game.game.enemySpawnPoints[index].path = _path;
 			index++;
-
-			if (index == width) {
-				EnemyManager.cur.StartCoroutine (EnemyManager.cur.PoolBaddies ());
-			}
 		}
 	}
 

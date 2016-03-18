@@ -19,6 +19,7 @@ public class EnemyManager : MonoBehaviour {
 	public Image waveStartedIndicator;
 	public Text waveCounterIndicator;
 	public GameObject gameOverIndicator;
+    public GameObject pathDemonstrator;
 
 	[Header ("Wave Stuffs")]
 	public List<Wave> waves = new List<Wave>();
@@ -68,6 +69,27 @@ public class EnemyManager : MonoBehaviour {
 		EndWave ();
 		AddFinalBoss ();
 	}
+
+    public void DemonstratePaths () {
+        if (!GameObject.FindGameObjectWithTag ("PathDemonstrator")) {
+            StartCoroutine (DPATHS ());
+        }
+    }
+
+    private IEnumerator DPATHS () {
+        Pathfinding.BakePaths ();
+
+        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            while (Game.game.enemySpawnPoints[i].path == null) {
+                yield return new WaitForEndOfFrame ();
+            }
+            Vector2[] path = Game.game.enemySpawnPoints[i].path;
+            GameObject d = (GameObject)Instantiate (pathDemonstrator, path[0], Quaternion.identity);
+            d.GetComponent<PathDemonstrator> ().path = path;
+            d.GetComponent<PathDemonstrator> ().StartPath ();
+            yield return new WaitForSeconds (1f);
+        }
+    }
 
     public static void AddEnemy (Enemy enemy) {
         cur.spawnedEnemies.Add (enemy);
@@ -174,6 +196,7 @@ public class EnemyManager : MonoBehaviour {
 	// TODO: Replace wavePrebbing and waveStarted with enums
 
 	public IEnumerator PoolBaddies () {
+        yield return new WaitForSeconds (1f);
 		Wave cur = waves [waveNumber - 1];
 		Queue<Wave.Enemy> spawnQueue = new Queue<Wave.Enemy>();
 		float startTime = Time.time;
@@ -240,6 +263,7 @@ public class EnemyManager : MonoBehaviour {
 			waveCounterIndicator.text = "Wave: Initialzing..";
             spawnedResearch = 0;
 			Pathfinding.BakePaths ();
+            StartCoroutine (PoolBaddies ());
 		}else if (waveStarted) {
             Game.ToggleFastGameSpeed ();
         }

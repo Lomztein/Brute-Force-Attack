@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public enum Scene { Play, AssemblyBuilder, WaveBuilder };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
@@ -43,6 +43,7 @@ public class Game : MonoBehaviour {
 	public GameObject enemyHealthSlider;
     public GameObject GUICanvas;
 	public static List<Module> currentModules = new List<Module>();
+    public GameObject darkOverlay;
 	
 	public Text creditsText;
 	public Text powerText;
@@ -98,6 +99,7 @@ public class Game : MonoBehaviour {
 	public static string WAVESET_SAVE_DIRECTORY;
 	public static string BATTLEFIELD_SAVE_DIRECTORY;
     public static string RESEARCH_BACKUP_DATA_DIRECTORY;
+    public static string SAVED_GAME_DIRECTORY;
 	public string[] stockModuleNames;
 
 	[Header ("Settings")]
@@ -126,6 +128,14 @@ public class Game : MonoBehaviour {
         assembly.parts.Add (new Assembly.Part (false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
 
         Assembly.SaveToFile (assembly.assemblyName, assembly);
+    }
+
+    public static void ToggleDarkOverlay () {
+        game.darkOverlay.SetActive (!game.darkOverlay.activeSelf);
+    }
+
+    public static void ForceDarkOverlay (bool setting) {
+        game.darkOverlay.SetActive (setting);
     }
 
 	// Use this for initialization
@@ -164,6 +174,19 @@ public class Game : MonoBehaviour {
         researchMenu.SaveBackup ();
 		Debug.Log ("Done initializing!");
 	}
+
+    public void LoadGame () {
+        SavedGame loaded = SavedGame.Load ("GAME");
+
+        credits = loaded.credits;
+        research = loaded.research;
+        researchProgress = loaded.researchProgress;
+
+        for (int i = 0; i < loaded.turrets.Count; i++) {
+
+        }
+
+    }
 		
 	public void RestartMap () {
         SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
@@ -201,6 +224,7 @@ public class Game : MonoBehaviour {
 			Time.timeScale = 0f;
 			pauseMenu.SetActive (true);
 		}
+        ForceDarkOverlay (isPaused);
 	}
 
 	public void ToggleOptionsMenu () {
@@ -428,6 +452,7 @@ public class Game : MonoBehaviour {
 		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
 		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
 		RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+		SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
     }
 
 	void InitializeBattlefield () {
@@ -445,6 +470,9 @@ public class Game : MonoBehaviour {
 
         if (!Directory.Exists (RESEARCH_BACKUP_DATA_DIRECTORY))
             Directory.CreateDirectory (RESEARCH_BACKUP_DATA_DIRECTORY);
+
+        if (!Directory.Exists (SAVED_GAME_DIRECTORY))
+            Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
 
         // Load battlefield data
         isWalled = new WallType[battlefieldWidth,battlefieldHeight];
@@ -598,4 +626,66 @@ public class Game : MonoBehaviour {
 			}
 		}
 	}
+
+    public void SaveGame (string path) {
+        SavedGame saved = new SavedGame ();
+
+        for (int i = 0; i < currentModules.Count; i++) {
+            if (currentModules[i].isRoot) {
+                saved.turrets.Add (currentModules[i].assembly);
+            }
+        }
+
+        saved.battlefieldData = new BattlefieldData (game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
+        saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
+
+        List<ResearchMenu.SimpleResearch> res = new List<ResearchMenu.SimpleResearch> ();
+        for (int i = 0; i < researchMenu.research.Count; i++) {
+            res.Add (new ResearchMenu.SimpleResearch (researchMenu.research[i]));
+        }
+
+        saved.wave = EnemyManager.cur.waveNumber;
+        saved.credits = credits;
+        saved.research = research;
+        saved.researchProgress = researchProgress;
+
+        saved.Save (path);
+    }
+
+    [System.Serializable]
+    public class SavedGame {
+
+        public BattlefieldData battlefieldData;
+        public List<Assembly> turrets;
+        public string waveSetPath;
+        public List<ResearchMenu.SimpleResearch> researchSet;
+
+        public int wave;
+        public int credits;
+        public int research;
+        public float researchProgress;
+
+        public void Save (string fileName) {
+            BinaryFormatter bf = new BinaryFormatter ();
+            FileStream file = File.Create (SAVED_GAME_DIRECTORY + fileName + ".dat");
+
+            bf.Serialize (file, this);
+            file.Close ();
+        }
+
+        public static SavedGame Load (string fileName) {
+            if (File.Exists (fileName)) {
+
+                BinaryFormatter bf = new BinaryFormatter ();
+                FileStream file = File.Open (fileName, FileMode.Open);
+
+                SavedGame data = (SavedGame)bf.Deserialize (file);
+                file.Close ();
+
+                return data;
+            }
+
+            return null;
+        }
+    }
 }
