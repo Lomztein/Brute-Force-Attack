@@ -19,18 +19,19 @@ public class PlayerInput : MonoBehaviour {
     public bool isUpgrading;
     public GameObject hoverMarker;
     public SpriteRenderer upgradingMarker;
+    public GameObject constructionFlash;
 
     private bool enableFastBuild;
 	private Vector2 dragStart;
 	private Vector2 dragEnd;
 
 	private Vector3 pos;
-	private Vector3 placePos;
+	[HideInInspector] public Vector3 placePos;
 	private Quaternion placeRot;
 	
 	private Module hitModule;
 
-	private float camDepth;
+	[HideInInspector] public float camDepth;
 	private float ang;
 
 	public Module focusRoot;
@@ -104,16 +105,18 @@ public class PlayerInput : MonoBehaviour {
 		return activeAbility;
 	}
 
-	void CancelAll () {
+    void CancelAll () {
 		CancelPurchase ();
 		if (isEditingWalls)
-			EditWalls ();
+			EditWalls (true);
         if (isUpgrading) {
-            ToggleUpgrading ();
+            ToggleUpgrading (true);
         }
 	}
 
-    public void ToggleUpgrading () {
+    public void ToggleUpgrading (bool fromCancelAll) {
+        if (!fromCancelAll)
+            CancelAll();
         isUpgrading = !isUpgrading;
         for (int i = 0; i < Game.currentModules.Count; i++) {
             Game.currentModules[i].UpdateHoverContextElement ();
@@ -147,8 +150,10 @@ public class PlayerInput : MonoBehaviour {
 		contextMenu.OpenAssembly (focusRoot);
 	}
 
-	public void EditWalls () {
-		CancelPurchase ();
+	public void EditWalls (bool fromCancelAll) {
+		if (!fromCancelAll)
+            CancelAll ();
+
 		isEditingWalls = !isEditingWalls;
 		wallDragGraphic.enabled = isEditingWalls;
 
@@ -163,7 +168,7 @@ public class PlayerInput : MonoBehaviour {
         if (Game.currentScene == Scene.Play)
             MoveCamera ();
         // Grap mouse position, and round it.
-        pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition));
+        pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
         rangeIndicator.GetRange (0f);
 
@@ -228,7 +233,7 @@ public class PlayerInput : MonoBehaviour {
             if (!isPlacing && isEditingWalls) {
 
                 if (Input.GetButtonDown ("Cancel"))
-                    EditWalls ();
+                    EditWalls (false);
 
                 if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
                     wallDragStatus = WallDragStatus.Inactive;
@@ -263,19 +268,24 @@ public class PlayerInput : MonoBehaviour {
                 if (wallDragStatus != WallDragStatus.Inactive) {
 
                     wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
-                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f) - Vector3.one * 0.5f;
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 
                     Rect rect = Game.PositivizeRect (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y));
 
+                    int rectX = Mathf.RoundToInt(rect.x);
+                    int rectY = Mathf.RoundToInt(rect.y);
+                    int rectW = Mathf.RoundToInt(rect.width);
+                    int rectH = Mathf.RoundToInt(rect.height);
+
                     if (wallDragStatus == WallDragStatus.Adding) {
-                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), true));
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, true));
                     } else {
-                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost ((int)rect.x, (int)rect.y, (int)(rect.width), (int)(rect.height), false));
+                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, true));
                     }
 
                 } else {
-                    wallDragGraphic.transform.position = pos + Vector3.one * 0.5f;
+                    wallDragGraphic.transform.position = pos + Vector3.forward;
                     wallDragGraphic.transform.localScale = Vector3.one;
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
                     HoverContext.ChangeText ("");
@@ -322,15 +332,13 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-	Vector3 RoundPos (Vector3 p) {
+	Vector3 RoundPos (Vector3 p, int moduleClass) {
 		pos = new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
 
-		if (pModule) {
-			if (pModule.moduleClass == 1) {
-				pos = new Vector3 (Mathf.Round (p.x/1f + 0.5f) * 1, Mathf.Round (p.y/1f + 0.5f) * 1, p.z);
-				pos -= Vector3.one * 0.5f;
-				// It's pretty hacky, but it works.
-			}
+	    if (moduleClass == 1) {
+			pos = new Vector3 (Mathf.Round (p.x/1f + 0.5f) * 1, Mathf.Round (p.y/1f + 0.5f) * 1, p.z);
+			pos -= Vector3.one * 0.5f;
+			// It's pretty hacky, but it works.
 		}
 
 		return pos;
@@ -450,8 +458,12 @@ public class PlayerInput : MonoBehaviour {
 			allowPlacement = CanPlaceAtPos (placePos);
 		}
 
+        // I'll go and fix the wall blocking bug now. I'm gonna go for the first solution described in my Reddit reply for now.
+
 		if (allowPlacement) {
-			GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
+            ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+
+            GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
 			rangeIndicator.NullifyParent ();
 			if (Game.currentScene == Scene.Play) {
@@ -537,5 +549,13 @@ public class PlayerInput : MonoBehaviour {
 				}
 			}
 		}
+
+        if (isEditingWalls) {
+            Gizmos.DrawSphere(pos, 0.5f);
+        }
+
+        // Yeah, I had another friend complain a bit earlier :b
+        // Steam chat isn't really functioning for me during stream, so I'll just use comments.
+        // The wall editing code is very messy, and  that's what I'm trying to change right now.
 	}
 }

@@ -66,7 +66,7 @@ public class EnemyManager : MonoBehaviour {
 	void Start () {
 		cur = this;
         UpdateAmountModifier ();
-		EndWave ();
+		EndWave (false);
 		AddFinalBoss ();
 	}
 
@@ -197,59 +197,72 @@ public class EnemyManager : MonoBehaviour {
 
 	public IEnumerator PoolBaddies () {
         yield return new WaitForSeconds (1f);
-		Wave cur = waves [waveNumber - 1];
-		Queue<Wave.Enemy> spawnQueue = new Queue<Wave.Enemy>();
-		float startTime = Time.time;
+        bool allClear = true;
 
-		currentEnemies = 0;
-		int index = -1;
-		foreach (Wave.Subwave sub in cur.subwaves) {
-			foreach (Wave.Enemy ene in sub.enemies) {
-				index++;
-				ene.index = index;
+        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            if (Game.game.enemySpawnPoints[i].path == null)
+                allClear = false;
+        }
 
-				spawnQueue.Enqueue (ene);
+        if (!allClear) {
+            CancelWave();
+            Game.ShowErrorMessage("Unable to start wave: Paths unclear", 3f);
+        } else {
+            Wave cur = waves[waveNumber - 1];
+            Queue<Wave.Enemy> spawnQueue = new Queue<Wave.Enemy>();
+            float startTime = Time.time;
 
-				SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
-				if (split) currentEnemies += ene.spawnAmount * split.spawnPos.Length * amountModifier;
-				currentEnemies += ene.spawnAmount * amountModifier;
-			}
-		}
+            currentEnemies = 0;
+            int index = -1;
+            foreach (Wave.Subwave sub in cur.subwaves) {
+                foreach (Wave.Enemy ene in sub.enemies) {
+                    index++;
+                    ene.index = index;
 
-		int spawnPerTick = Mathf.CeilToInt ((float)currentEnemies / readyWaitTime * Time.fixedDeltaTime);
-        List<Enemy> toArray = new List<Enemy> ();
+                    spawnQueue.Enqueue(ene);
 
-		index = 0;
-		while (spawnQueue.Count > 0) {
-			for (int i = 0; i < spawnQueue.Peek ().spawnAmount * amountModifier; i++) {
-				GameObject newEne = (GameObject)Instantiate (spawnQueue.Peek ().enemy, enemyPool.position, Quaternion.identity);
-                toArray.Add (newEne.GetComponent<Enemy> ());
+                    SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
+                    if (split)
+                        currentEnemies += ene.spawnAmount * split.spawnPos.Length * amountModifier;
+                    currentEnemies += ene.spawnAmount * amountModifier;
+                }
+            }
 
-				newEne.SetActive (false);
-				newEne.transform.parent = enemyPool;
+            int spawnPerTick = Mathf.CeilToInt((float)currentEnemies / readyWaitTime * Time.fixedDeltaTime);
+            List<Enemy> toArray = new List<Enemy>();
 
-				Enemy e = newEne.GetComponent<Enemy>();
-				e.upcomingElement = upcomingElements[spawnQueue.Peek ().index];
+            index = 0;
+            while (spawnQueue.Count > 0) {
+                for (int i = 0; i < spawnQueue.Peek().spawnAmount * amountModifier; i++) {
+                    GameObject newEne = (GameObject)Instantiate(spawnQueue.Peek().enemy, enemyPool.position, Quaternion.identity);
+                    toArray.Add(newEne.GetComponent<Enemy>());
 
-				if (!pooledEnemies.ContainsKey (spawnQueue.Peek ())) {
-					pooledEnemies.Add (spawnQueue.Peek (), new List<GameObject>());
-				}
-				pooledEnemies[spawnQueue.Peek ()].Add (newEne);
-				index++;
+                    newEne.SetActive(false);
+                    newEne.transform.parent = enemyPool;
+
+                    Enemy e = newEne.GetComponent<Enemy>();
+                    e.upcomingElement = upcomingElements[spawnQueue.Peek().index];
+
+                    if (!pooledEnemies.ContainsKey(spawnQueue.Peek())) {
+                        pooledEnemies.Add(spawnQueue.Peek(), new List<GameObject>());
+                    }
+                    pooledEnemies[spawnQueue.Peek()].Add(newEne);
+                    index++;
 
 
-				if (index >= spawnPerTick) {
-					yield return new WaitForFixedUpdate ();
-					index = 0;
-				}
-			}
-			spawnQueue.Dequeue ();
-		}
+                    if (index >= spawnPerTick) {
+                        yield return new WaitForFixedUpdate();
+                        index = 0;
+                    }
+                }
+                spawnQueue.Dequeue();
+            }
 
-        spawnedEnemies = toArray;
-        chanceToSpawnResearch = currentEnemies;
-		Invoke ("StartWave", readyWaitTime - (Time.time - startTime));
-		yield return null;
+            spawnedEnemies = toArray;
+            chanceToSpawnResearch = currentEnemies;
+            Invoke("StartWave", readyWaitTime - (Time.time - startTime));
+            yield return null;
+        }
 	}
 
 	public void ReadyWave () {
@@ -269,10 +282,16 @@ public class EnemyManager : MonoBehaviour {
         }
 	}
 
+    void CancelWave () {
+        waveNumber--;
+        wavePrebbing = false;
+        EndWave(false);
+    }
+
 	public void OnEnemyDeath () {
 		currentEnemies--;
 		if (currentEnemies < 1) {
-			EndWave ();
+			EndWave (true);
 
 			if (waveNumber >= waves.Count) {
 				if (waveMastery == 1) {
@@ -374,7 +393,7 @@ public class EnemyManager : MonoBehaviour {
 		ContinueWave (false);
 	}
 
-	public void EndWave () {
+	public void EndWave (bool finished) {
         StartCoroutine (CleanEnemyArray ());
 
 		waveStarted = false;
@@ -383,12 +402,18 @@ public class EnemyManager : MonoBehaviour {
         if (Game.fastGame)
             Game.ToggleFastGameSpeed ();
         waveStartedIndicator.color = Color.green;
-		Game.credits += 25 * waveNumber;
+
+		if (finished)
+            Game.credits += 25 * waveNumber;
+
 		if (waves.Count >= waveNumber + 1) {
 			UpdateUpcomingWaveScreen (waves [waveNumber]);
 		}
+        waveCounterIndicator.text = "Wave: " + waveNumber.ToString();
         waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
+
+        Debug.Log(waveStarted);
 	}
 
 	EnemySpawnPoint GetSpawnPosition () {

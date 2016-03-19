@@ -85,6 +85,74 @@ NavMeshSettings:
     cellSize: 0.16666666
     manualCellSize: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &19699715
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 19699718}
+  - 222: {fileID: 19699717}
+  - 114: {fileID: 19699716}
+  m_Layer: 5
+  m_Name: ErrorMessage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &19699716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 19699715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: d5b7b40b83db0f846bd825ce9a6a7004, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &19699717
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 19699715}
+--- !u!224 &19699718
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 19699715}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 540459829}
+  m_Father: {fileID: 1143145210}
+  m_RootOrder: 9
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 974.95}
+  m_SizeDelta: {x: 982.03, y: 79}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &33940387
 GameObject:
   m_ObjectHideFlags: 0
@@ -1812,7 +1880,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1877207634}
         m_MethodName: ToggleUpgrading
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2762,7 +2830,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -3408,7 +3476,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3602,6 +3670,79 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 535297223}
+--- !u!1 &540459828
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 540459829}
+  - 222: {fileID: 540459831}
+  - 114: {fileID: 540459830}
+  m_Layer: 5
+  m_Name: Accept
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &540459829
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 540459828}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 19699718}
+  m_RootOrder: 0
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &540459830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 540459828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.67058825, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 32
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 0
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Unable to start wave: '
+--- !u!222 &540459831
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 540459828}
 --- !u!1 &587920088
 GameObject:
   m_ObjectHideFlags: 0
@@ -3637,7 +3778,7 @@ RectTransform:
   - {fileID: 151904009}
   - {fileID: 1122164757}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -32.6}
@@ -4651,6 +4792,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -5597,7 +5739,7 @@ RectTransform:
   - {fileID: 1156494366}
   - {fileID: 1547107392}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0.000030517578, y: 23.699993}
@@ -5818,7 +5960,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649996}
+  m_AnchoredPosition: {x: 0.5, y: -29.650017}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1067827565
@@ -6727,6 +6869,7 @@ RectTransform:
   - {fileID: 2003845757}
   - {fileID: 2072584270}
   - {fileID: 1091029456}
+  - {fileID: 19699718}
   - {fileID: 399368787}
   - {fileID: 587920089}
   - {fileID: 1035021421}
@@ -6789,6 +6932,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -7713,6 +7857,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -10211,6 +10356,7 @@ MonoBehaviour:
   enemyHealthSlider: {fileID: 114106, guid: 0cfe99c8625b3194ea31a26ca4a27d81, type: 2}
   GUICanvas: {fileID: 1143145209}
   darkOverlay: {fileID: 399368786}
+  errorMessage: {fileID: 19699715}
   creditsText: {fileID: 171813872}
   powerText: {fileID: 0}
   researchText: {fileID: 635627074}
@@ -10220,7 +10366,7 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
-  startingCredits: 50000
+  startingCredits: 500000
   startingResearch: 5000
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
@@ -10340,6 +10486,9 @@ MonoBehaviour:
   isUpgrading: 0
   hoverMarker: {fileID: 432404284}
   upgradingMarker: {fileID: 177551846}
+  constructionFlash: {fileID: 189796, guid: 5dad4e70d378cb04faa84ab96f8b369a, type: 2}
+  placePos: {x: 0, y: 0, z: 0}
+  camDepth: 0
   focusRoot: {fileID: 0}
   contextMenu: {fileID: 598373623}
   canPlaceTestPos:
@@ -10823,8 +10972,9 @@ MonoBehaviour:
     y: 2
     prerequisite: 1
     index: 6
-  - name: Research Advanced Missle Tracking software
-    desc: 
+  - name: Research Advanced Missle Connection software
+    desc: With this upgrade, missles will keep a connection to their launcher, and
+      if they do not have a target of their own, target the launchers new target.
     func: EnableAutoFindTarget
     sprite: {fileID: 21300000, guid: 755016ba6a942cf42b040c6a282258c5, type: 3}
     value: 0
@@ -11244,7 +11394,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1877207634}
         m_MethodName: EditWalls
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -11828,7 +11978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5686fb9de47e7de4a85db2b8ea12dccf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DrawGizmos: 1
+  DrawGizmos: 0
   noneWalkable:
     serializedVersion: 2
     m_Bits: 0

@@ -6,140 +6,153 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System.Collections;
 
 public enum Scene { Play, AssemblyBuilder, WaveBuilder };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
 
-	public static Scene currentScene;
+    public static Scene currentScene;
 
-	[Header ("Battlefield")]
-	public Transform background;
-	public int battlefieldWidth;
-	public int battlefieldHeight;
-	public List<EnemySpawnPoint> enemySpawnPoints;
+    [Header("Battlefield")]
+    public Transform background;
+    public int battlefieldWidth;
+    public int battlefieldHeight;
+    public List<EnemySpawnPoint> enemySpawnPoints;
 
-    [Header ("Difficulty Settings")]
+    [Header("Difficulty Settings")]
     public int assembliesAllowed = 10;
     public float healthMultiplier = 1;
     public float amountMultiplier = 1;
 
-    [Header ("Gamemodes")]
+    [Header("Gamemodes")]
     public Gamemode gamemode;
     public string[] gamemodeDescriptions;
 
-	[Header ("References")]
-	public Datastream datastream;
-	public EnemyManager enemySpawn;
-	public PurchaseMenu purchaseMenu;
-	public Pathfinding pathfinder;
-	public Map pathMap;
-	public ResearchMenu researchMenu;
-	public GameObject pauseMenu;
-	public Slider researchSlider;
-	public GameObject rangeIndicator;
-	public GameObject worldCanvas;
-	public GameObject enemyHealthSlider;
+    [Header("References")]
+    public Datastream datastream;
+    public EnemyManager enemySpawn;
+    public PurchaseMenu purchaseMenu;
+    public Pathfinding pathfinder;
+    public Map pathMap;
+    public ResearchMenu researchMenu;
+    public GameObject pauseMenu;
+    public Slider researchSlider;
+    public GameObject rangeIndicator;
+    public GameObject worldCanvas;
+    public GameObject enemyHealthSlider;
     public GameObject GUICanvas;
-	public static List<Module> currentModules = new List<Module>();
+    public static List<Module> currentModules = new List<Module>();
     public GameObject darkOverlay;
-	
-	public Text creditsText;
-	public Text powerText;
-	public Text researchText;
+    public GameObject errorMessage;
 
-	public static Game game;
-	
-	public LayerMask enemyLayer;
-	public LayerMask moduleLayer;
+    public Text creditsText;
+    public Text powerText;
+    public Text researchText;
 
-	[Header ("Resources")]
-	public int startingCredits;
-	public int startingResearch;
+    public static Game game;
+
+    public LayerMask enemyLayer;
+    public LayerMask moduleLayer;
+
+    [Header("Resources")]
+    public int startingCredits;
+    public int startingResearch;
 
     private static bool _creditsUpdatedThisFrame = false;
-	private static int _credits;
-	public static int credits {
-		get { return _credits; }
-		set { _credits = value;
+    private static int _credits;
+    public static int credits {
+        get { return _credits; }
+        set { _credits = value;
             if (!_creditsUpdatedThisFrame) {
                 if (PurchaseMenu.cur)
-                    PurchaseMenu.UpdateButtons ();
+                    PurchaseMenu.UpdateButtons();
             }
-		}
-	}
+        }
+    }
 
     private static bool _researchUpdatedThisFrame = false;
-	public static float researchProgress;
-	private static int _research;
-	public static int research {
-		get { return _research; }
-		set { _research = value;
+    public static float researchProgress;
+    private static int _research;
+    public static int research {
+        get { return _research; }
+        set { _research = value;
             if (!_researchUpdatedThisFrame) {
-                if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons ();
+                if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons();
             }
-		}
-	}
+        }
+    }
 
-	public static float powerPercentage;
+    public static float powerPercentage;
 
-	public enum WallType { None, Player, Level } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
-	public static WallType[,] isWalled;
-	public MeshFilter wallMeshFilter;
+    public enum WallType { None, Player, Level } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
+    public static WallType[,] isWalled;
+    public MeshFilter wallMeshFilter;
 
-	private Vector3[] verts;
-	private int[] tris;
-	private Vector3[] norms;
-	private Vector2[] uvs;
+    private Vector3[] verts;
+    private int[] tris;
+    private Vector3[] norms;
+    private Vector2[] uvs;
 
-	public static bool isPaused;
+    public static bool isPaused;
 
-	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
-	public static string WAVESET_SAVE_DIRECTORY;
-	public static string BATTLEFIELD_SAVE_DIRECTORY;
+    public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
+    public static string WAVESET_SAVE_DIRECTORY;
+    public static string BATTLEFIELD_SAVE_DIRECTORY;
     public static string RESEARCH_BACKUP_DATA_DIRECTORY;
     public static string SAVED_GAME_DIRECTORY;
-	public string[] stockModuleNames;
+    public string[] stockModuleNames;
 
-	[Header ("Settings")]
-	public static float musicVolume;
-	public static float soundVolume;
-	public GameObject optionsMenu;
-	public static bool enableMouseMovement = true;
-	public Toggle toggleMouseMovementButton;
-	public Toggle toggleOptionsMenuButton;
-	public Slider musicSlider;
-	public Slider soundSlider;
+    [Header("Settings")]
+    public static float musicVolume;
+    public static float soundVolume;
+    public GameObject optionsMenu;
+    public static bool enableMouseMovement = true;
+    public Toggle toggleMouseMovementButton;
+    public Toggle toggleOptionsMenuButton;
+    public Slider musicSlider;
+    public Slider soundSlider;
     public static bool fastGame;
 
-    [Header ("Default Assembly Roster Generator")]
+    [Header("Default Assembly Roster Generator")]
     public Module[] baseModules;
     public Module[] rotatorModules;
 
-    public void GenerateDefaultAssembly (Module weaponModule) {
-        Assembly assembly = new Assembly ();
+    public void GenerateDefaultAssembly ( Module weaponModule ) {
+        Assembly assembly = new Assembly();
 
         assembly.assemblyName = weaponModule.moduleName + " Turret";
         assembly.assemblyDesc = weaponModule.moduleDesc;
 
-        assembly.parts.Add (new Assembly.Part (true, baseModules[weaponModule.moduleClass].moduleName, 1, 0, 0f, 0f, 90f));
-        assembly.parts.Add (new Assembly.Part (false, rotatorModules[weaponModule.moduleClass].moduleName, 2, 1, 0f, 0f, 90f));
-        assembly.parts.Add (new Assembly.Part (false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(true, baseModules[weaponModule.moduleClass].moduleName, 1, 0, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(false, rotatorModules[weaponModule.moduleClass].moduleName, 2, 1, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
 
-        Assembly.SaveToFile (assembly.assemblyName, assembly);
+        Assembly.SaveToFile(assembly.assemblyName, assembly);
     }
 
     public static void ToggleDarkOverlay () {
-        game.darkOverlay.SetActive (!game.darkOverlay.activeSelf);
+        game.darkOverlay.SetActive(!game.darkOverlay.activeSelf);
     }
 
     public static void ForceDarkOverlay (bool setting) {
-        game.darkOverlay.SetActive (setting);
+        game.darkOverlay.SetActive(setting);
     }
 
-	// Use this for initialization
-	void Awake () {
+    public static void ShowErrorMessage (string message, float time) {
+        game.StartCoroutine(game.ActualShowErrorMessage(message, time));
+    }
+
+    IEnumerator ActualShowErrorMessage (string message, float time) {
+        errorMessage.SetActive(true);
+        errorMessage.GetComponentInChildren<Text>().text = message;
+        yield return new WaitForSeconds(time);
+        errorMessage.SetActive(false);
+    }
+
+    // Use this for initialization
+    void Awake () {
 
 		game = this;
         ResearchMenu.cur = researchMenu;
@@ -268,11 +281,11 @@ public class Game : MonoBehaviour {
 
 		Rect loc = PositivizeRect (rect);
 
-		int startX = (int)loc.x;
-		int startY = (int)loc.y;
+		int startX = Mathf.RoundToInt (loc.x);
+		int startY = Mathf.RoundToInt (loc.y);
 
-		int w = (int)loc.width;
-		int h = (int)loc.height;
+		int w = Mathf.RoundToInt (loc.width);
+		int h = Mathf.RoundToInt (loc.height);
 
 		int cost = GetWallingCost (startX, startY, w, h, doWall);
 

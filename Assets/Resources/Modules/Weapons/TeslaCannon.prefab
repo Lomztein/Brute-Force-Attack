@@ -185,7 +185,7 @@ MonoBehaviour:
   bulletData: {fileID: 0}
   bulletSpeed: 1
   bulletSpread: 0
-  bulletDamage: 250
+  bulletDamage: 2000
   bulletAmount: 3
   maxRange: 0
   target: {fileID: 0}
