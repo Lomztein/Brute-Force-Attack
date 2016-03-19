@@ -10,6 +10,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	public Text moduleName;
 	public Text moduleDesc;
 	public Text moduleStats;
+    public Text upgradeStats;
 	public GameObject treeButtonPrefab;
 	public Transform treeButtonParent;
 	public RectTransform treeScrollContext;
@@ -58,9 +59,13 @@ public class AssemblyContextMenu : MonoBehaviour {
 
     void UpdateStats () {
         moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
-            " - \n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
-            " - \n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString() + " - ";
+            "\n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
+            "\n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString();
         rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
+
+        upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
+            "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Weapon).ToString() +
+            "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Rotator).ToString();
     }
 
 	public void UpgradeAssembly (int t) {
@@ -218,7 +223,8 @@ public class AssemblyContextMenu : MonoBehaviour {
 	void UpdateDescText () {
         moduleName.text = rootModule.assemblyName;
 		moduleDesc.text = rootModule.assemblyDesc;
-        moduleImage.texture = rootModule.assembly.texture;
+        moduleImage.texture = rootModule.assembly.GetSprite();
+
         UpdateRangeIndicator ();
 
         int total = 0;

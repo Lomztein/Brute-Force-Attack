@@ -92,4 +92,19 @@ public class Assembly {
 		bf.Serialize (file, assembly);
 		file.Close ();
 	}
+
+    public Texture2D GetSprite () {
+        List<Texture2D> sprites = new List<Texture2D>();
+        List<Vector3> positions = new List<Vector3>();
+
+        for (int i = 0; i < parts.Count; i++) {
+
+            GameObject m = PurchaseMenu.cur.GetModulePrefab(parts[i].type);
+            sprites.Add(m.GetComponentInChildren<SpriteRenderer>().sprite.texture);
+            positions.Add(new Vector3(parts[i].x, parts[i].y));
+
+        }
+
+        return Module.CombineSprites(sprites.ToArray(), positions.ToArray());
+    }
 }

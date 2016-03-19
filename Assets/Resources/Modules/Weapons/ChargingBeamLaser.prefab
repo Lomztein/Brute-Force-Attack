@@ -146,10 +146,7 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Charging Beam Cannon
-  moduleDesc: Similar to a laser, but not quite. Instead of releasing a huge amount
-    of energy at once, this starts beaming, and slowly builds up the damage over time,
-    allowing huge damage against baddies with a lot of health. Essentially the most
-    powerful thing in the universe.
+  moduleDesc: Do not, for the sake of the entire planet, point this to the ground.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 

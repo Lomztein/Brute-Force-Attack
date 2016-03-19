@@ -69,6 +69,18 @@ public class Module : MonoBehaviour {
         return 0f;
     }
 
+    public int GetAssemblyUpgradeLevel (Type type) {
+        if (isRoot) {
+            for (int i = 0; i < modules.Count; i++) {
+                if (modules[i].moduleType == type)
+                    return modules[i].upgradeCount;
+            }
+        } else {
+            Debug.LogWarning("Tried to grap assembly upgrade count from non-root module.");
+        }
+        return 0;
+    }
+
     public float GetAssemblyAVGTurnSpeed () {
         if (isRoot) {
             float turnSpeed = 0f;

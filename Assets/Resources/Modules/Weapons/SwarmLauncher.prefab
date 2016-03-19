@@ -229,8 +229,8 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Swarm Launcher
-  moduleDesc: The Swarm Launcher launches many smaller missles towards your enemies,
-    generating death in the general direction it points.
+  moduleDesc: This weapon has the not-so-unuqui abilty to just destroy everything
+    in it's general direction.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 

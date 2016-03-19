@@ -10,7 +10,6 @@ public class Pathfinding : MonoBehaviour {
 	public PathManager pathManager;
 
 	public int index;
-	private int width;
 
 	public static Pathfinding finder;
 
@@ -33,7 +32,6 @@ public class Pathfinding : MonoBehaviour {
 	}
 
 	public static void BakePaths () {
-		finder.width = Game.game.enemySpawnPoints.Count;
 		for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
             Game.game.enemySpawnPoints[i].path = null;
 			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);

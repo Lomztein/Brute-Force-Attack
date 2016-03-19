@@ -323,8 +323,7 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Sam Site
-  moduleDesc: The sam launcher is designet specifically to take out fast, flying bad
-    guys.
+  moduleDesc: 
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 

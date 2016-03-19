@@ -58,7 +58,13 @@ public class BaseModule : Module {
 		targetingRange = range;
 	}
 
-	public float GetRange () {
+    public override bool UpgradeModule () {
+        bool passed = base.UpgradeModule();
+        upgradeMul = 1f + ((float)upgradeCount / MAX_UPGRADE_AMOUNT);
+        return passed;
+    }
+
+    public float GetRange () {
         if (Game.game.gamemode != Gamemode.VDay)
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
         else

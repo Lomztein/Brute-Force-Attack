@@ -46,6 +46,9 @@ public class PlayerInput : MonoBehaviour {
 	private Vector3 wallDragStart;
 	public Renderer wallDragGraphic;
 
+    private Vector3 wallGraphicStart;
+    private Vector3 wallGraphicEnd;
+
 	public Material placementMaterial;
 	public Material defualtMaterial;
 	public int currentCost;
@@ -232,6 +235,9 @@ public class PlayerInput : MonoBehaviour {
 
             if (!isPlacing && isEditingWalls) {
 
+                wallGraphicStart = wallDragGraphic.transform.position + wallDragGraphic.transform.localScale / 2f;
+                wallGraphicEnd = wallDragGraphic.transform.position - wallDragGraphic.transform.localScale / 2f;
+
                 if (Input.GetButtonDown ("Cancel"))
                     EditWalls (false);
 
@@ -247,7 +253,7 @@ public class PlayerInput : MonoBehaviour {
 
                 if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
                     wallDragStatus = WallDragStatus.Inactive;
-                    Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), true);
+                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), true);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
                 }
@@ -260,18 +266,23 @@ public class PlayerInput : MonoBehaviour {
 
                 if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
                     wallDragStatus = WallDragStatus.Inactive;
-                    Game.ChangeWalls (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y), false);
+                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), false);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
                 }
 
                 if (wallDragStatus != WallDragStatus.Inactive) {
 
-                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y));
-                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f) - Vector3.one * 0.5f;
+                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y)) + Vector3.one;
+                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 
-                    Rect rect = Game.PositivizeRect (new Rect (wallDragStart.x, wallDragStart.y, pos.x, pos.y));
+                    //Vector3 absStart = new Vector3(Mathf.Abs(wallDragStart.x), Mathf.Abs(wallDragStart.y));
+                    //Vector3 absPos = new Vector3(Mathf.Abs(pos.x), Mathf.Abs(pos.y));
+
+
+
+                    Rect rect = Game.PositivizeRect (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y));
 
                     int rectX = Mathf.RoundToInt(rect.x);
                     int rectY = Mathf.RoundToInt(rect.y);
@@ -281,7 +292,7 @@ public class PlayerInput : MonoBehaviour {
                     if (wallDragStatus == WallDragStatus.Adding) {
                         HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, true));
                     } else {
-                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, true));
+                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, false));
                     }
 
                 } else {
@@ -550,12 +561,10 @@ public class PlayerInput : MonoBehaviour {
 			}
 		}
 
-        if (isEditingWalls) {
+        if (isEditingWalls && wallDragStatus != WallDragStatus.Inactive) {
             Gizmos.DrawSphere(pos, 0.5f);
+            Gizmos.DrawSphere(wallDragStart, 0.5f);
+            Gizmos.DrawCube(wallDragStart + (pos - wallDragStart) / 2f, new Vector3 (Mathf.Abs (wallDragStart.x - pos.x), Mathf.Abs (wallDragStart.y - pos.y)) + Vector3.one);
         }
-
-        // Yeah, I had another friend complain a bit earlier :b
-        // Steam chat isn't really functioning for me during stream, so I'll just use comments.
-        // The wall editing code is very messy, and  that's what I'm trying to change right now.
 	}
 }
