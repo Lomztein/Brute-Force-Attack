@@ -21,7 +21,7 @@ public class HoverContextElement : MonoBehaviour {
 		HoverContext.ChangeText ("");
     }
 
-	void FixedUpdate () {
+	void Update () {
 		RaycastHit hit;
         Vector3 pos = Input.mousePosition;  
 
@@ -47,7 +47,7 @@ public class HoverContextElement : MonoBehaviour {
 		}
 
         if (activeElement == this && Input.GetMouseButtonDown (0)) {
-            SendMessage ("OnMouseClick", SendMessageOptions.DontRequireReceiver);
+            SendMessage ("OnMouseDownElement", SendMessageOptions.DontRequireReceiver);
         }
 	}
 

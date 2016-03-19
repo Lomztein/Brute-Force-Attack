@@ -324,7 +324,7 @@ public class PlayerInput : MonoBehaviour {
 
                 if (isUpgrading) {
                     upgradingMarker.transform.position = hit.collider.transform.position + Vector3.right * mod.moduleClass * 2f;
-                    if (mod.GetUpgradeCost ((int)mod.moduleType) > Game.credits || !mod.IsUpgradeable ()) {
+                    if (mod.GetUpgradeCost ((int)mod.moduleType) > Game.credits || !mod.IsAssemblyUpgradeable (-1)) {
                         upgradingMarker.color = Color.red;
                     } else {
                         upgradingMarker.color = Color.green;

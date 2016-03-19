@@ -175,10 +175,21 @@ public class Module : MonoBehaviour {
         Module.Type type = (Module.Type)t;
         bool upgradeable = true;
 
-        for (int i = 0; i < modules.Count; i++) {
-            if (modules[i].moduleType == type && !modules[i].IsUpgradeable ()) {
-                upgradeable = false;
+        if (t >= 0) {
+            for (int i = 0; i < modules.Count; i++) {
+                if (modules[i].moduleType == type && !modules[i].IsUpgradeable()) {
+                    upgradeable = !upgradeable;
+                    break;
+                }
             }
+        } else {
+            for (int i = 0; i < modules.Count; i++) {
+                if (modules[i].IsUpgradeable()) {
+                    Debug.Log("YOUR FACE LOL " + modules[i].name);
+                    return true;
+                }
+            }
+            return false;
         }
 
         return upgradeable;
@@ -301,7 +312,12 @@ public class Module : MonoBehaviour {
         if (isRoot) {
             HoverContextElement el = GetComponent<HoverContextElement> ();
             if (PlayerInput.cur.isUpgrading) {
-                el.text = "Upgrade Cost: " + GetFullUpgradeCost ().ToString () + " LoC";
+                if (IsAssemblyUpgradeable(-1)) {
+                    el.text = "Upgrade Cost: " + GetFullUpgradeCost() + " LoC" +
+                    "\n\tLevels - R/D/T: " + GetAssemblyUpgradeLevel(Type.Base) + "/" + GetAssemblyUpgradeLevel(Type.Weapon) + "/" + GetAssemblyUpgradeLevel(Type.Rotator);
+                } else {
+                    el.text = "Maxed out";
+                }
             } else {
                 el.text = assemblyName + " - " + ((int)GetAssemblyDPS ()).ToString () + " DPS";
             }
@@ -315,7 +331,6 @@ public class Module : MonoBehaviour {
 	}
 
     public int GetSellAmount () {
-        // I honestly have no idea why this math works, but it does.
         return Mathf.FloorToInt (moduleCost * (float)(upgradeCount + 1) * 0.75f) + 1;
     }
 
@@ -361,12 +376,13 @@ public class Module : MonoBehaviour {
 		                 b.size.x, b.size.y);
 	}
 
-    void OnMouseClick () {
+    void OnMouseDownElement () {
         if (PlayerInput.cur.isUpgrading && isRoot && Game.credits >= GetFullUpgradeCost ()) {
             UpgradeAssembly (0);
             UpgradeAssembly (1);
             UpgradeAssembly (2);
 
+            UpdateHoverContextElement();
             GetComponent<HoverContextElement> ().ForceUpdate ();
         }
     }

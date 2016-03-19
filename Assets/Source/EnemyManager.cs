@@ -412,8 +412,6 @@ public class EnemyManager : MonoBehaviour {
         waveCounterIndicator.text = "Wave: " + waveNumber.ToString();
         waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
-
-        Debug.Log(waveStarted);
 	}
 
 	EnemySpawnPoint GetSpawnPosition () {
