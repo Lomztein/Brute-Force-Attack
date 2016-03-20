@@ -311,12 +311,6 @@ public class PlayerInput : MonoBehaviour {
 
             if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
 
-                if (Input.GetMouseButtonDown (0) && !isUpgrading) {
-
-                    focusRoot = hit.collider.GetComponent<Module> ().rootModule;
-                    OpenModuleMenu ();
-                }
-
                 Module mod = hit.collider.GetComponent<Module> ();
 
                 hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);

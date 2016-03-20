@@ -185,7 +185,6 @@ public class Module : MonoBehaviour {
         } else {
             for (int i = 0; i < modules.Count; i++) {
                 if (modules[i].IsUpgradeable()) {
-                    Debug.Log("YOUR FACE LOL " + modules[i].name);
                     return true;
                 }
             }
@@ -304,7 +303,7 @@ public class Module : MonoBehaviour {
 		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
 	}
 
-    int GetFullUpgradeCost () {
+    public int GetFullUpgradeCost () {
         return GetUpgradeCost (0) + GetUpgradeCost (1) + GetUpgradeCost (2);
     }
 
@@ -327,6 +326,10 @@ public class Module : MonoBehaviour {
 	public void SellModule () {
 		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
         Game.credits += GetSellAmount ();
+
+        PlayerInput.cur.contextMenu.ExitMenu();
+        AssemblyCircleMenu.Close();
+
 		DestroyModule ();
 	}
 
@@ -377,6 +380,7 @@ public class Module : MonoBehaviour {
 	}
 
     void OnMouseDownElement () {
+        // The entire isUpgrading part of this isn't used anymore. Remove if it annoys you.
         if (PlayerInput.cur.isUpgrading && isRoot && Game.credits >= GetFullUpgradeCost ()) {
             UpgradeAssembly (0);
             UpgradeAssembly (1);
@@ -384,6 +388,8 @@ public class Module : MonoBehaviour {
 
             UpdateHoverContextElement();
             GetComponent<HoverContextElement> ().ForceUpdate ();
+        } else if (!PlayerInput.cur.isUpgrading) {
+            AssemblyCircleMenu.Open(Camera.main.WorldToScreenPoint(transform.position), this);
         }
     }
 

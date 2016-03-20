@@ -61,7 +61,7 @@ public class AssemblyContextMenu : MonoBehaviour {
         moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
             "\n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
             "\n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString();
-        rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
+        // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
 
         upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
             "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Weapon).ToString() +
@@ -110,19 +110,20 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void ExitMenu () {
-		OpenRangeIndicator ();
+		// OpenRangeIndicator ();
 		modules.Clear ();
 		gameObject.SetActive (false);
-		rangeIndicator.NullifyParent ();
+		// rangeIndicator.NullifyParent ();
         if (ModuleMod.currentMenu[0])
             Destroy (ModuleMod.currentMenu[0]);
     }
 
-	void GetRange (float range) {
+	public void GetRange (float range) {
 		indicatorRange = range;
 	}
 
 	public void OpenAssembly (Module _rootModule) {
+        gameObject.SetActive(true);
 		rootModule = _rootModule;
 		modules = rootModule.GetModuleTree ().ToList ();
 		UpdateModuleTree ();
@@ -164,7 +165,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 				Destroy (obj);
 			}
 
-		OpenRangeIndicator ();
+		// OpenRangeIndicator ();
 
 		Dictionary<string, int> loc = new Dictionary<string, int>();
 		// List<string> indexedNames = new List<string>();
@@ -225,7 +226,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		moduleDesc.text = rootModule.assemblyDesc;
         moduleImage.texture = rootModule.assembly.GetSprite();
 
-        UpdateRangeIndicator ();
+        // UpdateRangeIndicator ();
 
         int total = 0;
         foreach (Module mod in modules)
