@@ -50,6 +50,7 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 3
+  isHitscan: 1
   particle: {fileID: 0}
   hitParticle: {fileID: 0}
   particleCount: 0

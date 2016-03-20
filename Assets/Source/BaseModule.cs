@@ -166,10 +166,14 @@ public class BaseModule : Module {
 		float r = float.MaxValue;
 		for (int i = 0; i < weapons.Length; i++) {
 			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
-				if (weapons[i].bulletSpeed > speed)
-					speed = weapons[i].bulletSpeed;
+				if (weapons[i].bulletSpeed > speed) {
+                    speed = weapons[i].bulletSpeed;
+                    if (weapons[i].GetBulletData ().isHitscan) {
+                        speed = 100000;
+                    }
+                }
 
-				if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
+                if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
 					priorities.Add (weapons[i].GetBulletData ().effectiveAgainst);
 				}
 

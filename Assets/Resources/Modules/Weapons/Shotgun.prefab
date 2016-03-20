@@ -207,10 +207,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772750980fca21b409026880562a561b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: Shotgun
   muzzles:
   - {fileID: 459680}
   - {fileID: 418236}
-  bullet: {fileID: 159654, guid: c19463dbbcda58f44a0b56310e0869cc, type: 2}
+  bullet:
+  - {fileID: 159654, guid: c19463dbbcda58f44a0b56310e0869cc, type: 2}
   bulletData: {fileID: 0}
   bulletSpeed: 60
   bulletSpread: 10
@@ -219,6 +221,7 @@ MonoBehaviour:
   maxRange: 0
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -228,6 +231,7 @@ MonoBehaviour:
   firerate: 1.2
   sequenceTime: 0.3
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
 --- !u!212 &21276390
 SpriteRenderer:

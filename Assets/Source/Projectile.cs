@@ -14,6 +14,7 @@ public class Projectile : MonoBehaviour {
 
 	public bool hitOnlyTarget;
 	public Colour effectiveAgainst;
+    public bool isHitscan;
 
 	public ParticleSystem particle;
     public ParticleSystem hitParticle;

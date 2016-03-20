@@ -179,9 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7f5f8b0f72b44945b382c9622ae8190, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: ChargingBeamCannon
   muzzles:
   - {fileID: 409096}
-  bullet: {fileID: 155814, guid: 62d3b0a69cccf3d43bcd056d2d48d592, type: 2}
+  bullet: []
   bulletData: {fileID: 0}
   bulletSpeed: 0
   bulletSpread: 0
@@ -190,6 +191,7 @@ MonoBehaviour:
   maxRange: 15
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -199,6 +201,7 @@ MonoBehaviour:
   firerate: 5
   sequenceTime: 0
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
   line: {fileID: 12021356}
   charge: 0

@@ -41,7 +41,7 @@ public class PlayerInput : MonoBehaviour {
 
 	public static PlayerInput cur;
 
-	private bool isEditingWalls;
+	public bool isEditingWalls;
 	private WallDragStatus wallDragStatus;
 	private Vector3 wallDragStart;
 	public Renderer wallDragGraphic;
@@ -161,8 +161,10 @@ public class PlayerInput : MonoBehaviour {
 		wallDragGraphic.enabled = isEditingWalls;
 
 		if (!isEditingWalls) {
-			wallDragStart = Vector3.zero;
-			wallDragStatus = WallDragStatus.Inactive;
+            wallDragStart = new Vector3(10000, 0, 0);
+            wallGraphicStart = new Vector3(10000, 0, 0);
+            wallGraphicEnd = new Vector3(10000, 0, 0);
+            wallDragStatus = WallDragStatus.Inactive;
 		}
 	}
 
@@ -174,6 +176,9 @@ public class PlayerInput : MonoBehaviour {
         pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
         rangeIndicator.GetRange (0f);
+
+        if (Input.GetButtonDown("Cancel"))
+            CancelAll ();
 
         if (!EnemyManager.waveStarted) {
             if (isPlacing && !isEditingWalls) {
@@ -237,9 +242,6 @@ public class PlayerInput : MonoBehaviour {
 
                 wallGraphicStart = wallDragGraphic.transform.position + wallDragGraphic.transform.localScale / 2f;
                 wallGraphicEnd = wallDragGraphic.transform.position - wallDragGraphic.transform.localScale / 2f;
-
-                if (Input.GetButtonDown ("Cancel"))
-                    EditWalls (false);
 
                 if ((Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Adding) || (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Removing)) {
                     wallDragStatus = WallDragStatus.Inactive;
@@ -356,7 +358,7 @@ public class PlayerInput : MonoBehaviour {
 	bool CanPlaceAtPos (Vector3 pos) {
 
 		int hits = 4;
-		if (pModule.moduleCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject))
+		if (currentCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject))
 			return false;
 
 		if (pModule.moduleType == Module.Type.Weapon) {

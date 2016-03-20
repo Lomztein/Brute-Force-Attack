@@ -85,7 +85,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
     void InitializeArray () {
 		header.text = "Select " + game.assembliesAllowed.ToString () + " assemblies";
-		footer.text = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+		footer.text = "No tier 0 detected";
 
         string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
         tempLoaded = new Assembly[files.Length];
@@ -158,7 +158,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 				Research research = ResearchMenu.cur.research[j];
 
 				if (research.func == "UnlockModule") {
-					if (mod == ResearchMenu.cur.unlockableModules[research.value] && techLevel < research.y)
+					if (mod == ResearchMenu.cur.unlockableModules[int.Parse (research.meta)] && techLevel < research.y)
 						techLevel = research.y;
 				}
 			}

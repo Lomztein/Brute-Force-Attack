@@ -60,6 +60,16 @@ public class ResearchMenu : MonoBehaviour {
 		SplitterHomingProjectile.amount = 0;
 		SlowfieldArea.staticMultiplier = 1f;
 		TeslaProjectile.chainAmount = 0;
+
+        GameObject[] weaponModules = Resources.LoadAll<GameObject>("Modules/Weapons/");
+        for (int i = 0; i < weaponModules.Length; i++) {
+            Weapon wep = weaponModules[i].GetComponentInChildren<Weapon>();
+            if (!Weapon.bulletIndex.ContainsKey (wep.weaponIdentifier)) {
+                Weapon.bulletIndex.Add(wep.weaponIdentifier, 0);
+            } else {
+                Weapon.bulletIndex[wep.weaponIdentifier] = 0;
+            }
+        }
 	}
 
 	public void ToggleResearchMenu () {
@@ -294,7 +304,7 @@ public class ResearchMenu : MonoBehaviour {
         public string name;
         public string desc;
         public string func;
-        public int value;
+        public string meta;
 
         public Colour colour;
 
@@ -307,7 +317,7 @@ public class ResearchMenu : MonoBehaviour {
             name = res.name;
             desc = res.desc;
             func = res.func;
-            value = res.value;
+            meta = res.meta;
             colour = res.colour;
             x = res.x;
             y = res.y;
@@ -352,38 +362,38 @@ public class ResearchMenu : MonoBehaviour {
 
 	// Put research code here
 	public void UnlockModule (Research research) {
-		Game.game.purchaseMenu.standard.Add (unlockableModules[research.value]);
+		Game.game.purchaseMenu.standard.Add (unlockableModules[int.Parse (research.meta)]);
 	}
 
 	public void UnlockSpecialModule (Research research) {
-		Game.game.purchaseMenu.special.Add (unlockableModules[research.value]);
+		Game.game.purchaseMenu.special.Add (unlockableModules[int.Parse(research.meta)]);
 		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.special.ToArray ());
 	}
 
 	public void IncreaseFirerate (Research research) {
 		float loc = 1f/firerateMul [(int)research.colour];
-		loc *= (float)research.value / 100f + 1f;
+		loc *= (float)int.Parse(research.meta) / 100f + 1f;
 		firerateMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseDamage (Research research) {
-		damageMul[(int)research.colour] *= (float)research.value/100 + 1f;
+		damageMul[(int)research.colour] *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void DecreaseCost (Research research) {
-		damageMul[(int)research.colour] *= 1f - (float)research.value/100;
+		damageMul[(int)research.colour] *= 1f - (float)int.Parse(research.meta)/100;
 
 		float loc = 1f/costMul[(int)research.colour];
-		loc *= (float)research.value / 100f + 1f;
+		loc *= (float)int.Parse(research.meta) / 100f + 1f;
 		costMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseTurnrate (Research research) {
-		turnrateMul *= (float)research.value/100 + 1f;
+		turnrateMul *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void IncreaseRange (Research research) {
-		rangeMul *= (float)research.value/100 + 1f;
+		rangeMul *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void UnlockAutoBaseHeal (Research research) {
@@ -420,7 +430,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void IncreaseBeamCannonChargeSpeed (Research research) {
-		FocusBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
+		FocusBeamWeapon.chargeSpeedMultiplier *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void EnableSmallRocketLauncherSplit (Research research) {
@@ -436,7 +446,11 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void AddAbility (Research research) {
-		AbilityBar.AddAbility (research.value);
+		AbilityBar.AddAbility (int.Parse(research.meta));
 	}
+
+    public void UpgradeWeapon (Research research) {
+        Weapon.TechUpWeapon(research.meta);
+    }
 }
 	

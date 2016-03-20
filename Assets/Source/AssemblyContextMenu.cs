@@ -58,9 +58,9 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
     void UpdateStats () {
-        moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
-            "\n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
-            "\n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString();
+        moduleStats.text = "Root range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
+            "\n\nDamage per second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
+            "\n\nAvarage turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString();
         // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
 
         upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +

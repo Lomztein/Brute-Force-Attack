@@ -68,6 +68,7 @@ public class Game : MonoBehaviour {
             if (!_creditsUpdatedThisFrame) {
                 if (PurchaseMenu.cur)
                     PurchaseMenu.UpdateButtons();
+                AssemblyCircleMenu.UpdateButtons();
             }
         }
     }
@@ -517,30 +518,31 @@ public class Game : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		if (currentScene == Scene.Play)
-			GameUpdate ();
+		if (currentScene == Scene.Play) {
+            musicVolume = musicSlider.value;
+            soundVolume = soundSlider.value;
+
+            if (datastream.pooledNumbers.Count <= 0) {
+                RestartMap();
+            }
+
+            researchText.text = "Research: " + research.ToString();
+            creditsText.text = "Credits: " + credits.ToString() + " LoC";
+            researchSlider.value = researchProgress;
+
+            if (researchProgress > 1) {
+                float excess = researchProgress - 1;
+                researchProgress = excess;
+                research++;
+            }
+
+            _creditsUpdatedThisFrame = false;
+            _researchUpdatedThisFrame = false;
+        }
 	}
 
-	void GameUpdate () {
-		musicVolume = musicSlider.value;
-		soundVolume = soundSlider.value;
-		
-		if (datastream.pooledNumbers.Count <= 0) {
-			RestartMap ();
-		}
-		
-		researchText.text = "Research: " + research.ToString ();
-		creditsText.text = "Credits: " + credits.ToString () + " LoC";
-		researchSlider.value = researchProgress;
-		
-		if (researchProgress > 1) {
-			float excess = researchProgress - 1;
-			researchProgress = excess;
-			research++;
-		}
-
-        _creditsUpdatedThisFrame = false;
-        _researchUpdatedThisFrame = false;
+    void Update () {
+        HoverContext.StaticUpdate();
     }
 
 	public void SaveBattlefieldData (string fileName) {

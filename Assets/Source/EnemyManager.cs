@@ -273,7 +273,7 @@ public class EnemyManager : MonoBehaviour {
             waveNumber++;
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
-			waveCounterIndicator.text = "Wave: Initialzing..";
+			waveCounterIndicator.text = "Wave: Initializing..";
             spawnedResearch = 0;
 			Pathfinding.BakePaths ();
             StartCoroutine (PoolBaddies ());

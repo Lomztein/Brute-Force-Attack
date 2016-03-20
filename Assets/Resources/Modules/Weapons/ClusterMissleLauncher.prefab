@@ -138,9 +138,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3ceb3116f1859e4b817e77436923d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: ClusterMissleLauncher
   muzzles:
   - {fileID: 488984}
-  bullet: {fileID: 194094, guid: 03476bb7a923ab242ae2c96fce3a3732, type: 2}
+  bullet:
+  - {fileID: 194094, guid: 03476bb7a923ab242ae2c96fce3a3732, type: 2}
   bulletData: {fileID: 0}
   bulletSpeed: 25
   bulletSpread: 0
@@ -149,6 +151,7 @@ MonoBehaviour:
   maxRange: 0
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -158,6 +161,7 @@ MonoBehaviour:
   firerate: 7
   sequenceTime: 0.1
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
   enableDoubleRocketResearch: 0
 --- !u!114 &11455914

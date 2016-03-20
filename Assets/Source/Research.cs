@@ -9,7 +9,7 @@ public class Research {
 	public string desc;
 	public string func;
     public Sprite sprite;
-	public int value;
+	public string meta;
 
 	public Colour colour;
 	

@@ -1405,126 +1405,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 238104263}
---- !u!1 &239662646
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 224: {fileID: 239662647}
-  - 222: {fileID: 239662650}
-  - 114: {fileID: 239662649}
-  - 114: {fileID: 239662648}
-  m_Layer: 5
-  m_Name: CloseButton
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &239662647
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 239662646}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 0.5}
-  m_Children: []
-  m_Father: {fileID: 2003845757}
-  m_RootOrder: 1
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -40.1, y: -30.3}
-  m_SizeDelta: {x: 33.449, y: 33.4}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &239662648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 239662646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 239662649}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2003845758}
-        m_MethodName: ToggleResearchMenu
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
---- !u!114 &239662649
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 239662646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.67058825, b: 0.67058825, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 160bc22871a22264fb4946dd95b115be, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
---- !u!222 &239662650
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 239662646}
 --- !u!1 &245416167
 GameObject:
   m_ObjectHideFlags: 0
@@ -2437,7 +2317,7 @@ MonoBehaviour:
     spawnTime: 0
   waveNumber: 0
   waveMastery: 1
-  amountModifier: 16
+  amountModifier: 1
   gameProgressSpeed: 1.2
   currentEnemies: 0
   endBoss: {fileID: 151300, guid: 5b7a717d44eabb94f98836a3cff048b4, type: 2}
@@ -3002,7 +2882,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -3727,7 +3607,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4029,7 +3909,7 @@ RectTransform:
   - {fileID: 151904009}
   - {fileID: 1122164757}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 10
+  m_RootOrder: 13
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -32.6}
@@ -4265,7 +4145,7 @@ RectTransform:
   - {fileID: 498572292}
   - {fileID: 2088659065}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -609.5, y: 0}
@@ -5053,6 +4933,73 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &734522532
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 734522533}
+  - 222: {fileID: 734522535}
+  - 114: {fileID: 734522534}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &734522533
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 734522532}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2062240843}
+  m_RootOrder: 0
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -10, y: -10}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &734522534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 734522532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0.67058825, b: 0.67058825, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: 160bc22871a22264fb4946dd95b115be, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &734522535
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 734522532}
 --- !u!1 &749008881
 GameObject:
   m_ObjectHideFlags: 0
@@ -6570,7 +6517,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.65}
+  m_AnchoredPosition: {x: 0.5, y: -29.650023}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1067827565
@@ -7616,12 +7563,12 @@ RectTransform:
   - {fileID: 2072584270}
   - {fileID: 1091029456}
   - {fileID: 19699718}
+  - {fileID: 1433432723}
   - {fileID: 399368787}
   - {fileID: 598373620}
-  - {fileID: 587920089}
   - {fileID: 2003845757}
   - {fileID: 1035021421}
-  - {fileID: 1433432723}
+  - {fileID: 587920089}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_AnchorMin: {x: 0, y: 0}
@@ -7732,6 +7679,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 921901753}
   rectTransform: {fileID: 1350535320}
+  worldLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  GUILayers:
+    serializedVersion: 2
+    m_Bits: 32
 --- !u!1 &1156494365
 GameObject:
   m_ObjectHideFlags: 0
@@ -7803,7 +7756,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1156494368}
   m_OnClick:
     m_PersistentCalls:
@@ -8150,7 +8103,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 2800000, guid: 160bc22871a22264fb4946dd95b115be, type: 3}
+  m_Texture: {fileID: 2800000, guid: b93adb7144b80e94b9687d097ee346e8, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -9228,7 +9181,7 @@ RectTransform:
   - {fileID: 325234630}
   - {fileID: 657088480}
   m_Father: {fileID: 1143145210}
-  m_RootOrder: 13
+  m_RootOrder: 8
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -660, y: 356}
@@ -11308,8 +11261,8 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
-  startingCredits: 500000
-  startingResearch: 5000
+  startingCredits: 50000
+  startingResearch: 50000
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
   - Rektinator
@@ -11438,6 +11391,7 @@ MonoBehaviour:
   - {x: 0.3, y: -0.3, z: 0}
   - {x: -0.3, y: -0.3, z: 0}
   - {x: -0.3, y: 0.3, z: 0}
+  isEditingWalls: 0
   wallDragGraphic: {fileID: 1088229367}
   placementMaterial: {fileID: 2100000, guid: 644422ac796adb14786360eac6f31d1a, type: 2}
   defualtMaterial: {fileID: 2100000, guid: ef457dd95c0046a4ab5955a592e7edfe, type: 2}
@@ -11821,7 +11775,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 2}
   m_Children:
   - {fileID: 393210247}
-  - {fileID: 239662647}
+  - {fileID: 2062240843}
   m_Father: {fileID: 1143145210}
   m_RootOrder: 11
   m_AnchorMin: {x: 0.5, y: 0}
@@ -11848,7 +11802,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: ca536bb54092a1347b9343666a4f975b, type: 3}
-    value: 0
+    meta: 0
     colour: 0
     x: 0
     y: 0
@@ -11858,7 +11812,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: a73e4912ba5c37243b1e2bec5375374b, type: 3}
-    value: 6
+    meta: 6
     colour: 0
     x: 0
     y: 1
@@ -11868,7 +11822,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 88f97595b664d2440ba4b339c376022f, type: 3}
-    value: 3
+    meta: 3
     colour: 0
     x: -1
     y: 2
@@ -11878,7 +11832,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseDamage
     sprite: {fileID: 21300000, guid: 9d52e34d44eb03c49bf0dd98ba38e9f6, type: 3}
-    value: 30
+    meta: 30
     colour: 5
     x: 1
     y: 1
@@ -11888,7 +11842,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 07854808a9a833640af9cf8f153230f3, type: 3}
-    value: 5
+    meta: 5
     colour: 0
     x: 2
     y: 2
@@ -11898,17 +11852,17 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: aa626c8fce17ee6469282bb6d812db04, type: 3}
-    value: 4
+    meta: 4
     colour: 0
     x: 2
     y: 4
-    prerequisite: 4
+    prerequisite: 32
     index: 5
   - name: Research the 3x Structural Module module
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 9c3bf908c5d9eaa4c93fb8556e27123a, type: 3}
-    value: 9
+    meta: 9
     colour: 0
     x: 0
     y: 2
@@ -11919,17 +11873,17 @@ MonoBehaviour:
       if they do not have a target of their own, target the launchers new target.
     func: EnableAutoFindTarget
     sprite: {fileID: 21300000, guid: 755016ba6a942cf42b040c6a282258c5, type: 3}
-    value: 0
+    meta: 
     colour: 5
     x: 3
     y: 2
     prerequisite: 20
     index: 7
   - name: Increase blue damage by 20%
-    desc: 
+    desc: 20
     func: IncreaseDamage
     sprite: {fileID: 21300000, guid: 9d52e34d44eb03c49bf0dd98ba38e9f6, type: 3}
-    value: 20
+    meta: 20
     colour: 1
     x: -3
     y: 0
@@ -11939,7 +11893,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseDamage
     sprite: {fileID: 21300000, guid: 9d52e34d44eb03c49bf0dd98ba38e9f6, type: 3}
-    value: 20
+    meta: 20
     colour: 3
     x: -4
     y: 0
@@ -11949,17 +11903,17 @@ MonoBehaviour:
     desc: 
     func: IncreaseFirerate
     sprite: {fileID: 21300000, guid: d24a946a48e3a0e4292f499bc38323bf, type: 3}
-    value: 30
+    meta: 30
     colour: 1
     x: -3
     y: 1
     prerequisite: 8
     index: 10
-  - name: Increase yellow firerate by 20%
+  - name: Increase yellow firerate by 30%
     desc: 
     func: IncreaseFirerate
     sprite: {fileID: 21300000, guid: d24a946a48e3a0e4292f499bc38323bf, type: 3}
-    value: 20
+    meta: 30
     colour: 3
     x: -4
     y: 2
@@ -11969,7 +11923,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 40dcee6da313fcf4b83446e4e919217f, type: 3}
-    value: 7
+    meta: 7
     colour: 0
     x: -1
     y: 4
@@ -11979,7 +11933,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 6b45a8edfd012424e8c9d803f373e0a1, type: 3}
-    value: 8
+    meta: 8
     colour: 0
     x: -2
     y: 5
@@ -11989,7 +11943,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 881f9e6b4ecd4314f8f6cd8b706b5f29, type: 3}
-    value: 10
+    meta: 10
     colour: 0
     x: -3
     y: 4
@@ -11999,7 +11953,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 8daff1e42d215084a9eb22fea291ac07, type: 3}
-    value: 15
+    meta: 15
     colour: 0
     x: -3
     y: 3
@@ -12009,17 +11963,17 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 1557d2272b4c3284ab4a982dcf355149, type: 3}
-    value: 14
+    meta: 14
     colour: 0
     x: -2
-    y: 6
+    y: 8
     prerequisite: 13
     index: 16
   - name: Research the Small Shotgun module
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 5a0192c92c270c7439993f109394edaa, type: 3}
-    value: 17
+    meta: 17
     colour: 0
     x: -2
     y: 1
@@ -12029,7 +11983,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseFirerate
     sprite: {fileID: 21300000, guid: d24a946a48e3a0e4292f499bc38323bf, type: 3}
-    value: 60
+    meta: 60
     colour: 5
     x: 3
     y: 5
@@ -12039,7 +11993,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseRange
     sprite: {fileID: 21300000, guid: 49a8e0e10eb12b241989f7a24abd6f17, type: 3}
-    value: 30
+    meta: 30
     colour: 0
     x: 0
     y: 5
@@ -12049,7 +12003,7 @@ MonoBehaviour:
     desc: 
     func: EnableAdvancedTracking
     sprite: {fileID: 21300000, guid: 160bc22871a22264fb4946dd95b115be, type: 3}
-    value: 0
+    meta: 
     colour: 2
     x: 3
     y: 0
@@ -12059,7 +12013,7 @@ MonoBehaviour:
     desc: 
     func: EnableFirewall
     sprite: {fileID: 21300000, guid: 881f2875fe5e90d488dfa131fe976d65, type: 3}
-    value: 0
+    meta: 
     colour: 2
     x: 1
     y: 5
@@ -12069,7 +12023,7 @@ MonoBehaviour:
     desc: 
     func: EnableRepurposing
     sprite: {fileID: 21300000, guid: 78eeda8aed5decd4683bcf380c69a637, type: 3}
-    value: 0
+    meta: 
     colour: 0
     x: 1
     y: 3
@@ -12079,7 +12033,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseDamage
     sprite: {fileID: 21300000, guid: 9d52e34d44eb03c49bf0dd98ba38e9f6, type: 3}
-    value: 100
+    meta: 100
     colour: 4
     x: 1
     y: 7
@@ -12087,9 +12041,9 @@ MonoBehaviour:
     index: 23
   - name: Research the Slowfield Generator module
     desc: 
-    func: UnlockModule
+    func: UnlockSpecialModule
     sprite: {fileID: 21300002, guid: 10a4b33953bea9a4890d1b61a1320eb7, type: 3}
-    value: 19
+    meta: 19
     colour: 0
     x: -4
     y: 5
@@ -12099,7 +12053,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: bc9dd42c89e408f4caf600b807324728, type: 3}
-    value: 20
+    meta: 20
     colour: 0
     x: -2
     y: 3
@@ -12109,7 +12063,7 @@ MonoBehaviour:
     desc: 
     func: DecreaseSlowfieldSpeedMultiplier
     sprite: {fileID: 21300000, guid: 10a4b33953bea9a4890d1b61a1320eb7, type: 3}
-    value: 0
+    meta: 
     colour: 0
     x: -4
     y: 7
@@ -12119,7 +12073,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 1bede85a49c194a409e52df037cd8419, type: 3}
-    value: 18
+    meta: 18
     colour: 0
     x: 2
     y: 8
@@ -12129,7 +12083,7 @@ MonoBehaviour:
     desc: 
     func: IncreaseBeamCannonChargeSpeed
     sprite: {fileID: 21300000, guid: 422a261afe11fae4382dc3ab8fb52906, type: 3}
-    value: 30
+    meta: 30
     colour: 5
     x: 2
     y: 10
@@ -12139,7 +12093,7 @@ MonoBehaviour:
     desc: 
     func: UnlockModule
     sprite: {fileID: 21300000, guid: 0d1a8484d3d1b0645b853fbceb7fc661, type: 3}
-    value: 13
+    meta: 13
     colour: 0
     x: -1
     y: 6
@@ -12149,9 +12103,9 @@ MonoBehaviour:
     desc: 
     func: EnableChainLightning
     sprite: {fileID: 21300000, guid: abff11ea2f954dd4ca86c26917412e4b, type: 3}
-    value: 0
+    meta: 
     colour: 3
-    x: -2
+    x: -1
     y: 7
     prerequisite: 29
     index: 30
@@ -12159,12 +12113,22 @@ MonoBehaviour:
     desc: 
     func: IncreasePixelThrowerFireSize
     sprite: {fileID: 21300000, guid: 3bb7a43c43f99154ea1112d2a2159877, type: 3}
-    value: 0
+    meta: 
     colour: 0
     x: -3
     y: 6
     prerequisite: 14
     index: 31
+  - name: Research Swarm Missles Upgrade
+    desc: 
+    func: UpgradeWeapon
+    sprite: {fileID: 21300000, guid: 755016ba6a942cf42b040c6a282258c5, type: 3}
+    meta: SmallRocketLauncher
+    colour: 5
+    x: 2
+    y: 3
+    prerequisite: 4
+    index: 32
   scrollThingie: {fileID: 1602341298}
   startRect: {fileID: 1289806269}
   buttonPrefab: {fileID: 120856, guid: 14b8fed8e80ff1247889dcc697eed5b2, type: 2}
@@ -12466,6 +12430,145 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2048868879}
+--- !u!1 &2062240842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 2062240843}
+  - 222: {fileID: 2062240847}
+  - 114: {fileID: 2062240846}
+  - 114: {fileID: 2062240845}
+  - 95: {fileID: 2062240844}
+  m_Layer: 5
+  m_Name: CloseButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2062240843
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2062240842}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0.5}
+  m_Children:
+  - {fileID: 734522533}
+  m_Father: {fileID: 2003845757}
+  m_RootOrder: 1
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -40, y: -30}
+  m_SizeDelta: {x: 33.449, y: 33.4}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!95 &2062240844
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2062240842}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 57e9fcf45e9c11e499df31818291a287, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &2062240845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2062240842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 3
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 2062240846}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2003845758}
+        m_MethodName: ToggleResearchMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+--- !u!114 &2062240846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2062240842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: d5b7b40b83db0f846bd825ce9a6a7004, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &2062240847
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2062240842}
 --- !u!1 &2065643611
 GameObject:
   m_ObjectHideFlags: 0

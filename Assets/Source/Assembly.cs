@@ -66,7 +66,7 @@ public class Assembly {
             for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
                 Research r = ResearchMenu.cur.research[i];
                 if (r.func == "UnlockModule") {
-                    Module mod = ResearchMenu.cur.unlockableModules[r.value].GetComponent<Module> ();
+                    Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
 
                     if (mod.moduleName == data.parts[j].type)
                         hls.Add (r);
