@@ -280,14 +280,18 @@ public class Module : MonoBehaviour {
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
-		Game.currentModules.Add (this);
+
+        if (Game.game)
+            Game.currentModules.Add (this);
 
 		rootModule = FindRootModule ();
 		if (rootModule == this) {
 			isRoot = true;
 			moduleIndex = 0;
 			saveIndex = 0;
-		    BlockArea ();
+
+		    if (Game.game)
+                BlockArea ();
 
             UpdateHoverContextElement ();
 
@@ -308,9 +312,9 @@ public class Module : MonoBehaviour {
     }
 
     public void UpdateHoverContextElement () {
-        if (isRoot) {
+        if (isRoot && Game.game) {
             HoverContextElement el = GetComponent<HoverContextElement> ();
-            if (PlayerInput.cur.isUpgrading) {
+            if (Game.game && PlayerInput.cur.isUpgrading) {
                 if (IsAssemblyUpgradeable(-1)) {
                     el.text = "Upgrade Cost: " + GetFullUpgradeCost() + " LoC" +
                     "\n\tLevels - R/D/T: " + GetAssemblyUpgradeLevel(Type.Base) + "/" + GetAssemblyUpgradeLevel(Type.Weapon) + "/" + GetAssemblyUpgradeLevel(Type.Rotator);

@@ -88,9 +88,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   speed: 0.5
-  health: 1200
-  damage: 75
-  value: 1337
+  health: 800
+  damage: 1000
+  value: 1000
   isFlying: 1
   researchDropChance: 1
   spawnPoint: {fileID: 0}
@@ -99,7 +99,7 @@ MonoBehaviour:
   path: []
   pathIndex: 0
   offset: {x: 0, y: 0, z: 0}
-  deathParticle: {fileID: 0}
+  deathParticle: {fileID: 174464, guid: 5159e1932d1823e4c96190a2de1167e4, type: 2}
   researchPoint: {fileID: 174464, guid: 5159e1932d1823e4c96190a2de1167e4, type: 2}
   upcomingElement: {fileID: 0}
   healthSlider: {fileID: 0}

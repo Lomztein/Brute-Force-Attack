@@ -2319,6 +2319,7 @@ MonoBehaviour:
   waveMastery: 1
   amountModifier: 1
   gameProgressSpeed: 1.2
+  readyStatus: 0
   currentEnemies: 0
   endBoss: {fileID: 151300, guid: 5b7a717d44eabb94f98836a3cff048b4, type: 2}
   enemyPool: {fileID: 2097322082}
@@ -2817,7 +2818,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 360752202}
-        m_MethodName: ReadyWave
+        m_MethodName: StartReadyWave
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6517,7 +6518,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.650023}
+  m_AnchoredPosition: {x: 0.5, y: -29.650024}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1067827565
@@ -9467,8 +9468,8 @@ MonoBehaviour:
   m_Text: 'Congratulations.
 
 
-    You have beaten all the waves in this beta version 1.2.1 of Project Virus. You
-    can now continue in Mastery Mode.
+    You have beaten all the waves in this beta version 1.7 of Project Virus. You can
+    now continue in Mastery Mode.
 
 
     - Lomztein'
@@ -11262,7 +11263,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   startingCredits: 50000
-  startingResearch: 50000
+  startingResearch: 0
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
   - Rektinator
@@ -11356,7 +11357,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 2025192198}
   m_Father: {fileID: 0}
   m_RootOrder: 1
 --- !u!114 &1877207634
@@ -12191,6 +12193,33 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2003845756}
+--- !u!1 &2025192197
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 2025192198}
+  m_Layer: 13
+  m_Name: IntroAnimation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2025192198
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2025192197}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1877207633}
+  m_RootOrder: 0
 --- !u!1 &2032161155
 GameObject:
   m_ObjectHideFlags: 0

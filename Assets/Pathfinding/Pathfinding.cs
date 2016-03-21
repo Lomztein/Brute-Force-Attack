@@ -36,7 +36,6 @@ public class Pathfinding : MonoBehaviour {
             Game.game.enemySpawnPoints[i].path = null;
 			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);
 		}
-		finder.Invoke ("ResetIndex", EnemyManager.readyWaitTime);
 	}
 
 	void ResetIndex () {
@@ -45,10 +44,16 @@ public class Pathfinding : MonoBehaviour {
 
 	public void OnFinished(Vector2[] _path, bool success) {
 		if (success) {
-			Game.game.enemySpawnPoints[index].path = _path;
-			index++;
+            Game.game.enemySpawnPoints[index].path = _path;
 		}
-	}
+        index++;
+        if (index == Game.game.enemySpawnPoints.Count) {
+            if (EnemyManager.wavePrebbing) {
+                EnemyManager.cur.readyStatus = EnemyManager.ReadyStatus.PathsBuild;
+            }
+            ResetIndex();
+        }
+    }
 
 	public static void ChangeArea (Rect rect, bool clear) {
 		

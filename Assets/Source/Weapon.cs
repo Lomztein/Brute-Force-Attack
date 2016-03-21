@@ -87,8 +87,10 @@ public class Weapon : MonoBehaviour {
 		pool = new GameObject (weaponIdentifier + "Pool").transform;
         pointer.parent = transform;
 		pointer.transform.position = transform.position;
-        locBulletIndex = bulletIndex[weaponIdentifier];
-        activeWeapons.Add(this);
+        if (Game.game) {
+            locBulletIndex = bulletIndex[weaponIdentifier];
+            activeWeapons.Add(this);
+        }
 	}
 
 	IEnumerator DoFire () {

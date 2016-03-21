@@ -73,8 +73,11 @@ public class WeaponModule : Module {
 	}
 
     public float GetDPS () {
-        return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * weapon.damageUpgradeMul *
-                ResearchMenu.damageMul[(int)weapon.GetBulletData ().effectiveAgainst] *
-                weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData ().effectiveAgainst]));
+        if (Game.game) {
+            return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * weapon.damageUpgradeMul *
+                    ResearchMenu.damageMul[(int)weapon.GetBulletData().effectiveAgainst] *
+                    weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData().effectiveAgainst]));
+        }
+        return 0f;
     }
 }

@@ -40,13 +40,14 @@ public class Enemy : MonoBehaviour {
 		offset = new Vector3 (off.x, off.y, 0f);
 		health = Mathf.RoundToInt ((float)health * EnemyManager.gameProgress);
 
-        if (Game.game.gamemode == Gamemode.GlassEnemies) {
+        if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;
-        }else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
+        }else if (Game.game && Game.game.gamemode == Gamemode.TitaniumEnemies) {
             health *= 10;
         }
 
-        CreateHealthMeter ();
+        if (Game.game)
+            CreateHealthMeter ();
     }
 
     void CreateHealthMeter () {

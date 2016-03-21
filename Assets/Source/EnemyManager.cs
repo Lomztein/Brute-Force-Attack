@@ -37,6 +37,10 @@ public class EnemyManager : MonoBehaviour {
 	public static float gameProgress = 1f;
 	public float gameProgressSpeed = 1f;
 
+    // Paths are build first, enemies second, so EnemiesBuild also means PathsBuild.
+    public enum ReadyStatus { None, PathsBuild, EnemiesBuild };
+    public ReadyStatus readyStatus = ReadyStatus.None;
+
 	[Header ("Enemies")]
 	public int currentEnemies;
 	public GameObject endBoss;
@@ -103,8 +107,27 @@ public class EnemyManager : MonoBehaviour {
         // Enemy movement code:
         for (int i = 0; i < spawnedEnemies.Count; i++) {
             if (spawnedEnemies[i] && spawnedEnemies[i].gameObject.activeSelf) {
-
                 Enemy enemy = spawnedEnemies[i];
+
+                //Healthslider Code
+                if (enemy.healthSlider) {
+                    if (enemy.healthSlider.transform.parent != enemy.transform) {
+                        enemy.healthSlider.value = enemy.health;
+                        enemy.healthSlider.transform.position = enemy.transform.position + Vector3.up;
+
+                        if (Vector3.Distance(enemy.transform.position, mousePos) > 5f) {
+                            if (enemy.healthSlider.transform.parent != enemy.transform) {
+                                enemy.healthSlider.transform.SetParent(enemy.transform);
+                                ///enemy.healthSlider.gameObject.SetActive (false);
+                            }
+                        }
+                    } else if (Vector3.Distance(enemy.transform.position, mousePos) < 5f) {
+                        enemy.healthSlider.transform.SetParent(Game.game.worldCanvas.transform);
+                        enemy.healthSlider.transform.rotation = Quaternion.identity;
+                        //enemy.healthSlider.gameObject.SetActive (true);
+                    }
+                }
+
                 // Movement code.
                 if (enemy.pathIndex == enemy.path.Length - 1 || enemy.isFlying) {
                     enemy.transform.position += Vector3.down * Time.fixedDeltaTime * enemy.speed;
@@ -128,25 +151,6 @@ public class EnemyManager : MonoBehaviour {
                     enemy.freezeMultiplier += 0.5f * Time.fixedDeltaTime;
                 } else {
                     enemy.freezeMultiplier = 1f;
-                }
-
-                //Healthslider Code
-                if (enemy.healthSlider) {
-                    if (enemy.healthSlider.transform.parent != enemy.transform) {  
-                        enemy.healthSlider.value = enemy.health;
-                        enemy.healthSlider.transform.position = enemy.transform.position + Vector3.up;
-
-                        if (Vector3.Distance (enemy.transform.position, mousePos) > 5f) {
-                            if (enemy.healthSlider.transform.parent != enemy.transform) {
-                                enemy.healthSlider.transform.SetParent (enemy.transform);
-                                ///enemy.healthSlider.gameObject.SetActive (false);
-                            }
-                        }
-                    } else if (Vector3.Distance (enemy.transform.position, mousePos) < 5f) {
-                        enemy.healthSlider.transform.SetParent (Game.game.worldCanvas.transform);
-                        enemy.healthSlider.transform.rotation = Quaternion.identity;
-                        //enemy.healthSlider.gameObject.SetActive (true);
-                    }
                 }
             }
         }
@@ -260,12 +264,16 @@ public class EnemyManager : MonoBehaviour {
 
             spawnedEnemies = toArray;
             chanceToSpawnResearch = currentEnemies;
-            Invoke("StartWave", readyWaitTime - (Time.time - startTime));
+            readyStatus = ReadyStatus.EnemiesBuild;
             yield return null;
         }
 	}
 
-	public void ReadyWave () {
+    public void StartReadyWave () {
+        StartCoroutine(ReadyWave());
+    }
+
+	public IEnumerator ReadyWave () {
 		if (!waveStarted && !wavePrebbing) {
             waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
             HoverContextElement.activeElement = null;
@@ -276,8 +284,15 @@ public class EnemyManager : MonoBehaviour {
 			waveCounterIndicator.text = "Wave: Initializing..";
             spawnedResearch = 0;
 			Pathfinding.BakePaths ();
+            while (readyStatus != ReadyStatus.PathsBuild) {
+                yield return new WaitForEndOfFrame();
+            }
             StartCoroutine (PoolBaddies ());
-		}else if (waveStarted) {
+            while (readyStatus != ReadyStatus.EnemiesBuild) {
+                yield return new WaitForEndOfFrame();
+            }
+            StartWave();
+        } else if (waveStarted) {
             Game.ToggleFastGameSpeed ();
         }
 	}
