@@ -134,11 +134,22 @@ public class Game : MonoBehaviour {
     }
 
     public static void ToggleDarkOverlay () {
-        game.darkOverlay.SetActive(!game.darkOverlay.activeSelf);
+        ForceDarkOverlay(!game.darkOverlay.activeSelf);
     }
 
-    public static void ForceDarkOverlay (bool setting) {
-        game.darkOverlay.SetActive(setting);
+    public static void ForceDarkOverlay ( bool setting ) {
+        Animator anim = game.darkOverlay.GetComponent<Animator>();
+        switch (setting) {
+
+            case false:
+                anim.Play("OverlayFadeOut");
+                break;
+
+            case true:
+                anim.Play("OverlayFadeIn");
+                break;
+
+        }
     }
 
     public static void ShowErrorMessage (string message, float time) {

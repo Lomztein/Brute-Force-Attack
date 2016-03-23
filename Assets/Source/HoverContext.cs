@@ -51,7 +51,6 @@ public class HoverContext : MonoBehaviour {
                 if (raycast) {
                     hit.collider.SendMessage("OnMouseEnterElement");
                     HoverContextElement.activeElement = hoverHit;
-                    Debug.Log("Entered!");
                 }
             } else {
                 if (HoverContextElement.activeElement != hoverHit || !raycast) {
@@ -70,7 +69,6 @@ public class HoverContext : MonoBehaviour {
     }
 
     void SetPos () {
-        Debug.Log("Setting position!");
 		Vector3 mousePos = Input.mousePosition;
 		transform.position = mousePos + new Vector3 (rectTransform.sizeDelta.x / 2f ,0);
 		if (mousePos.y > Screen.height/2)

@@ -73,7 +73,7 @@ public class WeaponModule : Module {
 	}
 
     public float GetDPS () {
-        if (Game.game) {
+        if (Game.currentScene == Scene.Play) {
             return ((weapon.bulletDamage * weapon.damageMul * weapon.bulletAmount * weapon.damageUpgradeMul *
                     ResearchMenu.damageMul[(int)weapon.GetBulletData().effectiveAgainst] *
                     weapon.muzzles.Length) / (weapon.firerate / upgradeMul * ResearchMenu.firerateMul[(int)weapon.GetBulletData().effectiveAgainst]));

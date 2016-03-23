@@ -34,7 +34,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		if (Input.GetButtonDown ("Cancel"))
 			ExitMenu ();
 
-		if (Game.currentScene == Scene.AssemblyBuilder) {
+		if (Game.currentScene == Scene.AssemblyBuilder && rootModule) {
 			rootModule.assemblyDesc = moduleDesc.text;
 			rootModule.assemblyName = moduleName.text;
 		}
@@ -58,14 +58,16 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
     void UpdateStats () {
-        moduleStats.text = "Root range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
-            "\n\nDamage per second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
-            "\n\nAvarage turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString();
-        // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
+        if (Game.currentScene == Scene.Play) {
+            moduleStats.text = "Root range: " + ((int)rootModule.parentBase.GetRange()).ToString() +
+                "\n\nDamage per second: " + ((int)rootModule.GetAssemblyDPS()).ToString() +
+                "\n\nAvarage turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed()).ToString();
+            // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
 
-        upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
-            "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Weapon).ToString() +
-            "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Rotator).ToString();
+            upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
+                "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Weapon).ToString() +
+                "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Rotator).ToString();
+        }
     }
 
 	public void UpgradeAssembly (int t) {
@@ -110,10 +112,9 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void ExitMenu () {
-		// OpenRangeIndicator ();
 		modules.Clear ();
 		gameObject.SetActive (false);
-		// rangeIndicator.NullifyParent ();
+        Game.ForceDarkOverlay(false);
         if (ModuleMod.currentMenu[0])
             Destroy (ModuleMod.currentMenu[0]);
     }
@@ -123,26 +124,28 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void OpenAssembly (Module _rootModule) {
+        Game.ForceDarkOverlay(true);
         gameObject.SetActive(true);
 		rootModule = _rootModule;
 		modules = rootModule.GetModuleTree ().ToList ();
 		UpdateModuleTree ();
 
-		for (int i = 0; i < upgradeButton.Length; i++) {
-			Module.Type type = (Module.Type)i;
-			ChangeUpgradeCostText (i, rootModule.GetUpgradeCost (i).ToString ());
-			
-			foreach (Module module in modules) {
-				if (module.moduleType == type) {
-					if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
-						rootModule.upgradeButtonDisabled[i] = true;
-						break;
-					}
-				}
-			}
-		}
+        if (Game.currentScene == Scene.Play) {
+            for (int i = 0; i < upgradeButton.Length; i++) {
+                Module.Type type = (Module.Type)i;
+                ChangeUpgradeCostText(i, rootModule.GetUpgradeCost(i).ToString());
 
-	}
+                foreach (Module module in modules) {
+                    if (module.moduleType == type) {
+                        if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
+                            rootModule.upgradeButtonDisabled[i] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	void FixedUpdate () {
 		if (rootModule) UpdateUpgradeButtons ();
@@ -197,8 +200,10 @@ public class AssemblyContextMenu : MonoBehaviour {
 		}
 
 		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x, count * 60f + 5 - treeScrollContext.rect.height);
-        UpdateStats ();
-        UpdateDescText ();
+        if (Game.currentScene == Scene.Play) {
+            UpdateStats();
+            UpdateDescText();
+        }
 	}
 
 	void UpdateRangeIndicator () {

@@ -154,40 +154,39 @@ public class BaseModule : Module {
     }
 
 	void OnNewModuleAdded () {
-		GetFastestBulletSpeed ();
-		// Module[] modules = GetComponentsInChildren<Module> ();
-
-		//TODO Combine funtions, remove one GetComponentsInChildren command.
+        GetFastestBulletSpeed ();
 	}
 
 	public void GetFastestBulletSpeed () {
-		Weapon[] weapons = GetComponentsInChildren<Weapon>();
-		float speed = 0;
-		float r = float.MaxValue;
-		for (int i = 0; i < weapons.Length; i++) {
-			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
-				if (weapons[i].bulletSpeed > speed) {
-                    speed = weapons[i].bulletSpeed;
-                    if (weapons[i].GetBulletData ().isHitscan) {
-                        speed = 100000;
+        if (Game.currentScene == Scene.Play) {
+            Weapon[] weapons = GetComponentsInChildren<Weapon>();
+            float speed = 0;
+            float r = float.MaxValue;
+            for (int i = 0; i < weapons.Length; i++) {
+                if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
+                    if (weapons[i].bulletSpeed > speed) {
+                        speed = weapons[i].bulletSpeed;
+                        if (weapons[i].GetBulletData().isHitscan) {
+                            speed = 100000;
+                        }
                     }
+
+                    if (!priorities.Contains(weapons[i].GetBulletData().effectiveAgainst)) {
+                        priorities.Add(weapons[i].GetBulletData().effectiveAgainst);
+                    }
+
+                    if (weapons[i].maxRange < r) {
+                        r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
+                    }
+
+                    weapons[i].damageMul = damageBoost;
+                    weapons[i].firerateMul = (1f / firerateBoost);
                 }
+            }
 
-                if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
-					priorities.Add (weapons[i].GetBulletData ().effectiveAgainst);
-				}
-
-				if (weapons[i].maxRange < r) {
-					r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
-				}
-
-				weapons[i].damageMul = damageBoost;
-				weapons[i].firerateMul = (1f/firerateBoost);
-			}
-		}
-
-		targetingRange = r;
-		fastestBulletSpeed = speed;
+            targetingRange = r;
+            fastestBulletSpeed = speed;
+        }
 	}
 
 	public void RequestRange (GameObject rangeIndicator) {

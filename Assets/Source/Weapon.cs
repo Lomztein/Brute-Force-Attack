@@ -56,10 +56,13 @@ public class Weapon : MonoBehaviour {
     }
 
 	public Projectile GetBulletData () {
-        if (!bulletData) {
-            bulletData = bullet[locBulletIndex].GetComponent<Projectile> ();
-		}
-		return bulletData;
+        if (Game.currentScene == Scene.Play) {
+            if (!bulletData) {
+                bulletData = bullet[locBulletIndex].GetComponent<Projectile>();
+            }
+            return bulletData;
+        }
+        return null;
 	}
 
 	public void ReturnBulletToPool (GameObject toPool) {
@@ -87,7 +90,7 @@ public class Weapon : MonoBehaviour {
 		pool = new GameObject (weaponIdentifier + "Pool").transform;
         pointer.parent = transform;
 		pointer.transform.position = transform.position;
-        if (Game.game) {
+        if (Game.currentScene == Scene.Play) {
             locBulletIndex = bulletIndex[weaponIdentifier];
             activeWeapons.Add(this);
         }

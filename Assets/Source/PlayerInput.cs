@@ -88,10 +88,6 @@ public class PlayerInput : MonoBehaviour {
 
 		rangeIndicator.ForceParent (loc, placePos);
 
-		if (!purchaseMenu.stockModules.ContainsKey (purModule)) {
-			currentCost = pModule.moduleCost;
-		}
-
 		if (activePurchaseCopy)
 			Destroy (activePurchaseCopy);
 

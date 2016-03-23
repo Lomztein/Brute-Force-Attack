@@ -9,7 +9,7 @@ public class RocketLauncherWeapon : Weapon {
 	// Use this for initialization
 	public override void Start () {
 		base.Start ();
-		if (doubleRocketsEnabled[(int)GetBulletData().effectiveAgainst] && enableDoubleRocketResearch) {
+		if (Game.currentScene == Scene.Play && doubleRocketsEnabled[(int)GetBulletData().effectiveAgainst] && enableDoubleRocketResearch) {
 			Transform[] newM = new Transform[muzzles.Length * 2];
 			for (int i = 0; i < muzzles.Length; i++) {
 				newM[i] = muzzles[i];

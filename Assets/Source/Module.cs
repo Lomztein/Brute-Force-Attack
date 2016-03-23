@@ -256,11 +256,15 @@ public class Module : MonoBehaviour {
 		string file = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + filename + MODULE_FILE_EXTENSION;
 
 		assembly = new Assembly ();
-		rootModule.BroadcastMessage ("SaveModuleToAssembly", file, SendMessageOptions.RequireReceiver);
-		Assembly.SaveToFile ("Test of Awesome", assembly);
+        assembly.assemblyName = assemblyName;
+        assembly.assemblyDesc = assemblyDesc;
+
+		rootModule.BroadcastMessage ("SaveModuleToAssembly", SendMessageOptions.RequireReceiver);
+        Debug.Log(file);
+		Assembly.SaveToFile (filename, assembly);
 	}
 	
-	void SaveModuleToAssembly (string file) {
+	void SaveModuleToAssembly () {
 		if (transform.parent) {
 			rootModule.assembly.parts.Add (new Assembly.Part (isRoot, moduleName, moduleIndex, transform.parent.GetComponent<Module> ().moduleIndex, 
 			                                                  (transform.position.x - rootModule.transform.position.x),
@@ -281,8 +285,7 @@ public class Module : MonoBehaviour {
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
 
-        if (Game.game)
-            Game.currentModules.Add (this);
+        Game.currentModules.Add (this);
 
 		rootModule = FindRootModule ();
 		if (rootModule == this) {
@@ -290,8 +293,10 @@ public class Module : MonoBehaviour {
 			moduleIndex = 0;
 			saveIndex = 0;
 
-		    if (Game.game)
-                BlockArea ();
+            if (Game.currentScene == Scene.Play)
+                BlockArea();
+            else
+                AssemblyEditorScene.cur.rootModule = this;
 
             UpdateHoverContextElement ();
 
@@ -312,7 +317,7 @@ public class Module : MonoBehaviour {
     }
 
     public void UpdateHoverContextElement () {
-        if (isRoot && Game.game) {
+        if (isRoot && Game.currentScene == Scene.Play) {
             HoverContextElement el = GetComponent<HoverContextElement> ();
             if (Game.game && PlayerInput.cur.isUpgrading) {
                 if (IsAssemblyUpgradeable(-1)) {
@@ -430,6 +435,12 @@ public class Module : MonoBehaviour {
 
 		return power;
 	}
+
+    void OnMouseDown () {
+        if (Game.currentScene == Scene.AssemblyBuilder && !PlayerInput.cur.isPlacing) {
+            PlayerInput.cur.contextMenu.OpenAssembly(parentBase);
+        }
+    }
 
 	public void RequestChildModules () {
 		requestedModules = new List<Module>();

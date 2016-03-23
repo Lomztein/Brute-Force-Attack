@@ -183,7 +183,7 @@ MonoBehaviour:
   muzzles:
   - {fileID: 409096}
   bullet: []
-  bulletData: {fileID: 0}
+  bulletData: {fileID: 11485914, guid: 1c2b243b396335440bd70667cfb7d07f, type: 2}
   bulletSpeed: 0
   bulletSpread: 0
   bulletDamage: 0

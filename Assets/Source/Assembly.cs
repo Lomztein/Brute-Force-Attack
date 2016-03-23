@@ -88,6 +88,7 @@ public class Assembly {
 	public static void SaveToFile (string fileName, Assembly assembly) {
 		BinaryFormatter bf = new BinaryFormatter ();
 		FileStream file = File.Create (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION);
+        Debug.Log(fileName);
 		
 		bf.Serialize (file, assembly);
 		file.Close ();
