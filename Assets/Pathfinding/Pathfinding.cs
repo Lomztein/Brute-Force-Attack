@@ -20,7 +20,7 @@ public class Pathfinding : MonoBehaviour {
 	public void StartFindingPath(Vector3 start, Vector3 end) {
 		start = new Vector2 (start.x, start.y);
 		end = new Vector2 (end.x, end.y);
-		StartCoroutine(FindPath(start, end));
+		FindPath(start, end);
 	}
 
 	public Vector2 WorldToNode (Vector3 pos) {
@@ -86,7 +86,7 @@ public class Pathfinding : MonoBehaviour {
 		return true;
 	}
 
-	IEnumerator FindPath(Vector2 startPos, Vector2 targetPos)
+	void FindPath(Vector2 startPos, Vector2 targetPos)
 	{
 		Node startNode =  map.WorldPointToGridPoint(startPos);
 		Node targetNode = map.WorldPointToGridPoint(targetPos);
@@ -94,8 +94,8 @@ public class Pathfinding : MonoBehaviour {
 		Vector2[] waypoints = new Vector2[0];
 		bool success = false;
 
-		if (!startNode.isWalkable && !targetNode.isWalkable)
-			yield break;
+        if (!startNode.isWalkable && !targetNode.isWalkable)
+            return;
 
 		Heap<Node> openSet = new Heap<Node>(map.MaxSize);
 		HashSet<Node> closedSet = new HashSet<Node>();
@@ -137,7 +137,6 @@ public class Pathfinding : MonoBehaviour {
 				}
 			}
 		}
-		yield return null;
 		if (success)
 		{
 			waypoints = GetPath(startNode, targetNode);

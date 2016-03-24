@@ -205,8 +205,8 @@ MonoBehaviour:
   canFire: 1
   line: {fileID: 12021356}
   charge: 0
-  maxCharge: 500
-  chargeSpeed: 25
+  maxCharge: 2000
+  chargeSpeed: 250
   reloadTime: 0
 --- !u!120 &12021356
 LineRenderer:

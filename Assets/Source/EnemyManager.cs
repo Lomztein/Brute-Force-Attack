@@ -18,7 +18,6 @@ public class EnemyManager : MonoBehaviour {
 
 	public Image waveStartedIndicator;
 	public Text waveCounterIndicator;
-	public GameObject gameOverIndicator;
     public GameObject pathDemonstrator;
 
 	[Header ("Wave Stuffs")]
@@ -69,10 +68,13 @@ public class EnemyManager : MonoBehaviour {
 
 	void Start () {
 		cur = this;
-        UpdateAmountModifier ();
-		EndWave (false);
-		AddFinalBoss ();
 	}
+
+    public void Initialize () {
+        UpdateAmountModifier();
+        EndWave(false);
+        AddFinalBoss();
+    }
 
     public void DemonstratePaths () {
         if (!GameObject.FindGameObjectWithTag ("PathDemonstrator")) {
@@ -97,6 +99,11 @@ public class EnemyManager : MonoBehaviour {
 
     public static void AddEnemy (Enemy enemy) {
         cur.spawnedEnemies.Add (enemy);
+    }
+
+    void Update () {
+        if (Input.GetButtonDown("StartWave"))
+            StartReadyWave();
     }
 
     void FixedUpdate () {
@@ -310,7 +317,7 @@ public class EnemyManager : MonoBehaviour {
 
 			if (waveNumber >= waves.Count) {
 				if (waveMastery == 1) {
-					gameOverIndicator.SetActive (true);
+                    Game.game.masteryModeIndicator.SetActive(true);
 				}else{
 					ContinueMastery ();
 				}
@@ -322,7 +329,7 @@ public class EnemyManager : MonoBehaviour {
 		waveNumber = 0;
 		waveMastery *= 2;
         UpdateAmountModifier ();
-		gameOverIndicator.SetActive (false);
+        Game.game.masteryModeIndicator.SetActive (false);
         UpdateUpcomingWaveScreen (waves[waveNumber]);
 	}
 

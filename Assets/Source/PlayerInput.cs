@@ -76,7 +76,7 @@ public class PlayerInput : MonoBehaviour {
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
 		CancelAll ();
-		GameObject loc = (GameObject)Instantiate (purModule);
+        GameObject loc = Instantiate (purModule);
 		loc.BroadcastMessage ("SetIsBeingPlaced", SendMessageOptions.DontRequireReceiver);
 		if (resetRotation)
 			loc.transform.rotation = Quaternion.Euler (0,0, loc.transform.eulerAngles.z + placementParent.eulerAngles.z);
@@ -138,6 +138,7 @@ public class PlayerInput : MonoBehaviour {
 		isRotting = false;
 		foreach (Transform child in placementParent) {
 			Destroy (child.gameObject);
+            child.transform.parent = null;
 		}
 		Destroy (activePurchaseCopy);
 		placementParent.rotation = Quaternion.identity;

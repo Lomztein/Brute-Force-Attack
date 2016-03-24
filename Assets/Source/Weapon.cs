@@ -71,6 +71,8 @@ public class Weapon : MonoBehaviour {
 
     void OnDestroy () {
         activeWeapons.Remove(this);
+        if (pool)
+            Destroy(pool.gameObject);
     }
 
 	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {
@@ -140,7 +142,16 @@ public class Weapon : MonoBehaviour {
 				StartCoroutine (fireFunc);
 			}
 		}
-	}
+    }
+
+    public virtual float GetDPS () {
+        if (Game.currentScene == Scene.Play) {
+            return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
+                    ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] *
+                    muzzles.Length) / (firerate / upgradeMul * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst]));
+        }
+        return 0f;
+    }
 
 	void ChamberBullet () {
 		canFire = true;

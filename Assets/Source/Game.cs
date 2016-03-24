@@ -13,6 +13,8 @@ public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails,
 
 public class Game : MonoBehaviour {
 
+    public enum State { NotStarted, Started, Ended }
+
     public static Scene currentScene;
 
     [Header("Battlefield")]
@@ -46,6 +48,10 @@ public class Game : MonoBehaviour {
     public static List<Module> currentModules = new List<Module>();
     public GameObject darkOverlay;
     public GameObject errorMessage;
+    public Transform[] postStartGUI;
+
+    public GameObject gameOverIndicator;
+    public GameObject masteryModeIndicator;
 
     public Text creditsText;
     public Text powerText;
@@ -115,6 +121,7 @@ public class Game : MonoBehaviour {
     public Slider musicSlider;
     public Slider soundSlider;
     public static bool fastGame;
+    public static State state;
 
     [Header("Default Assembly Roster Generator")]
     public Module[] baseModules;
@@ -173,14 +180,15 @@ public class Game : MonoBehaviour {
         InitializeSaveDictionaries ();
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
-        /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
+        for (int i = 0; i < purchaseMenu.all.Count; i++) {
             Module mod = purchaseMenu.all[i].GetComponent<Module> ();
             if (mod.moduleType == Module.Type.Weapon) {
                 GenerateDefaultAssembly (mod);
             }
-        }*/
+        }
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
+        HideGUI();
 	}
 
     private void InitializeResources () {
@@ -189,16 +197,33 @@ public class Game : MonoBehaviour {
 
 	public void StartGame () {
         Debug.Log ("Initializing!");
+        ShowGUI();
+
         InitializeResources ();
         researchMenu.gameObject.SetActive (true);
         researchMenu.Initialize ();
 
+        Datastream.cur.Initialize();
+        EnemyManager.cur.Initialize();
         InitializeBattlefield ();
-		pathMap.Initialize ();
+        pathMap.Initialize ();
 
         researchMenu.SaveBackup ();
+        state = State.Started;
 		Debug.Log ("Done initializing!");
 	}
+
+    void HideGUI () {
+        for (int i = 0; i < postStartGUI.Length; i++) {
+            postStartGUI[i].gameObject.SetActive(false);
+        }
+    }
+
+    void ShowGUI () {
+        for (int i = 0; i < postStartGUI.Length; i++) {
+            postStartGUI[i].gameObject.SetActive(true);
+        }
+    }
 
     public void LoadGame () {
         SavedGame loaded = SavedGame.Load ("GAME");
@@ -236,6 +261,10 @@ public class Game : MonoBehaviour {
         }
         HoverContextElement.activeElement = null;
         fastGame = !fastGame;
+    }
+
+    public void LooseGame () {
+
     }
 
 	public void TogglePause () {
@@ -533,8 +562,9 @@ public class Game : MonoBehaviour {
             musicVolume = musicSlider.value;
             soundVolume = soundSlider.value;
 
-            if (datastream.pooledNumbers.Count <= 0) {
-                RestartMap();
+            if (state == State.Started && datastream.pooledNumbers.Count <= 0 && gameOverIndicator.activeSelf == false) {
+                state = State.Ended;
+                gameOverIndicator.SetActive(true);
             }
 
             researchText.text = "Research: " + research.ToString();

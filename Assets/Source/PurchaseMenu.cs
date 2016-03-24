@@ -102,12 +102,10 @@ public class PurchaseMenu : MonoBehaviour {
 	}
 
 	public void LoadAssembly (Assembly assembly) {
-		if (!playerInput.isPlacing) {
-			GameObject ass = (GameObject)Instantiate (assemblyLoader);
-			ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
-			loader.LoadAssembly (assembly);
-			Destroy (ass);
-        }
+        GameObject ass = Instantiate (assemblyLoader);
+		ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
+		loader.LoadAssembly (assembly);
+		Destroy (ass);
 	}
 
 	public GameObject GetModulePrefab (string name) {

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Datastream : MonoBehaviour {
 
+    public static Datastream cur;
+
 	public Vector3 start;
 	public float flyDistance;
 	public float flySpeed;
@@ -23,20 +25,28 @@ public class Datastream : MonoBehaviour {
 	// TODO Implement pooling of ones and zeros.
 
 	void Start () {
-		StartCoroutine ("InitializeNumbers");
-        Game.currentScene = Scene.Play;
+        cur = this;
 	}
+
+    public void Initialize () {
+        StartCoroutine("InitializeNumbers");
+        Game.currentScene = Scene.Play;
+    }
 
 	void FixedUpdate () {
-		healProgress *= healSpeed * Time.fixedDeltaTime;
-		if (healProgress > 1f) {
-			GameObject n = curruptNumbers[Random.Range (0, curruptNumbers.Count)];
-			n.GetComponent<Renderer>().material.color = Color.green;
-			pooledNumbers.Add (n);
-		}
-	}
+        if (EnemyManager.waveStarted) {
+            healProgress *= healSpeed * Time.fixedDeltaTime;
 
-	IEnumerator InitializeNumbers () {
+            if (healProgress > 1f) {
+			    GameObject n = curruptNumbers[Random.Range (0, curruptNumbers.Count)];
+			    n.GetComponent<Renderer>().material.color = Color.green;
+                curruptNumbers.Remove(n);
+			    pooledNumbers.Add (n);
+		    }
+        }
+    }
+
+    IEnumerator InitializeNumbers () {
 
 		if (pooledNumbers == null)
 			pooledNumbers = new List<GameObject>();
