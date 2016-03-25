@@ -38,6 +38,7 @@ public class PlayerInput : MonoBehaviour {
 	public AssemblyContextMenu contextMenu;
 
 	public Vector3[] canPlaceTestPos;
+    public LayerMask blockBuildLayer;
 
 	public static PlayerInput cur;
 
@@ -252,7 +253,7 @@ public class PlayerInput : MonoBehaviour {
 
                 if (Input.GetMouseButtonUp (0) && wallDragStatus == WallDragStatus.Adding) {
                     wallDragStatus = WallDragStatus.Inactive;
-                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), true);
+                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.Player);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
                 }
@@ -265,7 +266,7 @@ public class PlayerInput : MonoBehaviour {
 
                 if (Input.GetMouseButtonUp (1) && wallDragStatus == WallDragStatus.Removing) {
                     wallDragStatus = WallDragStatus.Inactive;
-                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), false);
+                    Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.None);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
                 }
@@ -289,9 +290,9 @@ public class PlayerInput : MonoBehaviour {
                     int rectH = Mathf.RoundToInt(rect.height);
 
                     if (wallDragStatus == WallDragStatus.Adding) {
-                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, true));
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, Game.WallType.Player));
                     } else {
-                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, false));
+                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, Game.WallType.None));
                     }
 
                 } else {
@@ -355,10 +356,11 @@ public class PlayerInput : MonoBehaviour {
 	bool CanPlaceAtPos (Vector3 pos) {
 
 		int hits = 4;
-		if (currentCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject))
-			return false;
+		if (currentCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject)) {
+            return false;
+        }
 
-		if (pModule.moduleType == Module.Type.Weapon) {
+        if (pModule.moduleType == Module.Type.Weapon) {
 			if (hitModule) {
 				if (!hitModule.parentBase)
 					return false;
@@ -373,7 +375,7 @@ public class PlayerInput : MonoBehaviour {
                 if (!Game.IsInsideBattlefield (pos + canPlaceTestPos[i]))
                     return false;
 
-                if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] == Game.WallType.Level)
+                if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player)
                     return false;
             }
 
@@ -381,6 +383,9 @@ public class PlayerInput : MonoBehaviour {
 			RaycastHit hit;
 
 			Debug.DrawRay (ray.origin, ray.direction, Color.blue);
+
+            if (Physics.Raycast(ray, -camDepth, blockBuildLayer))
+                return false;
 
 			Module locModule = null;
 			if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
@@ -403,7 +408,7 @@ public class PlayerInput : MonoBehaviour {
 			}
 		}
 
-		if (hits < 3)
+		if (hits < 4)
 			return false;
 
 		// Handle structural module multiple collision checks

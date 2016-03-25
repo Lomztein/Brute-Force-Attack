@@ -76,10 +76,12 @@ public class ResearchMenu : MonoBehaviour {
 		if (isOpen) {
 			isOpen = false;
 			transform.localPosition += Vector3.right * 100000;
+            Game.ForceDarkOverlay(false);
 		}else{
 			isOpen = true;
 			transform.localPosition = startPos;
-		}
+            Game.ForceDarkOverlay(true);
+        }
 
         UpdateButtonActiveness ();
 	}

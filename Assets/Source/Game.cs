@@ -93,7 +93,7 @@ public class Game : MonoBehaviour {
 
     public static float powerPercentage;
 
-    public enum WallType { None, Player, Level } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
+    public enum WallType { Unbuildable = -1, None = 0, Player = 1, Level = 2, WithTurret = 3 } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
     public static WallType[,] isWalled;
     public MeshFilter wallMeshFilter;
 
@@ -203,10 +203,10 @@ public class Game : MonoBehaviour {
         researchMenu.gameObject.SetActive (true);
         researchMenu.Initialize ();
 
-        Datastream.cur.Initialize();
         EnemyManager.cur.Initialize();
         InitializeBattlefield ();
         pathMap.Initialize ();
+        Datastream.cur.Initialize();
 
         researchMenu.SaveBackup ();
         state = State.Started;
@@ -318,7 +318,7 @@ public class Game : MonoBehaviour {
 
 	}
 
-	public static void ChangeWalls (Rect rect, bool doWall) {
+	public static void ChangeWalls (Rect rect, WallType wallType, bool force = false) {
 
 		Rect loc = PositivizeRect (rect);
 
@@ -328,17 +328,20 @@ public class Game : MonoBehaviour {
 		int w = Mathf.RoundToInt (loc.width);
 		int h = Mathf.RoundToInt (loc.height);
 
-		int cost = GetWallingCost (startX, startY, w, h, doWall);
+		int cost = GetWallingCost (startX, startY, w, h, wallType);
 
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
-					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2) && isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] != WallType.Level) {
-						if (doWall) {
-							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.Player;
-						}else{
-							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.None;
-						}
+
+                    int xx = x + game.battlefieldWidth / 2;
+                    int yy = y + game.battlefieldHeight / 2;
+
+					if ((Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)
+                        && isWalled[xx,yy] != WallType.Level
+                        && isWalled[xx,yy] != WallType.Unbuildable
+                        && isWalled[xx,yy] != WallType.WithTurret) || force) {
+						isWalled [xx, yy] = wallType;
 					}
 				}
 			}
@@ -349,19 +352,20 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	public static int GetWallingCost (int startX, int startY, int w, int h, bool doWall) {
+	public static int GetWallingCost (int startX, int startY, int w, int h, WallType wallType) {
 		int cost = 0;
 
 		for (int y = startY; y < startY + h; y++) {
 			for (int x = startX; x < startX + w; x++) {
 
 				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
-					if (doWall) {
-						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.None)
-							cost += 4;
-					}else{
-						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
-							cost -= 2;
+                    if (wallType == WallType.Player) {
+                        if (isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] == WallType.None)
+                            cost += 4;
+                    }
+                    if (wallType == WallType.None) {
+                        if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
+						    cost -= 2;
 					}
 				}
 			}
@@ -444,7 +448,7 @@ public class Game : MonoBehaviour {
 		for (int y = 0; y < battlefieldHeight; y++) {
 			for (int x = 0; x < battlefieldWidth; x++) {
 
-				if (isWalled[x,y] == WallType.Player) {
+				if (isWalled[x,y] == WallType.Player || isWalled[x,y] == WallType.WithTurret) {
 					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Player), 1);
 					pathfinder.map.nodes[x,y].isWalkable = false;
 				}else if (isWalled[x,y] == WallType.Level) {
@@ -633,12 +637,12 @@ public class Game : MonoBehaviour {
     }
 
 	void GenerateDefaultSpawnpoints () {
-		for (int x = 1; x < battlefieldWidth; x++) {
+		for (int x = 1; x < battlefieldWidth + 1; x++) {
 			EnemySpawnPoint spawn = ScriptableObject.CreateInstance<EnemySpawnPoint>();
 			EnemyEndPoint end = ScriptableObject.CreateInstance<EnemyEndPoint>();
 
-			spawn.worldPosition = new Vector3 (x - battlefieldWidth / 2f, battlefieldHeight / 2f);
-			end.worldPosition = new Vector3 (x - battlefieldWidth / 2f, -battlefieldHeight / 2f);
+			spawn.worldPosition = new Vector3 (x - battlefieldWidth / 2f - 0.5f, battlefieldHeight / 2f - 0.5f);
+			end.worldPosition = new Vector3 (x - battlefieldWidth / 2f - 0.5f, -battlefieldHeight / 2f - 0.5f);
 
 			spawn.endPoint = end;
 			enemySpawnPoints.Add (spawn);

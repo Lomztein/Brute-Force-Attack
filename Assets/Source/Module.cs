@@ -293,9 +293,9 @@ public class Module : MonoBehaviour {
 			moduleIndex = 0;
 			saveIndex = 0;
 
-            if (Game.currentScene == Scene.Play)
-                BlockArea();
-            else
+            if (Game.currentScene == Scene.Play) {
+                Game.ChangeWalls(GetRelativeModuleRect(), Game.WallType.WithTurret, true);
+            } else
                 AssemblyEditorScene.cur.rootModule = this;
 
             UpdateHoverContextElement ();
@@ -333,7 +333,10 @@ public class Module : MonoBehaviour {
     }
 
 	public void SellModule () {
-		if (Game.currentScene == Scene.Play) Pathfinding.ChangeArea (GetModuleRect (), true);
+        if (Game.currentScene == Scene.Play) {
+            Pathfinding.ChangeArea(GetModuleRect(), true);
+            Game.ChangeWalls(GetRelativeModuleRect(), Game.WallType.Player, true);
+        }
         Game.credits += GetSellAmount ();
 
         PlayerInput.cur.contextMenu.ExitMenu();
@@ -387,6 +390,14 @@ public class Module : MonoBehaviour {
 		                 transform.position.y - b.size.y / 2f,
 		                 b.size.x, b.size.y);
 	}
+
+    public Rect GetRelativeModuleRect () {
+        Bounds b = GetComponent<BoxCollider>().bounds;
+        return new Rect(transform.position.x - b.size.x / 2f,
+                        transform.position.y - b.size.y / 2f,
+                        transform.position.x + b.size.x / 2f,
+                        transform.position.y + b.size.y / 2f);
+    }
 
     void OnMouseDownElement () {
         // The entire isUpgrading part of this isn't used anymore. Remove if it annoys you.

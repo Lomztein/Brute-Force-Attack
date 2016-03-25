@@ -63,7 +63,22 @@ public class Map : MonoBehaviour {
 	{
 		List<Node> neighbours = new List<Node>();
 
-		for (int x = node.nodeX-1; x <= node.nodeX+1; x++)
+        int x = node.nodeX;
+        int y = node.nodeY;
+
+        if (Pathfinding.finder.IsInsideField (x + 1, y))
+            neighbours.Add(nodes[x + 1, y]);
+
+        if (Pathfinding.finder.IsInsideField(x, y + 1))
+            neighbours.Add(nodes[x, y + 1]);
+
+        if (Pathfinding.finder.IsInsideField(x - 1, y))
+            neighbours.Add(nodes[x - 1, y]);
+
+        if (Pathfinding.finder.IsInsideField(x, y - 1))
+            neighbours.Add(nodes[x, y - 1]);
+
+        /*for (int x = node.nodeX-1; x <= node.nodeX+1; x++)
 		{
 			for (int y = node.nodeY-1; y <= node.nodeY+1; y++)
 			{
@@ -75,8 +90,8 @@ public class Map : MonoBehaviour {
 					neighbours.Add(nodes[x,y]);
 				}
 			}
-		}
-		return neighbours;
+		}*/
+        return neighbours;
 	}
 
 	void OnDrawGizmos () {

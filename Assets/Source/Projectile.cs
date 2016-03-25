@@ -39,7 +39,7 @@ public class Projectile : MonoBehaviour {
 		RaycastHit hit;
 
 		if (!penetrative) {
-			if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
+			if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime + Time.fixedDeltaTime)) {
 				if (ShouldHit (hit)) {
 
 					if (hitOnlyTarget && hit.transform != target)

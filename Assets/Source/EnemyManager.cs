@@ -23,6 +23,7 @@ public class EnemyManager : MonoBehaviour {
 	[Header ("Wave Stuffs")]
 	public List<Wave> waves = new List<Wave>();
 	public Wave.Subwave currentSubwave;
+    private List<EnemySpawnPoint> availableSpawns = new List<EnemySpawnPoint>();
 
 	public int waveNumber;
 	private int subwaveNumber;
@@ -39,6 +40,7 @@ public class EnemyManager : MonoBehaviour {
     // Paths are build first, enemies second, so EnemiesBuild also means PathsBuild.
     public enum ReadyStatus { None, PathsBuild, EnemiesBuild };
     public ReadyStatus readyStatus = ReadyStatus.None;
+    private bool cancellingWave;
 
 	[Header ("Enemies")]
 	public int currentEnemies;
@@ -210,18 +212,22 @@ public class EnemyManager : MonoBehaviour {
         yield return new WaitForSeconds (1f);
         bool allClear = true;
 
-        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
-            if (Game.game.enemySpawnPoints[i].path == null)
-                allClear = false;
+        if (availableSpawns.Count > 0) {
+            for (int i = 0; i < availableSpawns.Count; i++) {
+                if (availableSpawns[i].path == null)
+                    allClear = false;
+            }
+        } else {
+            allClear = false;
         }
 
         if (!allClear) {
             CancelWave();
+            readyStatus = ReadyStatus.EnemiesBuild;
             Game.ShowErrorMessage("Unable to start wave: Paths unclear", 3f);
         } else {
             Wave cur = waves[waveNumber - 1];
             Queue<Wave.Enemy> spawnQueue = new Queue<Wave.Enemy>();
-            float startTime = Time.time;
 
             currentEnemies = 0;
             int index = -1;
@@ -239,7 +245,7 @@ public class EnemyManager : MonoBehaviour {
                 }
             }
 
-            int spawnPerTick = Mathf.CeilToInt((float)currentEnemies / readyWaitTime * Time.fixedDeltaTime);
+            int spawnPerTick = 256;
             List<Enemy> toArray = new List<Enemy>();
 
             index = 0;
@@ -286,10 +292,12 @@ public class EnemyManager : MonoBehaviour {
             HoverContextElement.activeElement = null;
 
             waveNumber++;
+            cancellingWave = false;
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
 			waveCounterIndicator.text = "Wave: Initializing..";
             spawnedResearch = 0;
+            SetAvailableSpawnpoints();
 			Pathfinding.BakePaths ();
             while (readyStatus != ReadyStatus.PathsBuild) {
                 yield return new WaitForEndOfFrame();
@@ -298,14 +306,39 @@ public class EnemyManager : MonoBehaviour {
             while (readyStatus != ReadyStatus.EnemiesBuild) {
                 yield return new WaitForEndOfFrame();
             }
+            if (cancellingWave) {
+                yield break;
+            }
             StartWave();
         } else if (waveStarted) {
             Game.ToggleFastGameSpeed ();
         }
 	}
 
+    void SetAvailableSpawnpoints () {
+        availableSpawns = new List<EnemySpawnPoint>();
+
+        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+
+            EnemySpawnPoint sp = Game.game.enemySpawnPoints[i];
+            Vector2 wp = Pathfinding.finder.WorldToNode(sp.worldPosition) + new Vector2 (0.5f, 0.5f);
+            int x = Mathf.RoundToInt(wp.x) - 1;
+            int y = Mathf.RoundToInt(wp.y) - 1;
+
+            if (Game.isWalled[x,y] == Game.WallType.None) {
+                availableSpawns.Add(sp);
+                sp.blocked = false;
+            } else {
+                sp.blocked = true;
+            }
+        }
+
+        // So many steps just to convert a single coordinate to rounded numbers..
+    }
+
     void CancelWave () {
         waveNumber--;
+        cancellingWave = true;
         wavePrebbing = false;
         EndWave(false);
     }
@@ -437,7 +470,7 @@ public class EnemyManager : MonoBehaviour {
 	}
 
 	EnemySpawnPoint GetSpawnPosition () {
-		return Game.game.enemySpawnPoints[Random.Range (0, Game.game.enemySpawnPoints.Count)];
+        return availableSpawns[Random.Range(0, availableSpawns.Count)];
 	}
 
 	void CreateEnemy (int index) {
@@ -447,7 +480,7 @@ public class EnemyManager : MonoBehaviour {
 
 		Enemy ene = e.GetComponent<Enemy>();
 		ene.spawnPoint = GetSpawnPosition ();
-		ene.transform.position = ene.spawnPoint.worldPosition;
+        ene.transform.position = ene.spawnPoint.worldPosition;
 		ene.path = ene.spawnPoint.path;
 
 
@@ -546,13 +579,17 @@ public class EnemyManager : MonoBehaviour {
 
     void OnDrawGizmos () {
         if (waveStarted) {
-            for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
-                EnemySpawnPoint point = Game.game.enemySpawnPoints[i];
+            for (int i = 0; i < availableSpawns.Count; i++) {
+                EnemySpawnPoint point = availableSpawns[i];
                 for (int j = 0; j < point.path.Length - 1; j++) {
                     Debug.DrawLine (point.path[j], point.path[j + 1], Color.red);
                 }
             }
         }
+        if (Game.game.enemySpawnPoints != null)
+            for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+                Gizmos.DrawSphere(Game.game.enemySpawnPoints[i].worldPosition, 0.5f);
+            }
     }
 
 	void Spawn0 () {

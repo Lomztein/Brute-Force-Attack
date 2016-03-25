@@ -33,8 +33,6 @@ public class Enemy : MonoBehaviour {
 
 	public Slider healthSlider;
 
-	// TODO Add pathfinding and, well, just improve overall
-
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
@@ -177,5 +175,10 @@ public class Enemy : MonoBehaviour {
         if (healthSlider) healthSlider.transform.SetParent (transform);
         gameObject.SetActive (false);
 		EnemyManager.cur.OnEnemyDeath ();
+
+        SplitterEnemySplit split = GetComponent<SplitterEnemySplit>();
+        for (int i = 0; i < split.spawnPos.Length; i++) {
+            EnemyManager.cur.OnEnemyDeath();
+        }
 	}
 }

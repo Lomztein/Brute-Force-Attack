@@ -22,6 +22,8 @@ public class Datastream : MonoBehaviour {
 	private float healProgress;
 	public static float healSpeed;
 
+    public LineRenderer lineRenderer;
+
 	// TODO Implement pooling of ones and zeros.
 
 	void Start () {
@@ -48,7 +50,13 @@ public class Datastream : MonoBehaviour {
 
     IEnumerator InitializeNumbers () {
 
-		if (pooledNumbers == null)
+        lineRenderer.SetPosition(0, start + Vector3.back);
+        lineRenderer.SetPosition(1, start + Vector3.right * flyDistance + Vector3.back);
+
+        Rect rect = new Rect(-Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2 + 6, Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2);
+        Game.ChangeWalls(rect, Game.WallType.Unbuildable);
+
+        if (pooledNumbers == null)
 			pooledNumbers = new List<GameObject>();
 
 		for (int i = pooledNumbers.Count; i < healthAmount; i++) {
