@@ -14,6 +14,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     public float extraSize;
 
     public BattlefieldSelectionMenu battlefieldSelector;
+    public DifficultySelector difficultySelector;
 
 	public Assembly[] tempLoaded;
 
@@ -139,10 +140,15 @@ public class AssembliesSelectionMenu : MonoBehaviour {
         // battlefieldSelector.StartGame ();
 		game.purchaseMenu.GetAssemblies (assemblies);
         Game.ForceDarkOverlay (false);
+
+        battlefieldSelector.LoadDataToGame ();
+        difficultySelector.ApplyDifficulty ();
+
 		game.StartGame ();
 
         game.purchaseMenu.InitializeAssemblyButtons ();
         game.purchaseMenu.LoadSpecialButtons ();
+
 		gameObject.SetActive (false);
     }
 

@@ -36,7 +36,7 @@ public class Enemy : MonoBehaviour {
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		health = Mathf.RoundToInt ((float)health * EnemyManager.gameProgress);
+		health = Mathf.RoundToInt (health * EnemyManager.gameProgress * Game.difficulty.healthMultiplier);
 
         if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;
@@ -118,7 +118,7 @@ public class Enemy : MonoBehaviour {
 
 			if (!isDead) {
 				isDead = true;
-				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemyManager.cur.waveNumber * 0.2f);
+				Game.credits += Mathf.RoundToInt (value + EnemyManager.externalWaveNumber * 0.2f);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 

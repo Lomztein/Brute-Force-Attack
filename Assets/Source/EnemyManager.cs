@@ -25,6 +25,7 @@ public class EnemyManager : MonoBehaviour {
 	public Wave.Subwave currentSubwave;
     private List<EnemySpawnPoint> availableSpawns = new List<EnemySpawnPoint>();
 
+    public static int externalWaveNumber;
 	public int waveNumber;
 	private int subwaveNumber;
 	private int[] spawnIndex;
@@ -68,11 +69,12 @@ public class EnemyManager : MonoBehaviour {
     public static int spawnedResearch = 0;
     public static int chanceToSpawnResearch;
 
-	void Start () {
-		cur = this;
-	}
+	void Awake () {
+        cur = this;
+    }
 
     public void Initialize () {
+
         UpdateAmountModifier();
         EndWave(false);
         AddFinalBoss();
@@ -127,7 +129,7 @@ public class EnemyManager : MonoBehaviour {
                         if (Vector3.Distance(enemy.transform.position, mousePos) > 5f) {
                             if (enemy.healthSlider.transform.parent != enemy.transform) {
                                 enemy.healthSlider.transform.SetParent(enemy.transform);
-                                ///enemy.healthSlider.gameObject.SetActive (false);
+                                //enemy.healthSlider.gameObject.SetActive (false);
                             }
                         }
                     } else if (Vector3.Distance(enemy.transform.position, mousePos) < 5f) {
@@ -166,11 +168,11 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void UpdateAmountModifier () {
-        amountModifier = waveMastery;
+        amountModifier = waveMastery * Game.difficulty.amountMultiplier;
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
-            amountModifier = (int)((float)waveMastery * 10f);
+            amountModifier = (int)(waveMastery * 10f * Game.difficulty.amountMultiplier);
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
-            amountModifier = (int)((float)waveMastery * 0.1f);
+            amountModifier = (int)(waveMastery * 0.1f * Game.difficulty.amountMultiplier);
         }
     }
 
@@ -291,7 +293,9 @@ public class EnemyManager : MonoBehaviour {
             waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
             HoverContextElement.activeElement = null;
 
+            externalWaveNumber++;
             waveNumber++;
+
             cancellingWave = false;
 			wavePrebbing = true;
 			waveStartedIndicator.color = Color.yellow;
@@ -337,7 +341,10 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void CancelWave () {
+
+        externalWaveNumber--;
         waveNumber--;
+
         cancellingWave = true;
         wavePrebbing = false;
         EndWave(false);
@@ -421,7 +428,7 @@ public class EnemyManager : MonoBehaviour {
             wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
-			waveCounterIndicator.text = "Wave: " + waveNumber.ToString ();
+			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
 		}
@@ -589,6 +596,8 @@ public class EnemyManager : MonoBehaviour {
         if (Game.game.enemySpawnPoints != null)
             for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
                 Gizmos.DrawSphere(Game.game.enemySpawnPoints[i].worldPosition, 0.5f);
+                Gizmos.DrawSphere(Game.game.enemySpawnPoints[i].endPoint.worldPosition, 0.25f);
+                Gizmos.DrawLine(Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition);
             }
     }
 

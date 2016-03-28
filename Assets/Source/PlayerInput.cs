@@ -71,8 +71,10 @@ public class PlayerInput : MonoBehaviour {
 	void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
-		rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
-		rangeIndicatorMaterial = rangeIndicator.transform.GetChild (0).GetComponent<Renderer>().material;
+        if (Game.currentScene != Scene.BattlefieldEditor) {
+            rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
+            rangeIndicatorMaterial = rangeIndicator.transform.GetChild (0).GetComponent<Renderer> ().material;
+        }
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
@@ -143,7 +145,8 @@ public class PlayerInput : MonoBehaviour {
 		}
 		Destroy (activePurchaseCopy);
 		placementParent.rotation = Quaternion.identity;
-		rangeIndicator.NullifyParent ();
+		if (rangeIndicator)
+            rangeIndicator.NullifyParent ();
 	}
 
 	public void OpenModuleMenu () {
@@ -173,13 +176,14 @@ public class PlayerInput : MonoBehaviour {
         // Grap mouse position, and round it.
         pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
-        rangeIndicator.GetRange (0f);
+        if (rangeIndicator)
+            rangeIndicator.GetRange (0f);
 
         if (Input.GetButtonDown("Cancel"))
             CancelAll ();
 
         if (!EnemyManager.waveStarted) {
-            if (isPlacing && !isEditingWalls) {
+            if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
 
                 rangeIndicator.transform.position = placementParent.position;
 
@@ -304,7 +308,7 @@ public class PlayerInput : MonoBehaviour {
             }
         }
 
-        if (!isPlacing && !isEditingWalls) {
+        if (!isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
 
             Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
             RaycastHit hit;
@@ -337,7 +341,7 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-	Vector3 RoundPos (Vector3 p, int moduleClass) {
+	public Vector3 RoundPos (Vector3 p, int moduleClass) {
 		pos = new Vector3 (Mathf.Round (p.x/1f) * 1, Mathf.Round (p.y/1f) * 1, p.z);
 
 	    if (moduleClass == 1) {

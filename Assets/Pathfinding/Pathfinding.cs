@@ -69,7 +69,7 @@ public class Pathfinding : MonoBehaviour {
                 int xx = Mathf.RoundToInt (pos.x);
 				int yy = Mathf.RoundToInt (pos.y);
 
-                if (finder.IsInsideField (xx,yy)) {
+                if (Game.game.IsInsideField (xx,yy)) {
 					
 					finder.map.nodes[xx,yy].isWalkable = clear;
 					if (Game.isWalled[xx,yy] != Game.WallType.None)
@@ -78,12 +78,6 @@ public class Pathfinding : MonoBehaviour {
 				}
 			}
 		}
-	}
-
-	public bool IsInsideField (int x, int y) {
-		if (x < 0 || x > map.gridX-1) return false;
-		if (y < 0 || y > map.gridY-1) return false;
-		return true;
 	}
 
 	void FindPath(Vector2 startPos, Vector2 targetPos)

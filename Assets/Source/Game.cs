@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 using System.Collections;
 
-public enum Scene { Play, AssemblyBuilder, WaveBuilder };
+public enum Scene { Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
@@ -25,8 +25,7 @@ public class Game : MonoBehaviour {
 
     [Header("Difficulty Settings")]
     public int assembliesAllowed = 10;
-    public float healthMultiplier = 1;
-    public float amountMultiplier = 1;
+    public static DifficultySettings difficulty;
 
     [Header("Gamemodes")]
     public Gamemode gamemode;
@@ -63,8 +62,8 @@ public class Game : MonoBehaviour {
     public LayerMask moduleLayer;
 
     [Header("Resources")]
-    public int startingCredits;
-    public int startingResearch;
+    //public int startingCredits;
+    //public int startingResearch;
 
     private static bool _creditsUpdatedThisFrame = false;
     private static int _credits;
@@ -173,19 +172,22 @@ public class Game : MonoBehaviour {
     // Use this for initialization
     void Awake () {
 
-		game = this;
-        ResearchMenu.cur = researchMenu;
+        game = this;
 
-        purchaseMenu.Initialize ();
+        if (currentScene != Scene.BattlefieldEditor) {
+            ResearchMenu.cur = researchMenu;
+            purchaseMenu.Initialize ();
+        }
+
         InitializeSaveDictionaries ();
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
-        for (int i = 0; i < purchaseMenu.all.Count; i++) {
+        /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
             Module mod = purchaseMenu.all[i].GetComponent<Module> ();
             if (mod.moduleType == Module.Type.Weapon) {
                 GenerateDefaultAssembly (mod);
             }
-        }
+        }*/
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
         HideGUI();
@@ -320,6 +322,12 @@ public class Game : MonoBehaviour {
 
 	public static void ChangeWalls (Rect rect, WallType wallType, bool force = false) {
 
+        if (currentScene == Scene.BattlefieldEditor) {
+            force = true;
+            if (wallType == WallType.Player)
+                wallType = WallType.Level;
+        }
+
 		Rect loc = PositivizeRect (rect);
 
 		int startX = Mathf.RoundToInt (loc.x);
@@ -337,10 +345,11 @@ public class Game : MonoBehaviour {
                     int xx = x + game.battlefieldWidth / 2;
                     int yy = y + game.battlefieldHeight / 2;
 
-					if ((Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)
+					if ((game.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)
                         && isWalled[xx,yy] != WallType.Level
                         && isWalled[xx,yy] != WallType.Unbuildable
-                        && isWalled[xx,yy] != WallType.WithTurret) || force) {
+                        && isWalled[xx,yy] != WallType.WithTurret) ||
+                        (force && game.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2))) {
 						isWalled [xx, yy] = wallType;
 					}
 				}
@@ -352,13 +361,24 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	public static int GetWallingCost (int startX, int startY, int w, int h, WallType wallType) {
+    public bool IsInsideField ( int x, int y ) {
+        if (x < 0 || x > battlefieldWidth - 1)
+            return false;
+        if (y < 0 || y > battlefieldHeight - 1)
+            return false;
+        return true;
+    }
+
+    public static int GetWallingCost (int startX, int startY, int w, int h, WallType wallType) {
 		int cost = 0;
+
+        if (Game.currentScene == Scene.BattlefieldEditor)
+            return 0;
 
 		for (int y = startY; y < startY + h; y++) {
 			for (int x = startX; x < startX + w; x++) {
 
-				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
+				if (Game.game.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
                     if (wallType == WallType.Player) {
                         if (isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] == WallType.None)
                             cost += 4;
@@ -415,19 +435,19 @@ public class Game : MonoBehaviour {
 
 	byte GetWallBitmask (int x, int y, WallType type) {
 		byte mask = 0;
-		if (pathfinder.IsInsideField (x + 1, y)) {
+		if (IsInsideField (x + 1, y)) {
 			if (isWalled [x + 1, y] == type)
 				mask += 1;
 		}
-		if (pathfinder.IsInsideField (x, y + 1)) {
+		if (IsInsideField (x, y + 1)) {
 			if (isWalled [x, y + 1] == type)
 				mask += 2;
 		}
-		if (pathfinder.IsInsideField (x - 1, y)) {
+		if (IsInsideField (x - 1, y)) {
 			if (isWalled [x - 1, y] == type)
 				mask += 4;
 		}
-		if (pathfinder.IsInsideField (x, y - 1)) {
+		if (IsInsideField (x, y - 1)) {
 			if (isWalled [x, y - 1] == type)
 				mask += 8;
 		}
@@ -450,12 +470,14 @@ public class Game : MonoBehaviour {
 
 				if (isWalled[x,y] == WallType.Player || isWalled[x,y] == WallType.WithTurret) {
 					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Player), 1);
-					pathfinder.map.nodes[x,y].isWalkable = false;
+					if (pathfinder)
+                        pathfinder.map.nodes[x,y].isWalkable = false;
 				}else if (isWalled[x,y] == WallType.Level) {
 					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Level), 0);
-					pathfinder.map.nodes[x,y].isWalkable = false;
-				}else{
-					pathfinder.map.nodes[x,y].isWalkable = true;
+                    if (pathfinder)
+                        pathfinder.map.nodes[x,y].isWalkable = false;
+				}else if (pathfinder) {
+                    pathfinder.map.nodes[x,y].isWalkable = true;
 				}
 			}
 		}
@@ -533,12 +555,12 @@ public class Game : MonoBehaviour {
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
 
         // Load battlefield data
-        isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+        //isWalled = new WallType[battlefieldWidth,battlefieldHeight];
 		currentModules = new List<Module>();
 
 		// Initialize resources
-		credits = startingCredits;
-		research = startingResearch;
+		credits = difficulty.startingCredits;
+		research = difficulty.startingResearch;
 		researchProgress = 0f;
 
 		// Initialize background graphic
@@ -555,8 +577,8 @@ public class Game : MonoBehaviour {
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
 
 		// Initialize enemy spawn.
-		GenerateDefaultSpawnpoints ();
-        SaveBattlefieldData ("DEFAULT");
+		//GenerateDefaultSpawnpoints ();
+        //SaveBattlefieldData ("DEFAULT");
 
 		// Initialize purchase menu
 	}
@@ -592,13 +614,18 @@ public class Game : MonoBehaviour {
 
 	public void SaveBattlefieldData (string fileName) {
 
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
+        if (File.Exists (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat")) {
+            Debug.LogWarning("Tried to override file.");
+            return;
+        }
 
-		BattlefieldData data = new BattlefieldData (battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
+        BinaryFormatter bf = new BinaryFormatter ();
+		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
+        Debug.Log(file);
+
+		BattlefieldData data = new BattlefieldData (fileName, "", battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
 		bf.Serialize (file, data);
 		file.Close ();
-
 	}
 
 	public BattlefieldData LoadBattlefieldData (string fileName, bool isFullPath = false) {
@@ -616,8 +643,7 @@ public class Game : MonoBehaviour {
             data.spawns = new List<EnemySpawnPoint> ();
 			file.Close ();
 
-            Debug.Log (fileName);
-			for (int i = 0; i < data.spawnsX.Count; i++) {
+			for (int i = 0; i < data.spawnsX.Length; i++) {
 
 				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
 				Vector3 end = new Vector3 (data.endsX[i], data.endsY[i]);
@@ -657,32 +683,32 @@ public class Game : MonoBehaviour {
 
 		public int width;
 		public int height;
-		public WallType[,] walls;
+		public Game.WallType[,] walls;
 
-		public List<int> spawnsX;
-		public List<int> spawnsY;
-		public List<int> endsX;
-		public List<int> endsY;
+		public float[] spawnsX;
+		public float[] spawnsY;
+		public float[] endsX;
+		public float[] endsY;
 
         [System.NonSerialized]
         public List<EnemySpawnPoint> spawns;
 
-		public BattlefieldData (int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
+		public BattlefieldData (string name, string desc, int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
 
 			width = _w;
 			height = _h;
-			walls = _walls;
+            walls = _walls;
 
-			spawnsX = new List<int>();
-			spawnsY = new List<int>();
-			endsX   = new List<int>();
-			endsY   = new List<int>();
+            spawnsX = new float[_spawns.Count];
+			spawnsY = new float[_spawns.Count];
+            endsX   = new float[_spawns.Count];
+            endsY   = new float[_spawns.Count];
 
-			for (int i = 0; i < _spawns.Count; i++) {
-				spawnsX.Add ((int)_spawns[i].worldPosition.x);
-				spawnsY.Add ((int)_spawns[i].worldPosition.y);
-				endsX.Add   ((int)_spawns[i].endPoint.worldPosition.x);
-				endsY.Add   ((int)_spawns[i].endPoint.worldPosition.y);
+            for (int i = 0; i < _spawns.Count; i++) {
+                spawnsX[i] = _spawns[i].worldPosition.x;
+				spawnsY[i] = _spawns[i].worldPosition.y;
+				endsX[i] = _spawns[i].endPoint.worldPosition.x;
+				endsY[i] = _spawns[i].endPoint.worldPosition.y;
 			}
 		}
 	}
@@ -696,7 +722,7 @@ public class Game : MonoBehaviour {
             }
         }
 
-        saved.battlefieldData = new BattlefieldData (game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
+        saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
 
         List<ResearchMenu.SimpleResearch> res = new List<ResearchMenu.SimpleResearch> ();
@@ -747,5 +773,18 @@ public class Game : MonoBehaviour {
 
             return null;
         }
+    }
+
+    [Serializable]
+    public class DifficultySettings {
+
+        public string name;
+        public string desc;
+
+        public int amountMultiplier;
+        public float healthMultiplier;
+        public int startingCredits;
+        public int startingResearch;
+
     }
 }

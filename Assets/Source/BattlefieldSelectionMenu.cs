@@ -28,16 +28,30 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                switch (data.walls[x,y]) {
+                switch ((Game.WallType)data.walls[x,y]) {
                     case Game.WallType.Level:
                         tex.SetPixel (x, y, Color.red);
                         break;
 
                     case Game.WallType.None:
-                        tex.SetPixel (x, y, Color.black);
+                        tex.SetPixel (x, y, new Color (0f, 0.04f, 0f));
                         break;
                 }
             }
+        }
+
+        for (int i = 0; i < data.spawns.Count; i++) {
+            EnemySpawnPoint sp = data.spawns[i];
+            Vector3 wsp = sp.worldPosition + new Vector3 (data.width, data.height) / 2f;
+            int sx = Mathf.RoundToInt(wsp.x);
+            int sy = Mathf.RoundToInt(wsp.y) - 1;
+
+            Vector3 wep = sp.endPoint.worldPosition + new Vector3 (data.width, data.height) / 2f;
+            int ex = Mathf.RoundToInt(wep.x);
+            int ey = Mathf.RoundToInt(wep.y);
+
+            tex.SetPixel(sx, sy, Color.red);
+            tex.SetPixel(ex, ey, Color.green);
         }
 
         tex.filterMode = FilterMode.Point;
@@ -46,7 +60,7 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
         return tex;
     }
 
-    public void StartGame () {
+    public void LoadDataToGame () {
         if (loadedBattlefields.Length > 0) {
             Game game = Game.game;
             Game.BattlefieldData data = loadedBattlefields[index];
@@ -54,14 +68,13 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
             game.battlefieldWidth = data.width;
             game.battlefieldHeight = data.height;
             game.enemySpawnPoints = data.spawns;
-            Game.isWalled = data.walls;
+
+            Game.isWalled = (Game.WallType[,])data.walls.Clone ();
         }
     }
 
     public void ChangePreview (int movement) {
         index += movement;
-
-        Debug.Log (loadedBattlefields.Length + ", " + textures.Length);
 
         if (index < 0) {
             index = loadedBattlefields.Length - 1;
@@ -79,8 +92,7 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
 
     void Initialize () {
         string path = Game.BATTLEFIELD_SAVE_DIRECTORY;
-        string[] files = Directory.GetFiles (path);
-        Debug.Log ("Files: " + files.Length);
+        string[] files = Directory.GetFiles (path, "*.dat");
         loadedBattlefields = new Game.BattlefieldData[files.Length];
         textures = new Texture2D[files.Length];
 
