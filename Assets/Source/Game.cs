@@ -258,6 +258,14 @@ public class Game : MonoBehaviour {
 
     }
 
+    public void ClearBattlefieldGameObjects () {
+        for (int i = 0; i < currentModules.Count; i++) {
+            currentModules[i].DestroyModule (false);
+        }
+        currentModules.Clear ();
+        EnemyManager.cur.EndWave (false);
+    }
+
 	public void TogglePause () {
 		if (isPaused) {
 			isPaused = false;
@@ -706,6 +714,9 @@ public class Game : MonoBehaviour {
 	}
 
     public void LoadSavedGame (string fileName) {
+
+        // First, clear battlefield of gameobjects, and load the data into a SavedGame object.
+        ClearBattlefieldGameObjects ();
         SavedGame sg = SavedGame.Load (fileName);
 
         // Load basic battlefield size and walls.
@@ -727,13 +738,23 @@ public class Game : MonoBehaviour {
 
         // Load in-world turrets.
         for (int i = 0; i < sg.turrets.Count; i++) {
-            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (sg.turretsX[i], sg.turretsY[i]), Quaternion.Euler (0, 0, sg.turretsRot[i]))).GetComponent<ModuleAssemblyLoader> ();
-            GameObject root = loader.LoadAssembly (sg.turrets[i], true);
+            SavedGame.SavedAssembly ass = sg.turrets[i];
+            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (ass.posX, ass.posY), Quaternion.Euler (0, 0, ass.rot))).GetComponent<ModuleAssemblyLoader> ();
+            GameObject root = loader.LoadAssembly (ass.assembly, true);
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
             for (int j = 0; j < rootModule.modules.Count; j++) {
                 rootModule.modules[j].enabled = true;
+                for (int a = 0; a < ass.levels.Count; a++) {
+                    if (rootModule.modules[j].moduleType == (Module.Type)a) {
+                        for (int b = 0; b < ass.levels[a]; b++) {
+                            rootModule.modules[j].UpgradeModule ();
+
+                            // So many bloody loops, though this should now save assembly upgrades in the SavedData data.
+                        }
+                    }
+                }
             }
         }
 
@@ -765,6 +786,8 @@ public class Game : MonoBehaviour {
         GenerateWallMesh ();
         EnemyManager.cur.EndWave (false);
         PurchaseMenu.cur.InitializeAssemblyButtons ();
+
+        Debug.Log (Datastream.healthAmount);
     }
 
     public void RetryAutosave () {
@@ -778,19 +801,13 @@ public class Game : MonoBehaviour {
     public void SaveGame (string path) {
         SavedGame saved = new SavedGame ();
 
-        saved.turrets = new List<Assembly> ();
-        saved.turretsX = new List<float> ();
-        saved.turretsY = new List<float> ();
-        saved.turretsRot = new List<float> ();
+        saved.turrets = new List<SavedGame.SavedAssembly> ();
 
         saved.selectedTurrets = purchaseMenu.GetAssemblies (); 
 
         for (int i = 0; i < currentModules.Count; i++) {
             if (currentModules[i].isRoot) {
-                saved.turrets.Add (currentModules[i].assembly);
-                saved.turretsX.Add (currentModules[i].transform.position.x);
-                saved.turretsY.Add (currentModules[i].transform.position.y);
-                saved.turretsRot.Add (currentModules[i].transform.eulerAngles.z);
+                saved.turrets.Add (new SavedGame.SavedAssembly (currentModules[i]));
             }
         }
 
@@ -824,10 +841,7 @@ public class Game : MonoBehaviour {
         public BattlefieldData battlefieldData;
 
         public List<Assembly> selectedTurrets;
-        public List<Assembly> turrets;
-        public List<float> turretsX;
-        public List<float> turretsY;
-        public List<float> turretsRot;
+        public List<SavedAssembly> turrets;
 
         public string waveSetPath;
         public List<int> researchedResearch;
@@ -868,6 +882,28 @@ public class Game : MonoBehaviour {
 
             Debug.LogError ("Tried to open non-existant savefile.");
             return null;
+        }
+
+        [Serializable]
+        public class SavedAssembly {
+
+            public Assembly assembly;
+
+            public float posX;
+            public float posY;
+            public float rot;
+
+            public List<int> levels = new List<int>();
+
+            public SavedAssembly (Module rootModule) {
+                assembly = rootModule.assembly;
+                posX = rootModule.transform.localPosition.x;
+                posY = rootModule.transform.localPosition.y;
+                rot = rootModule.transform.localEulerAngles.z;
+                for (int i = 0; i < 3; i++) {
+                    levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
+                }
+            }
         }
     }
 

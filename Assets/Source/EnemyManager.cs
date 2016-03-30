@@ -467,7 +467,7 @@ public class EnemyManager : MonoBehaviour {
             Game.ToggleFastGameSpeed ();
         waveStartedIndicator.color = Color.green;
 
-        if (finished) {
+        if (finished && Datastream.healthAmount > 0) {
             Game.credits += 25 * waveNumber;
             Game.game.SaveGame ("autosave");
         }

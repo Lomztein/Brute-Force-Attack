@@ -332,6 +332,12 @@ public class Module : MonoBehaviour {
         }
     }
 
+    public void SellAssembly () {
+        for (int i = 0; i < modules.Count; i++) {
+            modules[i].SellModule ();
+        }
+    }
+
 	public void SellModule () {
         if (Game.currentScene == Scene.Play) {
             Pathfinding.ChangeArea(GetModuleRect(), true);
@@ -365,9 +371,10 @@ public class Module : MonoBehaviour {
 		PurchaseMenu.AddStock (this);
 	}
 
-	void DestroyModule () {
+	public void DestroyModule (bool removeFromList = true) {
 		Destroy (gameObject);
-		Game.currentModules.Remove (this);
+		if (removeFromList)
+            Game.currentModules.Remove (this);
 	}
 
 	public Module FindRootModule () {

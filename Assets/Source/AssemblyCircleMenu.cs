@@ -79,7 +79,7 @@ public class AssemblyCircleMenu : MonoBehaviour {
 
     public void SellModule () {
         if (sureSell) {
-            module.SellModule();
+            module.SellAssembly();
         } else {
             sureSell = true;
             Invoke("ResetSureSell", 2f);
