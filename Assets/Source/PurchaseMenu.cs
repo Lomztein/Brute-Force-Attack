@@ -67,6 +67,7 @@ public class PurchaseMenu : MonoBehaviour {
 
     public void InitializeAssemblyButtons () {
 		CollectAllPurchaseables ();
+        assemblyButtonList.Clear ();
         foreach (Transform child in assemblyButtonStart) {
 			Destroy (child.gameObject);
 		}

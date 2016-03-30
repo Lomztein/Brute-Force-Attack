@@ -122,6 +122,8 @@ public class Game : MonoBehaviour {
     public static bool fastGame;
     public static State state;
 
+    public static bool loadQuicksaveOnStartup;
+
     [Header("Default Assembly Roster Generator")]
     public Module[] baseModules;
     public Module[] rotatorModules;
@@ -193,6 +195,23 @@ public class Game : MonoBehaviour {
         HideGUI();
 	}
 
+    void Start () {
+        if (loadQuicksaveOnStartup) {
+            StartCoroutine (LoadQuicksave ());
+        }
+    }
+
+    IEnumerator LoadQuicksave () {
+        // Wait a single frame to allow all other Awake() and Start() functions to run.
+        yield return null;
+
+        StartGame ();
+        LoadSavedGame ("quicksave");
+        ForceDarkOverlay (false);
+        AssembliesSelectionMenu.cur.gameObject.SetActive (false);
+        loadQuicksaveOnStartup = false;
+    }
+
     private void InitializeResources () {
         ModuleTreeButton.buttonTypes = Resources.LoadAll<GameObject> ("Module Tree GUI");
     }
@@ -212,7 +231,10 @@ public class Game : MonoBehaviour {
 
         researchMenu.SaveBackup ();
         state = State.Started;
-		Debug.Log ("Done initializing!");
+
+        if (fastGame)
+            ToggleFastGameSpeed ();
+        Debug.Log ("Done initializing!");
 	}
 
     void HideGUI () {
@@ -234,7 +256,8 @@ public class Game : MonoBehaviour {
 	}
 
     public void QuitToDesktop () {
-        Application.Quit ();
+        SceneManager.LoadScene (0);
+        TogglePause ();
     }
 
     public static void ToggleFastGameSpeed () {
@@ -552,12 +575,14 @@ public class Game : MonoBehaviour {
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
 
         // Load battlefield data
-        //isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+        isWalled = new WallType[battlefieldWidth,battlefieldHeight];
 		currentModules = new List<Module>();
 
-		// Initialize resources
-		credits = difficulty.startingCredits;
-		research = difficulty.startingResearch;
+        // Initialize resources
+        if (difficulty != null) {
+            credits = difficulty.startingCredits;
+            research = difficulty.startingResearch;
+        }
 		researchProgress = 0f;
 
 		// Initialize background graphic
@@ -723,6 +748,7 @@ public class Game : MonoBehaviour {
         battlefieldWidth = sg.battlefieldData.width;
         battlefieldHeight = sg.battlefieldData.height;
         isWalled = sg.battlefieldData.walls;
+        difficulty = sg.difficulty;
 
         // Set purchaseables and spawnpoints.
         purchaseMenu.SetAssemblies (sg.selectedTurrets);
@@ -802,7 +828,7 @@ public class Game : MonoBehaviour {
         SavedGame saved = new SavedGame ();
 
         saved.turrets = new List<SavedGame.SavedAssembly> ();
-
+        saved.difficulty = difficulty;
         saved.selectedTurrets = purchaseMenu.GetAssemblies (); 
 
         for (int i = 0; i < currentModules.Count; i++) {

@@ -16,8 +16,9 @@ public class MainMenuScene : MonoBehaviour {
     public float progress;
     public float maxProgress;
 
-	public void Play () {
+	public void Play (bool loadQuicksave) {
         SceneManager.LoadScene ("pv_play");
+        Game.loadQuicksaveOnStartup = loadQuicksave;
 	}
 
 	public void Build () {

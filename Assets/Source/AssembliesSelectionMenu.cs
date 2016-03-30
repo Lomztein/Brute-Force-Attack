@@ -6,7 +6,8 @@ using System.Linq;
 
 public class AssembliesSelectionMenu : MonoBehaviour {
 
-    public Game game;
+    public static Game game;
+    public static AssembliesSelectionMenu cur;
 
     public GameObject assemblyButtonPrefab;
     public RectTransform assemblyButtonStart;
@@ -40,6 +41,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         game = Game.game;
+        cur = this;
         InitializeArray ();
 	}
 

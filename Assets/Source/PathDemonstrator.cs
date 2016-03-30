@@ -7,11 +7,14 @@ public class PathDemonstrator : MonoBehaviour {
     public int nodesPerSecond;
     public GameObject nodeArrow;
 
+    public static PathDemonstrator cur;
+
     public void StartPath () {
         StartCoroutine (Demonstrate ());
     }
 
     private IEnumerator Demonstrate () {
+        cur = this;
         for (int i = 0; i < path.Length; i++) {
             if (i < path.Length - 2) {
                 Quaternion rot = Quaternion.Euler (0f, 0f, Angle.CalculateAngle (path[i], path[i + 1]));
