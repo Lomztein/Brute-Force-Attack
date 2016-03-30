@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.IO;
 using IngameEditors;
+using System.Linq;
 
 public class PurchaseMenu : MonoBehaviour {
 
@@ -56,11 +57,15 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (special.ToArray ());
 	}
 
-	public void GetAssemblies (List<Assembly> _assemblies) {
+	public void SetAssemblies (List<Assembly> _assemblies) {
 		assemblies = _assemblies.ToArray ();
 	}
 
-	public void InitializeAssemblyButtons () {
+    public List<Assembly> GetAssemblies () {
+        return assemblies.ToList ();
+    }
+
+    public void InitializeAssemblyButtons () {
 		CollectAllPurchaseables ();
         foreach (Transform child in assemblyButtonStart) {
 			Destroy (child.gameObject);

@@ -146,6 +146,7 @@ public class Enemy : MonoBehaviour {
 		if (Datastream.enableFirewall)
 			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
+        Datastream.healthAmount -= damage;
 		for (int j = 0; j < damage; j++) {
 
 			float dist = float.MaxValue;
@@ -177,8 +178,9 @@ public class Enemy : MonoBehaviour {
 		EnemyManager.cur.OnEnemyDeath ();
 
         SplitterEnemySplit split = GetComponent<SplitterEnemySplit>();
-        for (int i = 0; i < split.spawnPos.Length; i++) {
-            EnemyManager.cur.OnEnemyDeath();
-        }
+        if (split)
+            for (int i = 0; i < split.spawnPos.Length; i++) {
+                EnemyManager.cur.OnEnemyDeath();
+            }
 	}
 }

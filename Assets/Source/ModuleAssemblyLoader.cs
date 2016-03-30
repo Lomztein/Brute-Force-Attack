@@ -41,7 +41,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 		button.cost = cost;
 	}
 
-	public void LoadAssembly (Assembly assembly) {
+    public GameObject LoadAssembly (Assembly assembly, bool directToWorld = false) {
 		GameObject modulePrefab = null;
 		GameObject rootModule = null;
 		Module module = null;
@@ -61,8 +61,8 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 				module.enabled = false;
 				totalCost += module.moduleCost;
 			}else{
-				Debug.LogWarning ("Tried to load a non-existing or non-researched module");
-				return;
+				Debug.LogWarning ("Tried to load a non-existing.");
+				return null;
 			}
 
 			if (modulePrefab) {
@@ -101,11 +101,15 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 			}
 		}
 
-		// Activate gameObject, but disable module components
-		PlayerInput.cur.SelectPurchaseable (rootModule, true);
-		PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
-		PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0,0, 90);
-		PlayerInput.cur.currentCost = totalCost;
+        // Activate gameObject, but disable module components
+        if (!directToWorld) {
+            PlayerInput.cur.SelectPurchaseable (rootModule, true);
+            PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
+            PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0, 0, 90);
+            PlayerInput.cur.currentCost = totalCost;
+        }
+
+        return rootModule;
     }
 
     public static void ConvertLegacyAssemblyFiles () {

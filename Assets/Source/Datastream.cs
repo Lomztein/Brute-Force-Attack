@@ -19,6 +19,8 @@ public class Datastream : MonoBehaviour {
 	public static bool enableFirewall;
 
 	public static int healthAmount = 100;
+    public const int STARTING_HEALTH = 100;
+
 	private float healProgress;
 	public static float healSpeed;
 
@@ -33,6 +35,20 @@ public class Datastream : MonoBehaviour {
     public void Initialize () {
         StartCoroutine("InitializeNumbers");
         Game.currentScene = Scene.Play;
+    }
+
+    public void Reset (int life = STARTING_HEALTH) {
+        healthAmount = life;
+        for (int i = 0; i < pooledNumbers.Count; i++) {
+            Destroy (pooledNumbers[i].gameObject);
+        }
+        for (int i = 0; i < curruptNumbers.Count; i++) {
+            Destroy (curruptNumbers[i].gameObject);
+        }
+
+        pooledNumbers = new List<GameObject> ();
+        curruptNumbers = new List<GameObject> ();
+        Initialize ();
     }
 
 	void FixedUpdate () {

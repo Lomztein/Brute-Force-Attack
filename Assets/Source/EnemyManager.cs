@@ -289,33 +289,35 @@ public class EnemyManager : MonoBehaviour {
     }
 
 	public IEnumerator ReadyWave () {
-		if (!waveStarted && !wavePrebbing) {
-            waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
-            HoverContextElement.activeElement = null;
+        if (Game.state == Game.State.Started) {
+            if (!waveStarted && !wavePrebbing) {
+                waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
+                HoverContextElement.activeElement = null;
 
-            externalWaveNumber++;
-            waveNumber++;
+                externalWaveNumber++;
+                waveNumber++;
 
-            cancellingWave = false;
-			wavePrebbing = true;
-			waveStartedIndicator.color = Color.yellow;
-			waveCounterIndicator.text = "Wave: Initializing..";
-            spawnedResearch = 0;
-            SetAvailableSpawnpoints();
-			Pathfinding.BakePaths ();
-            while (readyStatus != ReadyStatus.PathsBuild) {
-                yield return new WaitForEndOfFrame();
+                cancellingWave = false;
+                wavePrebbing = true;
+                waveStartedIndicator.color = Color.yellow;
+                waveCounterIndicator.text = "Wave: Initializing..";
+                spawnedResearch = 0;
+                SetAvailableSpawnpoints ();
+                Pathfinding.BakePaths ();
+                while (readyStatus != ReadyStatus.PathsBuild) {
+                    yield return new WaitForEndOfFrame ();
+                }
+                StartCoroutine (PoolBaddies ());
+                while (readyStatus != ReadyStatus.EnemiesBuild) {
+                    yield return new WaitForEndOfFrame ();
+                }
+                if (cancellingWave) {
+                    yield break;
+                }
+                StartWave ();
+            } else if (waveStarted) {
+                Game.ToggleFastGameSpeed ();
             }
-            StartCoroutine (PoolBaddies ());
-            while (readyStatus != ReadyStatus.EnemiesBuild) {
-                yield return new WaitForEndOfFrame();
-            }
-            if (cancellingWave) {
-                yield break;
-            }
-            StartWave();
-        } else if (waveStarted) {
-            Game.ToggleFastGameSpeed ();
         }
 	}
 
@@ -465,14 +467,17 @@ public class EnemyManager : MonoBehaviour {
             Game.ToggleFastGameSpeed ();
         waveStartedIndicator.color = Color.green;
 
-		if (finished)
+        if (finished) {
             Game.credits += 25 * waveNumber;
+            Game.game.SaveGame ("autosave");
+        }
 
 		if (waves.Count >= waveNumber + 1) {
 			UpdateUpcomingWaveScreen (waves [waveNumber]);
 		}
         waveCounterIndicator.text = "Wave: " + waveNumber.ToString();
-        waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
+        if (Game.state == Game.State.Started)
+            waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
 	}
 
@@ -593,7 +598,7 @@ public class EnemyManager : MonoBehaviour {
                 }
             }
         }
-        if (Game.game.enemySpawnPoints != null)
+        if (Game.game && Game.game.enemySpawnPoints != null)
             for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
                 Gizmos.DrawSphere(Game.game.enemySpawnPoints[i].worldPosition, 0.5f);
                 Gizmos.DrawSphere(Game.game.enemySpawnPoints[i].endPoint.worldPosition, 0.25f);

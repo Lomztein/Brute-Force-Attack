@@ -226,19 +226,6 @@ public class Game : MonoBehaviour {
             postStartGUI[i].gameObject.SetActive(true);
         }
     }
-
-    public void LoadGame () {
-        SavedGame loaded = SavedGame.Load ("GAME");
-
-        credits = loaded.credits;
-        research = loaded.research;
-        researchProgress = loaded.researchProgress;
-
-        for (int i = 0; i < loaded.turrets.Count; i++) {
-
-        }
-
-    }
 		
 	public void RestartMap () {
         SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
@@ -252,17 +239,19 @@ public class Game : MonoBehaviour {
 
     public static void ToggleFastGameSpeed () {
         HoverContextElement ele = EnemyManager.cur.waveStartedIndicator.GetComponentInParent<HoverContextElement> ();
-        if (fastGame) {
-            Time.timeScale = 1f;
-            EnemyManager.cur.waveStartedIndicator.color = Color.red;
-            ele.text = "Speed up the game";
-        } else {
-            Time.timeScale = 2f;
-            EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
-            ele.text = "Slow down the game";
+        if (ele) {
+            if (fastGame) {
+                Time.timeScale = 1f;
+                EnemyManager.cur.waveStartedIndicator.color = Color.red;
+                ele.text = "Speed up the game";
+            } else {
+                Time.timeScale = 2f;
+                EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
+                ele.text = "Slow down the game";
+            }
+            HoverContextElement.activeElement = null;
+            fastGame = !fastGame;
         }
-        HoverContextElement.activeElement = null;
-        fastGame = !fastGame;
     }
 
     public void LooseGame () {
@@ -588,8 +577,11 @@ public class Game : MonoBehaviour {
             musicVolume = musicSlider.value;
             soundVolume = soundSlider.value;
 
-            if (state == State.Started && datastream.pooledNumbers.Count <= 0 && gameOverIndicator.activeSelf == false) {
+            if (state == State.Started && Datastream.healthAmount <= 0 && gameOverIndicator.activeSelf == false) {
+                Debug.Log ("Game has ended.");
                 state = State.Ended;
+                ForceDarkOverlay (true);
+                HideGUI ();
                 gameOverIndicator.SetActive(true);
             }
 
@@ -713,27 +705,115 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+    public void LoadSavedGame (string fileName) {
+        SavedGame sg = SavedGame.Load (fileName);
+
+        // Load basic battlefield size and walls.
+        battlefieldWidth = sg.battlefieldData.width;
+        battlefieldHeight = sg.battlefieldData.height;
+        isWalled = sg.battlefieldData.walls;
+
+        // Set purchaseables and spawnpoints.
+        purchaseMenu.SetAssemblies (sg.selectedTurrets);
+        enemySpawnPoints = new List<EnemySpawnPoint> ();
+
+        for (int i = 0; i < sg.battlefieldData.spawnsX.Length; i++) {
+            EnemySpawnPoint sp = ScriptableObject.CreateInstance<EnemySpawnPoint> ();
+            sp.worldPosition = new Vector3 (sg.battlefieldData.spawnsX[i], sg.battlefieldData.spawnsY[i]);
+            sp.endPoint = ScriptableObject.CreateInstance<EnemyEndPoint> ();
+            sp.endPoint.worldPosition = new Vector3 (sg.battlefieldData.endsX[i], sg.battlefieldData.endsY[i]);
+            enemySpawnPoints.Add (sp);
+        }
+
+        // Load in-world turrets.
+        for (int i = 0; i < sg.turrets.Count; i++) {
+            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (sg.turretsX[i], sg.turretsY[i]), Quaternion.Euler (0, 0, sg.turretsRot[i]))).GetComponent<ModuleAssemblyLoader> ();
+            GameObject root = loader.LoadAssembly (sg.turrets[i], true);
+            root.transform.parent = null;
+
+            Module rootModule = root.GetComponent<Module> ();
+            for (int j = 0; j < rootModule.modules.Count; j++) {
+                rootModule.modules[j].enabled = true;
+            }
+        }
+
+        // Load research. Likely a very unefficient method, but it should do without issues.
+        while (sg.researchedResearch.Count > 0) {
+            for (int i = 0; i < sg.researchedResearch.Count; i++) {
+                Research r = ResearchMenu.cur.research[sg.researchedResearch[i]];
+                if (r.prerequisite == -1 || r.GetPrerequisite ().isBought) {
+                    r.Purchase (true);
+                    sg.researchedResearch.RemoveAt (i);
+                    break;
+                }
+            }
+        }
+
+        // Set resources.
+        credits = sg.credits;
+        research = sg.research;
+        researchProgress = sg.researchProgress;
+        datastream.Reset (sg.health);
+
+        // Set enemymanager data.
+        EnemyManager.cur.waveMastery = sg.masteryNumber;
+        EnemyManager.cur.waveNumber = sg.waveNumber;
+        EnemyManager.externalWaveNumber = sg.totalWaveNumber;
+        EnemyManager.gameProgress = sg.gameProgress;
+
+        // Finalize loading.
+        GenerateWallMesh ();
+        EnemyManager.cur.EndWave (false);
+        PurchaseMenu.cur.InitializeAssemblyButtons ();
+    }
+
+    public void RetryAutosave () {
+        LoadSavedGame ("autosave");
+        gameOverIndicator.SetActive (false);
+        ForceDarkOverlay (false);
+        state = State.Started;
+        ShowGUI ();
+    }
+
     public void SaveGame (string path) {
         SavedGame saved = new SavedGame ();
+
+        saved.turrets = new List<Assembly> ();
+        saved.turretsX = new List<float> ();
+        saved.turretsY = new List<float> ();
+        saved.turretsRot = new List<float> ();
+
+        saved.selectedTurrets = purchaseMenu.GetAssemblies (); 
 
         for (int i = 0; i < currentModules.Count; i++) {
             if (currentModules[i].isRoot) {
                 saved.turrets.Add (currentModules[i].assembly);
+                saved.turretsX.Add (currentModules[i].transform.position.x);
+                saved.turretsY.Add (currentModules[i].transform.position.y);
+                saved.turretsRot.Add (currentModules[i].transform.eulerAngles.z);
             }
         }
 
         saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
 
-        List<ResearchMenu.SimpleResearch> res = new List<ResearchMenu.SimpleResearch> ();
+        saved.researchedResearch = new List<int> ();
+
         for (int i = 0; i < researchMenu.research.Count; i++) {
-            res.Add (new ResearchMenu.SimpleResearch (researchMenu.research[i]));
+            if (ResearchMenu.cur.research[i].isBought)
+                saved.researchedResearch.Add (ResearchMenu.cur.research[i].index);
         }
 
-        saved.wave = EnemyManager.cur.waveNumber;
         saved.credits = credits;
         saved.research = research;
         saved.researchProgress = researchProgress;
+
+        saved.waveNumber = EnemyManager.cur.waveNumber;
+        saved.totalWaveNumber = EnemyManager.externalWaveNumber;
+        saved.masteryNumber = EnemyManager.cur.waveMastery;
+        saved.gameProgress = EnemyManager.gameProgress;
+
+        saved.health = Datastream.healthAmount;
 
         saved.Save (path);
     }
@@ -742,14 +822,28 @@ public class Game : MonoBehaviour {
     public class SavedGame {
 
         public BattlefieldData battlefieldData;
-        public List<Assembly> turrets;
-        public string waveSetPath;
-        public List<ResearchMenu.SimpleResearch> researchSet;
 
-        public int wave;
+        public List<Assembly> selectedTurrets;
+        public List<Assembly> turrets;
+        public List<float> turretsX;
+        public List<float> turretsY;
+        public List<float> turretsRot;
+
+        public string waveSetPath;
+        public List<int> researchedResearch;
+
         public int credits;
         public int research;
         public float researchProgress;
+
+        public int waveNumber;
+        public int masteryNumber;
+        public int totalWaveNumber;
+        public float gameProgress;
+
+        public DifficultySettings difficulty;
+
+        public int health;
 
         public void Save (string fileName) {
             BinaryFormatter bf = new BinaryFormatter ();
@@ -760,10 +854,11 @@ public class Game : MonoBehaviour {
         }
 
         public static SavedGame Load (string fileName) {
-            if (File.Exists (fileName)) {
+            string fullFile = SAVED_GAME_DIRECTORY + fileName + ".dat";
+            if (File.Exists (fullFile)) {
 
                 BinaryFormatter bf = new BinaryFormatter ();
-                FileStream file = File.Open (fileName, FileMode.Open);
+                FileStream file = File.Open (fullFile, FileMode.Open);
 
                 SavedGame data = (SavedGame)bf.Deserialize (file);
                 file.Close ();
@@ -771,6 +866,7 @@ public class Game : MonoBehaviour {
                 return data;
             }
 
+            Debug.LogError ("Tried to open non-existant savefile.");
             return null;
         }
     }
