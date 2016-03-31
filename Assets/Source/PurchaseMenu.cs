@@ -38,6 +38,7 @@ public class PurchaseMenu : MonoBehaviour {
 
 	public int purchaseButtonSize = 75;
 	public static Assembly[] assemblies;
+    public Assembly[] specialAssemblies;
 
 	public void Initialize () {
 		cur = this;
@@ -72,6 +73,7 @@ public class PurchaseMenu : MonoBehaviour {
 			Destroy (child.gameObject);
 		}
 
+        // Condense these two into a single function later.
 		for (int i = 0; i < assemblies.Length; i++) {
 			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (purchaseButtonSize) * i, Quaternion.identity);
 			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
@@ -83,7 +85,17 @@ public class PurchaseMenu : MonoBehaviour {
 			button.Initialize ();
 		}
 
-	}
+        for (int i = 0; i < specialAssemblies.Length; i++) {
+            GameObject butt = (GameObject)Instantiate (assemblyButton, firstTopButton.position + Vector3.left * (purchaseButtonSize) * i, Quaternion.identity);
+            assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton> ());
+            butt.transform.SetParent (firstTopButton, true);
+            LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton> ();
+            button.assembly = specialAssemblies[i];
+
+            AddAssemblyButtonListener (butt.GetComponent<Button> (), button);
+            button.Initialize ();
+        }
+    }
 
 	public void OpenAssemblyButtons () {
 		foreach (GameObject b in buttons) {

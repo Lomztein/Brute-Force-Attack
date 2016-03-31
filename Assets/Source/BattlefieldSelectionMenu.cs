@@ -62,6 +62,7 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
 
     public void LoadDataToGame () {
         if (loadedBattlefields.Length > 0) {
+            Debug.Log ("Loading battlefield data..");
             Game game = Game.game;
             Game.BattlefieldData data = loadedBattlefields[index];
 

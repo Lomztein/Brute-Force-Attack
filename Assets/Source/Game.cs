@@ -197,6 +197,7 @@ public class Game : MonoBehaviour {
 
     void Start () {
         if (loadQuicksaveOnStartup) {
+            Debug.Log ("Loading quicksave");
             StartCoroutine (LoadQuicksave ());
         }
     }
@@ -575,7 +576,9 @@ public class Game : MonoBehaviour {
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
 
         // Load battlefield data
-        isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+        if (isWalled == null)
+            isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+
 		currentModules = new List<Module>();
 
         // Initialize resources
@@ -763,10 +766,12 @@ public class Game : MonoBehaviour {
         }
 
         // Load in-world turrets.
+        Debug.Log (sg.turrets.Count);
         for (int i = 0; i < sg.turrets.Count; i++) {
             SavedGame.SavedAssembly ass = sg.turrets[i];
             ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (ass.posX, ass.posY), Quaternion.Euler (0, 0, ass.rot))).GetComponent<ModuleAssemblyLoader> ();
             GameObject root = loader.LoadAssembly (ass.assembly, true);
+            Debug.Log ((bool)root + ", " + ass.assembly.assemblyName);
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
@@ -809,6 +814,7 @@ public class Game : MonoBehaviour {
         EnemyManager.gameProgress = sg.gameProgress;
 
         // Finalize loading.
+        pathfinder.map.Initialize ();
         GenerateWallMesh ();
         EnemyManager.cur.EndWave (false);
         PurchaseMenu.cur.InitializeAssemblyButtons ();
@@ -836,6 +842,7 @@ public class Game : MonoBehaviour {
                 saved.turrets.Add (new SavedGame.SavedAssembly (currentModules[i]));
             }
         }
+        Debug.Log (saved.turrets.Count);
 
         saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
@@ -926,6 +933,7 @@ public class Game : MonoBehaviour {
                 posX = rootModule.transform.localPosition.x;
                 posY = rootModule.transform.localPosition.y;
                 rot = rootModule.transform.localEulerAngles.z;
+                Debug.Log (assembly.parts.Count);
                 for (int i = 0; i < 3; i++) {
                     levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
                 }
