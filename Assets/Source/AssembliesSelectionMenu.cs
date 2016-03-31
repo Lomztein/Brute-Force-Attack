@@ -149,7 +149,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 		game.StartGame ();
 
         game.purchaseMenu.InitializeAssemblyButtons ();
-        game.purchaseMenu.LoadSpecialButtons ();
+        //game.purchaseMenu.LoadSpecialButtons ();
 
 		gameObject.SetActive (false);
     }

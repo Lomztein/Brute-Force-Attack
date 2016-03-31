@@ -59,8 +59,9 @@ public class LoadAssemblyButton : MonoBehaviour {
         missingModules = new List<Module> ();
 		bool allGood = true;
 		for (int i = 0; i < requiredModules.Length; i++) {
-			if (!PurchaseMenu.cur.standard.Contains (requiredModules[i])) {
-                missingModules.Add (requiredModules[i].GetComponent<Module>());
+            Module m = requiredModules[i].GetComponent<Module> ();
+            if (!PurchaseMenu.cur.standard.Contains (requiredModules[i]) && !missingModules.Contains (m)) {
+                missingModules.Add (m);
 				allGood = false;
 			}
 		}

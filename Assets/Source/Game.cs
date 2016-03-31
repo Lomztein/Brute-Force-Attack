@@ -122,7 +122,7 @@ public class Game : MonoBehaviour {
     public static bool fastGame;
     public static State state;
 
-    public static bool loadQuicksaveOnStartup;
+    public static string saveToLoad;
 
     [Header("Default Assembly Roster Generator")]
     public Module[] baseModules;
@@ -196,21 +196,24 @@ public class Game : MonoBehaviour {
 	}
 
     void Start () {
-        if (loadQuicksaveOnStartup) {
-            Debug.Log ("Loading quicksave");
-            StartCoroutine (LoadQuicksave ());
+        if (saveToLoad != null && saveToLoad.Length > 0) {
+            Debug.Log ("Loading save: " + saveToLoad);
+            StartCoroutine (LoadSaveOnSceneStart ());
         }
     }
 
-    IEnumerator LoadQuicksave () {
+    IEnumerator LoadSaveOnSceneStart () {
         // Wait a single frame to allow all other Awake() and Start() functions to run.
         yield return null;
 
         StartGame ();
-        LoadSavedGame ("quicksave");
+        LoadSavedGame (saveToLoad);
+        InitializeBattlefield ();
+
         ForceDarkOverlay (false);
         AssembliesSelectionMenu.cur.gameObject.SetActive (false);
-        loadQuicksaveOnStartup = false;
+
+        saveToLoad = "";
     }
 
     private void InitializeResources () {
@@ -226,7 +229,8 @@ public class Game : MonoBehaviour {
         researchMenu.Initialize ();
 
         EnemyManager.cur.Initialize();
-        InitializeBattlefield ();
+        if (saveToLoad == null || saveToLoad.Length == 0)
+            InitializeBattlefield ();
         pathMap.Initialize ();
         Datastream.cur.Initialize();
 
@@ -366,11 +370,11 @@ public class Game : MonoBehaviour {
                     int xx = x + game.battlefieldWidth / 2;
                     int yy = y + game.battlefieldHeight / 2;
 
-					if ((game.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2)
+					if ((game.IsInsideField (xx, yy)
                         && isWalled[xx,yy] != WallType.Level
                         && isWalled[xx,yy] != WallType.Unbuildable
                         && isWalled[xx,yy] != WallType.WithTurret) ||
-                        (force && game.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2))) {
+                        (force && game.IsInsideField (xx, yy))) {
 						isWalled [xx, yy] = wallType;
 					}
 				}
@@ -771,7 +775,6 @@ public class Game : MonoBehaviour {
             SavedGame.SavedAssembly ass = sg.turrets[i];
             ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (ass.posX, ass.posY), Quaternion.Euler (0, 0, ass.rot))).GetComponent<ModuleAssemblyLoader> ();
             GameObject root = loader.LoadAssembly (ass.assembly, true);
-            Debug.Log ((bool)root + ", " + ass.assembly.assemblyName);
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
@@ -805,7 +808,6 @@ public class Game : MonoBehaviour {
         credits = sg.credits;
         research = sg.research;
         researchProgress = sg.researchProgress;
-        datastream.Reset (sg.health);
 
         // Set enemymanager data.
         EnemyManager.cur.waveMastery = sg.masteryNumber;
@@ -815,19 +817,16 @@ public class Game : MonoBehaviour {
 
         // Finalize loading.
         pathfinder.map.Initialize ();
-        GenerateWallMesh ();
         EnemyManager.cur.EndWave (false);
         PurchaseMenu.cur.InitializeAssemblyButtons ();
+        datastream.Reset (sg.health);
 
         Debug.Log (Datastream.healthAmount);
     }
 
     public void RetryAutosave () {
-        LoadSavedGame ("autosave");
-        gameOverIndicator.SetActive (false);
-        ForceDarkOverlay (false);
-        state = State.Started;
-        ShowGUI ();
+        saveToLoad = "autosave";
+        RestartMap ();
     }
 
     public void SaveGame (string path) {

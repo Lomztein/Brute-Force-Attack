@@ -2996,7 +2996,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4840,6 +4840,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -5907,7 +5908,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649998}
+  m_AnchoredPosition: {x: 0.5, y: -29.65001}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -7143,6 +7144,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -7740,6 +7742,7 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -9573,7 +9576,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: special.Array.size
-      value: 6
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.size
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: specialAssemblies.Array.size
@@ -9582,6 +9589,10 @@ Prefab:
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: specialAssemblies.Array.data[0].parts.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].parts.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 22443626, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: m_LocalPosition.x
@@ -9726,6 +9737,102 @@ Prefab:
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: special.Array.data[0]
       value: 
+      objectReference: {fileID: 127550, guid: 7d7e511802013dd4bb55369aec76f350, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: special.Array.data[2]
+      value: 
+      objectReference: {fileID: 111394, guid: bd2a89da28ac6124fb72f883ee86358d, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: special.Array.data[1]
+      value: 
+      objectReference: {fileID: 140572, guid: d4117d968a0ab3543aa34c3afd849f82, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: special.Array.data[3]
+      value: 
+      objectReference: {fileID: 174166, guid: 4a32a6b05e4ddcd488d361a52980c100, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[0].isRoot
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[0].type
+      value: Research Collector Base
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[0].parentIndex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[1].index
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[1].type
+      value: Research Collector Rotator
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[2].type
+      value: Research Collector
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[2].parentIndex
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[2].index
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].assemblyName
+      value: Slowfield Generator
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].assemblyDesc
+      value: Generates a slowfield around it, which will slow down any nearby enemies.
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].parts.Array.data[0].parentIndex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].parts.Array.data[0].type
+      value: Slowfield Generator
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].parts.Array.data[0].isRoot
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.data[5]
+      value: 
+      objectReference: {fileID: 124610, guid: 26fe9ed79f132764594b78aaeda0eb65, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.data[6]
+      value: 
+      objectReference: {fileID: 174166, guid: 4a32a6b05e4ddcd488d361a52980c100, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.data[7]
+      value: 
+      objectReference: {fileID: 140572, guid: d4117d968a0ab3543aa34c3afd849f82, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.data[8]
+      value: 
+      objectReference: {fileID: 111394, guid: bd2a89da28ac6124fb72f883ee86358d, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: standard.Array.data[9]
+      value: 
+      objectReference: {fileID: 127550, guid: 7d7e511802013dd4bb55369aec76f350, type: 2}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[0].index
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[0].parts.Array.data[1].parentIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: specialAssemblies.Array.data[1].parts.Array.data[0].index
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 11486452, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
@@ -10297,7 +10404,7 @@ MonoBehaviour:
   battlefieldHeight: 26
   enemySpawnPoints: []
   assembliesAllowed: 10
-  gamemode: 1
+  gamemode: 0
   gamemodeDescriptions:
   - The standard gamemode, the way the game originally was intended to be.
   - Enemies spawn with only a fraction of their health, but many more spawn.

@@ -18,7 +18,8 @@ public class MainMenuScene : MonoBehaviour {
 
 	public void Play (bool loadQuicksave) {
         SceneManager.LoadScene ("pv_play");
-        Game.loadQuicksaveOnStartup = loadQuicksave;
+        if (loadQuicksave)
+            Game.saveToLoad = "quicksave";
 	}
 
 	public void Build () {

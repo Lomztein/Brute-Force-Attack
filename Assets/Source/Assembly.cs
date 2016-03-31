@@ -18,7 +18,7 @@ public class Assembly {
     public Texture2D texture;
 
 	[System.NonSerialized]
-    public Research[] requiredResearch;
+    public Research[] requiredResearch = new Research[0];
 
     [System.Serializable]
     public class Part {
@@ -68,8 +68,9 @@ public class Assembly {
                 if (r.func == "UnlockModule") {
                     Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
 
-                    if (mod.moduleName == data.parts[j].type)
+                    if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
                         hls.Add (r);
+                    }
                 }
             }
         }
@@ -79,10 +80,11 @@ public class Assembly {
 	}
 
     public void ChangeHighlightRequiredResearch (bool highlight) {
-        for (int i = 0; i < requiredResearch.Length; i++) {
-            Research r = requiredResearch[i];
-            r.highlighter.gameObject.SetActive (highlight);
-        }
+        if (requiredResearch != null)
+            for (int i = 0; i < requiredResearch.Length; i++) {
+                Research r = requiredResearch[i];
+                r.highlighter.gameObject.SetActive (highlight);
+            }
     }
 
 	public static void SaveToFile (string fileName, Assembly assembly) {

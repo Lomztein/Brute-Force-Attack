@@ -15,7 +15,6 @@ public class PurchaseMenu : MonoBehaviour {
 
 	[Header ("Purchaseables")]
 	public List<GameObject> standard;
-	public List<GameObject> special;
 	public List<GameObject> all;
 
 	public List<GameObject> buttons = new List<GameObject>();
@@ -54,8 +53,9 @@ public class PurchaseMenu : MonoBehaviour {
 		InitializePurchaseMenu (standard.ToArray ());
 	}
 
+    [System.Obsolete ("Special assemblies have been merged with the assembly system", true)]
 	public void LoadSpecialButtons () {
-		InitializePurchaseMenu (special.ToArray ());
+		//InitializePurchaseMenu (special.ToArray ());
 	}
 
 	public void SetAssemblies (List<Assembly> _assemblies) {
@@ -143,9 +143,9 @@ public class PurchaseMenu : MonoBehaviour {
 			all.Add (b);
 		}
 		
-		foreach (GameObject a in special) {
+		/*foreach (GameObject a in special) {
 			all.Add (a);
-		}
+		}*/
 
 		if (Game.currentScene == Scene.Play) {
 			foreach (GameObject a in Game.game.researchMenu.unlockableModules) {

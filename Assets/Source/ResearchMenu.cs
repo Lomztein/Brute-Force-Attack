@@ -368,8 +368,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void UnlockSpecialModule (Research research) {
-		Game.game.purchaseMenu.special.Add (unlockableModules[int.Parse(research.meta)]);
-		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.special.ToArray ());
+        UnlockModule (research);
 	}
 
 	public void IncreaseFirerate (Research research) {

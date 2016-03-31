@@ -217,6 +217,8 @@ public class PlayerInput : MonoBehaviour {
                         rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
                     } else if (pModule.moduleType == Module.Type.Base) {
                         rangeIndicator.GetRange (pModule.GetComponent<BaseModule> ().GetRange ());
+                    } else {
+                        RangeIndicator.ForceRequestRange (pModule.gameObject, rangeIndicator.gameObject);
                     }
                 }
 

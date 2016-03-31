@@ -26,4 +26,8 @@ public class SlowfieldModule : Module {
 	void OnDrawGizmos () {
 		Gizmos.DrawWireSphere (transform.position, range * upgradeMul);
 	}
+
+    public void RequestRange ( GameObject rangeIndicator ) {
+        rangeIndicator.SendMessage ("GetRange", range * upgradeMul);
+    }
 }
