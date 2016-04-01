@@ -18,6 +18,7 @@ public class ResearchMenu : MonoBehaviour {
 	public GameObject prerequisiteLine;
 	public static bool isOpen = true;
 	private Vector3 startPos;
+    public float buttonSize;
 
 	// Unlock research stuff
 	public static float[] damageMul;
@@ -115,25 +116,28 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	Rect GetScrollRect () {
-		Rect ans = new Rect ();
-		Vector2 avg = new Vector2 ();
+        Rect minMax = new Rect ();
 		for (int i = 0; i < research.Count; i++) {
 
-			if (research[i].x > ans.width)
-				ans.width = research[i].x;
+			if (research[i].x * buttonSize > minMax.x && research[i].x > 0) {
+                minMax.x = research[i].x * buttonSize;
+            }
 
-			if (research[i].y > ans.height)
-				ans.height = research[i].y;
+			if (research[i].y * buttonSize > minMax.y && research[i].y > 0) {
+                minMax.y = research[i].y * buttonSize;
+            }
 
-			avg += new Vector2 (research[i].x, research[i].y);
+            if (research[i].x * buttonSize < minMax.width && research[i].x < 0) {
+                minMax.width = research[i].x * buttonSize;
+            }
+
+            if (research[i].y * buttonSize < minMax.height && research[i].y < 0) {
+                minMax.height = research[i].x * buttonSize;
+            }
 
 		}
 
-		avg /= research.Count;
-		ans.x = avg.x;
-		ans.y = avg.y;
-
-		return ans;
+		return new Rect (minMax.x, minMax.y, minMax.x - minMax.width, minMax.y - minMax.height);
 	}
 
 	public void InvalidateButton (GameObject b, int index) {
@@ -146,7 +150,7 @@ public class ResearchMenu : MonoBehaviour {
 			assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
 		}
 
-		//Destroy (research[index]);
+        //Destroy (research[index]);
 		UpdateButtons ();
 		research[index].name = "RESEARCHED";
     }
@@ -223,6 +227,7 @@ public class ResearchMenu : MonoBehaviour {
 		Image image = research.button.transform.GetChild (0).GetComponent<Image>();
 
         if (research.isBought) {
+			UpdateImageColor (research, image);
             image.color /= 2f;
             return false;
         }
@@ -251,17 +256,21 @@ public class ResearchMenu : MonoBehaviour {
 	public void InitializeResearchMenu () {
 
 		Rect newRect = GetScrollRect ();
-		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height) * 100;
-		startRect.position = transform.position - new Vector3 (newRect.x, newRect.y, 0) * 100 + Vector3.down * 150f;
+		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height);
+        buttonParent.transform.localPosition = new Vector3 (newRect.x - newRect.width / 2f, -newRect.height, 0);
+        lineParent.transform.localPosition = buttonParent.transform.localPosition;
 
-		for (int i = 0; i < research.Count; i++) {
+        for (int i = 0; i < research.Count; i++) {
 
 			Research u = research[i];
 
-			Vector3 pos = GetPos (u) * 100f;
-			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
-			newU.transform.SetParent (buttonParent, true);
+			Vector3 pos = GetPos (u) * buttonSize * 2.5f;
+			GameObject newU = Instantiate (buttonPrefab);
+
+            newU.transform.localPosition = buttonParent.position + pos;
+            newU.transform.SetParent (buttonParent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
+
 			u.button = newU;
 			image.sprite = u.sprite;
 			buttons.Add (newU);
@@ -281,7 +290,7 @@ public class ResearchMenu : MonoBehaviour {
 			Research r = research[i];
 			if (r.prerequisite != -1 && r.name != "") {
 
-				Vector3 pPos = r.button.transform.position + (r.GetPrerequisite ().button.transform.position - r.button.transform.position) / 2;
+				Vector3 pPos = r.button.transform.localPosition + (r.GetPrerequisite ().button.transform.localPosition - r.button.transform.localPosition) / 2;
 				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
 				GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
 				RectTransform lr = line.GetComponent<RectTransform>();
@@ -289,18 +298,12 @@ public class ResearchMenu : MonoBehaviour {
 				line.transform.SetParent (lineParent, true);
 
                 lr.transform.localScale = Vector3.one;
-
 			}
 		}
 
         UpdateButtonActiveness ();
     }
 
-    // I should not be having to do this, but apparently Unity finds it fun to delete the entire Research tree from time to time.
-    // Also, for whatever reason, classes without inheritance doesn't work well with a self-type member, and ScriptableObjects
-    // are unable to be serialized to an external file, essentially locking them to a scene. This is fucking horrible Unity.
-    // I mean if you're already going to write the code to save them in a file amongst a whole load of other junk, why the
-    // fuck aren't we able to just save them to a file by themselves? Whomever wrote that code should step on a lego or something.   /rant
     [System.Serializable]
     public class SimpleResearch {
         public string name;

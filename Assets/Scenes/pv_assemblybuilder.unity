@@ -154,8 +154,6 @@ MonoBehaviour:
   - {fileID: 197850, guid: 22c18e1ae74ffa14aa90dfb57002488a, type: 2}
   - {fileID: 137174, guid: 068e990d051b6ef4781c49614970c129, type: 2}
   - {fileID: 125260, guid: 9a1a7b900fe380b4fbc640af993f1800, type: 2}
-  special:
-  - {fileID: 144988, guid: b33b08ed3c6d3c64592665a2d0b05566, type: 2}
   all: []
   buttons: []
   firstTopButton: {fileID: 618717286}
@@ -168,6 +166,7 @@ MonoBehaviour:
   scrollThingie: {fileID: 0}
   playerInput: {fileID: 1841343144}
   purchaseButtonSize: 50
+  specialAssemblies: []
 --- !u!114 &176961405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -805,19 +804,19 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 12
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -23.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_SizeDelta.x
@@ -825,15 +824,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22472728, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_SizeDelta.y
-      value: 23
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22492922, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_SizeDelta.x
-      value: 24
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22492922, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_SizeDelta.y
-      value: 47
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11483096, guid: c447f749f1a07df4d87b6dec0bb08be9, type: 2}
       propertyPath: m_Text
@@ -1130,8 +1129,6 @@ MonoBehaviour:
   battlefieldHeight: 50
   enemySpawnPoints: []
   assembliesAllowed: 10
-  healthMultiplier: 1
-  amountMultiplier: 1
   gamemode: 0
   gamemodeDescriptions: []
   datastream: {fileID: 0}
@@ -1148,6 +1145,9 @@ MonoBehaviour:
   GUICanvas: {fileID: 0}
   darkOverlay: {fileID: 56788455}
   errorMessage: {fileID: 0}
+  postStartGUI: []
+  gameOverIndicator: {fileID: 0}
+  masteryModeIndicator: {fileID: 0}
   creditsText: {fileID: 0}
   powerText: {fileID: 0}
   researchText: {fileID: 0}
@@ -1157,8 +1157,6 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
-  startingCredits: 40000000
-  startingResearch: 50000000
   wallMeshFilter: {fileID: 0}
   stockModuleNames:
   - Rektinator
@@ -2050,6 +2048,9 @@ MonoBehaviour:
   - {x: 0.3, y: -0.3, z: 0}
   - {x: -0.3, y: -0.3, z: 0}
   - {x: -0.3, y: 0.3, z: 0}
+  blockBuildLayer:
+    serializedVersion: 2
+    m_Bits: 0
   isEditingWalls: 0
   wallDragGraphic: {fileID: 0}
   placementMaterial: {fileID: 2100000, guid: 644422ac796adb14786360eac6f31d1a, type: 2}

@@ -31,27 +31,29 @@ public class BaseModule : Module {
 
 	// Update is called once per frame
 	void Update () {
-		if (!target) {
-			FindTarget ();
-		}else{
-
-			if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
-				Vector3 delPos = target.position - prevPos;
-				if (delPos.magnitude > 0.1f) {
-					targetVel = delPos/Time.fixedDeltaTime;
-					targetPos = target.position + Vector3.Distance (transform.position, target.position)/fastestBulletSpeed * targetVel;
-					prevPos = target.position;
-				}else{
-					targetPos = target.position;
-				}
-			}else{
-				targetPos = target.position;
-			}
-
-			if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf)
-				target = null;
+        if (!target) {
+            FindTarget ();
+        } else if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
+            target = null;
 		}
 	}
+
+    void FixedUpdate () {
+        if (target) {
+            if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
+                Vector3 delPos = target.position - prevPos;
+                if (delPos.magnitude > 0.1f) {
+                    targetVel = delPos / Time.fixedDeltaTime;
+                    targetPos = target.position + Vector3.Distance (transform.position, target.position) / fastestBulletSpeed * targetVel;
+                    prevPos = target.position;
+                } else {
+                    targetPos = target.position;
+                }
+            } else {
+                targetPos = target.position;
+            }
+        }
+    }
 
 	public override void Start () {
 		base.Start ();

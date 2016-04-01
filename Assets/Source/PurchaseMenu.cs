@@ -9,81 +9,81 @@ using System.Linq;
 
 public class PurchaseMenu : MonoBehaviour {
 
-	[Header ("Menu Stuff")]
-	public bool isOpen;
-	public RectTransform rect;
+    [Header ("Menu Stuff")]
+    public bool isOpen;
+    public RectTransform rect;
 
-	[Header ("Purchaseables")]
-	public List<GameObject> standard;
-	public List<GameObject> all;
+    [Header ("Purchaseables")]
+    public List<GameObject> standard;
+    public List<GameObject> all;
 
-	public List<GameObject> buttons = new List<GameObject>();
-	public RectTransform firstTopButton;
-	private GameObject[] currentMenu;
+    public List<GameObject> buttons = new List<GameObject>();
+    public RectTransform firstTopButton;
+    private GameObject[] currentMenu;
 
-	public Dictionary<GameObject, int> stockModules;
+    public Dictionary<GameObject, int> stockModules;
 
-	[Header ("References")]
-	public GameObject buttonPrefab;
-	public Transform buttonMask;
-	public GameObject assemblyLoader;
-	public GameObject assemblyButton;
-	public Transform assemblyButtonStart;
-	public List<LoadAssemblyButton> assemblyButtonList = new List<LoadAssemblyButton> ();
+    [Header ("References")]
+    public GameObject buttonPrefab;
+    public Transform buttonMask;
+    public GameObject assemblyLoader;
+    public GameObject assemblyButton;
+    public Transform assemblyButtonStart;
+    public List<LoadAssemblyButton> assemblyButtonList = new List<LoadAssemblyButton> ();
 
-	public RectTransform scrollThingie;
-	public PlayerInput playerInput;
-	public static PurchaseMenu cur;
+    public RectTransform scrollThingie;
+    public PlayerInput playerInput;
+    public static PurchaseMenu cur;
 
-	public int purchaseButtonSize = 75;
-	public static Assembly[] assemblies;
+    public int purchaseButtonSize = 75;
+    public static Assembly[] assemblies;
     public Assembly[] specialAssemblies;
 
-	public void Initialize () {
-		cur = this;
-		stockModules = new Dictionary<GameObject, int>();
+    public void Initialize () {
+        cur = this;
+        stockModules = new Dictionary<GameObject, int> ();
         CollectAllPurchaseables ();
 
-		if (Game.currentScene == Scene.AssemblyBuilder)
-			LoadStandardButtons ();
-	}
+        if (Game.currentScene == Scene.AssemblyBuilder)
+            LoadStandardButtons ();
+    }
 
-	public void LoadStandardButtons () {
-		CloseAssemblyButtons ();
-		InitializePurchaseMenu (standard.ToArray ());
-	}
+    public void LoadStandardButtons () {
+        CloseAssemblyButtons ();
+        InitializePurchaseMenu (standard.ToArray ());
+    }
 
     [System.Obsolete ("Special assemblies have been merged with the assembly system", true)]
-	public void LoadSpecialButtons () {
-		//InitializePurchaseMenu (special.ToArray ());
-	}
+    public void LoadSpecialButtons () {
+        //InitializePurchaseMenu (special.ToArray ());
+    }
 
-	public void SetAssemblies (List<Assembly> _assemblies) {
-		assemblies = _assemblies.ToArray ();
-	}
+    public void SetAssemblies ( List<Assembly> _assemblies ) {
+        assemblies = _assemblies.ToArray ();
+    }
 
     public List<Assembly> GetAssemblies () {
         return assemblies.ToList ();
     }
 
     public void InitializeAssemblyButtons () {
-		CollectAllPurchaseables ();
+        CollectAllPurchaseables ();
         assemblyButtonList.Clear ();
         foreach (Transform child in assemblyButtonStart) {
-			Destroy (child.gameObject);
-		}
+            Destroy (child.gameObject);
+        }
 
         // Condense these two into a single function later.
-		for (int i = 0; i < assemblies.Length; i++) {
-			GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (purchaseButtonSize) * i, Quaternion.identity);
-			assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton>());
-			butt.transform.SetParent (assemblyButtonStart, true);
-			LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton>();
-			button.assembly = assemblies[i];
+        for (int i = 0; i < assemblies.Length; i++) {
+            GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (purchaseButtonSize) * i, Quaternion.identity);
+            assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton> ());
+            butt.transform.SetParent (assemblyButtonStart, true);
+            LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton> ();
+            button.assembly = assemblies[i];
 
-			AddAssemblyButtonListener (butt.GetComponent<Button>(), button);
-			button.Initialize ();
-		}
+            AddAssemblyButtonListener (butt.GetComponent<Button> (), button);
+            button.Initialize ();
+        }
 
         for (int i = 0; i < specialAssemblies.Length; i++) {
             GameObject butt = (GameObject)Instantiate (assemblyButton, firstTopButton.position + Vector3.left * (purchaseButtonSize) * i, Quaternion.identity);
@@ -97,64 +97,65 @@ public class PurchaseMenu : MonoBehaviour {
         }
     }
 
-	public void OpenAssemblyButtons () {
-		foreach (GameObject b in buttons) {
-			Destroy (b);
-		}
+    public void OpenAssemblyButtons () {
+        foreach (GameObject b in buttons) {
+            Destroy (b);
+        }
 
-		foreach (Transform start in assemblyButtonStart) {
-			start.gameObject.SetActive (true);
-		}
-	}
+        foreach (Transform start in assemblyButtonStart) {
+            start.gameObject.SetActive (true);
+        }
+    }
 
-	public void CloseAssemblyButtons () {
-		foreach (Transform start in assemblyButtonStart) {
-			if (start.gameObject.activeSelf) {
-				start.gameObject.SetActive (false);
-			}
-		}
-	}
+    public void CloseAssemblyButtons () {
+        foreach (Transform start in assemblyButtonStart) {
+            if (start.gameObject.activeSelf) {
+                start.gameObject.SetActive (false);
+            }
+        }
+    }
 
-	public bool IsModuleAvailable (string name) {
-		return (bool)GetModulePrefab (name);
-	}
+    public bool IsModuleAvailable ( string name ) {
+        return (bool)GetModulePrefab (name);
+    }
 
-	public void LoadAssembly (Assembly assembly) {
+    public void LoadAssembly ( Assembly assembly ) {
         GameObject ass = Instantiate (assemblyLoader);
-		ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader>();
-		loader.LoadAssembly (assembly);
-		Destroy (ass);
-	}
+        ModuleAssemblyLoader loader = ass.GetComponent<ModuleAssemblyLoader> ();
+        loader.LoadAssembly (assembly);
+        Destroy (ass);
+    }
 
-	public GameObject GetModulePrefab (string name) {
+    public GameObject GetModulePrefab ( string name ) {
 
-		foreach (GameObject obj in all) {
-			if (obj.GetComponent<Module>().moduleName == name) {
-				return obj;
-			}
-		}
+        foreach (GameObject obj in all) {
+            if (obj.GetComponent<Module> ().moduleName == name) {
+                return obj;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public void CollectAllPurchaseables () {
-		all = new List<GameObject>();
-		foreach (GameObject b in standard) {
-			all.Add (b);
-		}
-		
-		/*foreach (GameObject a in special) {
+    public void CollectAllPurchaseables () {
+        all = new List<GameObject> ();
+        foreach (GameObject b in standard) {
+            all.Add (b);
+        }
+
+        /*foreach (GameObject a in special) {
 			all.Add (a);
 		}*/
 
-		if (Game.currentScene == Scene.Play) {
-			foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
-				all.Add (a);
-			}
-		}
-	}
+        if (Game.currentScene == Scene.Play) {
+            foreach (GameObject a in Game.game.researchMenu.unlockableModules) {
+                all.Add (a);
+            }
+        }
+    }
 
-	public void InitializePurchaseMenu (GameObject[] purchaseables) {
+    //[System.Obsolete ("Try and use the assembly system instead plox.")]
+    public void InitializePurchaseMenu (GameObject[] purchaseables) {
 		if (Game.currentScene == Scene.Play) {
 			CollectAllPurchaseables ();
 		} else {

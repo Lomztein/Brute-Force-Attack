@@ -225,9 +225,14 @@ public class Game : MonoBehaviour {
             ResearchMenu.cur = researchMenu;
             purchaseMenu.Initialize ();
 
+        }
+
+        if (currentScene == Scene.Play) {
+
             researchMenu.SaveBackup ();
             researchMenu.gameObject.SetActive (true);
             researchMenu.Initialize ();
+
         }
 
         Debug.Log ("Done initializing!");
@@ -769,8 +774,10 @@ public class Game : MonoBehaviour {
         // Load in-world turrets.
         for (int i = 0; i < sg.turrets.Count; i++) {
             SavedGame.SavedAssembly ass = sg.turrets[i];
-            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (ass.posX, ass.posY), Quaternion.Euler (0, 0, ass.rot))).GetComponent<ModuleAssemblyLoader> ();
+            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader)).GetComponent<ModuleAssemblyLoader> ();
             GameObject root = loader.LoadAssembly (ass.assembly, true);
+            root.transform.position = new Vector3 (ass.posX, ass.posY);
+            root.transform.rotation = Quaternion.Euler (0, 0, ass.rot);
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
@@ -789,15 +796,9 @@ public class Game : MonoBehaviour {
         }
 
         // Load research. Likely a very unefficient method, but it should do without issues.
-        while (sg.researchedResearch.Count > 0) {
-            for (int i = 0; i < sg.researchedResearch.Count; i++) {
-                Research r = ResearchMenu.cur.research[sg.researchedResearch[i]];
-                if (r.prerequisite == -1 || r.GetPrerequisite ().isBought) {
-                    r.Purchase (true);
-                    sg.researchedResearch.RemoveAt (i);
-                    break;
-                }
-            }
+        for (int i = 0; i < sg.researchedResearch.Count; i++) {
+            Research r = ResearchMenu.cur.research[sg.researchedResearch[i]];
+            r.Purchase (true);
         }
 
         // Set resources.

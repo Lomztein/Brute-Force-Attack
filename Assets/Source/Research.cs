@@ -32,22 +32,21 @@ public class Research {
         return GameObject.Find ("ResearchMenu").GetComponent<ResearchMenu> ().research[prerequisite];
     }
 
-	public void Purchase (bool ignoreResources = false) {
-		if (Game.research >= y || ignoreResources) {
-			if (prerequisite != -1) {
-				if (GetPrerequisite ().isBought) {
-					DoPurchase (ignoreResources);
-				}
-			}else{
-				DoPurchase (ignoreResources);
-			}
+	public void Purchase (bool force = false) {
+        if (Game.research >= y) {
+            if (prerequisite == -1 || GetPrerequisite ().isBought) {
+                DoPurchase (force);
+            }
+        }
+        if (force) {
+		    DoPurchase (force);
 		}
 	}
 
-	void DoPurchase (bool ignoreResources = false) {
+	void DoPurchase (bool force = false) {
 		isBought = true;
 		ResearchMenu.cur.SendMessage (func, this, SendMessageOptions.RequireReceiver);
-		if (ignoreResources)
+		if (!force)
             Game.research -= y;
 		ResearchMenu.cur.InvalidateButton (button, index);
 	}
