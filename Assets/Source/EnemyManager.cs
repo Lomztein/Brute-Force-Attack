@@ -72,14 +72,11 @@ public class EnemyManager : MonoBehaviour {
     public static int spawnedResearch = 0;
     public static int chanceToSpawnResearch;
 
-	void Awake () {
-        cur = this;
-    }
-
-    public void Initialize () {
-        UpdateAmountModifier();
-        EndWave(false);
-        AddFinalBoss();
+    public static void Initialize () {
+        cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
+        cur.UpdateAmountModifier();
+        cur.EndWave (false);
+        cur.AddFinalBoss ();
     }
 
     public void DemonstratePaths () {
@@ -482,7 +479,7 @@ public class EnemyManager : MonoBehaviour {
 	void ContinueFalseWave () {
 		ContinueWave (false);
 	}
-
+    
 	public void EndWave (bool finished) {
         if (finished) {
             StartCoroutine (CleanEnemyArray ());

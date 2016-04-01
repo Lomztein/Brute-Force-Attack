@@ -171,17 +171,17 @@ public class Game : MonoBehaviour {
         errorMessage.SetActive(false);
     }
 
+    void ResetStatics () {
+        currentModules.Clear ();
+    }
+
     // Use this for initialization
     void Awake () {
 
         game = this;
+        ResetStatics ();
+        InitializeBasics ();
 
-        if (currentScene != Scene.BattlefieldEditor) {
-            ResearchMenu.cur = researchMenu;
-            purchaseMenu.Initialize ();
-        }
-
-        InitializeSaveDictionaries ();
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
         /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
@@ -206,13 +206,7 @@ public class Game : MonoBehaviour {
         // Wait a single frame to allow all other Awake() and Start() functions to run.
         yield return null;
 
-        StartGame ();
         LoadSavedGame (saveToLoad);
-        InitializeBattlefield ();
-
-        ForceDarkOverlay (false);
-        AssembliesSelectionMenu.cur.gameObject.SetActive (false);
-
         saveToLoad = "";
     }
 
@@ -220,27 +214,29 @@ public class Game : MonoBehaviour {
         ModuleTreeButton.buttonTypes = Resources.LoadAll<GameObject> ("Module Tree GUI");
     }
 
-	public void StartGame () {
+    void InitializeBasics () {
         Debug.Log ("Initializing!");
-        ShowGUI();
-
+        InitializeDirectories ();
         InitializeResources ();
-        researchMenu.gameObject.SetActive (true);
-        researchMenu.Initialize ();
-
-        EnemyManager.cur.Initialize();
-        if (saveToLoad == null || saveToLoad.Length == 0)
-            InitializeBattlefield ();
-        pathMap.Initialize ();
-        Datastream.cur.Initialize();
-
-        researchMenu.SaveBackup ();
         state = State.Started;
 
-        if (fastGame)
-            ToggleFastGameSpeed ();
+        if (currentScene != Scene.BattlefieldEditor) {
+
+            ResearchMenu.cur = researchMenu;
+            purchaseMenu.Initialize ();
+
+            researchMenu.SaveBackup ();
+            researchMenu.gameObject.SetActive (true);
+            researchMenu.Initialize ();
+        }
+
         Debug.Log ("Done initializing!");
-	}
+    }
+
+    public void StartGame () {
+        InitializeNewGame ();
+        PostInitialization ();
+    }
 
     void HideGUI () {
         for (int i = 0; i < postStartGUI.Length; i++) {
@@ -550,69 +546,70 @@ public class Game : MonoBehaviour {
 
 	}
 
-	public static void InitializeSaveDictionaries () {
-		string dp = Application.dataPath;
-		
-		MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
-		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
-		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
-		RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
-		SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
+    void InitializeNewGame () {
+        // Initialize resources
+        credits = difficulty.startingCredits;
+        research = difficulty.startingResearch;
+        researchProgress = 0f;
+
+        if (isWalled == null)
+            isWalled = new WallType[battlefieldWidth, battlefieldHeight];
     }
 
-	void InitializeBattlefield () {
+    void InitializeDirectories () {
 
-		// Initialize files
+        string dp = Application.dataPath;
 
-		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
-			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
-	
-		if (!Directory.Exists (WAVESET_SAVE_DIRECTORY))
-			Directory.CreateDirectory (WAVESET_SAVE_DIRECTORY);
+        MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
+        WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
+        BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
+        RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+        SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
 
-		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
-			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
+        if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
+            Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
+
+        if (!Directory.Exists (WAVESET_SAVE_DIRECTORY))
+            Directory.CreateDirectory (WAVESET_SAVE_DIRECTORY);
+
+        if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
+            Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
 
         if (!Directory.Exists (RESEARCH_BACKUP_DATA_DIRECTORY))
             Directory.CreateDirectory (RESEARCH_BACKUP_DATA_DIRECTORY);
 
         if (!Directory.Exists (SAVED_GAME_DIRECTORY))
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
+    }
 
-        // Load battlefield data
-        if (isWalled == null)
-            isWalled = new WallType[battlefieldWidth,battlefieldHeight];
+    void PostInitialization () {
+        ShowGUI ();
 
-		currentModules = new List<Module>();
-
-        // Initialize resources
-        if (difficulty != null) {
-            credits = difficulty.startingCredits;
-            research = difficulty.startingResearch;
-        }
-		researchProgress = 0f;
-
-		// Initialize background graphic
-		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
+        // Initialize background graphic
+        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
 		background.GetComponent<Renderer>().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
 		GenerateWallMesh ();
-		
-		// Initialize datastream graphic
-		datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
+
+        // Initialize datastream graphic
+        datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
 		datastream.flyDistance = battlefieldWidth;
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
+        datastream.Reset (Datastream.healthAmount);
 
-		// Initialize enemy spawn.
-		//GenerateDefaultSpawnpoints ();
-        //SaveBattlefieldData ("DEFAULT");
+        PurchaseMenu.cur.InitializeAssemblyButtons ();
 
-		// Initialize purchase menu
-	}
+        ForceDarkOverlay (false);
+        AssembliesSelectionMenu.cur.gameObject.SetActive (false);
+        EnemyManager.Initialize ();
 
-	void FixedUpdate () {
+        if (fastGame)
+            ToggleFastGameSpeed ();
+    }
+
+    void FixedUpdate () {
 		if (currentScene == Scene.Play) {
             musicVolume = musicSlider.value;
             soundVolume = soundSlider.value;
@@ -748,7 +745,7 @@ public class Game : MonoBehaviour {
     public void LoadSavedGame (string fileName) {
 
         // First, clear battlefield of gameobjects, and load the data into a SavedGame object.
-        ClearBattlefieldGameObjects ();
+        // ClearBattlefieldGameObjects ();
         SavedGame sg = SavedGame.Load (fileName);
 
         // Load basic battlefield size and walls.
@@ -770,7 +767,6 @@ public class Game : MonoBehaviour {
         }
 
         // Load in-world turrets.
-        Debug.Log (sg.turrets.Count);
         for (int i = 0; i < sg.turrets.Count; i++) {
             SavedGame.SavedAssembly ass = sg.turrets[i];
             ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader, new Vector3 (ass.posX, ass.posY), Quaternion.Euler (0, 0, ass.rot))).GetComponent<ModuleAssemblyLoader> ();
@@ -809,19 +805,16 @@ public class Game : MonoBehaviour {
         research = sg.research;
         researchProgress = sg.researchProgress;
 
-        // Set enemymanager data.
+        // Finalize loading.
+        Datastream.healthAmount = sg.health;
+        PostInitialization ();
+
         EnemyManager.cur.waveMastery = sg.masteryNumber;
         EnemyManager.cur.waveNumber = sg.waveNumber;
         EnemyManager.externalWaveNumber = sg.totalWaveNumber;
         EnemyManager.gameProgress = sg.gameProgress;
 
-        // Finalize loading.
-        pathfinder.map.Initialize ();
         EnemyManager.cur.EndWave (false);
-        PurchaseMenu.cur.InitializeAssemblyButtons ();
-        datastream.Reset (sg.health);
-
-        Debug.Log (Datastream.healthAmount);
     }
 
     public void RetryAutosave () {
@@ -841,7 +834,6 @@ public class Game : MonoBehaviour {
                 saved.turrets.Add (new SavedGame.SavedAssembly (currentModules[i]));
             }
         }
-        Debug.Log (saved.turrets.Count);
 
         saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
@@ -932,7 +924,6 @@ public class Game : MonoBehaviour {
                 posX = rootModule.transform.localPosition.x;
                 posY = rootModule.transform.localPosition.y;
                 rot = rootModule.transform.localEulerAngles.z;
-                Debug.Log (assembly.parts.Count);
                 for (int i = 0; i < 3; i++) {
                     levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
                 }

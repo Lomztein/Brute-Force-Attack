@@ -24,7 +24,6 @@ namespace IngameEditors {
         // Use this for initialization
         void Awake () {
             cur = this;
-			Game.InitializeSaveDictionaries ();
 			ResearchMenu.InitializeAllStatics ();
 			Game.currentScene = Scene.AssemblyBuilder;
 			Game.credits = int.MaxValue;

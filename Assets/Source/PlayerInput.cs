@@ -523,19 +523,17 @@ public class PlayerInput : MonoBehaviour {
 
 		Vector3 movement = new Vector3 ();
 
-		if (Game.enableMouseMovement) {
-			if (Input.mousePosition.x < 10)
-				movement.x = -cameraMovementSpeed;
-			if (Input.mousePosition.x > Screen.width - 10)
-				movement.x = cameraMovementSpeed;
-			if (Input.mousePosition.y < 10)
-				movement.y = -cameraMovementSpeed;
-			if (Input.mousePosition.y > Screen.height - 10)
-				movement.y = cameraMovementSpeed;
-		}else{
-			movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
-			movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
-		}
+		if (Input.mousePosition.x < 10)
+			movement.x = -cameraMovementSpeed;
+		if (Input.mousePosition.x > Screen.width - 10)
+			movement.x = cameraMovementSpeed;
+		if (Input.mousePosition.y < 10)
+			movement.y = -cameraMovementSpeed;
+		if (Input.mousePosition.y > Screen.height - 10)
+			movement.y = cameraMovementSpeed;
+
+		movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
+		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
 
 		Vector3 camPos = transform.position;
 		if (camPos.x > Game.game.battlefieldWidth / 2f)
@@ -548,7 +546,7 @@ public class PlayerInput : MonoBehaviour {
 			camPos.y = -Game.game.battlefieldHeight / 2f;
 
 		transform.position = camPos;
-		transform.position += movement * Time.deltaTime;
+		transform.position += movement * Time.unscaledDeltaTime;
 	}
 
 	void OnDrawGizmos () {
