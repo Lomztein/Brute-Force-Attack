@@ -25,10 +25,14 @@ public class Enemy : MonoBehaviour {
 	public int pathIndex;
 	public Vector3 offset;
 
+    [Header ("Death Particle")]
+	public ParticleSystem deathParticle;
+    public int particleAmount = 100;
+    public float particleLifetime = 1f;
+
 	[Header ("Other")]
-	public GameObject deathParticle;
-	public GameObject researchPoint;
-	public UpcomingElement upcomingElement;
+    public GameObject researchPoint;
+    public UpcomingElement upcomingElement;
 	private bool isDead;
 
 	public Slider healthSlider;
@@ -122,7 +126,12 @@ public class Enemy : MonoBehaviour {
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 
-				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
+                if (deathParticle) {
+                    deathParticle.transform.parent = null;
+                    deathParticle.Emit (particleAmount);
+                    Invoke ("DisableParticle", particleLifetime);
+                }
+
                 if (EnemyManager.spawnedResearch < EnemyManager.researchPerWave) {
                     if ((Random.Range (0, EnemyManager.chanceToSpawnResearch) == 0)
                     || EnemyManager.cur.currentEnemies == 1) {
@@ -136,6 +145,10 @@ public class Enemy : MonoBehaviour {
             if (healthSlider) healthSlider.transform.SetParent (transform);
             gameObject.SetActive (false);
         }
+    }
+
+    void DisableParticle () {
+        deathParticle.gameObject.SetActive (false);
     }
 
 	void OnCollisionEnter (Collision col) {

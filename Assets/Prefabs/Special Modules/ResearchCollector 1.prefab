@@ -92,8 +92,20 @@ MonoBehaviour:
     research upgrades.
   assemblyDesc: 
   assemblyName: 
-  upgradeButtonDisabled: 
-  moduleType: 4
+  upgradeButtonDisabled: 010000
+  upgradeNameReplacement:
+  - 
+  - 
+  - efficiency
+  upgradeDescReplacement:
+  - 
+  - 
+  - 'Research per point: '
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 707b31f7c2988c14a94f5b6cc9702250, type: 3}
+  moduleType: 0
   moduleClass: 2
   moduleCost: 0
   moduleIndex: 0

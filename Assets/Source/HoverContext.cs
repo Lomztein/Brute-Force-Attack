@@ -41,7 +41,7 @@ public class HoverContext : MonoBehaviour {
     }
 
     void CheckHit (bool raycast, RaycastHit hit) {
-        if (hit.collider) {
+        if (hit.collider && hit.collider.transform.tag != "DarkOverlay") {
             HoverContextElement hoverHit = hit.collider.GetComponent<HoverContextElement>();
             if (!hoverHit)
                 return;

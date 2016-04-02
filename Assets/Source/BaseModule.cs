@@ -66,7 +66,7 @@ public class BaseModule : Module {
         return passed;
     }
 
-    public float GetRange () {
+    public override float GetRange () {
         if (Game.game && Game.game.gamemode != Gamemode.VDay)
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
         else

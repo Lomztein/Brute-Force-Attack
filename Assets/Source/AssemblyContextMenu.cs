@@ -59,9 +59,27 @@ public class AssemblyContextMenu : MonoBehaviour {
 
     void UpdateStats () {
         if (Game.currentScene == Scene.Play) {
-            moduleStats.text = "Root range: " + ((int)rootModule.parentBase.GetRange()).ToString() +
-                "\n\nDamage per second: " + ((int)rootModule.GetAssemblyDPS()).ToString() +
-                "\n\nAvarage turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed()).ToString();
+            for (int i = 0; i < 3; i++) {
+                if (rootModule.upgradeDescReplacement[i].Length == 0) {
+                    switch (i) {
+                        case 0:
+                            rootModule.upgradeDescReplacement[i] = "Range: ";
+                            break;
+
+                        case 2:
+                            rootModule.upgradeDescReplacement[i] = "Damage per second: ";
+                            break;
+
+                        case 1:
+                            rootModule.upgradeDescReplacement[i] = "Avarage turnspeed: ";
+                            break;
+
+                    }
+                }
+            }
+            moduleStats.text = rootModule.upgradeDescReplacement[0] + ((int)rootModule.GetRange()).ToString() +
+                "\n\n" + rootModule.upgradeDescReplacement[2] + ((int)rootModule.GetAssemblyDPS()).ToString() +
+                "\n\n" + rootModule.upgradeDescReplacement[1] + ((int)rootModule.GetAssemblyAVGTurnSpeed()).ToString();
             // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
 
             upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
@@ -89,16 +107,49 @@ public class AssemblyContextMenu : MonoBehaviour {
     }
 
     void UpdateUpgradeCostText (int t) {
-		Module.Type type = (Module.Type)t;
         if (!rootModule.IsAssemblyUpgradeable (t)) {
-            ChangeUpgradeCostText (t, "Upgrade " + type.ToString () + "s, Maxed Out");
+            ChangeUpgradeCostText (t, "Upgrade " + GetTypeName (t) + " - Maxed Out");
         } else {
             ChangeUpgradeCostTextPrebuild (t, rootModule.GetUpgradeCost (t).ToString ());
         }
     }
 
+    string GetTypeName (int index) {
+        string upgradeType = "Type name missing";
+        if (rootModule.upgradeNameReplacement[index].Length > 0) {
+            upgradeType = rootModule.upgradeNameReplacement[index];
+        } else {
+            switch ((Module.Type)index) {
+
+                case Module.Type.Base:
+                    upgradeType = "range";
+                    break;
+
+                case Module.Type.Rotator:
+                    upgradeType = "rotation";
+                    break;
+
+                case Module.Type.Weapon:
+                    upgradeType = "damage";
+                    break;
+
+                default:
+                    upgradeType = "Replacement string required";
+                    break;
+
+            }
+        }
+        return upgradeType;
+    }
+
 	void ChangeUpgradeCostTextPrebuild (int buttonIndex, string newText) {
-		ChangeUpgradeCostText (buttonIndex, "Upgrade " + ((Module.Type)buttonIndex).ToString () + "s: " + newText + " credits");
+
+        if (rootModule.upgradeButtonDisabled[buttonIndex]) {
+            ChangeUpgradeCostText (buttonIndex, "Disabled for this assembly");
+            return;
+        }
+
+		ChangeUpgradeCostText (buttonIndex, "Upgrade " + GetTypeName (buttonIndex) + " - " + newText + " credits");
 	}
 
     void ChangeUpgradeCostText (int buttonIndex, string newText) {
@@ -158,6 +209,9 @@ public class AssemblyContextMenu : MonoBehaviour {
                 upgradeButton[i].interactable = false;
             } else {
                 upgradeButton[i].interactable = true;
+                if (rootModule.upgradeImageReplacement[i]) {
+                    upgradeButton[i].transform.GetChild(0).GetComponent<Image>().sprite = rootModule.upgradeImageReplacement[i];
+                }
             }
         }
 	}

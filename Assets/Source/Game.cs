@@ -147,14 +147,17 @@ public class Game : MonoBehaviour {
 
     public static void ForceDarkOverlay ( bool setting ) {
         Animator anim = game.darkOverlay.GetComponent<Animator>();
+        Image image = game.darkOverlay.GetComponent<Image> ();
         switch (setting) {
 
             case false:
                 anim.Play("OverlayFadeOut");
+                image.raycastTarget = false;
                 break;
 
             case true:
                 anim.Play("OverlayFadeIn");
+                image.raycastTarget = true;
                 break;
 
         }
@@ -783,6 +786,7 @@ public class Game : MonoBehaviour {
             Module rootModule = root.GetComponent<Module> ();
             for (int j = 0; j < rootModule.modules.Count; j++) {
                 rootModule.modules[j].enabled = true;
+                rootModule.modules[j].SetStartingUpgradeCost ();
                 for (int a = 0; a < ass.levels.Count; a++) {
                     if (rootModule.modules[j].moduleType == (Module.Type)a) {
                         for (int b = 0; b < ass.levels[a]; b++) {

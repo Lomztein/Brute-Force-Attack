@@ -1,31 +1,33 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using IngameEditors;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
 public class Module : MonoBehaviour {
 
-	public const string MODULE_FILE_EXTENSION = ".dat";
-	public const int MAX_UPGRADE_AMOUNT = 5;
-	public bool isOnBattlefield = true;
-	
-	public enum Type { Base, Rotator, Weapon, Structural, Independent };
-	public Colour colour;
+    public const string MODULE_FILE_EXTENSION = ".dat";
+    public const int MAX_UPGRADE_AMOUNT = 5;
+    public bool isOnBattlefield = true;
 
-	public BaseModule parentBase;
-	public Module rootModule;
+    public enum Type { Base, Rotator, Weapon, Structural, Independent };
+    public Colour colour;
+
+    public BaseModule parentBase;
+    public Module rootModule;
     public List<Module> modules;
     public ModuleMod[] moduleMods;
 
-	public string moduleName;
-	public string moduleDesc;
-	public string assemblyDesc;
-	public string assemblyName;
-	public bool[] upgradeButtonDisabled;
-	
+    public string moduleName;
+    public string moduleDesc;
+    public string assemblyDesc;
+    public string assemblyName;
+
+    public bool[] upgradeButtonDisabled;
+    public string[] upgradeNameReplacement = new string[3];
+    public string[] upgradeDescReplacement = new string[3];
+    public Sprite[] upgradeImageReplacement = new Sprite[3];
+
 	public Type moduleType;
 	public int moduleClass = 2;
 	public int moduleCost;
@@ -57,10 +59,8 @@ public class Module : MonoBehaviour {
     public float GetAssemblyDPS () {
         if (isRoot) {
             float dps = 0f;
-            WeaponModule[] weps = GetComponentsInChildren<WeaponModule> ();
-
-            for (int i = 0; i < weps.Length; i++) {
-                dps += weps[i].GetDPS ();
+            for (int i = 0; i < modules.Count; i++) {
+                dps += modules[i].GetEfficiency ();
             }
             return dps;
         } else {
@@ -85,9 +85,8 @@ public class Module : MonoBehaviour {
         if (isRoot) {
             float turnSpeed = 0f;
             RotatorModule[] rots = GetComponentsInChildren<RotatorModule> ();
-
-            for (int i = 0; i < rots.Length; i++) {
-                turnSpeed += rots[i].GetSpeed ();
+            for (int i = 0; i < modules.Count; i++) {
+                turnSpeed += modules[i].GetSpeed ();
             }
             turnSpeed /= rots.Length;
             return turnSpeed;
@@ -97,7 +96,11 @@ public class Module : MonoBehaviour {
         return 0;
     }
 
-	public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
+    public void SetStartingUpgradeCost () {
+        upgradeCost = moduleCost * 2;
+    }
+
+    public static Texture2D CombineSprites (Texture2D[] sprites, Vector3[] positions, int ppu = 16) {
 		if (sprites.Length != positions.Length) {
 			Debug.LogError ("Sprites array not equal length as positions array.");
 			return null;
@@ -162,7 +165,7 @@ public class Module : MonoBehaviour {
 		upgradeCount++;
         // Debug.Log (GetUpgradePercentage ());
         upgradeMul *= 1 + GetUpgradePercentage ();
-		upgradeCost = Mathf.RoundToInt ((float)upgradeCost * 1.5f);
+		upgradeCost = Mathf.RoundToInt (upgradeCost * 1.5f);
 		if (upgradeCount >= MAX_UPGRADE_AMOUNT) {
 			return true;
 		}
@@ -278,9 +281,21 @@ public class Module : MonoBehaviour {
 		}
 	}
 
-	void InitializeModule () {
-		upgradeButtonDisabled = new bool[3];
-		upgradeCost = moduleCost * 2;
+    public virtual float GetRange () {
+        return parentBase.GetRange ();
+    }
+
+    public virtual float GetEfficiency () {
+        return 0f;
+    }
+
+    public virtual float GetSpeed () {
+        return 0f;
+    }
+
+    void InitializeModule () {
+		if (upgradeButtonDisabled == null || upgradeButtonDisabled.Length != 3)
+            upgradeButtonDisabled = new bool[3];
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);

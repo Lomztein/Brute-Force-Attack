@@ -72,7 +72,7 @@ public class WeaponModule : Module {
 		return text;
 	}
 
-    public float GetDPS () {
+    public override float GetEfficiency () {
         return weapon.GetDPS();
     }
 }

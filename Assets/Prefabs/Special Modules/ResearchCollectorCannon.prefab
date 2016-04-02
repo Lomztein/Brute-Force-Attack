@@ -164,7 +164,19 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
-  moduleType: 4
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  moduleType: 2
   moduleClass: 2
   moduleCost: 750
   moduleIndex: 0

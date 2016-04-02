@@ -74,7 +74,6 @@ public class EnemyManager : MonoBehaviour {
 
     public static void Initialize () {
         cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
-        cur.UpdateAmountModifier();
         cur.EndWave (false);
         cur.AddFinalBoss ();
     }
@@ -396,6 +395,7 @@ public class EnemyManager : MonoBehaviour {
         UpdateAmountModifier ();
         Game.game.masteryModeIndicator.SetActive (false);
         UpdateUpcomingWaveScreen (waves[waveNumber]);
+        UpdateAmountModifier ();
 	}
 
 	void UpdateUpcomingWaveScreen (Wave upcoming) {
@@ -493,6 +493,7 @@ public class EnemyManager : MonoBehaviour {
         if (Game.fastGame)
             Game.ToggleFastGameSpeed ();
         waveStartedIndicator.color = Color.green;
+        UpdateAmountModifier ();
 
         if (finished && Datastream.healthAmount > 0) {
             Game.credits += 25 * waveNumber;
@@ -522,7 +523,6 @@ public class EnemyManager : MonoBehaviour {
             ene.spawnPoint = GetSpawnPosition ();
             ene.transform.position = ene.spawnPoint.worldPosition;
             ene.path = ene.spawnPoint.path;
-
 
             pooledEnemies[enemy].RemoveAt (0);
             spawnIndex[index]++;

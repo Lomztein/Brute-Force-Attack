@@ -36,9 +36,9 @@ public class AssemblyCircleMenu : MonoBehaviour {
         cur.StartCoroutine(cur.Animate());
         cur.UpdateHoverContextElements();
 
-        cur.rangeIndicator = RangeIndicator.CreateRangeIndicator(cur.module.parentBase.gameObject, cur.module.transform.position, true, false).GetComponent<RangeIndicator>();
+        cur.rangeIndicator = RangeIndicator.CreateRangeIndicator(cur.module.gameObject, cur.module.transform.position, true, false).GetComponent<RangeIndicator>();
         cur.rangeIndicator.GetComponentInChildren<SpriteRenderer>().color = Color.green;
-        cur.rangeIndicator.GetRange(cur.module.parentBase.GetRange());
+        cur.rangeIndicator.GetRange(cur.module.GetRange());
         UpdateButtons();
     }
 
@@ -99,10 +99,11 @@ public class AssemblyCircleMenu : MonoBehaviour {
 
     public void UpgradeModule () {
         if (Game.credits >= module.GetFullUpgradeCost()) {
-            module.UpgradeAssembly(0);
-            module.UpgradeAssembly(1);
-            module.UpgradeAssembly(2);
-            cur.rangeIndicator.GetRange(cur.module.parentBase.GetRange());
+            for (int i = 0; i < 3; i++) {
+                if (!module.upgradeButtonDisabled[i])
+                    module.UpgradeAssembly (i);
+            }
+            cur.rangeIndicator.GetRange(cur.module.GetRange());
             UpdateHoverContextElements();
             module.UpdateHoverContextElement();
         }

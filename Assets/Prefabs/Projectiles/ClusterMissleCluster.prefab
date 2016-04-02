@@ -138,12 +138,14 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 6
+  isHitscan: 0
   particle: {fileID: 19875166}
   hitParticle: {fileID: 19844210}
-  particleCount: 0
+  particleCount: 50
   bulletSleepTime: 1
   turnSpeed: 360
   speed: 35
+  slowWhenTurning: 0
 --- !u!198 &19844210
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -191,7 +193,7 @@ ParticleSystem:
   randomSeed: 0
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   moveWithTransform: 1
   scalingMode: 2
   InitialModule:

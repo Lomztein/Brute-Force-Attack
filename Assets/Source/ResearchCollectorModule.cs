@@ -36,7 +36,17 @@ public class ResearchCollectorModule : Module {
 		}
 	}
 
-	public override string ToString () {
+    public override bool UpgradeModule () {
+        bool passed = base.UpgradeModule ();
+        upgradeMul = 1f + ((float)upgradeCount / MAX_UPGRADE_AMOUNT);
+        return passed;
+    }
+
+    public override float GetEfficiency () {
+        return multiplier * upgradeMul;
+    }
+
+    public override string ToString () {
 		return "Collection Multiplier: " + (multiplier * upgradeMul).ToString () + " - \n\n" +
 			"Collection Speed: " + (speed * upgradeMul).ToString () + " - ";
 	}
