@@ -324,7 +324,7 @@ public class PlayerInput : MonoBehaviour {
                         upgradingMarker.color = Color.green;
                     }
                 }
-            } else {
+            } else if (!contextMenu.gameObject.activeSelf) {
                 hoverMarker.transform.position = Vector3.right * 10000f;
                 upgradingMarker.transform.position = (Vector3)(Vector2)(Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.right * 2f) + Vector3.forward * (camDepth + 1f);
                 upgradingMarker.color = Color.white;

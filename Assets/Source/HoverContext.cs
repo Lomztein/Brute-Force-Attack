@@ -16,7 +16,7 @@ public class HoverContext : MonoBehaviour {
 		gameObject.SetActive (false);
 	}
 
-	void OnEnabled () {
+	void OnEnable () {
 		SetPos ();
 	}
 
@@ -34,46 +34,53 @@ public class HoverContext : MonoBehaviour {
                 ray = Camera.main.ScreenPointToRay(pos);
                 raycast = Physics.Raycast(ray, out hit, Mathf.Infinity, cur.worldLayers);
             }
-            cur.CheckHit(raycast, hit);
 
-            cur.SetPos();
+            cur.CheckHit(raycast, hit);
         }
     }
 
     void CheckHit (bool raycast, RaycastHit hit) {
-        if (hit.collider && hit.collider.transform.tag != "DarkOverlay") {
+        if (hit.collider) {
             HoverContextElement hoverHit = hit.collider.GetComponent<HoverContextElement>();
-            if (!hoverHit)
-                return;
-
             // This code might cause cancer, need optimizations if possible. I mean, you might as well just use Rect.Contains ().
             if (HoverContextElement.activeElement == null) {
                 if (raycast) {
-                    hit.collider.SendMessage("OnMouseEnterElement");
+                    hit.collider.SendMessage ("OnMouseEnterElement");
                     HoverContextElement.activeElement = hoverHit;
                 }
             } else {
                 if (HoverContextElement.activeElement != hoverHit || !raycast) {
-                    HoverContextElement.activeElement.SendMessage("OnMouseExitElement");
+                    HoverContextElement.activeElement.SendMessage ("OnMouseExitElement");
                     HoverContextElement.activeElement = null;
                 }
             }
 
-            if (HoverContextElement.activeElement == hoverHit && Input.GetMouseButtonDown(0)) {
-                hit.collider.SendMessage("OnMouseDownElement", SendMessageOptions.DontRequireReceiver);
+            if (HoverContextElement.activeElement == hoverHit && Input.GetMouseButtonDown (0)) {
+                hit.collider.SendMessage ("OnMouseDownElement", SendMessageOptions.DontRequireReceiver);
             }
+        } else if (HoverContextElement.activeElement) {
+            HoverContextElement.activeElement.SendMessage ("OnMouseExitElement");
+            HoverContextElement.activeElement = null;
         } else if (!PlayerInput.cur.isEditingWalls) {
             HoverContextElement.activeElement = null;
-            ChangeText("");
+            ChangeText ("");
         }
+    }
+
+    void LateUpdate () {
+        SetPos ();
     }
 
     void SetPos () {
 		Vector3 mousePos = Input.mousePosition;
-		transform.position = mousePos + new Vector3 (rectTransform.sizeDelta.x / 2f ,0);
-		if (mousePos.y > Screen.height/2)
-			transform.position += Vector3.down * rectTransform.sizeDelta.y / 2f;
-	}
+		transform.position = mousePos + new Vector3 (rectTransform.rect.width / 2f ,rectTransform.rect.height / 2);
+        if (mousePos.y > Screen.height / 2) {
+            transform.position += Vector3.down * rectTransform.rect.height;
+        }
+        if (mousePos.x > Screen.width / 2) {
+            transform.position += Vector3.left * rectTransform.rect.width;
+        }
+    }
 
 	public static void ChangeText (string t) {
 		if (t != "") {

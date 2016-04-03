@@ -296,6 +296,10 @@ public class Module : MonoBehaviour {
     void InitializeModule () {
 		if (upgradeButtonDisabled == null || upgradeButtonDisabled.Length != 3)
             upgradeButtonDisabled = new bool[3];
+
+        if (upgradeCost == 0)
+            SetStartingUpgradeCost ();
+
 		FindParentBase ();
 		FindModuleLayer ();
 		transform.position = new Vector3 (transform.position.x, transform.position.y, -moduleLayer);
