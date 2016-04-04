@@ -55,7 +55,8 @@ public class EnemyManager : MonoBehaviour {
 
 	public static EnemyManager cur;
 
-	[Header ("Upcoming Wave")]
+    [Header ("Upcoming Wave")]
+    public Text upcomingHeader;
 	public RectTransform upcomingCanvas;
 	public RectTransform upcomingWindow;
 	public GameObject upcomingEnemyPrefab;
@@ -179,11 +180,11 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void UpdateAmountModifier () {
- 
+        amountModifier = waveMastery * Game.difficulty.amountMultiplier;
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
-            amountModifier = (int)(waveMastery * 10f * Game.difficulty.amountMultiplier);
+            amountModifier *= 10;
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
-            amountModifier = (int)(waveMastery * 0.1f * Game.difficulty.amountMultiplier);
+            amountModifier = (int)(amountModifier * 0.1f);
         }
     }
 
@@ -400,6 +401,7 @@ public class EnemyManager : MonoBehaviour {
 
 	void UpdateUpcomingWaveScreen (Wave upcoming) {
 
+        upcomingHeader.text = "Upcoming";
 		for (int i = 0; i < upcomingContent.Count; i++) {
 			Destroy (upcomingContent [i]);
 		}
@@ -450,6 +452,8 @@ public class EnemyManager : MonoBehaviour {
             waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Speed up the game";
             HoverContextElement.activeElement = null;
 
+            upcomingHeader.text = "Remaining";
+
             wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
@@ -496,14 +500,14 @@ public class EnemyManager : MonoBehaviour {
         UpdateAmountModifier ();
 
         if (finished && Datastream.healthAmount > 0) {
-            Game.credits += 25 * waveNumber;
+            Game.credits += 25 * externalWaveNumber;
             Game.game.SaveGame ("autosave");
         }
 
 		if (waves.Count >= waveNumber + 1) {
 			UpdateUpcomingWaveScreen (waves [waveNumber]);
 		}
-        waveCounterIndicator.text = "Wave: " + waveNumber.ToString();
+        waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
         if (Game.state == Game.State.Started)
             waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;

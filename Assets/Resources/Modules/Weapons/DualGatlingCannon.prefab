@@ -178,6 +178,18 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 5000
@@ -216,7 +228,7 @@ MonoBehaviour:
   bulletData: {fileID: 0}
   bulletSpeed: 150
   bulletSpread: 1
-  bulletDamage: 50
+  bulletDamage: 40
   bulletAmount: 1
   maxRange: 0
   target: {fileID: 0}
@@ -269,7 +281,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: bulletDamage
+      value: 40
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 142434}

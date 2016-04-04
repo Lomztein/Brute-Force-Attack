@@ -38,6 +38,8 @@ public class Weapon : MonoBehaviour {
 	public bool canFire = true;
 	private Queue<GameObject> bulletPool = new Queue<GameObject>();
 
+    private const int FIRERATE_LIMIT = 50;
+
     public static void TechUpWeapon (string identifier) {
         bulletIndex[identifier]++;
         for (int i = 0; i < activeWeapons.Count; i++) {
@@ -100,7 +102,7 @@ public class Weapon : MonoBehaviour {
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
+		Invoke ("ChamberBullet", GetFirerate (true));
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -114,7 +116,7 @@ public class Weapon : MonoBehaviour {
 				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul);
+                pro.damage = GetDamage ();
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 				pro.Initialize ();
@@ -124,13 +126,35 @@ public class Weapon : MonoBehaviour {
 			
 			}
 
-			yield return new WaitForSeconds (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
+            yield return new WaitForSeconds (GetSequenceTime (true));
 
 		}
 
 	}
 
-	public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
+    private float GetSequenceTime (bool limit) {
+        if (muzzles.Length == 1)
+            return 1f;
+        if (limit)
+            return Mathf.Max (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+        return sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
+    }
+
+    private float GetFirerate (bool limit) {
+        if (limit)
+            return Mathf.Max (firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+        return firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
+    }
+
+    private float GetFirerateLimitDamageMultiplier (float rate) {
+        return Mathf.Max (((1f / rate - FIRERATE_LIMIT) / FIRERATE_LIMIT + 1), 1f);
+    }
+
+    private int GetDamage () {
+        return (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul * GetFirerateLimitDamageMultiplier (GetFirerate (false)));
+    }
+
+    public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
 		if (canFire) {
 			if (!rotator) {
 				StartCoroutine (fireFunc);

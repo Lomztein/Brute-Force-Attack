@@ -33,7 +33,7 @@ public class Research {
     }
 
 	public void Purchase (bool force = false) {
-        if (Game.research >= y) {
+        if (Game.research >= y && !force) {
             if (prerequisite == -1 || GetPrerequisite ().isBought) {
                 DoPurchase (force);
             }

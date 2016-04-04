@@ -279,12 +279,16 @@ public class AssemblyContextMenu : MonoBehaviour {
 			button.GetComponentInChildren<Text>().text = "x " + loc[lName];
 
             Button butt = button.GetComponent<Button> ();
+            HoverContextElement element = button.GetComponent<HoverContextElement> ();
             if (m.moduleMods.Length == 0) {
                 butt.interactable = false;
+                element.text = "No mods available";
             } else if (GetModulesOfName (lName).Length == 1) {
                 AddTreeButtonListener (butt, GetModulesOfName (lName)[0], button.transform, true);
+                element.text = "Open mods for this module";
             } else {
                 AddTreeButtonListener (button.GetComponent<Button> (), lName);
+                element.text = "Open submenu for these modules";
             }
 
 			moduleTreeButtons[i] = button;
@@ -343,6 +347,7 @@ public class AssemblyContextMenu : MonoBehaviour {
             button.GetComponent<SubModuleModMenuButton> ().module = locModules[i];
             Button butt = button.GetComponent<Button> ();
 
+            button.GetComponent<HoverContextElement>().text = "Open mods for this module";
             AddTreeButtonListener (butt, locModules[i], button.transform);
 
             subModButtons[i] = button;

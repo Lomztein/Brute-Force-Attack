@@ -14,11 +14,14 @@ public class ResearchMenu : MonoBehaviour {
 	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
 	public RectTransform startRect;
+    public ScrollRect scrollRect;
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
 	public static bool isOpen = true;
 	private Vector3 startPos;
+
     public float buttonSize;
+    public float buttonMargin;
 
 	// Unlock research stuff
 	public static float[] damageMul;
@@ -37,8 +40,6 @@ public class ResearchMenu : MonoBehaviour {
 		cur = this;
         isOpen = true;
 		InitializeResearchMenu ();
-		InitializeMultipliers ();
-		InitializeStatics ();
 		startPos = transform.localPosition;
 		ToggleResearchMenu ();
 		UpdateButtons ();
@@ -51,7 +52,6 @@ public class ResearchMenu : MonoBehaviour {
 
 	public static void InitializeStatics () {
 		Datastream.healSpeed = 0f;
-		Datastream.healthAmount = 100;
 		Datastream.repurposeEnemies = false;
 		Datastream.enableFirewall = false;
 		FireProjectile.fireWidth = 0.2f;
@@ -70,6 +70,7 @@ public class ResearchMenu : MonoBehaviour {
             } else {
                 Weapon.bulletIndex[wep.weaponIdentifier] = 0;
             }
+            Debug.Log (wep.weaponIdentifier + ", " + Weapon.bulletIndex[wep.weaponIdentifier]);
         }
 	}
 
@@ -137,10 +138,36 @@ public class ResearchMenu : MonoBehaviour {
 
 		}
 
-		return new Rect (minMax.x, minMax.y, minMax.x - minMax.width, minMax.y - minMax.height);
+		return new Rect (minMax.x - buttonMargin, minMax.y - buttonMargin, minMax.x - minMax.width + buttonMargin, minMax.y - minMax.height + buttonMargin);
 	}
 
-	public void InvalidateButton (GameObject b, int index) {
+    Vector4 GetButtonMinMaxPos () {
+        Vector4 minMax = new Vector4 ();
+        for (int i = 0; i < research.Count; i++) {
+
+            Transform button = research[i].button.transform;
+
+            if (button.localPosition.x > minMax.x && button.localPosition.x > 0) {
+                minMax.x = button.localPosition.x;
+            }
+
+            if (button.localPosition.y > minMax.y && button.localPosition.y > 0) {
+                minMax.y = button.localPosition.y;
+            }
+
+            if (button.localPosition.x < minMax.z && button.localPosition.x < 0) {
+                minMax.z = button.localPosition.x;
+            }
+
+            if (button.localPosition.y < minMax.w && button.localPosition.y < 0) {
+                minMax.w = button.localPosition.y;
+            }
+        }
+
+        return minMax;
+    }
+
+    public void InvalidateButton (GameObject b, int index) {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
 		// IncreaseAllCost ();
@@ -257,14 +284,12 @@ public class ResearchMenu : MonoBehaviour {
 
 		Rect newRect = GetScrollRect ();
 		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height);
-        buttonParent.transform.localPosition = new Vector3 (newRect.x - newRect.width / 2f, -newRect.height, 0);
-        lineParent.transform.localPosition = buttonParent.transform.localPosition;
 
         for (int i = 0; i < research.Count; i++) {
 
 			Research u = research[i];
 
-			Vector3 pos = GetPos (u) * buttonSize * 2.5f;
+			Vector3 pos = GetPos (u) * buttonSize;
 			GameObject newU = Instantiate (buttonPrefab);
 
             newU.transform.localPosition = buttonParent.position + pos;
@@ -288,18 +313,23 @@ public class ResearchMenu : MonoBehaviour {
 
 		for (int i = 0; i < research.Count; i++) {
 			Research r = research[i];
-			if (r.prerequisite != -1 && r.name != "") {
+            if (r.prerequisite != -1 && r.name != "") {
 
-				Vector3 pPos = r.button.transform.localPosition + (r.GetPrerequisite ().button.transform.localPosition - r.button.transform.localPosition) / 2;
-				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
-				GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
-				RectTransform lr = line.GetComponent<RectTransform>();
-				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
-				line.transform.SetParent (lineParent, true);
+                Vector3 pPos = r.button.transform.localPosition + (r.GetPrerequisite ().button.transform.localPosition - r.button.transform.localPosition) / 2;
+                Quaternion pRot = Quaternion.Euler (0, 0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
+                GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
+                RectTransform lr = line.GetComponent<RectTransform> ();
+                lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
+                line.transform.SetParent (lineParent, true);
 
                 lr.transform.localScale = Vector3.one;
-			}
+            }
 		}
+
+        Vector4 minMax = GetButtonMinMaxPos ();
+        buttonParent.localPosition = new Vector3 (-(minMax.z + minMax.x) / 2f, (minMax.w - minMax.y) / 2f);
+        lineParent.localPosition = buttonParent.localPosition;
+        scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
     }

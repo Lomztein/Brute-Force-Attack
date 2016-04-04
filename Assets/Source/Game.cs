@@ -183,6 +183,7 @@ public class Game : MonoBehaviour {
 
         game = this;
         ResetStatics ();
+        ResearchMenu.InitializeAllStatics ();
         InitializeBasics ();
 
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
@@ -222,6 +223,7 @@ public class Game : MonoBehaviour {
         InitializeDirectories ();
         InitializeResources ();
         state = State.Started;
+        Datastream.healthAmount = Datastream.STARTING_HEALTH;
 
         if (currentScene != Scene.BattlefieldEditor) {
 
@@ -560,6 +562,8 @@ public class Game : MonoBehaviour {
         research = difficulty.startingResearch;
         researchProgress = 0f;
 
+        Datastream.healthAmount = Datastream.STARTING_HEALTH;
+
         if (isWalled == null)
             isWalled = new WallType[battlefieldWidth, battlefieldHeight];
     }
@@ -643,7 +647,7 @@ public class Game : MonoBehaviour {
             _creditsUpdatedThisFrame = false;
             _researchUpdatedThisFrame = false;
         }
-	}
+    }
 
     void Update () {
         HoverContext.StaticUpdate();

@@ -150,6 +150,18 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 2500
@@ -206,7 +218,7 @@ MonoBehaviour:
   line: {fileID: 12021356}
   charge: 0
   maxCharge: 2000
-  chargeSpeed: 250
+  chargeSpeed: 500
   reloadTime: 0
 --- !u!120 &12021356
 LineRenderer:
@@ -294,6 +306,10 @@ Prefab:
         of energy at once, this starts beaming, and slowly builds up the damage over
         time, allowing huge damage against baddies with a lot of health. Essentially
         the most powerful thing in the universe.
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: chargeSpeed
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

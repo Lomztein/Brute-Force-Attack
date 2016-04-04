@@ -1848,7 +1848,7 @@ MonoBehaviour:
   currentSubwave:
     enemies: []
     spawnTime: 0
-  waveNumber: 19
+  waveNumber: 0
   waveMastery: 1
   amountModifier: 1
   gameProgressSpeed: 1.2
@@ -1856,6 +1856,7 @@ MonoBehaviour:
   currentEnemies: 0
   endBoss: {fileID: 151300, guid: 5b7a717d44eabb94f98836a3cff048b4, type: 2}
   enemyPool: {fileID: 2097322082}
+  upcomingHeader: {fileID: 1549830732}
   upcomingCanvas: {fileID: 71171648}
   upcomingWindow: {fileID: 2072584270}
   upcomingEnemyPrefab: {fileID: 159252, guid: adf380e4165cb294ab00a21bff7287f2, type: 2}
@@ -3055,7 +3056,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3125,7 +3126,7 @@ RectTransform:
   m_RootOrder: 2
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -67.899994}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &535297223
@@ -4898,7 +4899,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -6085,7 +6085,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.650023}
+  m_AnchoredPosition: {x: 0.5, y: -29.649994}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -7321,7 +7321,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -7991,7 +7990,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -9568,10 +9566,10 @@ RectTransform:
   - {fileID: 525619137}
   m_Father: {fileID: 393210247}
   m_RootOrder: 0
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 744, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1604967167
 GameObject:
@@ -11963,11 +11961,23 @@ MonoBehaviour:
     y: 3
     prerequisite: 4
     index: 32
+  - name: Research the Dual Gatling Cannon module
+    desc: 
+    func: UnlockModule
+    sprite: {fileID: 21300000, guid: 91fa0c6c7b6ed124da26670ea1ac4c5c, type: 3}
+    meta: 21
+    colour: 0
+    x: 0
+    y: 8
+    prerequisite: 30
+    index: 33
   scrollThingie: {fileID: 1602341298}
   startRect: {fileID: 1289806269}
+  scrollRect: {fileID: 393210251}
   buttonPrefab: {fileID: 120856, guid: 14b8fed8e80ff1247889dcc697eed5b2, type: 2}
   prerequisiteLine: {fileID: 176114, guid: 0d5343d0a2491a44d8a7495a772dbaf7, type: 2}
-  buttonSize: 37.5
+  buttonSize: 100
+  buttonMargin: 125
   unlockableModules:
   - {fileID: 101842, guid: 8329afb92e56f7048a3a067a51527411, type: 2}
   - {fileID: 137174, guid: 068e990d051b6ef4781c49614970c129, type: 2}
@@ -11990,6 +12000,7 @@ MonoBehaviour:
   - {fileID: 110594, guid: 70410bacd444e494d8f0157f7dfc6eb5, type: 2}
   - {fileID: 174166, guid: 4a32a6b05e4ddcd488d361a52980c100, type: 2}
   - {fileID: 171878, guid: d09dbbde736b690409d6117e902ebf2e, type: 2}
+  - {fileID: 142434, guid: 8e281cfb6bde5cc4184cbc24128624ec, type: 2}
   researchIndicator: {fileID: 1067827567}
 --- !u!114 &2003845759
 MonoBehaviour:
@@ -12161,7 +12172,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: -609.5
+      value: 372
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchoredPosition.y
@@ -12177,7 +12188,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchorMin.y
@@ -12185,7 +12196,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22457478, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_AnchorMax.y
@@ -12229,39 +12240,39 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22436874, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 11
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 22419298, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 10
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 22488786, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 22414320, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 22492494, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 22412184, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 22400978, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 22441234, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 22483320, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 22474400, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
       propertyPath: m_RootOrder
@@ -12359,6 +12370,11 @@ Prefab:
       propertyPath: m_SizeDelta.y
       value: 445.8
       objectReference: {fileID: 0}
+    - target: {fileID: 11473840, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: b47bc3c38f318f84db85a772d46919aa,
+        type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3e10fdbb7b6026743ba63b954b93ebf6, type: 2}
   m_IsPrefabParent: 0
