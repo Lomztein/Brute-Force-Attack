@@ -22,13 +22,13 @@ public class FireProjectile : Projectile {
 	}
 
 	void CastSphereRay () {
-		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime);
+		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime * 2f);
 		RaycastHit hit;
 		
-		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
+		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime * 2f)) {
 			if (ShouldHit (hit)) {
-				OnHit (hit);
-				damage /= 2;
+				OnHit (hit.collider, hit.point, transform.right);
+                velocity = Vector3.Reflect (velocity, hit.normal);
 			}
 		}
 	}

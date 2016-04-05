@@ -39,6 +39,9 @@ public class Game : MonoBehaviour {
     public Map pathMap;
     public ResearchMenu researchMenu;
     public GameObject pauseMenu;
+    public GameObject saveGameMenu;
+    public Text saveGameText;
+    public Button[] saveGameButtons;
     public Slider researchSlider;
     public GameObject rangeIndicator;
     public GameObject worldCanvas;
@@ -146,8 +149,19 @@ public class Game : MonoBehaviour {
     }
 
     public static void ForceDarkOverlay ( bool setting ) {
-        Animator anim = game.darkOverlay.GetComponent<Animator>();
-        Image image = game.darkOverlay.GetComponent<Image> ();
+
+        Animator anim = null;
+        Image image = null;
+
+        if (game) {
+            anim = game.darkOverlay.GetComponent<Animator> ();
+            image = game.darkOverlay.GetComponent<Image> ();
+        } else {
+            GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            anim = overlay.GetComponent<Animator> ();
+            image = overlay.GetComponent<Image> ();
+        }
+
         switch (setting) {
 
             case false:
@@ -306,13 +320,36 @@ public class Game : MonoBehaviour {
 			Time.timeScale = 1f;
 			pauseMenu.SetActive (false);
 			optionsMenu.SetActive (false);
-		}else{
+			saveGameMenu.SetActive (false);
+        } else{
 			isPaused = true;
 			Time.timeScale = 0f;
 			pauseMenu.SetActive (true);
 		}
         ForceDarkOverlay (isPaused);
 	}
+
+    public void ToggleSaveGameMenu () {
+        saveGameMenu.SetActive (!saveGameMenu.activeSelf);
+        saveGameText.text = "Untitled Save";
+    }
+
+    public static void ChangeSaveButtons (bool state) {
+        foreach (Button butt in game.saveGameButtons) {
+            butt.interactable = state;
+            HoverContextElement ele = butt.GetComponent<HoverContextElement> ();
+            if (ele) {
+                if (state) {
+                    ele.text = butt.gameObject.name;
+                } else {
+                    ele.text = "Saving currently disabled";
+                }
+                HoverContextElement.activeElement = null;
+            }
+        }
+        if (game.saveGameMenu.activeSelf)
+            game.ToggleSaveGameMenu ();
+    }
 
 	public void ToggleOptionsMenu () {
 		optionsMenu.SetActive (toggleOptionsMenuButton.isOn);
@@ -568,7 +605,7 @@ public class Game : MonoBehaviour {
             isWalled = new WallType[battlefieldWidth, battlefieldHeight];
     }
 
-    void InitializeDirectories () {
+    public static void InitializeDirectories () {
 
         string dp = Application.dataPath;
 
@@ -829,6 +866,11 @@ public class Game : MonoBehaviour {
     public void RetryAutosave () {
         saveToLoad = "autosave";
         RestartMap ();
+    }
+
+    public void SavePauseGame () {
+        SaveGame (saveGameText.text);
+        ToggleSaveGameMenu ();
     }
 
     public void SaveGame (string path) {

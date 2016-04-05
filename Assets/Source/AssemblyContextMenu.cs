@@ -23,6 +23,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	private float indicatorRange;
 
 	public Button[] upgradeButton;
+    public Sprite[] defaultUpgradeButtonImage;
 
     [Header ("Module Mods")]
     public float buttonSize;
@@ -237,9 +238,11 @@ public class AssemblyContextMenu : MonoBehaviour {
                 upgradeButton[i].interactable = false;
             } else {
                 upgradeButton[i].interactable = true;
-                if (rootModule.upgradeImageReplacement[i]) {
-                    upgradeButton[i].transform.GetChild(0).GetComponent<Image>().sprite = rootModule.upgradeImageReplacement[i];
-                }
+            }
+            if (rootModule.upgradeImageReplacement[i]) {
+                upgradeButton[i].transform.GetChild (0).GetComponent<Image> ().sprite = rootModule.upgradeImageReplacement[i];
+            } else {
+                upgradeButton[i].transform.GetChild (0).GetComponent<Image> ().sprite = defaultUpgradeButtonImage[i];
             }
         }
 	}

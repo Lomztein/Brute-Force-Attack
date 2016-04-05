@@ -118,7 +118,7 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void Update () {
-        if (Input.GetButtonDown("StartWave"))
+        if (Input.GetButtonDown("StartWave") && !Game.isPaused)
             StartReadyWave();
     }
 
@@ -314,6 +314,7 @@ public class EnemyManager : MonoBehaviour {
 	public IEnumerator ReadyWave () {
         if (Game.state == Game.State.Started) {
             if (!waveStarted && !wavePrebbing) {
+                Game.ChangeSaveButtons (false);
                 waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
                 HoverContextElement.activeElement = null;
 
@@ -491,6 +492,7 @@ public class EnemyManager : MonoBehaviour {
             ForceInstantCleanEnemyArray ();
         }
 
+        Game.ChangeSaveButtons (true);
 		waveStarted = false;
 		currentSubwave = null;
 		subwaveNumber = 0;

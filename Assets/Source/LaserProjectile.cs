@@ -14,7 +14,7 @@ public class LaserProjectile : Projectile {
 		line.SetPosition (0, transform.position);
 		if (Physics.Raycast (ray, out hit, range, Game.game.enemyLayer)) {
 			line.SetPosition (1, hit.point);
-			OnHit (hit);
+			OnHit (hit.collider, hit.point, transform.right);
 		}else{
 			line.SetPosition (1, ray.GetPoint (range));
 		}

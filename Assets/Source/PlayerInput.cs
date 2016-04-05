@@ -530,14 +530,17 @@ public class PlayerInput : MonoBehaviour {
 		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
 
 		Vector3 camPos = transform.position;
-		if (camPos.x > Game.game.battlefieldWidth / 2f)
-			camPos.x = Game.game.battlefieldWidth / 2f;
-		if (camPos.y > Game.game.battlefieldHeight / 2f)
-			camPos.y = Game.game.battlefieldHeight / 2f;
-		if (camPos.x < -Game.game.battlefieldWidth / 2f)
-			camPos.x = -Game.game.battlefieldWidth / 2f;
-		if (camPos.y < -Game.game.battlefieldHeight / 2f)
-			camPos.y = -Game.game.battlefieldHeight / 2f;
+
+        if (Game.game) {
+            if (camPos.x > Game.game.battlefieldWidth / 2f)
+                camPos.x = Game.game.battlefieldWidth / 2f;
+            if (camPos.y > Game.game.battlefieldHeight / 2f)
+                camPos.y = Game.game.battlefieldHeight / 2f;
+            if (camPos.x < -Game.game.battlefieldWidth / 2f)
+                camPos.x = -Game.game.battlefieldWidth / 2f;
+            if (camPos.y < -Game.game.battlefieldHeight / 2f)
+                camPos.y = -Game.game.battlefieldHeight / 2f;
+        }
 
 		transform.position = camPos;
 		transform.position += movement * Time.unscaledDeltaTime;

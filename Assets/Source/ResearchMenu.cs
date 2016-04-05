@@ -70,7 +70,6 @@ public class ResearchMenu : MonoBehaviour {
             } else {
                 Weapon.bulletIndex[wep.weaponIdentifier] = 0;
             }
-            Debug.Log (wep.weaponIdentifier + ", " + Weapon.bulletIndex[wep.weaponIdentifier]);
         }
 	}
 

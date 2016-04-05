@@ -36,21 +36,21 @@ public class TeslaProjectile : Projectile {
 		if (Physics.SphereCast (ray, spherecastWidth, out hit, range, Game.game.enemyLayer)) {
 			DrawTeslaBeam (hit.point);
 			end = hit.point;
-			OnHit (hit);
+			OnHit (hit.collider, hit.point, transform.right);
 		}else{
 			DrawTeslaBeam (ray.GetPoint (range));
 			end = ray.GetPoint (range);
 		}
 	}
 
-	public override void OnHit (RaycastHit hit) {
-		base.OnHit (hit);
+	public override void OnHit (Collider col, Vector3 point, Vector3 dir) {
+		base.OnHit (col, point, dir);
 		if (chainIndex > 0) {
 			TargetFinder finder = new TargetFinder ();
-			Transform t = finder.FindTarget (hit.point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, new Colour[0], TargetFinder.SortType.Random);
+			Transform t = finder.FindTarget (point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, new Colour[0], TargetFinder.SortType.Random);
 			if (t) {
-				Vector3 dir = (t.position - hit.point).normalized;
-				GameObject light = (GameObject)Instantiate (chainLighting, hit.point, Quaternion.identity);
+				//Vector3 dir = (t.position - hit.point).normalized;
+				GameObject light = (GameObject)Instantiate (chainLighting, point, Quaternion.identity);
 				TeslaProjectile pro = light.GetComponent<TeslaProjectile>();
 				pro.velocity = dir;
 				pro.chainIndex = chainIndex - 1;

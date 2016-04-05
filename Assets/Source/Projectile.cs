@@ -25,6 +25,15 @@ public class Projectile : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Initialize () {
 		if (particle) particle.Play ();
+        CastRay ();
+
+        if (target && gameObject.activeSelf) {
+            SphereCollider col = target.GetComponent<SphereCollider> ();
+            if (Vector3.Distance (transform.position, target.position) < col.radius) {
+
+                OnHit (col, transform.position, transform.forward);
+            }
+        }
 	}
 	
 	void FixedUpdate () {
@@ -35,24 +44,25 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void CastRay () {
-		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime);
+		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime * 2f);
+        Debug.DrawLine (ray.origin, ray.origin + ray.direction * velocity.magnitude * Time.fixedDeltaTime * 2f);
 		RaycastHit hit;
 
 		if (!penetrative) {
-			if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime + Time.fixedDeltaTime)) {
+			if (Physics.Raycast (ray, out hit, velocity.magnitude * Time.fixedDeltaTime * 2f)) {
 				if (ShouldHit (hit)) {
 
 					if (hitOnlyTarget && hit.transform != target)
 						return;
 
-					OnHit (hit);
+					OnHit (hit.collider, hit.point, transform.right);
 				}
 			}
 		}else{
-			RaycastHit[] hits = Physics.RaycastAll (ray, velocity.magnitude * Time.fixedDeltaTime);
+			RaycastHit[] hits = Physics.RaycastAll (ray, velocity.magnitude * Time.fixedDeltaTime * 2f);
 			for (int i = 0; i < hits.Length; i++) {
 				if (ShouldHit (hits[i])) {
-					OnHit (hits[i]);
+					OnHit (hits[i].collider, hits[i].point, transform.right);
 				}
 			}
 		}
@@ -65,11 +75,11 @@ public class Projectile : MonoBehaviour {
 		return false;
 	}
 
-	public virtual void OnHit (RaycastHit hit) {
-		hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+	public virtual void OnHit (Collider col, Vector3 point, Vector3 dir) {
+		col.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
         if (hitParticle) {
             hitParticle.Emit (particleCount);
-            hitParticle.transform.position = hit.point;
+            hitParticle.transform.position = point;
             hitParticle.transform.rotation = transform.rotation;
         }
         if (!penetrative) ReturnToPool ();
