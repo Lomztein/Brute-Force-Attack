@@ -6,7 +6,8 @@ using System.Linq;
 
 public class AssembliesSelectionMenu : MonoBehaviour {
 
-    public Game game;
+    public static Game game;
+    public static AssembliesSelectionMenu cur;
 
     public GameObject assemblyButtonPrefab;
     public RectTransform assemblyButtonStart;
@@ -14,6 +15,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     public float extraSize;
 
     public BattlefieldSelectionMenu battlefieldSelector;
+    public DifficultySelector difficultySelector;
 
 	public Assembly[] tempLoaded;
 
@@ -39,6 +41,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         game = Game.game;
+        cur = this;
         InitializeArray ();
 	}
 
@@ -85,7 +88,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
     void InitializeArray () {
 		header.text = "Select " + game.assembliesAllowed.ToString () + " assemblies";
-		footer.text = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+		footer.text = "No tier 0 detected";
 
         string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
         tempLoaded = new Assembly[files.Length];
@@ -137,11 +140,17 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
     public void SelectAssemblies () {
         // battlefieldSelector.StartGame ();
-		game.purchaseMenu.GetAssemblies (assemblies);
+		game.purchaseMenu.SetAssemblies (assemblies);
+        Game.ForceDarkOverlay (false);
+
+        battlefieldSelector.LoadDataToGame ();
+        difficultySelector.ApplyDifficulty ();
+
 		game.StartGame ();
 
-        game.purchaseMenu.InitializeAssemblyButtons ();
-        game.purchaseMenu.LoadSpecialButtons ();
+        //game.purchaseMenu.InitializeAssemblyButtons ();
+        //game.purchaseMenu.LoadSpecialButtons ();
+
 		gameObject.SetActive (false);
     }
 
@@ -157,7 +166,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 				Research research = ResearchMenu.cur.research[j];
 
 				if (research.func == "UnlockModule") {
-					if (mod == ResearchMenu.cur.unlockableModules[research.value] && techLevel < research.y)
+					if (mod == ResearchMenu.cur.unlockableModules[int.Parse (research.meta)] && techLevel < research.y)
 						techLevel = research.y;
 				}
 			}

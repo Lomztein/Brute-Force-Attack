@@ -151,10 +151,22 @@ MonoBehaviour:
     of baddies, and subsequently slows them.
   assemblyDesc: 
   assemblyName: 
-  upgradeButtonDisabled: 
-  moduleType: 4
+  upgradeButtonDisabled: 000101
+  upgradeNameReplacement:
+  - slowfield area
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  moduleType: 0
   moduleClass: 2
-  moduleCost: 1250
+  moduleCost: 2500
   moduleIndex: 0
   parentIndex: 0
   upgradeCount: 0

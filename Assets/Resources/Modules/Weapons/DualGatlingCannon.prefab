@@ -178,6 +178,18 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 5000
@@ -207,18 +219,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772750980fca21b409026880562a561b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: GatlingCannon
   muzzles:
   - {fileID: 433986}
   - {fileID: 456822}
-  bullet: {fileID: 159654, guid: c19463dbbcda58f44a0b56310e0869cc, type: 2}
+  bullet:
+  - {fileID: 159654, guid: c19463dbbcda58f44a0b56310e0869cc, type: 2}
   bulletData: {fileID: 0}
   bulletSpeed: 150
   bulletSpread: 1
-  bulletDamage: 50
+  bulletDamage: 40
   bulletAmount: 1
   maxRange: 0
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -228,6 +243,7 @@ MonoBehaviour:
   firerate: 0.04
   sequenceTime: 0.02
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
 --- !u!212 &21217626
 SpriteRenderer:
@@ -265,7 +281,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: bulletDamage
+      value: 40
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 142434}

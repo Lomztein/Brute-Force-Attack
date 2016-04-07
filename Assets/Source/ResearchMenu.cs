@@ -14,10 +14,14 @@ public class ResearchMenu : MonoBehaviour {
 	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
 	public RectTransform startRect;
+    public ScrollRect scrollRect;
 	public GameObject buttonPrefab;
 	public GameObject prerequisiteLine;
 	public static bool isOpen = true;
 	private Vector3 startPos;
+
+    public float buttonSize;
+    public float buttonMargin;
 
 	// Unlock research stuff
 	public static float[] damageMul;
@@ -36,8 +40,6 @@ public class ResearchMenu : MonoBehaviour {
 		cur = this;
         isOpen = true;
 		InitializeResearchMenu ();
-		InitializeMultipliers ();
-		InitializeStatics ();
 		startPos = transform.localPosition;
 		ToggleResearchMenu ();
 		UpdateButtons ();
@@ -50,7 +52,6 @@ public class ResearchMenu : MonoBehaviour {
 
 	public static void InitializeStatics () {
 		Datastream.healSpeed = 0f;
-		Datastream.healthAmount = 100;
 		Datastream.repurposeEnemies = false;
 		Datastream.enableFirewall = false;
 		FireProjectile.fireWidth = 0.2f;
@@ -60,16 +61,28 @@ public class ResearchMenu : MonoBehaviour {
 		SplitterHomingProjectile.amount = 0;
 		SlowfieldArea.staticMultiplier = 1f;
 		TeslaProjectile.chainAmount = 0;
+
+        GameObject[] weaponModules = Resources.LoadAll<GameObject>("Modules/Weapons/");
+        for (int i = 0; i < weaponModules.Length; i++) {
+            Weapon wep = weaponModules[i].GetComponentInChildren<Weapon>();
+            if (!Weapon.bulletIndex.ContainsKey (wep.weaponIdentifier)) {
+                Weapon.bulletIndex.Add(wep.weaponIdentifier, 0);
+            } else {
+                Weapon.bulletIndex[wep.weaponIdentifier] = 0;
+            }
+        }
 	}
 
 	public void ToggleResearchMenu () {
 		if (isOpen) {
 			isOpen = false;
 			transform.localPosition += Vector3.right * 100000;
+            Game.ForceDarkOverlay(false);
 		}else{
 			isOpen = true;
 			transform.localPosition = startPos;
-		}
+            Game.ForceDarkOverlay(true);
+        }
 
         UpdateButtonActiveness ();
 	}
@@ -103,28 +116,57 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	Rect GetScrollRect () {
-		Rect ans = new Rect ();
-		Vector2 avg = new Vector2 ();
+        Rect minMax = new Rect ();
 		for (int i = 0; i < research.Count; i++) {
 
-			if (research[i].x > ans.width)
-				ans.width = research[i].x;
+			if (research[i].x * buttonSize > minMax.x && research[i].x > 0) {
+                minMax.x = research[i].x * buttonSize;
+            }
 
-			if (research[i].y > ans.height)
-				ans.height = research[i].y;
+			if (research[i].y * buttonSize > minMax.y && research[i].y > 0) {
+                minMax.y = research[i].y * buttonSize;
+            }
 
-			avg += new Vector2 (research[i].x, research[i].y);
+            if (research[i].x * buttonSize < minMax.width && research[i].x < 0) {
+                minMax.width = research[i].x * buttonSize;
+            }
+
+            if (research[i].y * buttonSize < minMax.height && research[i].y < 0) {
+                minMax.height = research[i].x * buttonSize;
+            }
 
 		}
 
-		avg /= research.Count;
-		ans.x = avg.x;
-		ans.y = avg.y;
-
-		return ans;
+		return new Rect (minMax.x - buttonMargin, minMax.y - buttonMargin, minMax.x - minMax.width + buttonMargin, minMax.y - minMax.height + buttonMargin);
 	}
 
-	public void InvalidateButton (GameObject b, int index) {
+    Vector4 GetButtonMinMaxPos () {
+        Vector4 minMax = new Vector4 ();
+        for (int i = 0; i < research.Count; i++) {
+
+            Transform button = research[i].button.transform;
+
+            if (button.localPosition.x > minMax.x && button.localPosition.x > 0) {
+                minMax.x = button.localPosition.x;
+            }
+
+            if (button.localPosition.y > minMax.y && button.localPosition.y > 0) {
+                minMax.y = button.localPosition.y;
+            }
+
+            if (button.localPosition.x < minMax.z && button.localPosition.x < 0) {
+                minMax.z = button.localPosition.x;
+            }
+
+            if (button.localPosition.y < minMax.w && button.localPosition.y < 0) {
+                minMax.w = button.localPosition.y;
+            }
+        }
+
+        return minMax;
+    }
+
+    public void InvalidateButton (GameObject b, int index) {
 		Button button = b.GetComponent<Button>();
 		button.interactable = false;
 		// IncreaseAllCost ();
@@ -134,7 +176,7 @@ public class ResearchMenu : MonoBehaviour {
 			assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
 		}
 
-		//Destroy (research[index]);
+        //Destroy (research[index]);
 		UpdateButtons ();
 		research[index].name = "RESEARCHED";
     }
@@ -211,6 +253,7 @@ public class ResearchMenu : MonoBehaviour {
 		Image image = research.button.transform.GetChild (0).GetComponent<Image>();
 
         if (research.isBought) {
+			UpdateImageColor (research, image);
             image.color /= 2f;
             return false;
         }
@@ -239,17 +282,19 @@ public class ResearchMenu : MonoBehaviour {
 	public void InitializeResearchMenu () {
 
 		Rect newRect = GetScrollRect ();
-		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height) * 100;
-		startRect.position = transform.position - new Vector3 (newRect.x, newRect.y, 0) * 100 + Vector3.down * 150f;
+		scrollThingie.sizeDelta = new Vector2 (newRect.width, newRect.height);
 
-		for (int i = 0; i < research.Count; i++) {
+        for (int i = 0; i < research.Count; i++) {
 
 			Research u = research[i];
 
-			Vector3 pos = GetPos (u) * 100f;
-			GameObject newU = (GameObject)Instantiate (buttonPrefab, startRect.position + pos, Quaternion.identity);
-			newU.transform.SetParent (buttonParent, true);
+			Vector3 pos = GetPos (u) * buttonSize;
+			GameObject newU = Instantiate (buttonPrefab);
+
+            newU.transform.localPosition = buttonParent.position + pos;
+            newU.transform.SetParent (buttonParent, true);
 			Image image = newU.transform.GetChild (0).GetComponent<Image>();
+
 			u.button = newU;
 			image.sprite = u.sprite;
 			buttons.Add (newU);
@@ -267,34 +312,33 @@ public class ResearchMenu : MonoBehaviour {
 
 		for (int i = 0; i < research.Count; i++) {
 			Research r = research[i];
-			if (r.prerequisite != -1 && r.name != "") {
+            if (r.prerequisite != -1 && r.name != "") {
 
-				Vector3 pPos = r.button.transform.position + (r.GetPrerequisite ().button.transform.position - r.button.transform.position) / 2;
-				Quaternion pRot = Quaternion.Euler (0,0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
-				GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
-				RectTransform lr = line.GetComponent<RectTransform>();
-				lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
-				line.transform.SetParent (lineParent, true);
+                Vector3 pPos = r.button.transform.localPosition + (r.GetPrerequisite ().button.transform.localPosition - r.button.transform.localPosition) / 2;
+                Quaternion pRot = Quaternion.Euler (0, 0, Angle.CalculateAngle (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition));
+                GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
+                RectTransform lr = line.GetComponent<RectTransform> ();
+                lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
+                line.transform.SetParent (lineParent, true);
 
                 lr.transform.localScale = Vector3.one;
-
-			}
+            }
 		}
+
+        Vector4 minMax = GetButtonMinMaxPos ();
+        buttonParent.localPosition = new Vector3 (-(minMax.z + minMax.x) / 2f, (minMax.w - minMax.y) / 2f);
+        lineParent.localPosition = buttonParent.localPosition;
+        scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
     }
 
-    // I should not be having to do this, but apparently Unity finds it fun to delete the entire Research tree from time to time.
-    // Also, for whatever reason, classes without inheritance doesn't work well with a self-type member, and ScriptableObjects
-    // are unable to be serialized to an external file, essentially locking them to a scene. This is fucking horrible Unity.
-    // I mean if you're already going to write the code to save them in a file amongst a whole load of other junk, why the
-    // fuck aren't we able to just save them to a file by themselves? Whomever wrote that code should step on a lego or something.   /rant
     [System.Serializable]
-    private class SimpleResearch {
+    public class SimpleResearch {
         public string name;
         public string desc;
         public string func;
-        public int value;
+        public string meta;
 
         public Colour colour;
 
@@ -307,7 +351,7 @@ public class ResearchMenu : MonoBehaviour {
             name = res.name;
             desc = res.desc;
             func = res.func;
-            value = res.value;
+            meta = res.meta;
             colour = res.colour;
             x = res.x;
             y = res.y;
@@ -352,38 +396,37 @@ public class ResearchMenu : MonoBehaviour {
 
 	// Put research code here
 	public void UnlockModule (Research research) {
-		Game.game.purchaseMenu.standard.Add (unlockableModules[research.value]);
+		Game.game.purchaseMenu.standard.Add (unlockableModules[int.Parse (research.meta)]);
 	}
 
 	public void UnlockSpecialModule (Research research) {
-		Game.game.purchaseMenu.special.Add (unlockableModules[research.value]);
-		Game.game.purchaseMenu.InitializePurchaseMenu (Game.game.purchaseMenu.special.ToArray ());
+        UnlockModule (research);
 	}
 
 	public void IncreaseFirerate (Research research) {
 		float loc = 1f/firerateMul [(int)research.colour];
-		loc *= (float)research.value / 100f + 1f;
+		loc *= (float)int.Parse(research.meta) / 100f + 1f;
 		firerateMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseDamage (Research research) {
-		damageMul[(int)research.colour] *= (float)research.value/100 + 1f;
+		damageMul[(int)research.colour] *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void DecreaseCost (Research research) {
-		damageMul[(int)research.colour] *= 1f - (float)research.value/100;
+		damageMul[(int)research.colour] *= 1f - (float)int.Parse(research.meta)/100;
 
 		float loc = 1f/costMul[(int)research.colour];
-		loc *= (float)research.value / 100f + 1f;
+		loc *= (float)int.Parse(research.meta) / 100f + 1f;
 		costMul[(int)research.colour] = 1f/loc;
 	}
 
 	public void IncreaseTurnrate (Research research) {
-		turnrateMul *= (float)research.value/100 + 1f;
+		turnrateMul *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void IncreaseRange (Research research) {
-		rangeMul *= (float)research.value/100 + 1f;
+		rangeMul *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void UnlockAutoBaseHeal (Research research) {
@@ -420,7 +463,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void IncreaseBeamCannonChargeSpeed (Research research) {
-		FocusBeamWeapon.chargeSpeedMultiplier *= (float)research.value/100 + 1f;
+		FocusBeamWeapon.chargeSpeedMultiplier *= (float)int.Parse(research.meta)/100 + 1f;
 	}
 
 	public void EnableSmallRocketLauncherSplit (Research research) {
@@ -436,7 +479,11 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void AddAbility (Research research) {
-		AbilityBar.AddAbility (research.value);
+		AbilityBar.AddAbility (int.Parse(research.meta));
 	}
+
+    public void UpgradeWeapon (Research research) {
+        Weapon.TechUpWeapon(research.meta);
+    }
 }
 	

@@ -1,141 +1,205 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
+using System.Linq;
+using System.Collections;
 
-public enum Scene { Play, AssemblyBuilder, WaveBuilder };
+public enum Scene { Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
 
-	public static Scene currentScene;
+    public enum State { NotStarted, Started, Ended }
 
-	[Header ("Battlefield")]
-	public Transform background;
-	public int battlefieldWidth;
-	public int battlefieldHeight;
-	public List<EnemySpawnPoint> enemySpawnPoints;
+    public static Scene currentScene;
 
-    [Header ("Difficulty Settings")]
+    [Header("Battlefield")]
+    public Transform background;
+    public int battlefieldWidth;
+    public int battlefieldHeight;
+    public List<EnemySpawnPoint> enemySpawnPoints;
+
+    [Header("Difficulty Settings")]
     public int assembliesAllowed = 10;
-    public float healthMultiplier = 1;
-    public float amountMultiplier = 1;
+    public static DifficultySettings difficulty;
 
-    [Header ("Gamemodes")]
+    [Header("Gamemodes")]
     public Gamemode gamemode;
     public string[] gamemodeDescriptions;
 
-	[Header ("References")]
-	public Datastream datastream;
-	public EnemyManager enemySpawn;
-	public PurchaseMenu purchaseMenu;
-	public Pathfinding pathfinder;
-	public Map pathMap;
-	public ResearchMenu researchMenu;
-	public GameObject pauseMenu;
-	public Slider researchSlider;
-	public GameObject rangeIndicator;
-	public GameObject worldCanvas;
-	public GameObject enemyHealthSlider;
+    [Header("References")]
+    public Datastream datastream;
+    public EnemyManager enemySpawn;
+    public PurchaseMenu purchaseMenu;
+    public Pathfinding pathfinder;
+    public Map pathMap;
+    public ResearchMenu researchMenu;
+    public GameObject pauseMenu;
+    public GameObject saveGameMenu;
+    public Text saveGameText;
+    public Button[] saveGameButtons;
+    public Slider researchSlider;
+    public GameObject rangeIndicator;
+    public GameObject worldCanvas;
+    public GameObject enemyHealthSlider;
     public GameObject GUICanvas;
-	public static List<Module> currentModules = new List<Module>();
-	
-	public Text creditsText;
-	public Text powerText;
-	public Text researchText;
+    public static List<Module> currentModules = new List<Module>();
+    public GameObject darkOverlay;
+    public GameObject errorMessage;
+    public Transform[] postStartGUI;
 
-	public static Game game;
-	
-	public LayerMask enemyLayer;
-	public LayerMask moduleLayer;
+    public GameObject gameOverIndicator;
+    public GameObject masteryModeIndicator;
 
-	[Header ("Resources")]
-	public int startingCredits;
-	public int startingResearch;
+    public Text creditsText;
+    public Text powerText;
+    public Text researchText;
+
+    public static Game game;
+
+    public LayerMask enemyLayer;
+    public LayerMask moduleLayer;
+
+    [Header("Resources")]
+    //public int startingCredits;
+    //public int startingResearch;
 
     private static bool _creditsUpdatedThisFrame = false;
-	private static int _credits;
-	public static int credits {
-		get { return _credits; }
-		set { _credits = value;
+    private static int _credits;
+    public static int credits {
+        get { return _credits; }
+        set { _credits = value;
             if (!_creditsUpdatedThisFrame) {
                 if (PurchaseMenu.cur)
-                    PurchaseMenu.UpdateButtons ();
+                    PurchaseMenu.UpdateButtons();
+                AssemblyCircleMenu.UpdateButtons();
             }
-		}
-	}
+        }
+    }
 
     private static bool _researchUpdatedThisFrame = false;
-	public static float researchProgress;
-	private static int _research;
-	public static int research {
-		get { return _research; }
-		set { _research = value;
+    public static float researchProgress;
+    private static int _research;
+    public static int research {
+        get { return _research; }
+        set { _research = value;
             if (!_researchUpdatedThisFrame) {
-                if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons ();
+                if (Game.game.researchMenu) Game.game.researchMenu.UpdateButtons();
             }
-		}
-	}
+        }
+    }
 
-	public static float powerPercentage;
+    public static float powerPercentage;
 
-	public enum WallType { None, Player, Level } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
-	public static WallType[,] isWalled;
-	public MeshFilter wallMeshFilter;
+    public enum WallType { Unbuildable = -1, None = 0, Player = 1, Level = 2, WithTurret = 3 } // None is no wall, player is playermade walls, and Level is permanemt, non-removable walls.
+    public static WallType[,] isWalled;
+    public MeshFilter wallMeshFilter;
 
-	private Vector3[] verts;
-	private int[] tris;
-	private Vector3[] norms;
-	private Vector2[] uvs;
+    private Vector3[] verts;
+    private int[] tris;
+    private Vector3[] norms;
+    private Vector2[] uvs;
 
-	public static bool isPaused;
+    public static bool isPaused;
 
-	public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
-	public static string WAVESET_SAVE_DIRECTORY;
-	public static string BATTLEFIELD_SAVE_DIRECTORY;
+    public static string MODULE_ASSEMBLY_SAVE_DIRECTORY;
+    public static string WAVESET_SAVE_DIRECTORY;
+    public static string BATTLEFIELD_SAVE_DIRECTORY;
     public static string RESEARCH_BACKUP_DATA_DIRECTORY;
-	public string[] stockModuleNames;
+    public static string SAVED_GAME_DIRECTORY;
+    public string[] stockModuleNames;
 
-	[Header ("Settings")]
-	public static float musicVolume;
-	public static float soundVolume;
-	public GameObject optionsMenu;
-	public static bool enableMouseMovement = true;
-	public Toggle toggleMouseMovementButton;
-	public Toggle toggleOptionsMenuButton;
-	public Slider musicSlider;
-	public Slider soundSlider;
+    [Header("Settings")]
+    public static float musicVolume;
+    public static float soundVolume;
+    public GameObject optionsMenu;
+    public static bool enableMouseMovement = true;
+    public Toggle toggleMouseMovementButton;
+    public Toggle toggleOptionsMenuButton;
+    public Slider musicSlider;
+    public Slider soundSlider;
     public static bool fastGame;
+    public static State state;
 
-    [Header ("Default Assembly Roster Generator")]
+    public static string saveToLoad;
+
+    [Header("Default Assembly Roster Generator")]
     public Module[] baseModules;
     public Module[] rotatorModules;
 
-    public void GenerateDefaultAssembly (Module weaponModule) {
-        Assembly assembly = new Assembly ();
+    public void GenerateDefaultAssembly ( Module weaponModule ) {
+        Assembly assembly = new Assembly();
 
         assembly.assemblyName = weaponModule.moduleName + " Turret";
         assembly.assemblyDesc = weaponModule.moduleDesc;
 
-        assembly.parts.Add (new Assembly.Part (true, baseModules[weaponModule.moduleClass].moduleName, 1, 0, 0f, 0f, 90f));
-        assembly.parts.Add (new Assembly.Part (false, rotatorModules[weaponModule.moduleClass].moduleName, 2, 1, 0f, 0f, 90f));
-        assembly.parts.Add (new Assembly.Part (false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(true, baseModules[weaponModule.moduleClass].moduleName, 1, 0, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(false, rotatorModules[weaponModule.moduleClass].moduleName, 2, 1, 0f, 0f, 90f));
+        assembly.parts.Add(new Assembly.Part(false, weaponModule.moduleName, 3, 2, 0f, 0f, 90f));
 
-        Assembly.SaveToFile (assembly.assemblyName, assembly);
+        Assembly.SaveToFile(assembly.assemblyName, assembly);
     }
 
-	// Use this for initialization
-	void Awake () {
+    public static void ToggleDarkOverlay () {
+        ForceDarkOverlay(!game.darkOverlay.activeSelf);
+    }
 
-		game = this;
-        ResearchMenu.cur = researchMenu;
+    public static void ForceDarkOverlay ( bool setting ) {
 
-        purchaseMenu.Initialize ();
-        InitializeSaveDictionaries ();
+        Animator anim = null;
+        Image image = null;
+
+        if (game) {
+            anim = game.darkOverlay.GetComponent<Animator> ();
+            image = game.darkOverlay.GetComponent<Image> ();
+        } else {
+            GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            anim = overlay.GetComponent<Animator> ();
+            image = overlay.GetComponent<Image> ();
+        }
+
+        switch (setting) {
+
+            case false:
+                anim.Play("OverlayFadeOut");
+                image.raycastTarget = false;
+                break;
+
+            case true:
+                anim.Play("OverlayFadeIn");
+                image.raycastTarget = true;
+                break;
+
+        }
+    }
+
+    public static void ShowErrorMessage (string message, float time) {
+        game.StartCoroutine(game.ActualShowErrorMessage(message, time));
+    }
+
+    IEnumerator ActualShowErrorMessage (string message, float time) {
+        errorMessage.SetActive(true);
+        errorMessage.GetComponentInChildren<Text>().text = message;
+        yield return new WaitForSeconds(time);
+        errorMessage.SetActive(false);
+    }
+
+    void ResetStatics () {
+        currentModules.Clear ();
+    }
+
+    // Use this for initialization
+    void Awake () {
+
+        game = this;
+        ResetStatics ();
+        ResearchMenu.InitializeAllStatics ();
+        InitializeBasics ();
+
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
         /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
@@ -146,24 +210,69 @@ public class Game : MonoBehaviour {
         }*/
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
+        HideGUI();
 	}
+
+    void Start () {
+        if (saveToLoad != null && saveToLoad.Length > 0) {
+            Debug.Log ("Loading save: " + saveToLoad);
+            StartCoroutine (LoadSaveOnSceneStart ());
+        }
+    }
+
+    IEnumerator LoadSaveOnSceneStart () {
+        // Wait a single frame to allow all other Awake() and Start() functions to run.
+        yield return null;
+
+        LoadSavedGame (saveToLoad);
+        saveToLoad = "";
+    }
 
     private void InitializeResources () {
         ModuleTreeButton.buttonTypes = Resources.LoadAll<GameObject> ("Module Tree GUI");
     }
 
-	public void StartGame () {
+    void InitializeBasics () {
         Debug.Log ("Initializing!");
+        InitializeDirectories ();
         InitializeResources ();
-        researchMenu.gameObject.SetActive (true);
-        researchMenu.Initialize ();
+        state = State.Started;
+        Datastream.healthAmount = Datastream.STARTING_HEALTH;
 
-        InitializeBattlefield ();
-		pathMap.Initialize ();
+        if (currentScene != Scene.BattlefieldEditor) {
 
-        researchMenu.SaveBackup ();
-		Debug.Log ("Done initializing!");
-	}
+            ResearchMenu.cur = researchMenu;
+            purchaseMenu.Initialize ();
+
+        }
+
+        if (currentScene == Scene.Play) {
+
+            researchMenu.SaveBackup ();
+            researchMenu.gameObject.SetActive (true);
+            researchMenu.Initialize ();
+
+        }
+
+        Debug.Log ("Done initializing!");
+    }
+
+    public void StartGame () {
+        InitializeNewGame ();
+        PostInitialization ();
+    }
+
+    void HideGUI () {
+        for (int i = 0; i < postStartGUI.Length; i++) {
+            postStartGUI[i].gameObject.SetActive(false);
+        }
+    }
+
+    void ShowGUI () {
+        for (int i = 0; i < postStartGUI.Length; i++) {
+            postStartGUI[i].gameObject.SetActive(true);
+        }
+    }
 		
 	public void RestartMap () {
         SceneManager.LoadScene (SceneManager.GetActiveScene ().buildIndex);
@@ -172,22 +281,37 @@ public class Game : MonoBehaviour {
 	}
 
     public void QuitToDesktop () {
-        Application.Quit ();
+        SceneManager.LoadScene (0);
+        TogglePause ();
     }
 
     public static void ToggleFastGameSpeed () {
         HoverContextElement ele = EnemyManager.cur.waveStartedIndicator.GetComponentInParent<HoverContextElement> ();
-        if (fastGame) {
-            Time.timeScale = 1f;
-            EnemyManager.cur.waveStartedIndicator.color = Color.red;
-            ele.text = "Speed up the game";
-        } else {
-            Time.timeScale = 2f;
-            EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
-            ele.text = "Slow down the game";
+        if (ele) {
+            if (fastGame) {
+                Time.timeScale = 1f;
+                EnemyManager.cur.waveStartedIndicator.color = Color.red;
+                ele.text = "Speed up the game";
+            } else {
+                Time.timeScale = 2f;
+                EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
+                ele.text = "Slow down the game";
+            }
+            HoverContextElement.activeElement = null;
+            fastGame = !fastGame;
         }
-        HoverContextElement.activeElement = null;
-        fastGame = !fastGame;
+    }
+
+    public void LooseGame () {
+
+    }
+
+    public void ClearBattlefieldGameObjects () {
+        for (int i = 0; i < currentModules.Count; i++) {
+            currentModules[i].DestroyModule (false);
+        }
+        currentModules.Clear ();
+        EnemyManager.cur.EndWave (false);
     }
 
 	public void TogglePause () {
@@ -196,12 +320,36 @@ public class Game : MonoBehaviour {
 			Time.timeScale = 1f;
 			pauseMenu.SetActive (false);
 			optionsMenu.SetActive (false);
-		}else{
+			saveGameMenu.SetActive (false);
+        } else{
 			isPaused = true;
 			Time.timeScale = 0f;
 			pauseMenu.SetActive (true);
 		}
+        ForceDarkOverlay (isPaused);
 	}
+
+    public void ToggleSaveGameMenu () {
+        saveGameMenu.SetActive (!saveGameMenu.activeSelf);
+        saveGameText.text = "Untitled Save";
+    }
+
+    public static void ChangeSaveButtons (bool state) {
+        foreach (Button butt in game.saveGameButtons) {
+            butt.interactable = state;
+            HoverContextElement ele = butt.GetComponent<HoverContextElement> ();
+            if (ele) {
+                if (state) {
+                    ele.text = butt.gameObject.name;
+                } else {
+                    ele.text = "Saving currently disabled";
+                }
+                HoverContextElement.activeElement = null;
+            }
+        }
+        if (game.saveGameMenu.activeSelf)
+            game.ToggleSaveGameMenu ();
+    }
 
 	public void ToggleOptionsMenu () {
 		optionsMenu.SetActive (toggleOptionsMenuButton.isOn);
@@ -240,27 +388,37 @@ public class Game : MonoBehaviour {
 
 	}
 
-	public static void ChangeWalls (Rect rect, bool doWall) {
+	public static void ChangeWalls (Rect rect, WallType wallType, bool force = false) {
+
+        if (currentScene == Scene.BattlefieldEditor) {
+            force = true;
+            if (wallType == WallType.Player)
+                wallType = WallType.Level;
+        }
 
 		Rect loc = PositivizeRect (rect);
 
-		int startX = (int)loc.x;
-		int startY = (int)loc.y;
+		int startX = Mathf.RoundToInt (loc.x);
+		int startY = Mathf.RoundToInt (loc.y);
 
-		int w = (int)loc.width;
-		int h = (int)loc.height;
+		int w = Mathf.RoundToInt (loc.width);
+		int h = Mathf.RoundToInt (loc.height);
 
-		int cost = GetWallingCost (startX, startY, w, h, doWall);
+		int cost = GetWallingCost (startX, startY, w, h, wallType);
 
 		if (credits > cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
-					if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2) && isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] != WallType.Level) {
-						if (doWall) {
-							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.Player;
-						}else{
-							isWalled [x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] = WallType.None;
-						}
+
+                    int xx = x + game.battlefieldWidth / 2;
+                    int yy = y + game.battlefieldHeight / 2;
+
+					if ((game.IsInsideField (xx, yy)
+                        && isWalled[xx,yy] != WallType.Level
+                        && isWalled[xx,yy] != WallType.Unbuildable
+                        && isWalled[xx,yy] != WallType.WithTurret) ||
+                        (force && game.IsInsideField (xx, yy))) {
+						isWalled [xx, yy] = wallType;
 					}
 				}
 			}
@@ -271,19 +429,31 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	public static int GetWallingCost (int startX, int startY, int w, int h, bool doWall) {
+    public bool IsInsideField ( int x, int y ) {
+        if (x < 0 || x > battlefieldWidth - 1)
+            return false;
+        if (y < 0 || y > battlefieldHeight - 1)
+            return false;
+        return true;
+    }
+
+    public static int GetWallingCost (int startX, int startY, int w, int h, WallType wallType) {
 		int cost = 0;
+
+        if (Game.currentScene == Scene.BattlefieldEditor)
+            return 0;
 
 		for (int y = startY; y < startY + h; y++) {
 			for (int x = startX; x < startX + w; x++) {
 
-				if (Pathfinding.finder.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
-					if (doWall) {
-						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.None)
-							cost += 4;
-					}else{
-						if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
-							cost -= 2;
+				if (Game.game.IsInsideField (x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2)) {
+                    if (wallType == WallType.Player) {
+                        if (isWalled[x + game.battlefieldWidth / 2, y + game.battlefieldHeight / 2] == WallType.None)
+                            cost += 4;
+                    }
+                    if (wallType == WallType.None) {
+                        if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
+						    cost -= 2;
 					}
 				}
 			}
@@ -333,19 +503,19 @@ public class Game : MonoBehaviour {
 
 	byte GetWallBitmask (int x, int y, WallType type) {
 		byte mask = 0;
-		if (pathfinder.IsInsideField (x + 1, y)) {
+		if (IsInsideField (x + 1, y)) {
 			if (isWalled [x + 1, y] == type)
 				mask += 1;
 		}
-		if (pathfinder.IsInsideField (x, y + 1)) {
+		if (IsInsideField (x, y + 1)) {
 			if (isWalled [x, y + 1] == type)
 				mask += 2;
 		}
-		if (pathfinder.IsInsideField (x - 1, y)) {
+		if (IsInsideField (x - 1, y)) {
 			if (isWalled [x - 1, y] == type)
 				mask += 4;
 		}
-		if (pathfinder.IsInsideField (x, y - 1)) {
+		if (IsInsideField (x, y - 1)) {
 			if (isWalled [x, y - 1] == type)
 				mask += 8;
 		}
@@ -366,14 +536,16 @@ public class Game : MonoBehaviour {
 		for (int y = 0; y < battlefieldHeight; y++) {
 			for (int x = 0; x < battlefieldWidth; x++) {
 
-				if (isWalled[x,y] == WallType.Player) {
+				if (isWalled[x,y] == WallType.Player || isWalled[x,y] == WallType.WithTurret) {
 					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Player), 1);
-					pathfinder.map.nodes[x,y].isWalkable = false;
+					if (pathfinder)
+                        pathfinder.map.nodes[x,y].isWalkable = false;
 				}else if (isWalled[x,y] == WallType.Level) {
 					AddFace (x, y, x + battlefieldWidth * y, GetWallBitmask (x,y, WallType.Level), 0);
-					pathfinder.map.nodes[x,y].isWalkable = false;
-				}else{
-					pathfinder.map.nodes[x,y].isWalkable = true;
+                    if (pathfinder)
+                        pathfinder.map.nodes[x,y].isWalkable = false;
+				}else if (pathfinder) {
+                    pathfinder.map.nodes[x,y].isWalkable = true;
 				}
 			}
 		}
@@ -421,96 +593,117 @@ public class Game : MonoBehaviour {
 
 	}
 
-	public static void InitializeSaveDictionaries () {
-		string dp = Application.dataPath;
-		
-		MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
-		WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
-		BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
-		RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+    void InitializeNewGame () {
+        // Initialize resources
+        credits = difficulty.startingCredits;
+        research = difficulty.startingResearch;
+        researchProgress = 0f;
+
+        Datastream.healthAmount = Datastream.STARTING_HEALTH;
+
+        if (isWalled == null)
+            isWalled = new WallType[battlefieldWidth, battlefieldHeight];
     }
 
-	void InitializeBattlefield () {
+    public static void InitializeDirectories () {
 
-		// Initialize files
+        string dp = Application.dataPath;
 
-		if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
-			Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
-	
-		if (!Directory.Exists (WAVESET_SAVE_DIRECTORY))
-			Directory.CreateDirectory (WAVESET_SAVE_DIRECTORY);
+        MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
+        WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
+        BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
+        RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+        SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
 
-		if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
-			Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
+        if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
+            Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
+
+        if (!Directory.Exists (WAVESET_SAVE_DIRECTORY))
+            Directory.CreateDirectory (WAVESET_SAVE_DIRECTORY);
+
+        if (!Directory.Exists (BATTLEFIELD_SAVE_DIRECTORY))
+            Directory.CreateDirectory (BATTLEFIELD_SAVE_DIRECTORY);
 
         if (!Directory.Exists (RESEARCH_BACKUP_DATA_DIRECTORY))
             Directory.CreateDirectory (RESEARCH_BACKUP_DATA_DIRECTORY);
 
-        // Load battlefield data
-        isWalled = new WallType[battlefieldWidth,battlefieldHeight];
-		currentModules = new List<Module>();
+        if (!Directory.Exists (SAVED_GAME_DIRECTORY))
+            Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
+    }
 
-		// Initialize resources
-		credits = startingCredits;
-		research = startingResearch;
-		researchProgress = 0f;
+    void PostInitialization () {
+        ShowGUI ();
 
-		// Initialize background graphic
-		background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
+        // Initialize background graphic
+        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
 		background.GetComponent<Renderer>().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
 		GenerateWallMesh ();
-		
-		// Initialize datastream graphic
-		datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
+
+        // Initialize datastream graphic
+        datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
 		datastream.flyDistance = battlefieldWidth;
 		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
+        datastream.Reset (Datastream.healthAmount);
 
-		// Initialize enemy spawn.
-		GenerateDefaultSpawnpoints ();
-        SaveBattlefieldData ("DEFAULT");
+        PurchaseMenu.cur.InitializeAssemblyButtons ();
 
-		// Initialize purchase menu
-	}
+        ForceDarkOverlay (false);
+        AssembliesSelectionMenu.cur.gameObject.SetActive (false);
+        EnemyManager.Initialize ();
 
-	void FixedUpdate () {
-		if (currentScene == Scene.Play)
-			GameUpdate ();
-	}
+        if (fastGame)
+            ToggleFastGameSpeed ();
+    }
 
-	void GameUpdate () {
-		musicVolume = musicSlider.value;
-		soundVolume = soundSlider.value;
-		
-		if (datastream.pooledNumbers.Count <= 0) {
-			RestartMap ();
-		}
-		
-		researchText.text = "Research: " + research.ToString ();
-		creditsText.text = "Credits: " + credits.ToString () + " LoC";
-		researchSlider.value = researchProgress;
-		
-		if (researchProgress > 1) {
-			float excess = researchProgress - 1;
-			researchProgress = excess;
-			research++;
-		}
+    void FixedUpdate () {
+		if (currentScene == Scene.Play) {
+            musicVolume = musicSlider.value;
+            soundVolume = soundSlider.value;
 
-        _creditsUpdatedThisFrame = false;
-        _researchUpdatedThisFrame = false;
+            if (state == State.Started && Datastream.healthAmount <= 0 && gameOverIndicator.activeSelf == false) {
+                Debug.Log ("Game has ended.");
+                state = State.Ended;
+                ForceDarkOverlay (true);
+                HideGUI ();
+                gameOverIndicator.SetActive(true);
+            }
+
+            researchText.text = "Research: " + research.ToString();
+            creditsText.text = "Credits: " + credits.ToString() + " LoC";
+            researchSlider.value = researchProgress;
+
+            if (researchProgress > 1) {
+                float excess = researchProgress - 1;
+                researchProgress = excess;
+                research++;
+            }
+
+            _creditsUpdatedThisFrame = false;
+            _researchUpdatedThisFrame = false;
+        }
+    }
+
+    void Update () {
+        HoverContext.StaticUpdate();
     }
 
 	public void SaveBattlefieldData (string fileName) {
 
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
+        if (File.Exists (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat")) {
+            Debug.LogWarning("Tried to override file.");
+            return;
+        }
 
-		BattlefieldData data = new BattlefieldData (battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
+        BinaryFormatter bf = new BinaryFormatter ();
+		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
+        Debug.Log(file);
+
+		BattlefieldData data = new BattlefieldData (fileName, "", battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
 		bf.Serialize (file, data);
 		file.Close ();
-
 	}
 
 	public BattlefieldData LoadBattlefieldData (string fileName, bool isFullPath = false) {
@@ -528,8 +721,7 @@ public class Game : MonoBehaviour {
             data.spawns = new List<EnemySpawnPoint> ();
 			file.Close ();
 
-            Debug.Log (fileName);
-			for (int i = 0; i < data.spawnsX.Count; i++) {
+			for (int i = 0; i < data.spawnsX.Length; i++) {
 
 				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
 				Vector3 end = new Vector3 (data.endsX[i], data.endsY[i]);
@@ -549,12 +741,12 @@ public class Game : MonoBehaviour {
     }
 
 	void GenerateDefaultSpawnpoints () {
-		for (int x = 1; x < battlefieldWidth; x++) {
+		for (int x = 1; x < battlefieldWidth + 1; x++) {
 			EnemySpawnPoint spawn = ScriptableObject.CreateInstance<EnemySpawnPoint>();
 			EnemyEndPoint end = ScriptableObject.CreateInstance<EnemyEndPoint>();
 
-			spawn.worldPosition = new Vector3 (x - battlefieldWidth / 2f, battlefieldHeight / 2f);
-			end.worldPosition = new Vector3 (x - battlefieldWidth / 2f, -battlefieldHeight / 2f);
+			spawn.worldPosition = new Vector3 (x - battlefieldWidth / 2f - 0.5f, battlefieldHeight / 2f - 0.5f);
+			end.worldPosition = new Vector3 (x - battlefieldWidth / 2f - 0.5f, -battlefieldHeight / 2f - 0.5f);
 
 			spawn.endPoint = end;
 			enemySpawnPoints.Add (spawn);
@@ -569,33 +761,237 @@ public class Game : MonoBehaviour {
 
 		public int width;
 		public int height;
-		public WallType[,] walls;
+		public Game.WallType[,] walls;
 
-		public List<int> spawnsX;
-		public List<int> spawnsY;
-		public List<int> endsX;
-		public List<int> endsY;
+		public float[] spawnsX;
+		public float[] spawnsY;
+		public float[] endsX;
+		public float[] endsY;
 
         [System.NonSerialized]
         public List<EnemySpawnPoint> spawns;
 
-		public BattlefieldData (int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
+		public BattlefieldData (string name, string desc, int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
 
 			width = _w;
 			height = _h;
-			walls = _walls;
+            walls = _walls;
 
-			spawnsX = new List<int>();
-			spawnsY = new List<int>();
-			endsX   = new List<int>();
-			endsY   = new List<int>();
+            spawnsX = new float[_spawns.Count];
+			spawnsY = new float[_spawns.Count];
+            endsX   = new float[_spawns.Count];
+            endsY   = new float[_spawns.Count];
 
-			for (int i = 0; i < _spawns.Count; i++) {
-				spawnsX.Add ((int)_spawns[i].worldPosition.x);
-				spawnsY.Add ((int)_spawns[i].worldPosition.y);
-				endsX.Add   ((int)_spawns[i].endPoint.worldPosition.x);
-				endsY.Add   ((int)_spawns[i].endPoint.worldPosition.y);
+            for (int i = 0; i < _spawns.Count; i++) {
+                spawnsX[i] = _spawns[i].worldPosition.x;
+				spawnsY[i] = _spawns[i].worldPosition.y;
+				endsX[i] = _spawns[i].endPoint.worldPosition.x;
+				endsY[i] = _spawns[i].endPoint.worldPosition.y;
 			}
 		}
 	}
+
+    public void LoadSavedGame (string fileName) {
+
+        // First, clear battlefield of gameobjects, and load the data into a SavedGame object.
+        // ClearBattlefieldGameObjects ();
+        SavedGame sg = SavedGame.Load (fileName);
+
+        // Load basic battlefield size and walls.
+        battlefieldWidth = sg.battlefieldData.width;
+        battlefieldHeight = sg.battlefieldData.height;
+        isWalled = sg.battlefieldData.walls;
+        difficulty = sg.difficulty;
+
+        // Set purchaseables and spawnpoints.
+        purchaseMenu.SetAssemblies (sg.selectedTurrets);
+        enemySpawnPoints = new List<EnemySpawnPoint> ();
+
+        for (int i = 0; i < sg.battlefieldData.spawnsX.Length; i++) {
+            EnemySpawnPoint sp = ScriptableObject.CreateInstance<EnemySpawnPoint> ();
+            sp.worldPosition = new Vector3 (sg.battlefieldData.spawnsX[i], sg.battlefieldData.spawnsY[i]);
+            sp.endPoint = ScriptableObject.CreateInstance<EnemyEndPoint> ();
+            sp.endPoint.worldPosition = new Vector3 (sg.battlefieldData.endsX[i], sg.battlefieldData.endsY[i]);
+            enemySpawnPoints.Add (sp);
+        }
+
+        // Load in-world turrets.
+        for (int i = 0; i < sg.turrets.Count; i++) {
+            SavedGame.SavedAssembly ass = sg.turrets[i];
+            ModuleAssemblyLoader loader = ((GameObject)Instantiate (purchaseMenu.assemblyLoader)).GetComponent<ModuleAssemblyLoader> ();
+            GameObject root = loader.LoadAssembly (ass.assembly, true);
+            root.transform.position = new Vector3 (ass.posX, ass.posY);
+            root.transform.rotation = Quaternion.Euler (0, 0, ass.rot);
+            root.transform.parent = null;
+
+            Module rootModule = root.GetComponent<Module> ();
+            for (int j = 0; j < rootModule.modules.Count; j++) {
+                rootModule.modules[j].enabled = true;
+                rootModule.modules[j].SetStartingUpgradeCost ();
+                for (int a = 0; a < ass.levels.Count; a++) {
+                    if (rootModule.modules[j].moduleType == (Module.Type)a) {
+                        for (int b = 0; b < ass.levels[a]; b++) {
+                            rootModule.modules[j].UpgradeModule ();
+
+                            // So many bloody loops, though this should now save assembly upgrades in the SavedData data.
+                        }
+                    }
+                }
+            }
+        }
+
+        // Load research. Likely a very unefficient method, but it should do without issues.
+        for (int i = 0; i < sg.researchedResearch.Count; i++) {
+            Research r = ResearchMenu.cur.research[sg.researchedResearch[i]];
+            r.Purchase (true);
+        }
+
+        // Set resources.
+        credits = sg.credits;
+        research = sg.research;
+        researchProgress = sg.researchProgress;
+
+        // Finalize loading.
+        Datastream.healthAmount = sg.health;
+        PostInitialization ();
+
+        EnemyManager.cur.waveMastery = sg.masteryNumber;
+        EnemyManager.cur.waveNumber = sg.waveNumber;
+        EnemyManager.externalWaveNumber = sg.totalWaveNumber;
+        EnemyManager.gameProgress = sg.gameProgress;
+
+        EnemyManager.cur.EndWave (false);
+    }
+
+    public void RetryAutosave () {
+        saveToLoad = "autosave";
+        RestartMap ();
+    }
+
+    public void SavePauseGame () {
+        SaveGame (saveGameText.text);
+        ToggleSaveGameMenu ();
+    }
+
+    public void SaveGame (string path) {
+        SavedGame saved = new SavedGame ();
+
+        saved.turrets = new List<SavedGame.SavedAssembly> ();
+        saved.difficulty = difficulty;
+        saved.selectedTurrets = purchaseMenu.GetAssemblies (); 
+
+        for (int i = 0; i < currentModules.Count; i++) {
+            if (currentModules[i].isRoot) {
+                saved.turrets.Add (new SavedGame.SavedAssembly (currentModules[i]));
+            }
+        }
+
+        saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
+        saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
+
+        saved.researchedResearch = new List<int> ();
+
+        for (int i = 0; i < researchMenu.research.Count; i++) {
+            if (ResearchMenu.cur.research[i].isBought)
+                saved.researchedResearch.Add (ResearchMenu.cur.research[i].index);
+        }
+
+        saved.credits = credits;
+        saved.research = research;
+        saved.researchProgress = researchProgress;
+
+        saved.waveNumber = EnemyManager.cur.waveNumber;
+        saved.totalWaveNumber = EnemyManager.externalWaveNumber;
+        saved.masteryNumber = EnemyManager.cur.waveMastery;
+        saved.gameProgress = EnemyManager.gameProgress;
+
+        saved.health = Datastream.healthAmount;
+
+        saved.Save (path);
+    }
+
+    [System.Serializable]
+    public class SavedGame {
+
+        public BattlefieldData battlefieldData;
+
+        public List<Assembly> selectedTurrets;
+        public List<SavedAssembly> turrets;
+
+        public string waveSetPath;
+        public List<int> researchedResearch;
+
+        public int credits;
+        public int research;
+        public float researchProgress;
+
+        public int waveNumber;
+        public int masteryNumber;
+        public int totalWaveNumber;
+        public float gameProgress;
+
+        public DifficultySettings difficulty;
+
+        public int health;
+
+        public void Save (string fileName) {
+            BinaryFormatter bf = new BinaryFormatter ();
+            FileStream file = File.Create (SAVED_GAME_DIRECTORY + fileName + ".dat");
+
+            bf.Serialize (file, this);
+            file.Close ();
+        }
+
+        public static SavedGame Load (string fileName) {
+            string fullFile = SAVED_GAME_DIRECTORY + fileName + ".dat";
+            if (File.Exists (fullFile)) {
+
+                BinaryFormatter bf = new BinaryFormatter ();
+                FileStream file = File.Open (fullFile, FileMode.Open);
+
+                SavedGame data = (SavedGame)bf.Deserialize (file);
+                file.Close ();
+
+                return data;
+            }
+
+            Debug.LogError ("Tried to open non-existant savefile.");
+            return null;
+        }
+
+        [Serializable]
+        public class SavedAssembly {
+
+            public Assembly assembly;
+
+            public float posX;
+            public float posY;
+            public float rot;
+
+            public List<int> levels = new List<int>();
+
+            public SavedAssembly (Module rootModule) {
+                assembly = rootModule.assembly;
+                posX = rootModule.transform.localPosition.x;
+                posY = rootModule.transform.localPosition.y;
+                rot = rootModule.transform.localEulerAngles.z;
+                for (int i = 0; i < 3; i++) {
+                    levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
+                }
+            }
+        }
+    }
+
+    [Serializable]
+    public class DifficultySettings {
+
+        public string name;
+        public string desc;
+
+        public int amountMultiplier;
+        public float healthMultiplier;
+        public int startingCredits;
+        public int startingResearch;
+
+    }
 }

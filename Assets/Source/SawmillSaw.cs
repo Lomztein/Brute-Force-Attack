@@ -1,16 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SawmillSaw : MonoBehaviour {
+public class SawmillSaw : Projectile {
 
 	public float attackWaitTime;
 	public float speed;
-	public float range;
 	public float dampen;
-	public int damage;
 	public float width;
 
-	public ParticleSystem particle;
 	private float maxEmmisionSpeed = 500;
 	public float direction;
 	public TrailRenderer trailRenderer;

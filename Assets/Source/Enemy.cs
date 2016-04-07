@@ -25,28 +25,31 @@ public class Enemy : MonoBehaviour {
 	public int pathIndex;
 	public Vector3 offset;
 
+    [Header ("Death Particle")]
+	public ParticleSystem deathParticle;
+    public int particleAmount = 100;
+    public float particleLifetime = 1f;
+
 	[Header ("Other")]
-	public GameObject deathParticle;
-	public GameObject researchPoint;
-	public UpcomingElement upcomingElement;
+    public GameObject researchPoint;
+    public UpcomingElement upcomingElement;
 	private bool isDead;
 
 	public Slider healthSlider;
 
-	// TODO Add pathfinding and, well, just improve overall
-
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		health = Mathf.RoundToInt ((float)health * EnemyManager.gameProgress);
+		health = Mathf.RoundToInt (health * EnemyManager.gameProgress * Game.difficulty.healthMultiplier);
 
-        if (Game.game.gamemode == Gamemode.GlassEnemies) {
+        if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;
-        }else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
+        }else if (Game.game && Game.game.gamemode == Gamemode.TitaniumEnemies) {
             health *= 10;
         }
 
-        CreateHealthMeter ();
+        if (Game.game)
+            CreateHealthMeter ();
     }
 
     void CreateHealthMeter () {
@@ -119,11 +122,16 @@ public class Enemy : MonoBehaviour {
 
 			if (!isDead) {
 				isDead = true;
-				Game.credits += Mathf.RoundToInt ((float)value + (float)EnemyManager.cur.waveNumber * 0.2f);
+				Game.credits += Mathf.RoundToInt (value + EnemyManager.externalWaveNumber * 0.2f);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 
-				Destroy ((GameObject)Instantiate (deathParticle, transform.position, Quaternion.identity), 1f);
+                if (deathParticle) {
+                    deathParticle.transform.parent = null;
+                    deathParticle.Emit (particleAmount);
+                    Invoke ("DisableParticle", particleLifetime);
+                }
+
                 if (EnemyManager.spawnedResearch < EnemyManager.researchPerWave) {
                     if ((Random.Range (0, EnemyManager.chanceToSpawnResearch) == 0)
                     || EnemyManager.cur.currentEnemies == 1) {
@@ -139,6 +147,10 @@ public class Enemy : MonoBehaviour {
         }
     }
 
+    void DisableParticle () {
+        deathParticle.gameObject.SetActive (false);
+    }
+
 	void OnCollisionEnter (Collision col) {
 
 		Datastream stream = col.gameObject.GetComponent<Datastream>();
@@ -147,6 +159,7 @@ public class Enemy : MonoBehaviour {
 		if (Datastream.enableFirewall)
 			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
+        Datastream.healthAmount -= damage;
 		for (int j = 0; j < damage; j++) {
 
 			float dist = float.MaxValue;
@@ -176,5 +189,11 @@ public class Enemy : MonoBehaviour {
         if (healthSlider) healthSlider.transform.SetParent (transform);
         gameObject.SetActive (false);
 		EnemyManager.cur.OnEnemyDeath ();
+
+        SplitterEnemySplit split = GetComponent<SplitterEnemySplit>();
+        if (split)
+            for (int i = 0; i < split.spawnPos.Length; i++) {
+                EnemyManager.cur.OnEnemyDeath();
+            }
 	}
 }

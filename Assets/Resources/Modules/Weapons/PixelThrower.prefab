@@ -166,10 +166,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772750980fca21b409026880562a561b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: PixelThrower
   muzzles:
   - {fileID: 459818}
   - {fileID: 450464}
-  bullet: {fileID: 171388, guid: 85cc6e102db623f4c8ec91c3fd717ddf, type: 2}
+  bullet:
+  - {fileID: 171388, guid: 85cc6e102db623f4c8ec91c3fd717ddf, type: 2}
   bulletData: {fileID: 0}
   bulletSpeed: 10
   bulletSpread: 1
@@ -178,6 +180,7 @@ MonoBehaviour:
   maxRange: 5
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -187,6 +190,7 @@ MonoBehaviour:
   firerate: 0.1
   sequenceTime: 0.05
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
 --- !u!114 &11420106
 MonoBehaviour:
@@ -206,8 +210,7 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Pixel Thrower
-  moduleDesc: The pixel thrower is very specifally designet to be used in small corridors,
-    against a large bunch of small baddies.
+  moduleDesc: BUUUUUUUUUUUUURN, LET IT BUUUUUUUUUURN!
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 

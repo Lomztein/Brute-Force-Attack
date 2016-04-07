@@ -50,9 +50,10 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 2
+  isHitscan: 1
   particle: {fileID: 0}
   hitParticle: {fileID: 0}
-  particleCount: 0
+  particleCount: 50
   bulletSleepTime: 1
   spherecastWidth: 0.2
   segmentLength: 0.8

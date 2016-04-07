@@ -39,11 +39,15 @@ public class SlowfieldArea : MonoBehaviour {
 			}
 			Collider[] nearby = Physics.OverlapSphere (new Vector3 (transform.position.x, transform.position.y), range, Game.game.enemyLayer);
 			for (int i = 0; i < nearby.Length; i++) {
-				nearby [i].GetComponent<Enemy> ().freezeMultiplier = slowAmount * staticMultiplier;
+				nearby [i].GetComponent<Enemy> ().freezeMultiplier = GetSlowness ();
 			}
 			waveThingie.transform.localScale = Vector3.one * (range + Mathf.Sin (Time.time) / 3);
 		}
 	}
+
+    public float GetSlowness () {
+        return slowAmount * staticMultiplier;
+    }
 
 	// This is more or less fucked in the arse.
 	IEnumerator Die (bool reverse) {

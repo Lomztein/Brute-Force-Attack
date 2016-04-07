@@ -127,9 +127,10 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 1
   effectiveAgainst: 1
+  isHitscan: 0
   particle: {fileID: 0}
   hitParticle: {fileID: 19868034}
-  particleCount: 0
+  particleCount: 150
   bulletSleepTime: 1
 --- !u!198 &19868034
 ParticleSystem:

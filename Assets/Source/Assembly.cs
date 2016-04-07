@@ -18,7 +18,7 @@ public class Assembly {
     public Texture2D texture;
 
 	[System.NonSerialized]
-    public Research[] requiredResearch;
+    public Research[] requiredResearch = new Research[0];
 
     [System.Serializable]
     public class Part {
@@ -66,10 +66,11 @@ public class Assembly {
             for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
                 Research r = ResearchMenu.cur.research[i];
                 if (r.func == "UnlockModule") {
-                    Module mod = ResearchMenu.cur.unlockableModules[r.value].GetComponent<Module> ();
+                    Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
 
-                    if (mod.moduleName == data.parts[j].type)
+                    if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
                         hls.Add (r);
+                    }
                 }
             }
         }
@@ -79,10 +80,11 @@ public class Assembly {
 	}
 
     public void ChangeHighlightRequiredResearch (bool highlight) {
-        for (int i = 0; i < requiredResearch.Length; i++) {
-            Research r = requiredResearch[i];
-            r.highlighter.gameObject.SetActive (highlight);
-        }
+        if (requiredResearch != null)
+            for (int i = 0; i < requiredResearch.Length; i++) {
+                Research r = requiredResearch[i];
+                r.highlighter.gameObject.SetActive (highlight);
+            }
     }
 
 	public static void SaveToFile (string fileName, Assembly assembly) {
@@ -92,4 +94,19 @@ public class Assembly {
 		bf.Serialize (file, assembly);
 		file.Close ();
 	}
+
+    public Texture2D GetSprite () {
+        List<Texture2D> sprites = new List<Texture2D>();
+        List<Vector3> positions = new List<Vector3>();
+
+        for (int i = 0; i < parts.Count; i++) {
+
+            GameObject m = PurchaseMenu.cur.GetModulePrefab(parts[i].type);
+            sprites.Add(m.GetComponentInChildren<SpriteRenderer>().sprite.texture);
+            positions.Add(new Vector3(parts[i].x, parts[i].y));
+
+        }
+
+        return Module.CombineSprites(sprites.ToArray(), positions.ToArray());
+    }
 }

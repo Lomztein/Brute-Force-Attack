@@ -59,12 +59,19 @@ public class FocusBeamWeapon : Weapon {
 	}
 
 	void FixedUpdate () {
-		if (!target) {
+		if (target && !target.gameObject.activeSelf) {
 			BreakBeam ();
 		}
 	}
 
-	void UpdateBeam () {
+    public override float GetDPS () {
+        if (Game.currentScene == Scene.Play) {
+            return ((maxCharge * damageMul * damageUpgradeMul * ResearchMenu.damageMul[(int)Colour.Red]) * upgradeMul);
+        }
+        return 0f;
+    }
+
+    void UpdateBeam () {
 		bulletDamage = (int)maxCharge;
 		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * maxRange * ResearchMenu.rangeMul * upgradeMul);
 		RaycastHit hit;

@@ -6,8 +6,8 @@ public class SplitterHomingProjectile : HomingProjectile {
 	public GameObject splitterPrefab;
 	public static int amount;
 
-	public override void OnHit (RaycastHit hit) {
-		base.OnHit (hit);
+	public override void OnHit (Collider col, Vector3 point, Vector3 dir) {
+		base.OnHit (col, point, dir);
 		for (int i = 0; i < amount; i++) {
 			GameObject split = (GameObject)Instantiate (splitterPrefab, transform.position, Quaternion.Euler (0, 0, Random.Range (0, 360)));
 			Projectile pro = split.GetComponent<Projectile>();

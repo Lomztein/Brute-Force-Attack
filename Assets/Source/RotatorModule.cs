@@ -71,7 +71,7 @@ public class RotatorModule : Module {
 		}
 	}
 
-	public float GetSpeed () {
+	public override float GetSpeed () {
 		return turnSpeed * ResearchMenu.turnrateMul * upgradeMul * torqueSpeedMul;
 	}
 

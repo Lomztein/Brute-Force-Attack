@@ -7,7 +7,6 @@ public class HomingProjectile : Projectile {
 	public float speed;
 	public static bool autoFindTarget;
     public bool slowWhenTurning;
-	private TargetFinder targetFinder = new TargetFinder ();
 
 	public override void Initialize () {
 		speed = velocity.magnitude;
@@ -18,7 +17,10 @@ public class HomingProjectile : Projectile {
 		float startAngle = Angle.CalculateAngle (Vector3.zero, velocity);
 		transform.rotation = Quaternion.Euler (0, 0, startAngle);
 
-        float rotateMul = 0f;
+        if (target && !target.gameObject.activeSelf)
+            target = null;
+
+        float rotateMul = 1f;
         if (target && slowWhenTurning)
             rotateMul = (1f + Mathf.Max (1-Vector3.Dot (velocity.normalized, (target.position - transform.position).normalized), 0f));
 
@@ -30,7 +32,8 @@ public class HomingProjectile : Projectile {
         CastRay ();
 		transform.position += velocity * Time.fixedDeltaTime;
 
-		if (autoFindTarget && !target)
-			target = targetFinder.FindTarget (transform.position, 5f, Game.game.enemyLayer, new Colour[1] { Colour.Red }, new Colour[0], TargetFinder.SortType.Closest);
+        if (autoFindTarget && parentWeapon && parentWeapon.target)
+            target = parentWeapon.target;
 	}
+
 }

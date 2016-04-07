@@ -79,12 +79,15 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 6
+  isHitscan: 0
   particle: {fileID: 0}
   hitParticle: {fileID: 0}
   particleCount: 0
   bulletSleepTime: 1
   dampen: 0.8
   distTraveled: 0
+  fireParticle: {fileID: 19869394}
+  fireGrowthRate: 1
 --- !u!198 &19869394
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -1621,7 +1624,15 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: fireParticle
+      value: 
+      objectReference: {fileID: 19869394}
+    - target: {fileID: 0}
+      propertyPath: fireGrowthRate
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 171388}

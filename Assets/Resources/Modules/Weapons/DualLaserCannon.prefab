@@ -166,10 +166,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772750980fca21b409026880562a561b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: DualLaserCannon
   muzzles:
   - {fileID: 415926}
   - {fileID: 497228}
-  bullet: {fileID: 153998, guid: 1c2b243b396335440bd70667cfb7d07f, type: 2}
+  bullet:
+  - {fileID: 153998, guid: 1c2b243b396335440bd70667cfb7d07f, type: 2}
   bulletData: {fileID: 0}
   bulletSpeed: 1
   bulletSpread: 0.02
@@ -178,6 +180,7 @@ MonoBehaviour:
   maxRange: 0
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -187,6 +190,7 @@ MonoBehaviour:
   firerate: 0.8
   sequenceTime: 0.4
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
 --- !u!114 &11445482
 MonoBehaviour:

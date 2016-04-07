@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Module
   - ProjectileIgnore
+  - PathDemonstrator
+  - DarkOverlay
   layers:
   - Default
   - TransparentFX
@@ -21,7 +23,7 @@ TagManager:
   - UI Ignore
   - ResearchPoint
   - Selector
-  - 
+  - BlockConstruction
   - 
   - 
   - 

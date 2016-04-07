@@ -6,26 +6,43 @@ using System.Linq;
 
 public class AssemblyContextMenu : MonoBehaviour {
 
+    [Header ("Stats")]
 	public RawImage moduleImage;
 	public Text moduleName;
 	public Text moduleDesc;
 	public Text moduleStats;
-	public GameObject treeButtonPrefab;
-	public Transform treeButtonParent;
-	public RectTransform treeScrollContext;
+    public Text upgradeStats;
+
 	public Text assemblyName;
     public HoverContextElement sellContextElement;
 
+    [Header ("Modules")]
 	private Module rootModule;
 	public List<Module> modules = new List<Module> ();
-	private GameObject[] moduleTreeButtons;
 	private RangeIndicator rangeIndicator;
 	private float indicatorRange;
 
 	public Button[] upgradeButton;
+    public Sprite[] defaultUpgradeButtonImage;
 
-	// Update is called once per frame
-	void Update () {
+    [Header ("Module Mods")]
+    public float buttonSize;
+
+	private GameObject[] moduleTreeButtons;
+    public GameObject treeButtonPrefab;
+    public Transform treeButtonParent;
+    public RectTransform treeScrollContext;
+    public RectTransform treeScrollParent;
+
+    public GameObject subModMenu;
+    public RectTransform subModScrollContext;
+    public Transform subModButtonParent;
+    public GameObject subModButtonPrefab;
+    public GameObject[] subModButtons;
+
+
+    // Update is called once per frame
+    void Update () {
 		if (modules.Count == 0) {
 			ExitMenu ();
 		}
@@ -33,7 +50,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		if (Input.GetButtonDown ("Cancel"))
 			ExitMenu ();
 
-		if (Game.currentScene == Scene.AssemblyBuilder) {
+		if (Game.currentScene == Scene.AssemblyBuilder && rootModule) {
 			rootModule.assemblyDesc = moduleDesc.text;
 			rootModule.assemblyName = moduleName.text;
 		}
@@ -57,10 +74,34 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
     void UpdateStats () {
-        moduleStats.text = "Root Range: " + ((int)rootModule.parentBase.GetRange ()).ToString () +
-            " - \n\nDamage per Second: " + ((int)rootModule.GetAssemblyDPS ()).ToString () +
-            " - \n\nAvarage Turnspeed: " + ((int)rootModule.GetAssemblyAVGTurnSpeed ()).ToString() + " - ";
-        rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
+        if (Game.currentScene == Scene.Play) {
+            for (int i = 0; i < 3; i++) {
+                if (rootModule.upgradeDescReplacement[i].Length == 0) {
+                    switch (i) {
+                        case 0:
+                            rootModule.upgradeDescReplacement[i] = "Range: ";
+                            break;
+
+                        case 2:
+                            rootModule.upgradeDescReplacement[i] = "Damage per second: ";
+                            break;
+
+                        case 1:
+                            rootModule.upgradeDescReplacement[i] = "Avarage turnspeed: ";
+                            break;
+
+                    }
+                }
+            }
+            moduleStats.text = rootModule.upgradeDescReplacement[0] + ((int)rootModule.GetRange()).ToString() +
+                "\n\n" + rootModule.upgradeDescReplacement[2] + ((int)rootModule.GetAssemblyDPS()).ToString() +
+                "\n\n" + rootModule.upgradeDescReplacement[1] + ((int)rootModule.GetAssemblyAVGTurnSpeed()).ToString();
+            // rangeIndicator.GetRange (rootModule.parentBase.GetRange ());
+
+            upgradeStats.text = "Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Base).ToString() +
+                "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Weapon).ToString() +
+                "\n\n Level: " + rootModule.GetAssemblyUpgradeLevel(Module.Type.Rotator).ToString();
+        }
     }
 
 	public void UpgradeAssembly (int t) {
@@ -75,23 +116,68 @@ public class AssemblyContextMenu : MonoBehaviour {
         UpdateStats ();
 	}
 
-    void AddTreeButtonListener (Button button, int index) {
+    void AddTreeButtonListener ( Button button, string n) {
         button.onClick.AddListener (() => {
-            OpenModuleMods (index);
+            if (ModuleMod.currentMenu[0])
+                Destroy (ModuleMod.currentMenu[0]);
+
+            OpenModuleModSubMenu (n);
+        });
+    }
+
+    void AddTreeButtonListener (Button button, Module m, Transform b, bool disableSubmenu = false ) {
+        button.onClick.AddListener (() => {
+            OpenModuleMods (m, b);
+
+            if (disableSubmenu)
+                subModMenu.SetActive (false);
         });
     }
 
     void UpdateUpgradeCostText (int t) {
-		Module.Type type = (Module.Type)t;
         if (!rootModule.IsAssemblyUpgradeable (t)) {
-            ChangeUpgradeCostText (t, "Upgrade " + type.ToString () + "s, Maxed Out");
+            ChangeUpgradeCostText (t, "Upgrade " + GetTypeName (t) + " - Maxed Out");
         } else {
             ChangeUpgradeCostTextPrebuild (t, rootModule.GetUpgradeCost (t).ToString ());
         }
     }
 
+    string GetTypeName (int index) {
+        string upgradeType = "Type name missing";
+        if (rootModule.upgradeNameReplacement[index].Length > 0) {
+            upgradeType = rootModule.upgradeNameReplacement[index];
+        } else {
+            switch ((Module.Type)index) {
+
+                case Module.Type.Base:
+                    upgradeType = "range";
+                    break;
+
+                case Module.Type.Rotator:
+                    upgradeType = "rotation";
+                    break;
+
+                case Module.Type.Weapon:
+                    upgradeType = "damage";
+                    break;
+
+                default:
+                    upgradeType = "Replacement string required";
+                    break;
+
+            }
+        }
+        return upgradeType;
+    }
+
 	void ChangeUpgradeCostTextPrebuild (int buttonIndex, string newText) {
-		ChangeUpgradeCostText (buttonIndex, "Upgrade " + ((Module.Type)buttonIndex).ToString () + "s: " + newText + " credits");
+
+        if (rootModule.upgradeButtonDisabled[buttonIndex]) {
+            ChangeUpgradeCostText (buttonIndex, "Disabled for this assembly");
+            return;
+        }
+
+		ChangeUpgradeCostText (buttonIndex, "Upgrade " + GetTypeName (buttonIndex) + " - " + newText + " credits");
 	}
 
     void ChangeUpgradeCostText (int buttonIndex, string newText) {
@@ -105,38 +191,41 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void ExitMenu () {
-		OpenRangeIndicator ();
 		modules.Clear ();
 		gameObject.SetActive (false);
-		rangeIndicator.NullifyParent ();
+        subModMenu.SetActive (false);
+        Game.ForceDarkOverlay(false);
         if (ModuleMod.currentMenu[0])
             Destroy (ModuleMod.currentMenu[0]);
     }
 
-	void GetRange (float range) {
+	public void GetRange (float range) {
 		indicatorRange = range;
 	}
 
 	public void OpenAssembly (Module _rootModule) {
+        Game.ForceDarkOverlay(true);
+        gameObject.SetActive(true);
 		rootModule = _rootModule;
 		modules = rootModule.GetModuleTree ().ToList ();
 		UpdateModuleTree ();
 
-		for (int i = 0; i < upgradeButton.Length; i++) {
-			Module.Type type = (Module.Type)i;
-			ChangeUpgradeCostText (i, rootModule.GetUpgradeCost (i).ToString ());
-			
-			foreach (Module module in modules) {
-				if (module.moduleType == type) {
-					if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
-						rootModule.upgradeButtonDisabled[i] = true;
-						break;
-					}
-				}
-			}
-		}
+        if (Game.currentScene == Scene.Play) {
+            for (int i = 0; i < upgradeButton.Length; i++) {
+                Module.Type type = (Module.Type)i;
+                ChangeUpgradeCostText(i, rootModule.GetUpgradeCost(i).ToString());
 
-	}
+                foreach (Module module in modules) {
+                    if (module.moduleType == type) {
+                        if (module.upgradeCount >= Module.MAX_UPGRADE_AMOUNT) {
+                            rootModule.upgradeButtonDisabled[i] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	void FixedUpdate () {
 		if (rootModule) UpdateUpgradeButtons ();
@@ -150,6 +239,11 @@ public class AssemblyContextMenu : MonoBehaviour {
             } else {
                 upgradeButton[i].interactable = true;
             }
+            if (rootModule.upgradeImageReplacement[i]) {
+                upgradeButton[i].transform.GetChild (0).GetComponent<Image> ().sprite = rootModule.upgradeImageReplacement[i];
+            } else {
+                upgradeButton[i].transform.GetChild (0).GetComponent<Image> ().sprite = defaultUpgradeButtonImage[i];
+            }
         }
 	}
 
@@ -159,7 +253,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 				Destroy (obj);
 			}
 
-		OpenRangeIndicator ();
+		// OpenRangeIndicator ();
 
 		Dictionary<string, int> loc = new Dictionary<string, int>();
 		// List<string> indexedNames = new List<string>();
@@ -181,19 +275,44 @@ public class AssemblyContextMenu : MonoBehaviour {
 			string lName = loc.Keys.ElementAt (i);
 			Module m = PurchaseMenu.cur.GetModulePrefab (lName).GetComponent<Module>();
 
-			GameObject button = (GameObject)Instantiate (treeButtonPrefab, treeButtonParent.position + Vector3.down * 60f * i, Quaternion.identity);
+			GameObject button = (GameObject)Instantiate (treeButtonPrefab, treeButtonParent.position + Vector3.down * buttonSize * i, Quaternion.identity);
 			button.transform.SetParent (treeButtonParent, true);
 
 			button.transform.FindChild ("Image").GetComponent<Image>().sprite = m.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			button.GetComponentInChildren<Text>().text = "x " + loc[lName];
-            AddTreeButtonListener (button.GetComponent<Button> (), i);
+
+            Button butt = button.GetComponent<Button> ();
+            HoverContextElement element = button.GetComponent<HoverContextElement> ();
+            if (m.moduleMods.Length == 0) {
+                butt.interactable = false;
+                element.text = "No mods available";
+            } else if (GetModulesOfName (lName).Length == 1) {
+                AddTreeButtonListener (butt, GetModulesOfName (lName)[0], button.transform, true);
+                element.text = "Open mods for this module";
+            } else {
+                AddTreeButtonListener (button.GetComponent<Button> (), lName);
+                element.text = "Open submenu for these modules";
+            }
+
 			moduleTreeButtons[i] = button;
 		}
 
-		treeScrollContext.sizeDelta = new Vector2 (treeScrollContext.sizeDelta.x, count * 60f + 5 - treeScrollContext.rect.height);
-        UpdateStats ();
-        UpdateDescText ();
+        float dist = count * buttonSize + 5;
+        treeScrollContext.sizeDelta = new Vector2 (subModScrollContext.sizeDelta.x, Mathf.Max (dist, treeScrollParent.sizeDelta.y));
+        if (Game.currentScene == Scene.Play) {
+            UpdateStats();
+            UpdateDescText();
+        }
 	}
+
+    Module[] GetModulesOfName (string moduleName) {
+        List<Module> found = new List<Module> ();
+        for (int i = 0; i < modules.Count; i++) {
+            if (modules[i].moduleName == moduleName)
+                found.Add (modules[i]);
+        }
+        return found.ToArray ();
+    }
 
 	void UpdateRangeIndicator () {
 		indicatorRange = 0f;
@@ -211,15 +330,45 @@ public class AssemblyContextMenu : MonoBehaviour {
 		}
 	}
 
-    public void OpenModuleMods (int index) {
-        ModuleMod.OpenMods (Input.mousePosition, modules[index].moduleMods, 0, modules[index]);
+    void OpenModuleModSubMenu ( string n ) {
+        subModMenu.SetActive (true);
+
+        if (subModButtons != null)
+            foreach (GameObject go in subModButtons) {
+                Destroy (go);
+            }
+
+        Module[] locModules = GetModulesOfName (n);
+        subModButtons = new GameObject[locModules.Length];
+
+        for (int i = 0; i < locModules.Length; i++) {
+            Vector3 pos = subModButtonParent.position + Vector3.down * buttonSize * i;
+            GameObject button = (GameObject)Instantiate (subModButtonPrefab, pos, Quaternion.identity);
+            button.transform.SetParent (subModButtonParent, true);
+
+            button.transform.FindChild ("Image").GetComponent<Image> ().sprite = locModules[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer> ().sprite;
+            button.GetComponent<SubModuleModMenuButton> ().module = locModules[i];
+            Button butt = button.GetComponent<Button> ();
+
+            button.GetComponent<HoverContextElement>().text = "Open mods for this module";
+            AddTreeButtonListener (butt, locModules[i], button.transform);
+
+            subModButtons[i] = button;
+        }
+        float dist = locModules.Length * buttonSize + 5;
+        subModScrollContext.sizeDelta = new Vector2 (treeScrollParent.sizeDelta.x, Mathf.Max (dist, treeScrollParent.sizeDelta.y));
+    }
+
+    public void OpenModuleMods (Module m, Transform button) {
+        ModuleMod.OpenMods (button.position + Vector3.right * buttonSize, m.moduleMods, 0, m);
     }
 
 	void UpdateDescText () {
         moduleName.text = rootModule.assemblyName;
 		moduleDesc.text = rootModule.assemblyDesc;
-        moduleImage.texture = rootModule.assembly.texture;
-        UpdateRangeIndicator ();
+        moduleImage.texture = rootModule.assembly.GetSprite();
+
+        // UpdateRangeIndicator ();
 
         int total = 0;
         foreach (Module mod in modules)

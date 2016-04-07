@@ -31,35 +31,43 @@ public class BaseModule : Module {
 
 	// Update is called once per frame
 	void Update () {
-		if (!target) {
-			FindTarget ();
-		}else{
-
-			if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
-				Vector3 delPos = target.position - prevPos;
-				if (delPos.magnitude > 0.1f) {
-					targetVel = delPos/Time.fixedDeltaTime;
-					targetPos = target.position + Vector3.Distance (transform.position, target.position)/fastestBulletSpeed * targetVel;
-					prevPos = target.position;
-				}else{
-					targetPos = target.position;
-				}
-			}else{
-				targetPos = target.position;
-			}
-
-			if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf)
-				target = null;
+        if (!target) {
+            FindTarget ();
+        } else if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
+            target = null;
 		}
 	}
+
+    void FixedUpdate () {
+        if (target) {
+            if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
+                Vector3 delPos = target.position - prevPos;
+                if (delPos.magnitude > 0.1f) {
+                    targetVel = delPos / Time.fixedDeltaTime;
+                    targetPos = target.position + Vector3.Distance (transform.position, target.position) / fastestBulletSpeed * targetVel;
+                    prevPos = target.position;
+                } else {
+                    targetPos = target.position;
+                }
+            } else {
+                targetPos = target.position;
+            }
+        }
+    }
 
 	public override void Start () {
 		base.Start ();
 		targetingRange = range;
 	}
 
-	public float GetRange () {
-        if (Game.game.gamemode != Gamemode.VDay)
+    public override bool UpgradeModule () {
+        bool passed = base.UpgradeModule();
+        upgradeMul = 1f + ((float)upgradeCount / MAX_UPGRADE_AMOUNT);
+        return passed;
+    }
+
+    public override float GetRange () {
+        if (Game.game && Game.game.gamemode != Gamemode.VDay)
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
         else
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul * 2.5f;
@@ -67,7 +75,7 @@ public class BaseModule : Module {
 
 	void FindTarget () {
 		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), ignore.ToArray (), sortType);
-		if (target)
+        if (target)
 			targetPos = target.position;
 	}
 
@@ -148,36 +156,39 @@ public class BaseModule : Module {
     }
 
 	void OnNewModuleAdded () {
-		GetFastestBulletSpeed ();
-		// Module[] modules = GetComponentsInChildren<Module> ();
-
-		//TODO Combine funtions, remove one GetComponentsInChildren command.
+        GetFastestBulletSpeed ();
 	}
 
 	public void GetFastestBulletSpeed () {
-		Weapon[] weapons = GetComponentsInChildren<Weapon>();
-		float speed = 0;
-		float r = float.MaxValue;
-		for (int i = 0; i < weapons.Length; i++) {
-			if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
-				if (weapons[i].bulletSpeed > speed)
-					speed = weapons[i].bulletSpeed;
+        if (Game.currentScene == Scene.Play) {
+            Weapon[] weapons = GetComponentsInChildren<Weapon>();
+            float speed = 0;
+            float r = float.MaxValue;
+            for (int i = 0; i < weapons.Length; i++) {
+                if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
+                    if (weapons[i].bulletSpeed > speed) {
+                        speed = weapons[i].bulletSpeed;
+                        if (weapons[i].GetBulletData().isHitscan) {
+                            speed = 100000;
+                        }
+                    }
 
-				if (!priorities.Contains (weapons[i].GetBulletData ().effectiveAgainst)) {
-					priorities.Add (weapons[i].GetBulletData ().effectiveAgainst);
-				}
+                    if (!priorities.Contains(weapons[i].GetBulletData().effectiveAgainst)) {
+                        priorities.Add(weapons[i].GetBulletData().effectiveAgainst);
+                    }
 
-				if (weapons[i].maxRange < r) {
-					r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
-				}
+                    if (weapons[i].maxRange < r) {
+                        r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
+                    }
 
-				weapons[i].damageMul = damageBoost;
-				weapons[i].firerateMul = (1f/firerateBoost);
-			}
-		}
+                    weapons[i].damageMul = damageBoost;
+                    weapons[i].firerateMul = (1f / firerateBoost);
+                }
+            }
 
-		targetingRange = r;
-		fastestBulletSpeed = speed;
+            targetingRange = r;
+            fastestBulletSpeed = speed;
+        }
 	}
 
 	public void RequestRange (GameObject rangeIndicator) {

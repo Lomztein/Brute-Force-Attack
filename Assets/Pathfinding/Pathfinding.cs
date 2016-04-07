@@ -10,7 +10,6 @@ public class Pathfinding : MonoBehaviour {
 	public PathManager pathManager;
 
 	public int index;
-	private int width;
 
 	public static Pathfinding finder;
 
@@ -21,7 +20,7 @@ public class Pathfinding : MonoBehaviour {
 	public void StartFindingPath(Vector3 start, Vector3 end) {
 		start = new Vector2 (start.x, start.y);
 		end = new Vector2 (end.x, end.y);
-		StartCoroutine(FindPath(start, end));
+		FindPath(start, end);
 	}
 
 	public Vector2 WorldToNode (Vector3 pos) {
@@ -33,11 +32,10 @@ public class Pathfinding : MonoBehaviour {
 	}
 
 	public static void BakePaths () {
-		finder.width = Game.game.enemySpawnPoints.Count;
 		for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            Game.game.enemySpawnPoints[i].path = null;
 			PathManager.RequestPath (Game.game.enemySpawnPoints[i].worldPosition, Game.game.enemySpawnPoints[i].endPoint.worldPosition, finder.OnFinished);
 		}
-		finder.Invoke ("ResetIndex", EnemyManager.readyWaitTime);
 	}
 
 	void ResetIndex () {
@@ -46,14 +44,16 @@ public class Pathfinding : MonoBehaviour {
 
 	public void OnFinished(Vector2[] _path, bool success) {
 		if (success) {
-			Game.game.enemySpawnPoints[index].path = _path;
-			index++;
-
-			if (index == width) {
-				EnemyManager.cur.StartCoroutine (EnemyManager.cur.PoolBaddies ());
-			}
+            Game.game.enemySpawnPoints[index].path = _path;
 		}
-	}
+        index++;
+        if (index == Game.game.enemySpawnPoints.Count) {
+            if (EnemyManager.wavePrebbing) {
+                EnemyManager.cur.readyStatus = EnemyManager.ReadyStatus.PathsBuild;
+            }
+            ResetIndex();
+        }
+    }
 
 	public static void ChangeArea (Rect rect, bool clear) {
 		
@@ -69,7 +69,7 @@ public class Pathfinding : MonoBehaviour {
                 int xx = Mathf.RoundToInt (pos.x);
 				int yy = Mathf.RoundToInt (pos.y);
 
-                if (finder.IsInsideField (xx,yy)) {
+                if (Game.game.IsInsideField (xx,yy)) {
 					
 					finder.map.nodes[xx,yy].isWalkable = clear;
 					if (Game.isWalled[xx,yy] != Game.WallType.None)
@@ -80,13 +80,7 @@ public class Pathfinding : MonoBehaviour {
 		}
 	}
 
-	public bool IsInsideField (int x, int y) {
-		if (x < 0 || x > map.gridX-1) return false;
-		if (y < 0 || y > map.gridY-1) return false;
-		return true;
-	}
-
-	IEnumerator FindPath(Vector2 startPos, Vector2 targetPos)
+	void FindPath(Vector2 startPos, Vector2 targetPos)
 	{
 		Node startNode =  map.WorldPointToGridPoint(startPos);
 		Node targetNode = map.WorldPointToGridPoint(targetPos);
@@ -94,8 +88,8 @@ public class Pathfinding : MonoBehaviour {
 		Vector2[] waypoints = new Vector2[0];
 		bool success = false;
 
-		if (!startNode.isWalkable && !targetNode.isWalkable)
-			yield break;
+        if (!startNode.isWalkable && !targetNode.isWalkable)
+            return;
 
 		Heap<Node> openSet = new Heap<Node>(map.MaxSize);
 		HashSet<Node> closedSet = new HashSet<Node>();
@@ -137,7 +131,6 @@ public class Pathfinding : MonoBehaviour {
 				}
 			}
 		}
-		yield return null;
 		if (success)
 		{
 			waypoints = GetPath(startNode, targetNode);

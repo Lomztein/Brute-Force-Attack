@@ -9,5 +9,5 @@ EditorBuildSettings:
     path: Assets/Scenes/pv_menu.unity
   - enabled: 1
     path: Assets/Scenes/pv_play.unity
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/pv_assemblybuilder.unity

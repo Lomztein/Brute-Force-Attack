@@ -9,7 +9,7 @@ public class Research {
 	public string desc;
 	public string func;
     public Sprite sprite;
-	public int value;
+	public string meta;
 
 	public Colour colour;
 	
@@ -32,22 +32,22 @@ public class Research {
         return GameObject.Find ("ResearchMenu").GetComponent<ResearchMenu> ().research[prerequisite];
     }
 
-	public void Purchase () {
-		if (Game.research >= y) {
-			if (prerequisite != -1) {
-				if (GetPrerequisite ().isBought) {
-					DoPurchase ();
-				}
-			}else{
-				DoPurchase ();
-			}
+	public void Purchase (bool force = false) {
+        if (Game.research >= y && !force) {
+            if (prerequisite == -1 || GetPrerequisite ().isBought) {
+                DoPurchase (force);
+            }
+        }
+        if (force) {
+		    DoPurchase (force);
 		}
 	}
 
-	void DoPurchase () {
+	void DoPurchase (bool force = false) {
 		isBought = true;
 		ResearchMenu.cur.SendMessage (func, this, SendMessageOptions.RequireReceiver);
-		Game.research -= y;
+		if (!force)
+            Game.research -= y;
 		ResearchMenu.cur.InvalidateButton (button, index);
 	}
 }

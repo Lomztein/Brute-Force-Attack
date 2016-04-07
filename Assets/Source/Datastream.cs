@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Datastream : MonoBehaviour {
 
+    public static Datastream cur;
+
 	public Vector3 start;
 	public float flyDistance;
 	public float flySpeed;
@@ -17,28 +19,60 @@ public class Datastream : MonoBehaviour {
 	public static bool enableFirewall;
 
 	public static int healthAmount = 100;
+    public const int STARTING_HEALTH = 100;
+
 	private float healProgress;
 	public static float healSpeed;
+
+    public LineRenderer lineRenderer;
 
 	// TODO Implement pooling of ones and zeros.
 
 	void Start () {
-		StartCoroutine ("InitializeNumbers");
-        Game.currentScene = Scene.Play;
+        cur = this;
 	}
+
+    public void Initialize () {
+        StartCoroutine("InitializeNumbers");
+        Game.currentScene = Scene.Play;
+    }
+
+    public void Reset (int life = STARTING_HEALTH) {
+        healthAmount = life;
+        for (int i = 0; i < pooledNumbers.Count; i++) {
+            Destroy (pooledNumbers[i].gameObject);
+        }
+        for (int i = 0; i < curruptNumbers.Count; i++) {
+            Destroy (curruptNumbers[i].gameObject);
+        }
+
+        pooledNumbers = new List<GameObject> ();
+        curruptNumbers = new List<GameObject> ();
+        Initialize ();
+    }
 
 	void FixedUpdate () {
-		healProgress *= healSpeed * Time.fixedDeltaTime;
-		if (healProgress > 1f) {
-			GameObject n = curruptNumbers[Random.Range (0, curruptNumbers.Count)];
-			n.GetComponent<Renderer>().material.color = Color.green;
-			pooledNumbers.Add (n);
-		}
-	}
+        if (EnemyManager.waveStarted) {
+            healProgress *= healSpeed * Time.fixedDeltaTime;
 
-	IEnumerator InitializeNumbers () {
+            if (healProgress > 1f) {
+			    GameObject n = curruptNumbers[Random.Range (0, curruptNumbers.Count)];
+			    n.GetComponent<Renderer>().material.color = Color.green;
+                curruptNumbers.Remove(n);
+			    pooledNumbers.Add (n);
+		    }
+        }
+    }
 
-		if (pooledNumbers == null)
+    IEnumerator InitializeNumbers () {
+
+        lineRenderer.SetPosition(0, start + Vector3.back);
+        lineRenderer.SetPosition(1, start + Vector3.right * flyDistance + Vector3.back);
+
+        Rect rect = new Rect(-Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2 + 6, Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2);
+        Game.ChangeWalls(rect, Game.WallType.Unbuildable);
+
+        if (pooledNumbers == null)
 			pooledNumbers = new List<GameObject>();
 
 		for (int i = pooledNumbers.Count; i < healthAmount; i++) {

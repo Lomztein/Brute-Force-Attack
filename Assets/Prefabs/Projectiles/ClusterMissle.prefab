@@ -138,12 +138,14 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 6
+  isHitscan: 0
   particle: {fileID: 19875166}
   hitParticle: {fileID: 19859592}
-  particleCount: 0
+  particleCount: 50
   bulletSleepTime: 1
   turnSpeed: 90
   speed: 0
+  slowWhenTurning: 0
   searchRange: 10
   clusterMissle: {fileID: 194094, guid: 5469117797a2fed4c8d124e027b1d461, type: 2}
   maxCluster: 16

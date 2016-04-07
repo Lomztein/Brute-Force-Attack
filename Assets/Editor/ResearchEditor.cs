@@ -63,7 +63,7 @@ public class ResearchEditor : EditorWindow {
 			r.desc = focusResearch.desc;
 			r.name = focusResearch.name;
 			r.func = focusResearch.func;
-			r.value = focusResearch.value;
+			r.meta = focusResearch.meta;
 			r.sprite = focusResearch.sprite;
             r.index = research.research.Count;
             r.prerequisite = -1;
@@ -74,7 +74,10 @@ public class ResearchEditor : EditorWindow {
 	}
 	
 	void OnGUI () {
-		if (!research) {
+        GUI.SetNextControlName("DUMMY");
+        GUI.Label(new Rect(-100, -100, 1, 1), "DUMMY");
+
+        if (!research) {
 			GameObject r = GameObject.Find ("ResearchMenu");
 			if (r) research = r.GetComponent<ResearchMenu>();
 		}else{
@@ -149,7 +152,7 @@ public class ResearchEditor : EditorWindow {
 				focusResearch.name = EditorGUILayout.TextField ("Name: ",focusResearch.name);
 				focusResearch.desc = EditorGUILayout.TextArea (focusResearch.desc);
 				focusResearch.func = EditorGUILayout.TextField ("Function: ",focusResearch.func);
-				focusResearch.value = EditorGUILayout.IntField ("Value: ",focusResearch.value);
+				focusResearch.meta = EditorGUILayout.TextField ("Meta: ",focusResearch.meta);
 				focusResearch.sprite = (Sprite)EditorGUILayout.ObjectField ("Sprite: ",focusResearch.sprite, typeof (Sprite), false);
 				focusResearch.colour = (Colour)EditorGUILayout.EnumPopup ("Colour: ", focusResearch.colour);
 				if (focusResearch.prerequisite != -1) {
@@ -197,29 +200,30 @@ public class ResearchEditor : EditorWindow {
     private string SuggestTitle (Research r) {
         switch (r.func) {
             case "UnlockModule":
-                return "Research the " + research.unlockableModules[r.value].GetComponent<Module> ().moduleName + " module";
+                return "Research the " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
 
             case "UnlockSpecialModule":
-                return "Research the specialized " + research.unlockableModules[r.value].GetComponent<Module> ().moduleName + " module";
+                return "Research the specialized " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
 
             case "IncreaseFirerate":
-                return "Increase " + r.colour.ToString ().ToLower () + " firerate by " + r.value.ToString () + "%";
+                return "Increase " + r.colour.ToString ().ToLower () + " firerate by " + r.meta + "%";
             case "IncreaseDamage":
-                return "Increase " + r.colour.ToString ().ToLower () + " damage by " + r.value.ToString () + "%";
+                return "Increase " + r.colour.ToString ().ToLower () + " damage by " + r.meta + "%";
             case "DecreaseCost":
-                return "Decrease " + r.colour.ToString ().ToLower () + " cost by " + r.value.ToString () + "%";
+                return "Decrease " + r.colour.ToString ().ToLower () + " cost by " + r.meta + "%";
             case "IncreaseRange":
-                return "Increase base range by " + r.value.ToString () + "%";
+                return "Increase base range by " + r.meta + "%";
             case "IncreaseTurnrate":
-                return "Increase rotator turnrate by " + r.value.ToString () + "%";
+                return "Increase rotator turnrate by " + r.meta + "%";
             default:
                 return r.name;
         }
     }
 
 	void SelectResearch (Research u) {
+        GUI.FocusControl("DUMMY");
 		if (action == Action.Default)
-			focusResearch = u;
+            focusResearch = u;
 
 		if (action == Action.ChoosingPrerequisite) {
 			focusResearch.prerequisite = u.index;

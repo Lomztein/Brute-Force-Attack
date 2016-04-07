@@ -3,10 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Weapon : MonoBehaviour {
-	
+
+    public static Dictionary<string, int> bulletIndex = new Dictionary<string, int>();
+    public static List<Weapon> activeWeapons = new List<Weapon>();
+
+    public string weaponIdentifier;
 	public Transform[] muzzles;
 
-	public GameObject bullet;
+	public GameObject[] bullet;
 	public Projectile bulletData;
 	public float bulletSpeed = 80f;
 	public float bulletSpread = 5f;
@@ -15,6 +19,7 @@ public class Weapon : MonoBehaviour {
 	public float maxRange;
 	public Transform target;
 	public GameObject fireParticle;
+    public int locBulletIndex;
 
 	public float upgradeMul = 1f;
     public float damageUpgradeMul = 1f;
@@ -28,19 +33,49 @@ public class Weapon : MonoBehaviour {
 	public float sequenceTime;
 		
 	public Transform pointer;
+    public Transform pool;
+
 	public bool canFire = true;
 	private Queue<GameObject> bulletPool = new Queue<GameObject>();
 
+    private const int FIRERATE_LIMIT = 50;
+
+    public static void TechUpWeapon (string identifier) {
+        bulletIndex[identifier]++;
+        for (int i = 0; i < activeWeapons.Count; i++) {
+
+            if (activeWeapons[i].weaponIdentifier == identifier) {
+                activeWeapons[i].locBulletIndex = bulletIndex[identifier];
+                activeWeapons[i].bulletData = null;
+
+                foreach (Transform child in activeWeapons[i].pool)
+                    Destroy(child.gameObject);
+
+                activeWeapons[i].bulletPool.Clear();
+                activeWeapons[i].GetComponentInParent<WeaponModule>().parentBase.GetFastestBulletSpeed();
+            }
+        }
+    }
+
 	public Projectile GetBulletData () {
-		if (!bulletData) {
-			bulletData = bullet.GetComponent<Projectile> ();
-		}
-		return bulletData;
+        if (Game.currentScene == Scene.Play) {
+            if (!bulletData) {
+                bulletData = bullet[locBulletIndex].GetComponent<Projectile>();
+            }
+            return bulletData;
+        }
+        return null;
 	}
 
 	public void ReturnBulletToPool (GameObject toPool) {
 		bulletPool.Enqueue (toPool);
 	}
+
+    void OnDestroy () {
+        activeWeapons.Remove(this);
+        if (pool)
+            Destroy(pool.gameObject);
+    }
 
 	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {
 		if (bulletPool.Count > 0) {
@@ -51,18 +86,23 @@ public class Weapon : MonoBehaviour {
 			return b;
 		}
 
-		return (GameObject)Instantiate (bullet, position, rotation);
+		return (GameObject)Instantiate (bullet[locBulletIndex], position, rotation);
 	}
 
 	public virtual void Start () {
 		pointer = new GameObject ("Pointer").transform;
-		pointer.parent = transform;
+		pool = new GameObject (weaponIdentifier + "Pool").transform;
+        pointer.parent = transform;
 		pointer.transform.position = transform.position;
+        if (Game.currentScene == Scene.Play) {
+            locBulletIndex = bulletIndex[weaponIdentifier];
+            activeWeapons.Add(this);
+        }
 	}
 
 	IEnumerator DoFire () {
 
-		Invoke ("ChamberBullet", firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
+		Invoke ("ChamberBullet", GetFirerate (true));
 		canFire = false;
 
 		for (int m = 0; m < muzzles.Length; m++) {
@@ -71,11 +111,12 @@ public class Weapon : MonoBehaviour {
 
 				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
 				Projectile pro = newBullet.GetComponent<Projectile>();
-				
+
+                pro.transform.SetParent(pool);
 				pro.parentWeapon = this;
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
-				pro.damage = (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul);
+                pro.damage = GetDamage ();
 				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
 				pro.target = target;
 				pro.Initialize ();
@@ -85,13 +126,35 @@ public class Weapon : MonoBehaviour {
 			
 			}
 
-			yield return new WaitForSeconds (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul);
+            yield return new WaitForSeconds (GetSequenceTime (true));
 
 		}
 
 	}
 
-	public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
+    private float GetSequenceTime (bool limit) {
+        if (muzzles.Length == 1)
+            return 1f;
+        if (limit)
+            return Mathf.Max (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+        return sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
+    }
+
+    private float GetFirerate (bool limit) {
+        if (limit)
+            return Mathf.Max (firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+        return firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
+    }
+
+    private float GetFirerateLimitDamageMultiplier (float rate) {
+        return Mathf.Max (((1f / rate - FIRERATE_LIMIT) / FIRERATE_LIMIT + 1), 1f);
+    }
+
+    private int GetDamage () {
+        return (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul * GetFirerateLimitDamageMultiplier (GetFirerate (false)));
+    }
+
+    public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
 		if (canFire) {
 			if (!rotator) {
 				StartCoroutine (fireFunc);
@@ -103,7 +166,16 @@ public class Weapon : MonoBehaviour {
 				StartCoroutine (fireFunc);
 			}
 		}
-	}
+    }
+
+    public virtual float GetDPS () {
+        if (Game.currentScene == Scene.Play) {
+            return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
+                    ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] *
+                    muzzles.Length) / (firerate / upgradeMul * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst]));
+        }
+        return 0f;
+    }
 
 	void ChamberBullet () {
 		canFire = true;

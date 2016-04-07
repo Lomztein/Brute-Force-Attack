@@ -11,12 +11,12 @@ public class RailgunProjectile : Projectile {
 	}
 
 	public void CastSphereRay () {
-		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime);
+		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime * 2f);
 		RaycastHit hit;
 		
-		if (Physics.SphereCast (ray, spherecastWidth, out hit, velocity.magnitude * Time.fixedDeltaTime)) {
+		if (Physics.SphereCast (ray, spherecastWidth, out hit, velocity.magnitude * Time.fixedDeltaTime * 2f)) {
 			if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "BulletIgnore") {
-				OnHit (hit);			
+				OnHit (hit.collider, hit.point, transform.right);			
 			}
 			
 		}

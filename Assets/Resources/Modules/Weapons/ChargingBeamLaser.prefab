@@ -146,13 +146,22 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Charging Beam Cannon
-  moduleDesc: Similar to a laser, but not quite. Instead of releasing a huge amount
-    of energy at once, this starts beaming, and slowly builds up the damage over time,
-    allowing huge damage against baddies with a lot of health. Essentially the most
-    powerful thing in the universe.
+  moduleDesc: Do not, for the sake of the entire planet, point this to the ground.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 2500
@@ -182,10 +191,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7f5f8b0f72b44945b382c9622ae8190, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponIdentifier: ChargingBeamCannon
   muzzles:
   - {fileID: 409096}
-  bullet: {fileID: 155814, guid: 62d3b0a69cccf3d43bcd056d2d48d592, type: 2}
-  bulletData: {fileID: 0}
+  bullet: []
+  bulletData: {fileID: 11485914, guid: 1c2b243b396335440bd70667cfb7d07f, type: 2}
   bulletSpeed: 0
   bulletSpread: 0
   bulletDamage: 0
@@ -193,6 +203,7 @@ MonoBehaviour:
   maxRange: 15
   target: {fileID: 0}
   fireParticle: {fileID: 0}
+  locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
   damageMul: 1
@@ -202,11 +213,12 @@ MonoBehaviour:
   firerate: 5
   sequenceTime: 0
   pointer: {fileID: 0}
+  pool: {fileID: 0}
   canFire: 1
   line: {fileID: 12021356}
   charge: 0
-  maxCharge: 500
-  chargeSpeed: 25
+  maxCharge: 2000
+  chargeSpeed: 500
   reloadTime: 0
 --- !u!120 &12021356
 LineRenderer:
@@ -294,6 +306,10 @@ Prefab:
         of energy at once, this starts beaming, and slowly builds up the damage over
         time, allowing huge damage against baddies with a lot of health. Essentially
         the most powerful thing in the universe.
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: chargeSpeed
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
