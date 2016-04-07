@@ -378,7 +378,7 @@ public class EnemyManager : MonoBehaviour {
 
 	public void OnEnemyDeath () {
 		currentEnemies--;
-		if (currentEnemies < 1) {
+		if (currentEnemies < 1 && Game.state == Game.State.Started) {
 			EndWave (true);
 
 			if (waveNumber >= waves.Count) {

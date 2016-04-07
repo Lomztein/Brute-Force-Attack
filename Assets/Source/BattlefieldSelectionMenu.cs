@@ -88,7 +88,8 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
         }
 
         preview.texture = textures[index];
-        battlefieldName.text = loadedBattlefields[index].name;
+        //battlefieldName.text = loadedBattlefields[index].name;
+        battlefieldName.text = "Untitled";
     }
 
     void Initialize () {
