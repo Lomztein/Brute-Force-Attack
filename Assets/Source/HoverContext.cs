@@ -61,7 +61,7 @@ public class HoverContext : MonoBehaviour {
         } else if (HoverContextElement.activeElement) {
             HoverContextElement.activeElement.SendMessage ("OnMouseExitElement");
             HoverContextElement.activeElement = null;
-        } else if (!PlayerInput.cur.isEditingWalls) {
+        } else if (!PlayerInput.cur.isEditingWalls && !PlayerInput.cur.isPlacing) {
             HoverContextElement.activeElement = null;
             ChangeText ("");
         }

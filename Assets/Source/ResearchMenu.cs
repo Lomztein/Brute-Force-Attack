@@ -172,9 +172,13 @@ public class ResearchMenu : MonoBehaviour {
 		// IncreaseAllCost ();
 		b.GetComponent<HoverContextElement> ().text = research [index].name + ", Researched";
 
-		foreach (Transform assemblyParent in Game.game.purchaseMenu.assemblyButtonStart) {
-			assemblyParent.BroadcastMessage ("OnResearchUnlocked", SendMessageOptions.DontRequireReceiver);
+		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
+            butt.OnResearchUnlocked ();
 		}
+
+        foreach (Module mod in Game.currentModules) {
+            mod.UpdateHoverContextElement ();
+        }
 
         //Destroy (research[index]);
 		UpdateButtons ();

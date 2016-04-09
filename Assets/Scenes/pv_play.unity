@@ -6493,7 +6493,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649998}
+  m_AnchoredPosition: {x: 0.5, y: -29.649996}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -10447,7 +10447,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: standard.Array.size
-      value: 10
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: specialAssemblies.Array.size
@@ -10676,7 +10676,7 @@ Prefab:
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: standard.Array.data[6]
       value: 
-      objectReference: {fileID: 174166, guid: 4a32a6b05e4ddcd488d361a52980c100, type: 2}
+      objectReference: {fileID: 127550, guid: 7d7e511802013dd4bb55369aec76f350, type: 2}
     - target: {fileID: 11474422, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
       propertyPath: standard.Array.data[7]
       value: 
@@ -12197,7 +12197,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2003845757
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12476,7 +12476,7 @@ MonoBehaviour:
     index: 23
   - name: Research the Slowfield Generator module
     desc: 
-    func: UnlockSpecialModule
+    func: UnlockModule
     sprite: {fileID: 21300002, guid: 10a4b33953bea9a4890d1b61a1320eb7, type: 3}
     meta: 19
     colour: 0
@@ -12602,7 +12602,7 @@ MonoBehaviour:
     colour: 0
     x: 0
     y: 3
-    prerequisite: -1
+    prerequisite: 6
     index: 36
   scrollThingie: {fileID: 1602341298}
   startRect: {fileID: 1289806269}

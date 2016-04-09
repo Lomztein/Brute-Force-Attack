@@ -216,10 +216,10 @@ public class PurchaseMenu : MonoBehaviour {
 		}*/
 		// I'm really just hacking this stuff together at this point.
 
-		foreach (LoadAssemblyButton butt in PurchaseMenu.cur.assemblyButtonList) {
+		foreach (LoadAssemblyButton butt in cur.assemblyButtonList) {
             butt.ButtonUpdate ();
 		}
-	}
+    }
 
 	bool IsOptionAvailable (GameObject purchaseable) {
 		if (stockModules.ContainsKey (purchaseable)) {

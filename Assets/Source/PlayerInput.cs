@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using IngameEditors;
+using System.Collections.Generic;
 
 public class PlayerInput : MonoBehaviour {
 
@@ -353,30 +354,35 @@ public class PlayerInput : MonoBehaviour {
 		indicatorRange = _range;
 	}
 
-	bool CanPlaceAtPos (Vector3 pos) {
+    // Returns a formatted string of reasons why it coulnd't be placed, or empty string if no errors were found.
+	string CanPlaceAtPos (Vector3 pos) {
+
+        List<string> errors = new List<string> ();
 
 		int hits = 4;
 		if (currentCost > Game.credits && !purchaseMenu.stockModules.ContainsKey (pModule.gameObject)) {
-            return false;
+            errors.Add ("Not enough credits");
         }
 
         if (pModule.moduleType == Module.Type.Weapon) {
 			if (hitModule) {
-				if (!hitModule.parentBase)
-					return false;
+                if (!hitModule.parentBase)
+                    errors.Add ("Placement must have a parent base");
 			}else{
-				return false;
+                errors.Add ("Weapons cannot be placed independently");
 			}
 		}
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
 
-            if (Game.currentScene == Scene.Play) {
-                if (!Game.IsInsideBattlefield (pos + canPlaceTestPos[i]))
-                    return false;
+            bool isInside = Game.IsInsideBattlefield (pos + canPlaceTestPos[i]);
 
-                if (Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player)
-                    return false;
+            if (Game.currentScene == Scene.Play) {
+                if (!isInside && !errors.Contains ("Placement must be within the battlefield"))
+                    errors.Add ("Placement must be within the battlefield");
+
+                if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player && !errors.Contains ("Must fully be placed on player made walls"))
+                    errors.Add ("Must fully be placed on player made walls");
             }
 
 			Ray ray = new Ray (new Vector3 (pos.x + canPlaceTestPos[i].x * pModule.moduleClass, pos.y + canPlaceTestPos[i].y * pModule.moduleClass, camDepth), Vector3.forward * -camDepth * 2f);
@@ -384,16 +390,16 @@ public class PlayerInput : MonoBehaviour {
 
 			Debug.DrawRay (ray.origin, ray.direction, Color.blue);
 
-            if (Physics.Raycast(ray, -camDepth, blockBuildLayer))
-                return false;
+            if (Physics.Raycast (ray, -camDepth, blockBuildLayer) && !errors.Contains ("Cannot be placed here"))
+                errors.Add ("Cannot be placed here");
 
 			Module locModule = null;
 			if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
-				// Make sure you cannot place modules on weapons
-				if (locModule == null) {
-					locModule = hit.transform.GetComponent<Module>();
-				}else if (locModule != hit.transform.GetComponent<Module>())
-					return false;
+                // Make sure you cannot place modules on weapons
+                if (locModule == null) {
+                    locModule = hit.transform.GetComponent<Module> ();
+                } else if (locModule != hit.transform.GetComponent<Module> () && !errors.Contains ("Cannot be placed on multiple modules"))
+                    errors.Add ("Cannot be placed on multiple modules");
 
 				if (hitModule)
 					if (hitModule.moduleType == Module.Type.Weapon
@@ -408,8 +414,8 @@ public class PlayerInput : MonoBehaviour {
 			}
 		}
 
-		if (hits < 4)
-			return false;
+        if (hits < 4 && !errors.Contains ("Not enough structural support"))
+            errors.Add ("Not enough structural support");
 
 		// Handle structural module multiple collision checks
 		if (pModule.moduleType == Module.Type.Structural) {
@@ -419,12 +425,20 @@ public class PlayerInput : MonoBehaviour {
 				Vector3 p = placePos + placeRot * str.colCheckPoints[i];
 				if (hitModule)
 					p += Vector3.forward * (hitModule.transform.position.z - 1);
-				if (Physics.CheckSphere (p, pModule.moduleClass / 4f))
-					return false;
+                if (Physics.CheckSphere (p, pModule.moduleClass / 4f) && !errors.Contains("Cannot be placed within other modules"))
+                    errors.Add ("Cannot be placed within other modules");
 			}
 		}
 
-		return true;
+        string full = "";
+        for (int i = 0; i < errors.Count - 1; i++) {
+            full += errors[i] + "\n";
+        }
+
+        if (errors.Count > 0)
+            full += errors[errors.Count - 1];
+
+        return full;
 	}
 
 	GameObject GetStandardModule (Module.Type moduleType, int moduleClass, out string message) {
@@ -453,7 +467,7 @@ public class PlayerInput : MonoBehaviour {
 
 	void PlaceModule () {
 
-		bool allowPlacement = CanPlaceAtPos (placePos);
+		bool allowPlacement = CanPlaceAtPos (placePos).Length == 0;
 		isRotting = false;
 		
 		// Figure out if there is a module on mouse position, and figure out what type.
@@ -464,7 +478,7 @@ public class PlayerInput : MonoBehaviour {
 
 			// Handle module placement on another module
 			placePos = hit.transform.position + (placePos - hit.collider.transform.position);
-			allowPlacement = CanPlaceAtPos (placePos);
+            allowPlacement = CanPlaceAtPos (placePos).Length == 0;
 		}
 
         // I'll go and fix the wall blocking bug now. I'm gonna go for the first solution described in my Reddit reply for now.
@@ -495,12 +509,15 @@ public class PlayerInput : MonoBehaviour {
 	}
 
 	void UpdatePlacementSprite () {
-		if (CanPlaceAtPos (placePos)) {
+        string canPlaceText = CanPlaceAtPos (placePos);
+		if (canPlaceText.Length == 0) {
 			placementMaterial.color = Color.green;
 			rangeIndicatorMaterial.color = Color.green;
-		}else{
-			placementMaterial.color = Color.red;
+            HoverContext.ChangeText ("");
+		}else {
+            placementMaterial.color = Color.red;
 			rangeIndicatorMaterial.color = Color.red;
+            HoverContext.ChangeText (canPlaceText);
 		}
 
 		placementParent.position = placePos;
