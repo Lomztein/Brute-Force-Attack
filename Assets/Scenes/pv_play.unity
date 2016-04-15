@@ -3268,7 +3268,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -5328,7 +5328,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 45720340}
   m_FillRect: {fileID: 136309200}
   m_HandleRect: {fileID: 45720339}
@@ -6493,7 +6493,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649994}
+  m_AnchoredPosition: {x: 0.5, y: -29.650013}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -10174,7 +10174,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 2123697408}
   m_FillRect: {fileID: 1401796281}
   m_HandleRect: {fileID: 2123697407}
@@ -11395,6 +11395,7 @@ GameObject:
   - 114: {fileID: 1877207635}
   - 65: {fileID: 1877207637}
   - 114: {fileID: 1877207638}
+  - 82: {fileID: 1877207636}
   m_Layer: 13
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -11463,6 +11464,9 @@ MonoBehaviour:
   moduleLayer:
     serializedVersion: 2
     m_Bits: 256
+  mainAudioSource: {fileID: 1877207636}
+  constructionMusic: {fileID: 8300000, guid: 6228a714c8691624db5cc7b1a5ab828b, type: 3}
+  combatMusic: {fileID: 8300000, guid: a4be29dd5b662c946867cdda7308d240, type: 3}
   wallMeshFilter: {fileID: 1856867371}
   stockModuleNames:
   - Rektinator
@@ -11583,6 +11587,7 @@ MonoBehaviour:
   hoverMarker: {fileID: 432404284}
   upgradingMarker: {fileID: 177551846}
   constructionFlash: {fileID: 189796, guid: 5dad4e70d378cb04faa84ab96f8b369a, type: 2}
+  placementAudio: {fileID: 8300000, guid: 5fa86f1e878d2e74cad17f8bc8b971e4, type: 3}
   placePos: {x: 0, y: 0, z: 0}
   camDepth: 0
   focusRoot: {fileID: 0}
@@ -11643,6 +11648,80 @@ MonoBehaviour:
   blurAndFlaresShader: {fileID: 4800000, guid: be6e39cf196f146d5be72fbefb18ed75, type: 3}
   brightPassFilterShader: {fileID: 4800000, guid: 0aeaa4cb29f5d4e9c8455f04c8575c8c,
     type: 3}
+--- !u!82 &1877207636
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1877207627}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 6228a714c8691624db5cc7b1a5ab828b, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!65 &1877207637
 BoxCollider:
   m_ObjectHideFlags: 0

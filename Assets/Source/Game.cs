@@ -64,6 +64,11 @@ public class Game : MonoBehaviour {
     public LayerMask enemyLayer;
     public LayerMask moduleLayer;
 
+    [Header ("Audio")]
+    public AudioSource mainAudioSource;
+    public AudioClip constructionMusic;
+    public AudioClip combatMusic;
+
     [Header("Resources")]
     //public int startingCredits;
     //public int startingResearch;
@@ -168,13 +173,17 @@ public class Game : MonoBehaviour {
                 anim.Play("OverlayFadeOut");
                 image.raycastTarget = false;
                 break;
-
+               
             case true:
                 anim.Play("OverlayFadeIn");
                 image.raycastTarget = true;
                 break;
 
         }
+    }
+
+    public static void PlaySFXAudio (AudioClip audio) {
+        game.mainAudioSource.PlayOneShot (audio, soundVolume);
     }
 
     public static void ShowErrorMessage (string message, float time) {
@@ -252,6 +261,16 @@ public class Game : MonoBehaviour {
             researchMenu.gameObject.SetActive (true);
             researchMenu.Initialize ();
 
+            if (PlayerPrefs.HasKey ("fMusicVolume")) {
+                musicVolume = PlayerPrefs.GetFloat ("fMusicVolume");
+                musicSlider.value = musicVolume;
+            }
+
+            if (PlayerPrefs.HasKey ("fSoundVolume")) {
+                soundVolume = PlayerPrefs.GetFloat ("fSoundVolume");
+                soundSlider.value = soundVolume;
+            }
+
         }
 
         Debug.Log ("Done initializing!");
@@ -321,6 +340,9 @@ public class Game : MonoBehaviour {
 			pauseMenu.SetActive (false);
 			optionsMenu.SetActive (false);
 			saveGameMenu.SetActive (false);
+
+            PlayerPrefs.SetFloat ("fMusicVolume", musicVolume);
+            PlayerPrefs.SetFloat ("fSoundVolume", soundVolume);
         } else{
 			isPaused = true;
 			Time.timeScale = 0f;
@@ -660,9 +682,6 @@ public class Game : MonoBehaviour {
 
     void FixedUpdate () {
 		if (currentScene == Scene.Play) {
-            musicVolume = musicSlider.value;
-            soundVolume = soundSlider.value;
-
             if (state == State.Started && Datastream.healthAmount <= 0 && gameOverIndicator.activeSelf == false) {
                 Debug.Log ("Game has ended.");
                 state = State.Ended;
@@ -686,8 +705,45 @@ public class Game : MonoBehaviour {
         }
     }
 
+    public static void CrossfadeMusic (AudioClip newMusic, float fadeTime) {
+        game.StartCoroutine (game.CFMUSIC (newMusic, fadeTime));
+    }
+
+    private IEnumerator CFMUSIC (AudioClip newMusic, float fadeTime) {
+        if (mainAudioSource.clip == newMusic)
+            yield break;
+
+        int steps = Mathf.RoundToInt (fadeTime / Time.fixedDeltaTime) / 2;
+        for (int i = 0; i < steps; i++) {
+            mainAudioSource.volume = 1f - (i / (float)steps) * musicVolume;
+            yield return new WaitForFixedUpdate ();
+        }
+
+        mainAudioSource.volume = 0f;
+
+        mainAudioSource.Stop ();
+        mainAudioSource.clip = newMusic;
+        mainAudioSource.Play ();
+
+        mainAudioSource.volume = musicVolume;
+
+        for (int i = 0; i < steps; i++) {
+            mainAudioSource.volume = (i / (float)steps) * musicVolume;
+            yield return new WaitForFixedUpdate ();
+        }
+    }
+
     void Update () {
         HoverContext.StaticUpdate();
+
+        if (currentScene == Scene.Play) {
+            musicVolume = musicSlider.value;
+            soundVolume = soundSlider.value;
+        }
+
+        if (isPaused) {
+            mainAudioSource.volume = musicVolume;
+        }
     }
 
 	public void SaveBattlefieldData (string fileName) {

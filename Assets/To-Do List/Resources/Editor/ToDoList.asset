@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90402ddad5a424846b345c2b267e3145, type: 3}
+  m_Name: ToDoList
+  m_EditorClassIdentifier: 
+  priorityGroups:
+  - groupName: Critical Issues
+    labelStyle: 1
+    groupColor: {r: 1, g: 0, b: 0, a: 1}
+    expanded:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
+    newTaskField: 
+    newTaskDetails: 
+    tasks: []
+  - groupName: Major Issues
+    labelStyle: 0
+    groupColor: {r: 0, g: 0, b: 1, a: 1}
+    expanded:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
+    newTaskField: 
+    newTaskDetails: 
+    tasks: []
+  - groupName: Minor Issues
+    labelStyle: 0
+    groupColor: {r: 1, g: 0, b: 1, a: 1}
+    expanded:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
+    newTaskField: 
+    newTaskDetails: 
+    tasks: []
+  - groupName: Bugs
+    labelStyle: 0
+    groupColor: {r: 1, g: 0.5, b: 0, a: 1}
+    expanded:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
+    newTaskField: 
+    newTaskDetails: 
+    tasks: []
+  - groupName: Features
+    labelStyle: 0
+    groupColor: {r: 0, g: 0.5, b: 0, a: 1}
+    expanded:
+      m_Target: 0
+      speed: 2
+      m_Value: 0
+    newTaskField: 
+    newTaskDetails: 
+    tasks: []
+  displayWarningBeforeTaskRemoval: 1
+  showFinishedTasks: 1
+  showButtonPrefix: 1

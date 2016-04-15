@@ -317,6 +317,7 @@ public class EnemyManager : MonoBehaviour {
                 Game.ChangeSaveButtons (false);
                 waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
                 HoverContextElement.activeElement = null;
+                Game.CrossfadeMusic (Game.game.combatMusic, 2f);
 
                 externalWaveNumber++;
                 waveNumber++;
@@ -491,6 +492,8 @@ public class EnemyManager : MonoBehaviour {
         } else {
             ForceInstantCleanEnemyArray ();
         }
+
+        Game.CrossfadeMusic (Game.game.constructionMusic, 2f);
 
         Game.ChangeSaveButtons (true);
 		waveStarted = false;

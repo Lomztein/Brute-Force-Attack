@@ -21,6 +21,7 @@ public class PlayerInput : MonoBehaviour {
     public GameObject hoverMarker;
     public SpriteRenderer upgradingMarker;
     public GameObject constructionFlash;
+    public AudioClip placementAudio;
 
     private bool enableFastBuild;
 	private Vector2 dragStart;
@@ -249,6 +250,7 @@ public class PlayerInput : MonoBehaviour {
                 if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
                     wallDragStatus = WallDragStatus.Adding;
                     wallDragStart = pos;
+                    wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
                     wallDragGraphic.sharedMaterial.color = Color.green;
                 }
 
@@ -257,11 +259,12 @@ public class PlayerInput : MonoBehaviour {
                     Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.Player);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
+                    Game.PlaySFXAudio (placementAudio);
                 }
 
                 if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
                     wallDragStatus = WallDragStatus.Removing;
-                    wallDragStart = pos;
+                    wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
                     wallDragGraphic.sharedMaterial.color = Color.red;
                 }
 
@@ -270,12 +273,15 @@ public class PlayerInput : MonoBehaviour {
                     Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.None);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
+                    Game.PlaySFXAudio (placementAudio);
                 }
 
                 if (wallDragStatus != WallDragStatus.Inactive) {
 
-                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y)) + Vector3.one;
-                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+                    Vector3 locPos = MovePosInsideBattlefield (pos, 0.5f);
+
+                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (locPos.x - wallDragStart.x), Mathf.Abs (locPos.y - wallDragStart.y)) + Vector3.one;
+                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (locPos.x - wallDragStart.x) / 2f, wallDragStart.y + (locPos.y - wallDragStart.y) / 2f);
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 
                     //Vector3 absStart = new Vector3(Mathf.Abs(wallDragStart.x), Mathf.Abs(wallDragStart.y));
@@ -297,7 +303,7 @@ public class PlayerInput : MonoBehaviour {
                     }
 
                 } else {
-                    wallDragGraphic.transform.position = pos + Vector3.forward;
+                    wallDragGraphic.transform.position = MovePosInsideBattlefield (pos, 0.5f) + Vector3.forward;
                     wallDragGraphic.transform.localScale = Vector3.one;
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
                     HoverContext.ChangeText ("");
@@ -336,6 +342,29 @@ public class PlayerInput : MonoBehaviour {
             if (Input.GetMouseButtonDown (1))
                 CancelAll ();
         }
+    }
+
+    public Vector3 MovePosInsideBattlefield (Vector3 pos, float depth) {
+        if (Game.IsInsideBattlefield (pos))
+            return pos;
+
+        Vector3 newPos = pos;
+        if (pos.x < -Game.game.battlefieldWidth / 2f) {
+            newPos.x = -Game.game.battlefieldWidth / 2f + depth;
+        }
+
+        if (pos.y < -Game.game.battlefieldHeight / 2f) {
+            newPos.y = -Game.game.battlefieldHeight / 2f + depth;
+        }
+
+        if (pos.x > Game.game.battlefieldWidth / 2f) {
+            newPos.x = Game.game.battlefieldWidth / 2f - depth;
+        }
+
+        if (pos.y > Game.game.battlefieldHeight / 2f) {
+            newPos.y = Game.game.battlefieldHeight / 2f - depth;
+        }
+        return newPos;
     }
 
 	public Vector3 RoundPos (Vector3 p, int moduleClass) {
@@ -382,7 +411,7 @@ public class PlayerInput : MonoBehaviour {
                     errors.Add ("Placement must be within the battlefield");
 
                 if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player && !errors.Contains ("Must fully be placed on player made walls"))
-                    errors.Add ("Must fully be placed on player made walls");
+                    errors.Add ("Must be placed on player made walls");
             }
 
 			Ray ray = new Ray (new Vector3 (pos.x + canPlaceTestPos[i].x * pModule.moduleClass, pos.y + canPlaceTestPos[i].y * pModule.moduleClass, camDepth), Vector3.forward * -camDepth * 2f);
@@ -390,8 +419,8 @@ public class PlayerInput : MonoBehaviour {
 
 			Debug.DrawRay (ray.origin, ray.direction, Color.blue);
 
-            if (Physics.Raycast (ray, -camDepth, blockBuildLayer) && !errors.Contains ("Cannot be placed here"))
-                errors.Add ("Cannot be placed here");
+            if (Physics.Raycast (ray, -camDepth, blockBuildLayer) && !errors.Contains ("Placement blocked by something"))
+                errors.Add ("Placement blocked by something");
 
 			Module locModule = null;
 			if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
@@ -431,12 +460,15 @@ public class PlayerInput : MonoBehaviour {
 		}
 
         string full = "";
+        if (errors.Count > 0)
+            full += "Cannot be placed here:\n";
+
         for (int i = 0; i < errors.Count - 1; i++) {
-            full += errors[i] + "\n";
+            full += " - " + errors[i] + "\n";
         }
 
         if (errors.Count > 0)
-            full += errors[errors.Count - 1];
+            full += " - " + errors[errors.Count - 1];
 
         return full;
 	}
@@ -485,6 +517,7 @@ public class PlayerInput : MonoBehaviour {
 
 		if (allowPlacement) {
             ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+            Game.PlaySFXAudio (placementAudio);
 
             GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
