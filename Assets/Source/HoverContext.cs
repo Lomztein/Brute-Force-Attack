@@ -74,10 +74,10 @@ public class HoverContext : MonoBehaviour {
     void SetPos () {
 		Vector3 mousePos = Input.mousePosition;
 		transform.position = mousePos + new Vector3 (rectTransform.rect.width / 2f ,rectTransform.rect.height / 2);
-        if (mousePos.y > Screen.height / 2) {
+        if (mousePos.y > Screen.height - rectTransform.rect.height) {
             transform.position += Vector3.down * rectTransform.rect.height;
         }
-        if (mousePos.x > Screen.width / 2) {
+        if (mousePos.x > Screen.width - rectTransform.rect.width) {
             transform.position += Vector3.left * rectTransform.rect.width;
         }
     }
