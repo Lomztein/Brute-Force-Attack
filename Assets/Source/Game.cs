@@ -58,6 +58,8 @@ public class Game : MonoBehaviour {
     public Text creditsText;
     public Text powerText;
     public Text researchText;
+    public Slider datastreamHealthSlider;
+    public Text datastreamHealthText;
 
     public static Game game;
 
@@ -692,6 +694,8 @@ public class Game : MonoBehaviour {
 
             researchText.text = "Research: " + research.ToString();
             creditsText.text = "Credits: " + credits.ToString() + " LoC";
+            datastreamHealthSlider.value = Datastream.healthAmount / (float)Datastream.STARTING_HEALTH;
+            datastreamHealthText.text = "DATASTREAM CORRUPTION AT " + ((1 - (Datastream.healthAmount / (float)Datastream.STARTING_HEALTH)) * 100).ToString () + " PERCENT";
             researchSlider.value = researchProgress;
 
             if (researchProgress > 1) {
