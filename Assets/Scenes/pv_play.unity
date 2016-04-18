@@ -5418,7 +5418,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -6674,7 +6673,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.650026}
+  m_AnchoredPosition: {x: 0.5, y: -29.649998}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -8111,7 +8110,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -8480,9 +8478,9 @@ RectTransform:
   - {fileID: 1816305063}
   m_Father: {fileID: 1143145210}
   m_RootOrder: 9
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000024437999, y: 493.91998}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0.000024437999, y: -62.36}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1270691721
@@ -8514,7 +8512,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5879974cca259e147b1030ad4f3b13e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Open large context menu
+  text: Flush memory
   isWorldElement: 0
 --- !u!65 &1270691723
 BoxCollider:
@@ -8570,7 +8568,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1433432724}
-        m_MethodName: OpenContextMenu
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8953,7 +8951,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
@@ -12172,6 +12169,8 @@ MonoBehaviour:
   - {fileID: 1420868320}
   - {fileID: 2072584270}
   - {fileID: 1091029456}
+  - {fileID: 1600089478}
+  - {fileID: 1270691720}
   gameOverIndicator: {fileID: 575378465}
   masteryModeIndicator: {fileID: 1739461075}
   creditsText: {fileID: 171813872}
@@ -12297,6 +12296,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraMovementSpeed: 10
+  cameraMargin: 5
   turretLayer:
     serializedVersion: 2
     m_Bits: 256

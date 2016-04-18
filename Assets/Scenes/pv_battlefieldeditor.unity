@@ -787,7 +787,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -1195,6 +1194,7 @@ MonoBehaviour:
   hoverMarker: {fileID: 0}
   upgradingMarker: {fileID: 0}
   constructionFlash: {fileID: 0}
+  placementAudio: {fileID: 0}
   placePos: {x: 0, y: 0, z: 0}
   camDepth: 0
   focusRoot: {fileID: 0}
@@ -1229,7 +1229,6 @@ MonoBehaviour:
   battlefieldHeight: 0
   enemySpawnPoints: []
   assembliesAllowed: 10
-  difficulties: []
   gamemode: 0
   gamemodeDescriptions: []
   datastream: {fileID: 0}
@@ -1239,6 +1238,9 @@ MonoBehaviour:
   pathMap: {fileID: 0}
   researchMenu: {fileID: 0}
   pauseMenu: {fileID: 0}
+  saveGameMenu: {fileID: 0}
+  saveGameText: {fileID: 0}
+  saveGameButtons: []
   researchSlider: {fileID: 0}
   rangeIndicator: {fileID: 0}
   worldCanvas: {fileID: 0}
@@ -1252,14 +1254,17 @@ MonoBehaviour:
   creditsText: {fileID: 0}
   powerText: {fileID: 0}
   researchText: {fileID: 0}
+  datastreamHealthSlider: {fileID: 0}
+  datastreamHealthText: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 0
   moduleLayer:
     serializedVersion: 2
     m_Bits: 0
-  startingCredits: 0
-  startingResearch: 0
+  mainAudioSource: {fileID: 0}
+  constructionMusic: {fileID: 0}
+  combatMusic: {fileID: 0}
   wallMeshFilter: {fileID: 1829440539}
   stockModuleNames: []
   optionsMenu: {fileID: 0}
@@ -1570,7 +1575,6 @@ Canvas:
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0

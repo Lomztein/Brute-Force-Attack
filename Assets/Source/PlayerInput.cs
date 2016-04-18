@@ -8,6 +8,7 @@ public class PlayerInput : MonoBehaviour {
 	private enum WallDragStatus { Inactive, Adding, Removing };
 
 	public float cameraMovementSpeed;
+    public float cameraMargin;
 	public LayerMask turretLayer;
 
 	public PurchaseMenu purchaseMenu;
@@ -171,10 +172,13 @@ public class PlayerInput : MonoBehaviour {
 		}
 	}
 
+    void LateUpdate () {
+        if (Game.currentScene != Scene.AssemblyBuilder)
+            MoveCamera ();
+    }
+
     // Update is called once per frame
     void Update () {
-        if (Game.currentScene == Scene.Play)
-            MoveCamera ();
         // Grap mouse position, and round it.
         pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
@@ -565,32 +569,44 @@ public class PlayerInput : MonoBehaviour {
 
 	void MoveCamera () {
 
-		Vector3 movement = new Vector3 ();
-
-		if (Input.mousePosition.x < 10)
-			movement.x = -cameraMovementSpeed;
-		if (Input.mousePosition.x > Screen.width - 10)
-			movement.x = cameraMovementSpeed;
-		if (Input.mousePosition.y < 10)
-			movement.y = -cameraMovementSpeed;
-		if (Input.mousePosition.y > Screen.height - 10)
-			movement.y = cameraMovementSpeed;
-
-		movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
-		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
-
+        Camera cam = Camera.main;
 		Vector3 camPos = transform.position;
+        Vector3 movement = new Vector3 ();
 
-        if (Game.game) {
-            if (camPos.x > Game.game.battlefieldWidth / 2f)
-                camPos.x = Game.game.battlefieldWidth / 2f;
-            if (camPos.y > Game.game.battlefieldHeight / 2f)
-                camPos.y = Game.game.battlefieldHeight / 2f;
-            if (camPos.x < -Game.game.battlefieldWidth / 2f)
-                camPos.x = -Game.game.battlefieldWidth / 2f;
-            if (camPos.y < -Game.game.battlefieldHeight / 2f)
-                camPos.y = -Game.game.battlefieldHeight / 2f;
+        if (Game.game.battlefieldWidth / 2f > cam.orthographicSize * cam.aspect - cameraMargin) {
+            if (Input.mousePosition.x < 10)
+                movement.x = -cameraMovementSpeed;
+            if (Input.mousePosition.x > Screen.width - 10)
+                movement.x = cameraMovementSpeed;
+
+            if (camPos.x + movement.x * Time.unscaledDeltaTime > (Game.game.battlefieldWidth / 2f) - cam.orthographicSize + cameraMargin)
+                camPos.x = (Game.game.battlefieldWidth / 2f) - cam.orthographicSize + cameraMargin;
+            if (camPos.x + movement.x * Time.unscaledDeltaTime < (-Game.game.battlefieldWidth / 2f) + cam.orthographicSize - cameraMargin)
+                camPos.x = (-Game.game.battlefieldWidth / 2f) + cam.orthographicSize - cameraMargin;
+        } else {
+            movement.x = -cam.transform.position.x;
         }
+
+        if (Game.game.battlefieldHeight / 2f > cam.orthographicSize - cameraMargin) {
+            if (Input.mousePosition.y < 10)
+                movement.y = -cameraMovementSpeed;
+            if (Input.mousePosition.y > Screen.height - 10)
+                movement.y = cameraMovementSpeed;
+
+            if (camPos.y + movement.y * Time.unscaledDeltaTime > (Game.game.battlefieldHeight / 2f) - cam.orthographicSize + cameraMargin) {
+                camPos.y = (Game.game.battlefieldHeight / 2f) - cam.orthographicSize + cameraMargin;
+                movement.y = 0f;
+            }
+            if (camPos.y + movement.y * Time.unscaledDeltaTime < (-Game.game.battlefieldHeight / 2f) + cam.orthographicSize - cameraMargin) {
+                camPos.y = (-Game.game.battlefieldHeight / 2f) + cam.orthographicSize - cameraMargin;
+                movement.y = 0f;
+            }
+        } else {
+            movement.y = -cam.transform.position.y;
+        }
+
+        movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
+		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
 
 		transform.position = camPos;
 		transform.position += movement * Time.unscaledDeltaTime;
@@ -609,6 +625,8 @@ public class PlayerInput : MonoBehaviour {
 				}
 			}
 		}
+
+        Gizmos.DrawWireCube (transform.position, new Vector3 (Camera.main.orthographicSize * Camera.main.aspect * 2 - cameraMargin * 2, Camera.main.orthographicSize * 2 - cameraMargin * 2));
 
         if (isEditingWalls && wallDragStatus != WallDragStatus.Inactive) {
             Gizmos.DrawSphere(pos, 0.5f);
