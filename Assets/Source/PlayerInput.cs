@@ -180,67 +180,68 @@ public class PlayerInput : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         // Grap mouse position, and round it.
-        pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
+        pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
         if (rangeIndicator)
             rangeIndicator.GetRange (0f);
 
-        if (Input.GetButtonDown("Cancel"))
+        if (Input.GetButtonDown ("Cancel"))
             CancelAll ();
 
-        if (!EnemyManager.waveStarted) {
-            if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
+        if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
 
-                rangeIndicator.transform.position = placementParent.position;
+            rangeIndicator.transform.position = placementParent.position;
 
-                if (!isRotting) {
-                    placePos = new Vector3 (pos.x, pos.y, 0f);
-                    placeRot = Quaternion.Euler (0, 0, 90f);
-                }
+            if (!isRotting) {
+                placePos = new Vector3 (pos.x, pos.y, 0f);
+                placeRot = Quaternion.Euler (0, 0, 90f);
+            }
 
-                UpdatePlacementSprite ();
-                GetHitModule ();
+            UpdatePlacementSprite ();
+            GetHitModule ();
 
-                indicatorRange = 0f;
-                RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
+            indicatorRange = 0f;
+            RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
 
-                if (hitModule) {
-                    placeRot = hitModule.transform.rotation;
+            if (hitModule) {
+                placeRot = hitModule.transform.rotation;
 
-                    if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
-                        rangeIndicator.GetRange (0f);
-                    } else if (pModule.moduleType == Module.Type.Weapon) {
-                        if (hitModule.parentBase) {
-                            rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
-                        } else {
-                            rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
-                        }
+                if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
+                    rangeIndicator.GetRange (0f);
+                } else if (pModule.moduleType == Module.Type.Weapon) {
+                    if (hitModule.parentBase) {
+                        rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
                     } else {
-                        rangeIndicator.GetRange (indicatorRange);
+                        rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
                     }
                 } else {
-                    RangeIndicator.ForceRequestRange (pModule.gameObject, rangeIndicator.gameObject);
+                    rangeIndicator.GetRange (indicatorRange);
                 }
-
-                if (isRotting) {
-                    ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
-                    if (Input.GetButton ("LCtrl"))
-                        placeRot = Quaternion.Euler (0, 0, ang);
-                } else {
-                    ang = placeRot.eulerAngles.z;
-                }
-
-                if (Input.GetMouseButtonDown (1))
-                    CancelPurchase ();
-
-                if (!purchaseMenu.isOpen) {
-                    if (Input.GetMouseButtonUp (0))
-                        PlaceModule ();
-
-                    if (Input.GetMouseButtonDown (0))
-                        isRotting = true;
-                }
+            } else {
+                RangeIndicator.ForceRequestRange (pModule.gameObject, rangeIndicator.gameObject);
             }
+
+            if (isRotting) {
+                ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
+                if (Input.GetButton ("LCtrl"))
+                    placeRot = Quaternion.Euler (0, 0, ang);
+            } else {
+                ang = placeRot.eulerAngles.z;
+            }
+
+            if (Input.GetMouseButtonDown (1))
+                CancelPurchase ();
+
+            if (!purchaseMenu.isOpen) {
+                if (Input.GetMouseButtonUp (0))
+                    PlaceModule ();
+
+                if (Input.GetMouseButtonDown (0))
+                    isRotting = true;
+            }
+        }
+
+        if (!EnemyManager.waveStarted) {
 
             if (!isPlacing && isEditingWalls) {
 
@@ -295,15 +296,15 @@ public class PlayerInput : MonoBehaviour {
 
                     Rect rect = Game.PositivizeRect (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y));
 
-                    int rectX = Mathf.RoundToInt(rect.x);
-                    int rectY = Mathf.RoundToInt(rect.y);
-                    int rectW = Mathf.RoundToInt(rect.width);
-                    int rectH = Mathf.RoundToInt(rect.height);
+                    int rectX = Mathf.RoundToInt (rect.x);
+                    int rectY = Mathf.RoundToInt (rect.y);
+                    int rectW = Mathf.RoundToInt (rect.width);
+                    int rectH = Mathf.RoundToInt (rect.height);
 
                     if (wallDragStatus == WallDragStatus.Adding) {
                         HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, Game.WallType.Player));
                     } else {
-                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, Game.WallType.None));
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, Game.WallType.None));
                     }
 
                 } else {
@@ -324,8 +325,10 @@ public class PlayerInput : MonoBehaviour {
 
                 Module mod = hit.collider.GetComponent<Module> ();
 
-                hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);
-                hoverMarker.transform.localScale = Vector3.one * mod.moduleClass;
+                if (HoverContext.cur.IsReachable (mod.transform)) {
+                    hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);
+                    hoverMarker.transform.localScale = Vector3.one * mod.moduleClass;
+                }
 
                 if (isUpgrading) {
                     upgradingMarker.transform.position = hit.collider.transform.position + Vector3.right * mod.moduleClass * 2f;
@@ -346,6 +349,12 @@ public class PlayerInput : MonoBehaviour {
             if (Input.GetMouseButtonDown (1))
                 CancelAll ();
         }
+    }
+
+    public void CloseAllWindows () {
+        if (ResearchMenu.isOpen)
+            ResearchMenu.cur.ToggleResearchMenu ();
+        contextMenu.ExitMenu ();
     }
 
     public Vector3 MovePosInsideBattlefield (Vector3 pos, float depth) {

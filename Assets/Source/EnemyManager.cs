@@ -23,6 +23,8 @@ public class EnemyManager : MonoBehaviour {
     public Sprite[] pathDemonstratorButtonSprites;
     public bool showingPaths;
 
+    public Button[] disabledDuringWaves;
+
 	[Header ("Wave Stuffs")]
 	public List<Wave> waves = new List<Wave>();
 	public Wave.Subwave currentSubwave;
@@ -94,7 +96,6 @@ public class EnemyManager : MonoBehaviour {
     private IEnumerator DPATHS () {
 
         SetAvailableSpawnpoints ();
-        Pathfinding.BakePaths ();
 
         for (int i = 0; i < availableSpawns.Count; i++) {
             while (availableSpawns[i].path == null) {
@@ -235,18 +236,8 @@ public class EnemyManager : MonoBehaviour {
 
 	public IEnumerator PoolBaddies () {
         yield return new WaitForSeconds (1f);
-        bool allClear = true;
 
-        if (availableSpawns.Count > 0) {
-            for (int i = 0; i < availableSpawns.Count; i++) {
-                if (availableSpawns[i].path == null)
-                    allClear = false;
-            }
-        } else {
-            allClear = false;
-        }
-
-        if (!allClear) {
+        if (availableSpawns.Count == 0) {
             CancelWave();
             readyStatus = ReadyStatus.EnemiesBuild;
             Game.ShowErrorMessage("Unable to start wave: Paths unclear", 3f);
@@ -314,7 +305,7 @@ public class EnemyManager : MonoBehaviour {
 	public IEnumerator ReadyWave () {
         if (Game.state == Game.State.Started) {
             if (!waveStarted && !wavePrebbing) {
-                Game.ChangeSaveButtons (false);
+                Game.ChangeButtons (false);
                 waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
                 HoverContextElement.activeElement = null;
                 Game.CrossfadeMusic (Game.game.combatMusic, 2f);
@@ -328,7 +319,6 @@ public class EnemyManager : MonoBehaviour {
                 waveCounterIndicator.text = "Wave: Initializing..";
                 spawnedResearch = 0;
                 SetAvailableSpawnpoints ();
-                Pathfinding.BakePaths ();
                 while (readyStatus != ReadyStatus.PathsBuild) {
                     yield return new WaitForEndOfFrame ();
                 }
@@ -347,6 +337,7 @@ public class EnemyManager : MonoBehaviour {
 	}
 
     void SetAvailableSpawnpoints () {
+        Pathfinding.BakePaths ();
         availableSpawns = new List<EnemySpawnPoint>();
 
         for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
@@ -356,7 +347,7 @@ public class EnemyManager : MonoBehaviour {
             int x = Mathf.RoundToInt(wp.x) - 1;
             int y = Mathf.RoundToInt(wp.y) - 1;
 
-            if (Game.isWalled[x,y] == Game.WallType.None) {
+            if (Game.isWalled[x,y] == Game.WallType.None && sp.path != null) {
                 availableSpawns.Add(sp);
                 sp.blocked = false;
             } else {
@@ -495,7 +486,7 @@ public class EnemyManager : MonoBehaviour {
 
         Game.CrossfadeMusic (Game.game.constructionMusic, 2f);
 
-        Game.ChangeSaveButtons (true);
+        Game.ChangeButtons (true);
 		waveStarted = false;
 		currentSubwave = null;
 		subwaveNumber = 0;

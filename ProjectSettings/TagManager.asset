@@ -8,6 +8,7 @@ TagManager:
   - ProjectileIgnore
   - PathDemonstrator
   - DarkOverlay
+  - UI
   layers:
   - Default
   - TransparentFX

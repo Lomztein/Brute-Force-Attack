@@ -41,7 +41,8 @@ public class Game : MonoBehaviour {
     public GameObject pauseMenu;
     public GameObject saveGameMenu;
     public Text saveGameText;
-    public Button[] saveGameButtons;
+    public Button[] disabledDuringWaves;
+    public string[] disabledDuringWavesText;
     public Slider researchSlider;
     public GameObject rangeIndicator;
     public GameObject worldCanvas;
@@ -49,6 +50,8 @@ public class Game : MonoBehaviour {
     public GameObject GUICanvas;
     public static List<Module> currentModules = new List<Module>();
     public GameObject darkOverlay;
+    public static int darkOverlaySiblingIndex;
+    public static bool darkOverlayActive;
     public GameObject errorMessage;
     public Transform[] postStartGUI;
 
@@ -159,29 +162,34 @@ public class Game : MonoBehaviour {
 
         Animator anim = null;
         Image image = null;
+        BoxCollider col = null;
 
         if (game) {
             anim = game.darkOverlay.GetComponent<Animator> ();
             image = game.darkOverlay.GetComponent<Image> ();
+            col = game.darkOverlay.GetComponent<BoxCollider> ();
+            darkOverlaySiblingIndex = game.darkOverlay.transform.GetSiblingIndex ();
         } else {
             GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
             anim = overlay.GetComponent<Animator> ();
             image = overlay.GetComponent<Image> ();
+            col = overlay.GetComponent<BoxCollider> ();
+            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
         }
 
         switch (setting) {
 
             case false:
                 anim.Play("OverlayFadeOut");
-                image.raycastTarget = false;
                 break;
                
             case true:
-                anim.Play("OverlayFadeIn");
-                image.raycastTarget = true;
+                anim.Play ("OverlayFadeIn");
                 break;
-
         }
+        image.raycastTarget = setting;
+        darkOverlayActive = setting;
+        //col.enabled = setting;
     }
 
     public static void PlaySFXAudio (AudioClip audio) {
@@ -358,18 +366,20 @@ public class Game : MonoBehaviour {
         saveGameText.text = "Untitled Save";
     }
 
-    public static void ChangeSaveButtons (bool state) {
-        foreach (Button butt in game.saveGameButtons) {
+    public static void ChangeButtons (bool state) {
+        int index = 0;
+        foreach (Button butt in game.disabledDuringWaves) {
             butt.interactable = state;
             HoverContextElement ele = butt.GetComponent<HoverContextElement> ();
             if (ele) {
                 if (state) {
                     ele.text = butt.gameObject.name;
                 } else {
-                    ele.text = "Saving currently disabled";
+                    ele.text = game.disabledDuringWavesText[index];
                 }
                 HoverContextElement.activeElement = null;
             }
+            index++;
         }
         if (game.saveGameMenu.activeSelf)
             game.ToggleSaveGameMenu ();

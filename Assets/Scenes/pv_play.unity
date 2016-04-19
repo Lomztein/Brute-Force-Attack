@@ -223,9 +223,9 @@ RectTransform:
   - {fileID: 540459829}
   m_Father: {fileID: 1143145210}
   m_RootOrder: 6
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 974.95}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0.000061035156, y: -142.23}
   m_SizeDelta: {x: 381, y: 69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &19699719
@@ -1956,6 +1956,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a510985e8214fb841bf23d20e731c4e7, type: 3}
   - {fileID: 21300000, guid: 5cdc0e4ad6be8444389ce34e2694dd3e, type: 3}
   showingPaths: 0
+  disabledDuringWaves: []
   waves:
   - subwaves:
     - enemies:
@@ -2790,6 +2791,64 @@ RectTransform:
   m_PrefabParentObject: {fileID: 22486602, guid: c3c4e8b513332994b9b7ab47732d48d8,
     type: 2}
   m_PrefabInternal: {fileID: 1995919965}
+--- !u!114 &399368789 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 11490336, guid: c3c4e8b513332994b9b7ab47732d48d8,
+    type: 2}
+  m_PrefabInternal: {fileID: 1995919965}
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+--- !u!114 &399368791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 399368786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 399368789}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1877207634}
+        m_MethodName: CloseAllWindows
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &417117464
 GameObject:
   m_ObjectHideFlags: 0
@@ -3448,7 +3507,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6673,7 +6732,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649998}
+  m_AnchoredPosition: {x: 0.5, y: -29.649994}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -11301,10 +11360,20 @@ Prefab:
       propertyPath: m_Name
       value: Save quicksave
       objectReference: {fileID: 0}
+    - target: {fileID: 110728, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
+      propertyPath: m_Name
+      value: Edit walls
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 11486452, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 3f14a75f62008f6469509b9980a171cd, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1627016393 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 11499010, guid: 3f14a75f62008f6469509b9980a171cd,
+    type: 2}
+  m_PrefabInternal: {fileID: 1620849056}
+  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &1643730600
 GameObject:
   m_ObjectHideFlags: 0
@@ -12152,9 +12221,14 @@ MonoBehaviour:
   pauseMenu: {fileID: 587920088}
   saveGameMenu: {fileID: 1000394108}
   saveGameText: {fileID: 306144370}
-  saveGameButtons:
+  disabledDuringWaves:
   - {fileID: 1861818793}
   - {fileID: 1816204159}
+  - {fileID: 1627016393}
+  disabledDuringWavesText:
+  - Saving disabled during waves
+  - Quicksaving disabled during waves
+  - Cannot edit walls during waves
   researchSlider: {fileID: 297672440}
   rangeIndicator: {fileID: 187074, guid: 6d18b4a06c2c07041bde703b35ac2e52, type: 2}
   worldCanvas: {fileID: 788128801}
