@@ -61,15 +61,17 @@ public class Assembly {
 		data.texture = Module.CombineSprites (sprites, positions);
 
         List<Research> hls = new List<Research> ();
-        for (int j = 0; j < data.parts.Count; j++) {
+        if (Game.currentScene == Scene.Play) {
+            for (int j = 0; j < data.parts.Count; j++) {
 
-            for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
-                Research r = ResearchMenu.cur.research[i];
-                if (r.func == "UnlockModule") {
-                    Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
+                for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
+                    Research r = ResearchMenu.cur.research[i];
+                    if (r.func == "UnlockModule") {
+                        Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
 
-                    if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
-                        hls.Add (r);
+                        if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
+                            hls.Add (r);
+                        }
                     }
                 }
             }

@@ -920,6 +920,7 @@ public class Game : MonoBehaviour {
         credits = sg.credits;
         research = sg.research;
         researchProgress = sg.researchProgress;
+        PlayerInput.flushTimer = sg.flushTimer;
 
         // Finalize loading.
         Datastream.healthAmount = sg.health;
@@ -969,6 +970,7 @@ public class Game : MonoBehaviour {
         saved.credits = credits;
         saved.research = research;
         saved.researchProgress = researchProgress;
+        saved.flushTimer = PlayerInput.flushTimer;
 
         saved.waveNumber = EnemyManager.cur.waveNumber;
         saved.totalWaveNumber = EnemyManager.externalWaveNumber;
@@ -994,6 +996,7 @@ public class Game : MonoBehaviour {
         public int credits;
         public int research;
         public float researchProgress;
+        public int flushTimer;
 
         public int waveNumber;
         public int masteryNumber;
@@ -1013,7 +1016,7 @@ public class Game : MonoBehaviour {
         }
 
         public static SavedGame Load (string fileName) {
-            string fullFile = SAVED_GAME_DIRECTORY + fileName + ".dat";
+            string fullFile = fileName;
             if (File.Exists (fullFile)) {
 
                 BinaryFormatter bf = new BinaryFormatter ();

@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using IngameEditors;
 using System.Collections;
-using IngameEditors;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInput : MonoBehaviour {
 
@@ -71,7 +72,19 @@ public class PlayerInput : MonoBehaviour {
 
 	private GameObject activeAbility;
 
-	void Start () {
+    public GameObject flushBattlefieldAbility;
+    public int flushTime;
+    public static int flushTimer;
+    public Slider flushBattlefieldSlider;
+    public Button flushBattlefieldButton;
+    public bool flushBattlefieldSure;
+
+    public static void ChangeFlushTimer (int value) {
+        flushTimer += value;
+        cur.UpdateFlushBattlefieldHoverContextElement ();
+    }
+
+    void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
         if (Game.currentScene != Scene.BattlefieldEditor) {
@@ -338,7 +351,7 @@ public class PlayerInput : MonoBehaviour {
                         upgradingMarker.color = Color.green;
                     }
                 }
-            } else if (!contextMenu.gameObject.activeSelf) {
+            } else if (contextMenu && !contextMenu.gameObject.activeSelf) {
                 hoverMarker.transform.position = Vector3.right * 10000f;
                 upgradingMarker.transform.position = (Vector3)(Vector2)(Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.right * 2f) + Vector3.forward * (camDepth + 1f);
                 upgradingMarker.color = Color.white;
@@ -349,6 +362,66 @@ public class PlayerInput : MonoBehaviour {
             if (Input.GetMouseButtonDown (1))
                 CancelAll ();
         }
+    }
+
+    public void FlushBattlefield () {
+
+        if (flushBattlefieldSure) {
+            if (flushTimer <= 0) {
+                Instantiate (flushBattlefieldAbility);
+                flushTimer = flushTime;
+                ChangeFlushTimer (0);
+                CancelInvoke ("ResetFlushBattlefieldSure");
+                flushBattlefieldSure = false;
+            }
+
+        } else {
+            flushBattlefieldSure = true;
+            Invoke ("ResetFlushBattlefieldSure", 1f);
+        }
+
+        UpdateFlushBattlefieldHoverContextElement ();
+    }
+
+    public void UpdateFlushBattlefieldHoverContextElement () {
+        HoverContextElement element = flushBattlefieldButton.GetComponent<HoverContextElement> ();
+        HoverContextElement.activeElement = null;
+
+        flushBattlefieldSlider.value = (float)flushTimer / cur.flushTime;
+        flushBattlefieldButton.interactable = flushTimer <= 0;
+
+        if (!EnemyManager.waveStarted) {
+            flushBattlefieldButton.interactable = false;
+        }
+
+        if (flushBattlefieldSure) {
+            element.text = "Are you sure?";
+            return;
+        }
+
+        if (EnemyManager.waveStarted == true) {
+            if (cur.flushBattlefieldButton.interactable) {
+                element.text = "Flush memory";
+                return;
+            } else {
+                element.text = "Flush available in " + flushTimer + " waves";
+                return;
+            }
+        } else {
+            if (flushTimer <= 0) {
+                element.text = "Not available between waves.";
+            } else {
+                element.text = "Flush available in " + flushTimer + " waves";
+            }
+            return;
+        }
+
+        //element.text = "Flush memory";
+    }
+
+    public void ResetFlushBattlefieldSure () {
+        flushBattlefieldSure = false;
+        UpdateFlushBattlefieldHoverContextElement ();
     }
 
     public void CloseAllWindows () {

@@ -320,7 +320,7 @@ public class Module : MonoBehaviour {
             UpdateHoverContextElement ();
 
             for (int i = 0; i < modules.Count; i++) {
-                if (modules[i] != this) {
+                if (modules[i] != this && Game.currentScene == Scene.Play) {
                     modules[i].GetComponent<Collider> ().enabled = false;
                 }
             }
@@ -472,12 +472,6 @@ public class Module : MonoBehaviour {
 
 		return power;
 	}
-
-    void OnMouseDown () {
-        if (Game.currentScene == Scene.AssemblyBuilder && !PlayerInput.cur.isPlacing) {
-            PlayerInput.cur.contextMenu.OpenAssembly(parentBase);
-        }
-    }
 
 	public void RequestChildModules () {
 		requestedModules = new List<Module>();

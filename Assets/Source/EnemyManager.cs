@@ -22,6 +22,7 @@ public class EnemyManager : MonoBehaviour {
     public Image pathDemonstratorButton;
     public Sprite[] pathDemonstratorButtonSprites;
     public bool showingPaths;
+    public Slider flushBattlefieldSlider;
 
     public Button[] disabledDuringWaves;
 
@@ -334,6 +335,7 @@ public class EnemyManager : MonoBehaviour {
                 Game.ToggleFastGameSpeed ();
             }
         }
+
 	}
 
     void SetAvailableSpawnpoints () {
@@ -453,8 +455,10 @@ public class EnemyManager : MonoBehaviour {
 			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
 			gameProgress *= gameProgressSpeed;
 			ContinueWave (true);
-		}
-	}
+
+            PlayerInput.cur.UpdateFlushBattlefieldHoverContextElement ();
+        }
+    }
 
 	void ContinueWave (bool first) {
 
@@ -498,15 +502,17 @@ public class EnemyManager : MonoBehaviour {
         if (finished && Datastream.healthAmount > 0) {
             Game.credits += 25 * externalWaveNumber;
             Game.game.SaveGame ("autosave");
+            PlayerInput.ChangeFlushTimer (-1);
         }
 
-		if (waves.Count >= waveNumber + 1) {
+        if (waves.Count >= waveNumber + 1) {
 			UpdateUpcomingWaveScreen (waves [waveNumber]);
 		}
         waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
         if (Game.state == Game.State.Started)
             waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
+        PlayerInput.ChangeFlushTimer (0);
 	}
 
 	EnemySpawnPoint GetSpawnPosition () {
