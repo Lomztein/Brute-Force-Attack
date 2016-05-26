@@ -86,4 +86,12 @@ public class BattlefieldEditor : MonoBehaviour {
         Game.game.SaveBattlefieldData (saveName.text);
         savePanel.SetActive (false);
     }
+
+    public void OnPressedLoad () {
+        FileBrowser.OpenFileBrowser (Game.BATTLEFIELD_SAVE_DIRECTORY, gameObject, "EditorLoadBattlefield");
+    }
+
+    void EditorLoadBattlefield (string path) {
+        Game.game.LoadBattlefieldData (path, true);
+    }
 }

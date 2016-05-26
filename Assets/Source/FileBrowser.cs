@@ -28,7 +28,7 @@ public class FileBrowser : MonoBehaviour {
     }
 
     public void CloseFileBrowser () {
-        returnObject.SendMessage ("OnFileBrowserClosed");
+        returnObject.SendMessage ("OnFileBrowserClosed", SendMessageOptions.DontRequireReceiver);
         currentBrowser = null;
         Destroy (gameObject);
     }

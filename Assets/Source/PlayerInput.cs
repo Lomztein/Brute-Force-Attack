@@ -364,6 +364,7 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
+    // This should be in a class for itself. Stoopid cross references.
     public void FlushBattlefield () {
 
         if (flushBattlefieldSure) {
@@ -602,7 +603,9 @@ public class PlayerInput : MonoBehaviour {
         // I'll go and fix the wall blocking bug now. I'm gonna go for the first solution described in my Reddit reply for now.
 
 		if (allowPlacement) {
-            ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+            if (Game.currentScene == Scene.Play)
+                ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+
             Game.PlaySFXAudio (placementAudio);
 
             GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
