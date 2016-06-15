@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOnBattlefield: 1
-  colour: 5
+  colour: 3
   parentBase: {fileID: 0}
   rootModule: {fileID: 0}
   modules: []
@@ -310,6 +310,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: chargeSpeed
       value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: colour
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

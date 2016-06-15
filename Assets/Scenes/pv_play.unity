@@ -6915,7 +6915,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.649996}
+  m_AnchoredPosition: {x: 0.5, y: -29.649998}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -12387,7 +12387,6 @@ MonoBehaviour:
   battlefieldWidth: 26
   battlefieldHeight: 26
   enemySpawnPoints: []
-  assembliesAllowed: 10
   gamemode: 0
   gamemodeDescriptions:
   - The standard gamemode, the way the game originally was intended to be.
@@ -13296,6 +13295,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineParent: {fileID: 1305444171}
   buttonParent: {fileID: 525619137}
+  intermediateUpgradeSprite: {fileID: 21300000, guid: 92ea8e39939a1414d8d5ed1f184a07e4,
+    type: 3}
   research:
   - name: Research the Standard Base module
     desc: 

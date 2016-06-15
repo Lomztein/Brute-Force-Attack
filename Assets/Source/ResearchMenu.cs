@@ -10,6 +10,7 @@ public class ResearchMenu : MonoBehaviour {
 
 	public Transform lineParent;
 	public Transform buttonParent;
+    public Sprite intermediateUpgradeSprite;
 
 	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
@@ -335,6 +336,58 @@ public class ResearchMenu : MonoBehaviour {
         scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
+    }
+
+    public void InvalidateUselessButtons () {
+
+        List<Colour> foundColours = new List<Colour> ();
+        for (int i = 0; i < research.Count; i++) {
+
+            Research u = research[i];
+            if (u.func != "UnlockModule") {
+                continue;
+            }
+
+            bool found = false;
+            GameObject reqModule = unlockableModules[int.Parse (u.meta)];
+            for (int j = 0; j < PurchaseMenu.assemblies.Length; j++) {
+                //Debug.Log (PurchaseMenu.assemblies[i].assemblyName);
+                
+                for (int a = 0; a < PurchaseMenu.assemblies[j].parts.Count; a++) {
+                    Assembly.Part part = PurchaseMenu.assemblies[j].parts[a];
+                    if (PurchaseMenu.cur.GetModulePrefab (part.type) == reqModule) {
+                        found = true;
+                    }
+                }
+
+            }
+
+            if (!found) {
+                IntermediateButton (u);
+            }
+        }
+
+        // Fuck it, Imma use foreach now.
+        foreach (Assembly ass in PurchaseMenu.assemblies) {
+            foreach (Assembly.Part part in ass.parts) {
+                Module m = PurchaseMenu.cur.GetModulePrefab (part.type).GetComponent<Module> ();
+
+                if (!foundColours.Contains (m.colour))
+                    foundColours.Add (m.colour);
+            }
+        }
+
+        for (int i = 0; i < research.Count; i++) {
+            if (!foundColours.Contains (research[i].colour)) {
+                IntermediateButton (research[i]);
+            }
+        }
+    }
+
+    void IntermediateButton (Research u) {
+        u.button.GetComponent<HoverContextElement> ().text = "Intermediate Upgrade, " + u.y.ToString () + " Research";
+        u.button.transform.FindChild ("Image").GetComponent<Image> ().sprite = intermediateUpgradeSprite;
+        u.button.transform.FindChild ("Image").GetComponent<Image> ().color = Color.white;
     }
 
     [System.Serializable]

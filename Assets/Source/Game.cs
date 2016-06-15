@@ -24,7 +24,6 @@ public class Game : MonoBehaviour {
     public List<EnemySpawnPoint> enemySpawnPoints;
 
     [Header("Difficulty Settings")]
-    public int assembliesAllowed = 10;
     public static DifficultySettings difficulty;
 
     [Header("Gamemodes")]
@@ -687,6 +686,8 @@ public class Game : MonoBehaviour {
         ForceDarkOverlay (false);
         AssembliesSelectionMenu.cur.gameObject.SetActive (false);
         EnemyManager.Initialize ();
+
+        researchMenu.InvalidateUselessButtons ();
 
         if (fastGame)
             ToggleFastGameSpeed ();

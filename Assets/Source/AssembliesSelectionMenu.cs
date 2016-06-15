@@ -87,7 +87,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     }
 
     void InitializeArray () {
-		header.text = "Select " + game.assembliesAllowed.ToString () + " assemblies";
+		header.text = "Select assemblies";
 		footer.text = "No tier 0 detected";
 
         string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
@@ -191,17 +191,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 			assemblies.Remove (tempLoaded[index]);
         }
 
-        if (selected.Count >= game.assembliesAllowed) {
-            for (int i = 0; i < remaining.Count; i++) {
-                remaining[i].interactable = false;
-            }
-        } else {
-            for (int i = 0; i < remaining.Count; i++) {
-                remaining[i].interactable = true;
-            }
-        }
-
-        string message = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+        string message = selected.Count.ToString () + " selected";
         startButton.interactable = true;
 
         bool anyZero = false;

@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOnBattlefield: 1
-  colour: 5
+  colour: 6
   parentBase: {fileID: 0}
   rootModule: {fileID: 0}
   modules: []
@@ -187,6 +187,18 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 2500
@@ -246,6 +258,10 @@ Prefab:
       propertyPath: moduleDesc
       value: This is what happens when you go ahead and put missles into missles.
         It's pretty awesome.
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: colour
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
