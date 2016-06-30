@@ -60,7 +60,6 @@ public class EnemyManager : MonoBehaviour {
 
     [Header ("Upcoming Wave")]
     public Text upcomingHeader;
-	public RectTransform upcomingCanvas;
 	public RectTransform upcomingWindow;
 	public GameObject upcomingEnemyPrefab;
 	public GameObject upcomingSeperatorPrefab;
@@ -71,6 +70,11 @@ public class EnemyManager : MonoBehaviour {
 	public float buttonSize;
 	public float seperatorSize;
 	public float windowPosY;
+
+    public GameObject listPartPrefab;
+    public GameObject waveListParent;
+    public RectTransform listContentParent;
+    public List<GameObject> listContent = new List<GameObject>();
 
     public static int researchPerWave = 1;
     public static int spawnedResearch = 0;
@@ -229,7 +233,7 @@ public class EnemyManager : MonoBehaviour {
 	void Poop () {
 		// Hø hø hø hø..
 		waveNumber++;
-		UpdateUpcomingWaveScreen (waves [waveNumber]);
+		UpdateUpcomingWaveScreen (waves [waveNumber], upcomingWindow);
 		Invoke ("Poop", 1f);
 	}
 
@@ -390,32 +394,39 @@ public class EnemyManager : MonoBehaviour {
 		waveMastery *= 2;
         UpdateAmountModifier ();
         Game.game.masteryModeIndicator.SetActive (false);
-        UpdateUpcomingWaveScreen (waves[waveNumber]);
+        UpdateUpcomingWaveScreen (waves[waveNumber], upcomingWindow);
         UpdateAmountModifier ();
 	}
 
-	void UpdateUpcomingWaveScreen (Wave upcoming) {
+	void UpdateUpcomingWaveScreen (Wave upcoming, RectTransform window) {
 
-        upcomingHeader.text = "Upcoming";
-		for (int i = 0; i < upcomingContent.Count; i++) {
-			Destroy (upcomingContent [i]);
-		}
+        if (window == upcomingWindow) {
+            upcomingHeader.text = "Upcoming";
+            for (int i = 0; i < upcomingContent.Count; i++) {
+                Destroy (upcomingContent[i]);
+            }
 
-		for (int i = 0; i < upcomingElements.Count; i++) {
-			Destroy (upcomingElements [i]);
-		}
+            for (int i = 0; i < upcomingElements.Count; i++) {
+                Destroy (upcomingElements[i]);
+            }
 
-		upcomingElements.Clear ();
+            upcomingElements.Clear ();
+        }
 
 		int sIndex = 0;
 		int eIndex = 0;
+
+        RectTransform upcomingCanvas = window.FindChild ("Content").gameObject.GetComponent<RectTransform> ();
 
 		foreach (Wave.Subwave sub in upcoming.subwaves) {
 
 			Vector3 sepPos = Vector3.down * (4 + eIndex * buttonSize) + Vector3.down * sIndex * seperatorSize;
 			GameObject newSep = (GameObject)Instantiate (upcomingSeperatorPrefab, sepPos, Quaternion.identity);
 			newSep.transform.SetParent (upcomingCanvas, false);
-			upcomingContent.Add (newSep);
+
+            if (window == upcomingWindow)
+                upcomingContent.Add (newSep);
+
 			sIndex++;
 			foreach (Wave.Enemy ene in sub.enemies) {
 
@@ -423,25 +434,68 @@ public class EnemyManager : MonoBehaviour {
 				Vector3 enePos = new Vector3 (-rt.sizeDelta.x ,-rt.sizeDelta.y, 0) / 2 + Vector3.down * sIndex * seperatorSize + Vector3.down * eIndex * buttonSize + Vector3.right * 45;
 				GameObject newEne = (GameObject)Instantiate (upcomingEnemyPrefab, enePos, Quaternion.identity);
 				newEne.transform.SetParent (upcomingCanvas, false);
-				upcomingContent.Add (newEne);
+
+                if (window == upcomingWindow)
+                    upcomingContent.Add (newEne);
 
 				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 				Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
 
-				upcomingElements.Add (UpcomingElement.CreateInstance <UpcomingElement>());
-				upcomingElements[upcomingElements.Count - 1].upcomingText = text;
-				upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * amountModifier + 1;
-				upcomingElements[upcomingElements.Count - 1].Decrease ();
+                if (window == upcomingWindow) {
+                    upcomingElements.Add (UpcomingElement.CreateInstance<UpcomingElement> ());
+                    upcomingElements[upcomingElements.Count - 1].upcomingText = text;
+                    upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * amountModifier + 1;
+                    upcomingElements[upcomingElements.Count - 1].Decrease ();
+                }
 
 				eIndex++;
 			}
 		}
 
-		upcomingWindow.sizeDelta = new Vector2 (upcomingWindow.sizeDelta.x, sIndex * seperatorSize + eIndex * buttonSize + buttonSize);
-		upcomingWindow.position = new Vector3 (upcomingWindow.position.x, Screen.height - windowPosY - upcomingWindow.sizeDelta.y / 2);
+        float sy = sIndex * seperatorSize + eIndex * buttonSize + buttonSize;
+        window.sizeDelta = new Vector2 (window.sizeDelta.x, sy);
+        window.position = new Vector3 (window.position.x, Screen.height - windowPosY - window.sizeDelta.y / 2);
+
+        LayoutElement ele = window.GetComponent<LayoutElement> ();
+        // If it contains a layout element, it's from the list.
+        if (ele) {
+            ele.preferredHeight = sy;
+        }
 	}
 
-	public void StartWave () {
+    public void ShowWaveList () {
+        Game.ForceDarkOverlay (true);
+        waveListParent.SetActive (true);
+
+        foreach (GameObject obj in listContent) {
+            Destroy (obj);
+        }
+        listContent = new List<GameObject> ();
+
+        for (int i = 0; i < waves.Count; i++) {
+            GameObject newListPart = Instantiate (listPartPrefab);
+            listContent.Add (newListPart);
+
+            RectTransform newListTransform = newListPart.GetComponent<RectTransform> ();
+            newListTransform.SetParent (listContentParent, false);
+
+            newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave: " + (i+1);
+            UpdateUpcomingWaveScreen (waves[i], newListTransform);
+        }
+    }
+
+    public void CloseWaveList () {
+        Game.ForceDarkOverlay (false);
+
+        foreach (GameObject obj in listContent) {
+            Destroy (obj);
+        }
+        listContent = new List<GameObject> ();
+
+        waveListParent.SetActive (false);
+    }
+
+    public void StartWave () {
 		if (waveNumber <= waves.Count) {
 
             waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Speed up the game";
@@ -506,8 +560,9 @@ public class EnemyManager : MonoBehaviour {
         }
 
         if (waves.Count >= waveNumber + 1) {
-			UpdateUpcomingWaveScreen (waves [waveNumber]);
+			UpdateUpcomingWaveScreen (waves [waveNumber], upcomingWindow);
 		}
+
         waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
         if (Game.state == Game.State.Started)
             waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();

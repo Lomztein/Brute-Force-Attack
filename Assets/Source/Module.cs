@@ -56,6 +56,19 @@ public class Module : MonoBehaviour {
 		if (isOnBattlefield) InitializeModule ();
 	}
 
+    // A lot of these functions look similar, and I'm sure there is a better way, but I am yet to learn that way.
+    public int GetAssemblyCost () {
+        if (isRoot) {
+            int cost = 0;
+            for (int i = 0; i < modules.Count; i++) {
+                cost += modules[i].moduleCost;
+            }
+            return cost;
+        }
+        Debug.LogWarning ("Tried to get assembly cost from non-root module.");
+        return 0;
+    }
+
     public float GetAssemblyDPS () {
         if (isRoot) {
             float dps = 0f;
@@ -105,7 +118,7 @@ public class Module : MonoBehaviour {
 			Debug.LogError ("Sprites array not equal length as positions array.");
 			return null;
 		}
-		// First, get total size;
+		// First, get total size. <-- Top notch commenting there pal.
 		int maxHeight = 0, maxWidth = 0, minHeight = 0, minWidth = 0, value = 0;
 		for (int i = 0; i < sprites.Length; i++) {
 			value =  Mathf.RoundToInt ((float)sprites[i].width / 2f + positions[i].x * (float)ppu);
@@ -325,6 +338,8 @@ public class Module : MonoBehaviour {
                 }
             }
         }
+
+        rootModule.modules.Add (this);
         moduleIndex = rootModule.GetModuleIndex ();
 
 		if (parentBase) parentBase.GetFastestBulletSpeed ();

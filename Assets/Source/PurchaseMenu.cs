@@ -185,8 +185,8 @@ public class PurchaseMenu : MonoBehaviour {
 			newButton.transform.FindChild ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			newButton.transform.SetParent (firstTopButton, true);
 			newButton.transform.localScale = Vector3.one;
-			AddPurchaseButtonListener (button, i);
 
+			AddPurchaseButtonListener (button, i);
 		}
 
 		UpdateButtons ();

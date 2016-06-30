@@ -10,8 +10,9 @@ public class FileBrowser : MonoBehaviour {
     public static GameObject prefab;
     public static GameObject buttonPrefab;
     
-    private GameObject returnObject;
-    private string returnFuntion;
+    public GameObject returnObject;
+    public string returnFuntion;
+    public string currentDirectory;
 
     public static void OpenFileBrowser (string directory, GameObject returnO, string returnS) {
         if (!prefab) {
@@ -27,9 +28,12 @@ public class FileBrowser : MonoBehaviour {
         currentBrowser.Initialize (directory, returnO, returnS);
     }
 
-    public void CloseFileBrowser () {
-        returnObject.SendMessage ("OnFileBrowserClosed", SendMessageOptions.DontRequireReceiver);
-        currentBrowser = null;
+    public void CloseFileBrowser (bool reset = false) {
+
+        if (!reset) {
+            returnObject.SendMessage ("OnFileBrowserClosed", SendMessageOptions.DontRequireReceiver);
+            currentBrowser = null;
+        }
         Destroy (gameObject);
     }
 
@@ -43,11 +47,34 @@ public class FileBrowser : MonoBehaviour {
             button.transform.SetParent (transform);
             button.transform.FindChild ("Name").GetComponent<Text> ().text = "  " + name;
             button.transform.FindChild ("Date").GetComponent<Text> ().text = date + "  ";
+
             AddLoadGameButtonListener (button.GetComponent<Button> (), i);
+            AddDeleteListener (button.transform.FindChild ("Delete").gameObject.GetComponent<Button> (), i);
         }
 
         returnObject = returnO;
         returnFuntion = returnS;
+        currentDirectory = directory;
+    }
+
+    void ResetBrowser () {
+        GameObject ro = currentBrowser.returnObject;
+        string rf = currentBrowser.returnFuntion;
+        string dir = currentBrowser.currentDirectory;
+
+        CloseFileBrowser (true);
+        OpenFileBrowser (dir, ro, rf);
+    }
+
+    void DeleteFile (string path) {
+        File.Delete (path);
+        ResetBrowser ();
+    }
+
+    void AddDeleteListener (Button button, int index) {
+        button.onClick.AddListener (() => {
+            DeleteFile (files[index]);
+        });
     }
 
     void AddLoadGameButtonListener (Button button, int index) {

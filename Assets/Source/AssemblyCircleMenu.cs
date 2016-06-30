@@ -132,8 +132,10 @@ public class AssemblyCircleMenu : MonoBehaviour {
     }
 
     public static void Close () {
-        cur.gameObject.SetActive(false);
-        if (cur.rangeIndicator)
-            Destroy(cur.rangeIndicator.gameObject);
+        if (cur) {
+            cur.gameObject.SetActive (false);
+            if (cur.rangeIndicator)
+                Destroy (cur.rangeIndicator.gameObject);
+        }
     }
 }

@@ -85,7 +85,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 				module.transform.localPosition = new Vector3 (part.x, part.y);
 				module.transform.eulerAngles = new Vector3 (0,0, part.angle);
 
-                rootModule.GetComponent<Module> ().modules.Add (module);
+                //rootModule.GetComponent<Module> ().modules.Add (module);
 			}
 
 		}
@@ -107,6 +107,10 @@ public class ModuleAssemblyLoader : MonoBehaviour {
             PlayerInput.cur.SetPurchaseableFromSceneObject (PlayerInput.cur.placementParent.GetChild (0).gameObject);
             PlayerInput.cur.placementParent.GetChild (0).transform.eulerAngles -= new Vector3 (0, 0, 90);
             PlayerInput.cur.currentCost = totalCost;
+        } else {
+            foreach (GameObject obj in moduleObjects) {
+                obj.GetComponent<Module> ().enabled = true;
+            }
         }
 
         return rootModule;

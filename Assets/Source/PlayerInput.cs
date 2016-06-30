@@ -429,6 +429,7 @@ public class PlayerInput : MonoBehaviour {
         if (ResearchMenu.isOpen)
             ResearchMenu.cur.ToggleResearchMenu ();
         contextMenu.ExitMenu ();
+        EnemyManager.cur.CloseWaveList ();
     }
 
     public Vector3 MovePosInsideBattlefield (Vector3 pos, float depth) {

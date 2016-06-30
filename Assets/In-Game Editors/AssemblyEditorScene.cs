@@ -19,6 +19,8 @@ namespace IngameEditors {
         public Text assemblyName;
         public Text assemblyDesc;
 
+        public Text statsText;
+
         public static AssemblyEditorScene cur;
 
         // Use this for initialization
@@ -59,6 +61,18 @@ namespace IngameEditors {
             }
         }
 
+        void FixedUpdate () {
+            if (rootModule) {
+                statsText.text =
+                    "Cost: " + rootModule.GetAssemblyCost () + "\n\n" +
+                    "DPS: " + rootModule.GetAssemblyDPS () + "\n\n" +
+                    "Range: " + rootModule.GetRange () + "\n\n" +
+                    "Turnspeed: " + rootModule.GetAssemblyAVGTurnSpeed ();
+            }else {
+                statsText.text = "Please place a module to start.";
+            }
+        }
+
         public void SaveAssembly () {
             Game.ForceDarkOverlay(true);
             saveMenu.SetActive(true);
@@ -76,6 +90,9 @@ namespace IngameEditors {
         }
 
         public void OnLoadAssembly (string file) {
+            if (rootModule)
+                rootModule.DestroyModule ();
+
             for (int i = 0; i < Game.currentModules.Count; i++) {
                 if (Game.currentModules[i].isRoot) {
                     Game.currentModules[i].DestroyModule ();

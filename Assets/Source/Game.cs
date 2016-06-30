@@ -220,12 +220,14 @@ public class Game : MonoBehaviour {
 
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
-        /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
-            Module mod = purchaseMenu.all[i].GetComponent<Module> ();
-            if (mod.moduleType == Module.Type.Weapon) {
-                GenerateDefaultAssembly (mod);
+        if (currentScene == Scene.Play) {
+            for (int i = 0; i < purchaseMenu.all.Count; i++) {
+                Module mod = purchaseMenu.all[i].GetComponent<Module> ();
+                if (mod.moduleType == Module.Type.Weapon) {
+                    GenerateDefaultAssembly (mod);
+                }
             }
-        }*/
+        }
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
         HideGUI();
