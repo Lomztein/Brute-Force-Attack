@@ -18,6 +18,9 @@ public class MainMenuScene : MonoBehaviour {
     public float progress;
     public float maxProgress;
 
+    private bool isCreditsOpen;
+    public GameObject creditsScreen;
+
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
 	}
@@ -34,6 +37,12 @@ public class MainMenuScene : MonoBehaviour {
 
     public void OnFileBrowserClosed () {
         Game.ForceDarkOverlay (false);
+    }
+
+    public void ToggleCreditsScreen () {
+        isCreditsOpen = !isCreditsOpen;
+        creditsScreen.SetActive (isCreditsOpen);
+        Game.ForceDarkOverlay (isCreditsOpen);
     }
 
     void Start () {

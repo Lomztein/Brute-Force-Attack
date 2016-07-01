@@ -43,6 +43,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
         game = Game.game;
         cur = this;
         InitializeArray ();
+        ToggleAll ();
 	}
 
     List<Assembly> SortAssemblies (List<Assembly> assemblies) {
@@ -172,6 +173,15 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 			}
 		}
 	}
+
+    void ToggleAll () {
+        // This is quite messy, but thats a theme for this entire class.
+        for (int i = 0; i < buttons.Count; i++) {
+            if (remaining.Contains (buttons[i])) {
+                OnClickedButton (i);
+            }
+        }
+    }
 
     void OnClickedButton (int index) {
         Button button = buttons[index];

@@ -446,9 +446,11 @@ public class EnemyManager : MonoBehaviour {
                     upcomingElements[upcomingElements.Count - 1].upcomingText = text;
                     upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * amountModifier + 1;
                     upcomingElements[upcomingElements.Count - 1].Decrease ();
+                }else {
+                    text.text = "x " + (ene.spawnAmount * amountModifier).ToString ();
                 }
 
-				eIndex++;
+                eIndex++;
 			}
 		}
 
@@ -479,7 +481,7 @@ public class EnemyManager : MonoBehaviour {
             RectTransform newListTransform = newListPart.GetComponent<RectTransform> ();
             newListTransform.SetParent (listContentParent, false);
 
-            newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave: " + (i+1);
+            newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
             UpdateUpcomingWaveScreen (waves[i], newListTransform);
         }
     }

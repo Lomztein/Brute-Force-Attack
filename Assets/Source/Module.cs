@@ -331,20 +331,27 @@ public class Module : MonoBehaviour {
                 AssemblyEditorScene.cur.rootModule = this;
 
             UpdateHoverContextElement ();
+        }
 
+        rootModule.modules.Add (this);
+        rootModule.UpdateAssemblyColliders ();
+
+        moduleIndex = rootModule.GetModuleIndex ();
+
+        if (parentBase) parentBase.GetFastestBulletSpeed ();
+		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
+	}
+
+    void UpdateAssemblyColliders () {
+        if (isRoot) {
             for (int i = 0; i < modules.Count; i++) {
                 if (modules[i] != this && Game.currentScene == Scene.Play) {
                     modules[i].GetComponent<Collider> ().enabled = false;
                 }
             }
+            UpdateHoverContextElement ();
         }
-
-        rootModule.modules.Add (this);
-        moduleIndex = rootModule.GetModuleIndex ();
-
-		if (parentBase) parentBase.GetFastestBulletSpeed ();
-		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
-	}
+    }
 
     public int GetFullUpgradeCost () {
         return GetUpgradeCost (0) + GetUpgradeCost (1) + GetUpgradeCost (2);
