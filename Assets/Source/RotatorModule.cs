@@ -8,8 +8,8 @@ public class RotatorModule : Module {
 	public RotatorType type;
 	public float turnSpeed;
 	public float defualtRot;
-	private float angleToTarget;
-	private float sprayAngle = 30f;
+	public float angleToTarget;
+	public float sprayAngle = 60f;
 	public int torque;
 	private float torqueSpeedMul;
 
@@ -55,13 +55,12 @@ public class RotatorModule : Module {
 				    if (parentBase.target)
 					    angleToTarget = Angle.CalculateAngle (transform.position, parentBase.targetPos);
 
-			    RotateToAngle ();
                 break;
 
             case RotatorType.Sprayer:
 			    if (EnemyManager.waveStarted) {
-				    angleToTarget = defualtRot + Mathf.Sin (Time.time * (360 / GetSpeed ())) * sprayAngle;
-				    RotateToAngle ();
+                    float toTarget = Angle.CalculateAngle (transform.position, parentBase.targetPos);
+                    angleToTarget = toTarget + Mathf.Sin (Time.time / Mathf.Rad2Deg * GetSpeed ()) *  (360f / sprayAngle);
 			    }
                 break;
             case RotatorType.Spinner:
@@ -69,9 +68,11 @@ public class RotatorModule : Module {
                     angleToTarget += GetSpeed ();
                 break;
 		}
-	}
 
-	public override float GetSpeed () {
+        RotateToAngle ();
+    }
+
+    public override float GetSpeed () {
 		return turnSpeed * ResearchMenu.turnrateMul * upgradeMul * torqueSpeedMul;
 	}
 
@@ -79,8 +80,12 @@ public class RotatorModule : Module {
 		transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.Euler (0,0, angleToTarget), GetSpeed () * Time.deltaTime);
 	}
 
-    public void OnToggleModType (int index) {
+    public void OnToggleModRotation (int index) {
         type = (RotatorType)index;
+    }
+
+    public void OnInitializeToggleModRotation (ModuleMod mod) {
+        mod.GetReturnedMeta ((int)type);
     }
 
 	public override string ToString () {

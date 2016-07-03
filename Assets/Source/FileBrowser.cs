@@ -44,7 +44,7 @@ public class FileBrowser : MonoBehaviour {
             string name = Utility.ExtractSaveName (files[i]);
             string date = File.GetCreationTime (files[i]).ToString ();
             GameObject button = Instantiate (buttonPrefab);
-            button.transform.SetParent (transform);
+            button.transform.SetParent (transform.GetChild(0).GetChild(0).GetChild(0));
             button.transform.FindChild ("Name").GetComponent<Text> ().text = "  " + name;
             button.transform.FindChild ("Date").GetComponent<Text> ().text = date + "  ";
 

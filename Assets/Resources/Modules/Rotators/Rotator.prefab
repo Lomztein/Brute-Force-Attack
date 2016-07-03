@@ -42,6 +42,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 488182}
   m_RootOrder: 0
@@ -54,6 +55,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 419310}
   m_Father: {fileID: 0}
@@ -86,13 +88,55 @@ MonoBehaviour:
   parentBase: {fileID: 0}
   rootModule: {fileID: 0}
   modules: []
-  moduleMods: []
+  moduleMods:
+  - type: 1
+    partName: Rotation
+    subparts:
+    - type: 0
+      partName: Direct
+      subparts: []
+      position: {x: 0, y: 0, z: 0}
+      text: {fileID: 0}
+      module: {fileID: 0}
+    - type: 0
+      partName: Sprayer
+      subparts: []
+      position: {x: 0, y: 0, z: 0}
+      text: {fileID: 0}
+      module: {fileID: 0}
+    - type: 0
+      partName: Spinner
+      subparts: []
+      position: {x: 0, y: 0, z: 0}
+      text: {fileID: 0}
+      module: {fileID: 0}
+    position: {x: 0, y: 0, z: 0}
+    text: {fileID: 0}
+    module: {fileID: 0}
+  - type: 0
+    partName: 
+    subparts: []
+    position: {x: 0, y: 0, z: 0}
+    text: {fileID: 0}
+    module: {fileID: 0}
   moduleName: Standard Rotator
   moduleDesc: The standard rotater simply rotates stuff towards wherever the underlying
     base wants it to point.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 1
   moduleClass: 2
   moduleCost: 250
@@ -111,6 +155,8 @@ MonoBehaviour:
   type: 0
   turnSpeed: 120
   defualtRot: 0
+  angleToTarget: 0
+  sprayAngle: 30
   torque: 10
 --- !u!212 &21238326
 SpriteRenderer:
