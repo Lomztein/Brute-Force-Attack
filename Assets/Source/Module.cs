@@ -306,7 +306,8 @@ public class Module : MonoBehaviour {
         return 0f;
     }
 
-    void InitializeModule () {
+    public void InitializeModule () {
+
 		if (upgradeButtonDisabled == null || upgradeButtonDisabled.Length != 3)
             upgradeButtonDisabled = new bool[3];
 
@@ -331,9 +332,12 @@ public class Module : MonoBehaviour {
                 AssemblyEditorScene.cur.rootModule = this;
 
             UpdateHoverContextElement ();
+            modules = new List<Module> ();
         }
 
-        rootModule.modules.Add (this);
+        if (!rootModule.modules.Contains (this))
+            rootModule.modules.Add (this);
+
         rootModule.UpdateAssemblyColliders ();
 
         moduleIndex = rootModule.GetModuleIndex ();

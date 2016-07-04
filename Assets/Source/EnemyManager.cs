@@ -199,6 +199,7 @@ public class EnemyManager : MonoBehaviour {
 
         for (int i = 0; i < spawnedEnemies.Count; i++) {
             Destroy (spawnedEnemies[i].gameObject);
+            Destroy (spawnedEnemies[i].deathParticle.gameObject);
             if (i % destroyPerTick == 0)
                 yield return new WaitForFixedUpdate ();
         }
@@ -209,7 +210,8 @@ public class EnemyManager : MonoBehaviour {
     public void ForceInstantCleanEnemyArray () {
         for (int i = 0; i < spawnedEnemies.Count; i++) {
             Destroy (spawnedEnemies[i].gameObject);
-            Enemy ene = spawnedEnemies[i].GetComponent<Enemy> ();
+            Destroy (spawnedEnemies[i].deathParticle.gameObject);
+            Enemy ene = spawnedEnemies[i];
             if (ene.healthSlider && ene.healthSlider.transform.parent != ene.transform) {
                 Destroy (ene.healthSlider.gameObject);
             }

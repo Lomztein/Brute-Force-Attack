@@ -86,7 +86,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void ReturnToPool () {
-		if (gameObject.activeSelf) {
+		if (gameObject.activeSelf || (hitParticle && hitParticle.gameObject.activeSelf)) {
 			if (particle) {
 				particle.transform.parent = null;
 				particle.Stop ();
@@ -107,11 +107,16 @@ public class Projectile : MonoBehaviour {
 			particle.transform.rotation = transform.rotation;
 		}
 
+        if (hitParticle) {
+            hitParticle.transform.parent = parentWeapon.pool;
+        }
+
         if (parentWeapon) {
 			parentWeapon.ReturnBulletToPool (gameObject);
 		}else{
+            if (hitParticle) Destroy (hitParticle.gameObject);
 			Destroy (gameObject);
-		}
+        }
 	}
 
 	public struct Damage {

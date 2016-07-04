@@ -73,8 +73,16 @@ public class Weapon : MonoBehaviour {
 
     void OnDestroy () {
         activeWeapons.Remove(this);
-        if (pool)
-            Destroy(pool.gameObject);
+        if (pool) {
+            foreach (Transform child in pool) {
+                Projectile pro = child.GetComponent<Projectile> ();
+                if (pro && ((pro.gameObject.activeSelf) || pro.hitParticle && pro.hitParticle.gameObject.activeSelf)) {
+                    child.parent = null;
+                }
+            }
+
+            Destroy (pool.gameObject);
+        }
     }
 
 	GameObject GetPooledBullet (Vector3 position, Quaternion rotation) {

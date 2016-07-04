@@ -732,7 +732,7 @@ public class Game : MonoBehaviour {
 
         int steps = Mathf.RoundToInt (fadeTime / Time.fixedDeltaTime) / 2;
         for (int i = 0; i < steps; i++) {
-            mainAudioSource.volume = 1f - (i / (float)steps) * musicVolume;
+            mainAudioSource.volume = Mathf.Min (1f - (i / (float)steps) * musicVolume, musicSlider.value);
             yield return new WaitForFixedUpdate ();
         }
 
@@ -745,8 +745,8 @@ public class Game : MonoBehaviour {
         mainAudioSource.volume = musicVolume;
 
         for (int i = 0; i < steps; i++) {
-            mainAudioSource.volume = (i / (float)steps) * musicVolume;
-            yield return new WaitForFixedUpdate ();
+            mainAudioSource.volume = Mathf.Min ((i / (float)steps) * musicVolume, musicSlider.value);
+        yield return new WaitForFixedUpdate ();
         }
     }
 
@@ -899,14 +899,17 @@ public class Game : MonoBehaviour {
 
             Module rootModule = root.GetComponent<Module> ();
             for (int j = 0; j < rootModule.modules.Count; j++) {
-                rootModule.modules[j].enabled = true;
+
                 rootModule.modules[j].SetStartingUpgradeCost ();
+
                 for (int a = 0; a < ass.levels.Count; a++) {
+
                     if (rootModule.modules[j].moduleType == (Module.Type)a) {
                         for (int b = 0; b < ass.levels[a]; b++) {
                             rootModule.modules[j].UpgradeModule ();
 
                             // So many bloody loops, though this should now save assembly upgrades in the SavedData data.
+                            // Haha, ass.
                         }
                     }
                 }
@@ -938,7 +941,7 @@ public class Game : MonoBehaviour {
     }
 
     public void RetryAutosave () {
-        saveToLoad = "autosave";
+        saveToLoad = SAVED_GAME_DIRECTORY + "autosave.dat";
         RestartMap ();
     }
 

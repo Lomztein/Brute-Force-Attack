@@ -110,6 +110,7 @@ public class ModuleAssemblyLoader : MonoBehaviour {
         } else {
             foreach (GameObject obj in moduleObjects) {
                 obj.GetComponent<Module> ().enabled = true;
+                rootModule.GetComponent<Module> ().modules.Add (obj.GetComponent<Module> ());
             }
         }
 

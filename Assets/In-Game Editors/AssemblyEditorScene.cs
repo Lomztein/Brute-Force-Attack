@@ -109,7 +109,6 @@ namespace IngameEditors {
 
             rootModule = root.GetComponent<Module> ();
             for (int i = 0; i < rootModule.modules.Count; i++) {
-                rootModule.modules[i].enabled = true;
                 rootModule.modules[i].isOnBattlefield = true;
             }
 
