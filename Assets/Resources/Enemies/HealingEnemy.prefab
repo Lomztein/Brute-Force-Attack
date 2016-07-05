@@ -61,6 +61,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 445728}
   m_RootOrder: 1
@@ -73,6 +74,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.82, y: 7.51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 462206}
   - {fileID: 429046}
@@ -87,6 +89,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 445728}
   m_RootOrder: 0
@@ -123,6 +126,9 @@ MonoBehaviour:
   value: 15
   isFlying: 0
   researchDropChance: 50
+  enemyName: Healing Enemy
+  description: These vira posess an ability previously unseen. If damaged, they can
+    rewrite their lost code automatically. This is however hampered by tesla weapons.
   spawnPoint: {fileID: 0}
   rotateSprite: 0
   freezeMultiplier: 1

@@ -34,6 +34,7 @@ public class Game : MonoBehaviour {
     public Datastream datastream;
     public EnemyManager enemySpawn;
     public PurchaseMenu purchaseMenu;
+    public EnemyInformationPanel enemyInformationPanel;
     public Pathfinding pathfinder;
     public Map pathMap;
     public ResearchMenu researchMenu;
@@ -271,6 +272,7 @@ public class Game : MonoBehaviour {
             researchMenu.SaveBackup ();
             researchMenu.gameObject.SetActive (true);
             researchMenu.Initialize ();
+            enemyInformationPanel.Initialize ();
 
             if (PlayerPrefs.HasKey ("fMusicVolume")) {
                 musicVolume = PlayerPrefs.GetFloat ("fMusicVolume");
@@ -689,7 +691,7 @@ public class Game : MonoBehaviour {
         AssembliesSelectionMenu.cur.gameObject.SetActive (false);
         EnemyManager.Initialize ();
 
-        researchMenu.InvalidateUselessButtons ();
+        //researchMenu.InvalidateUselessButtons ();
 
         if (fastGame)
             ToggleFastGameSpeed ();

@@ -61,6 +61,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.3686395, y: 9.442746, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 474030}
   - {fileID: 484270}
@@ -75,6 +76,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 461398}
   m_RootOrder: 0
@@ -87,6 +89,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 461398}
   m_RootOrder: 1
@@ -123,6 +126,10 @@ MonoBehaviour:
   value: 1000
   isFlying: 1
   researchDropChance: 1
+  enemyName: The Boss
+  description: According to legend, the "IronSheen" virus is the most dangerous out
+    there, and can effortlessly break through a defence. It could attack at any time,
+    and we must deal with it.
   spawnPoint: {fileID: 0}
   rotateSprite: 0
   freezeMultiplier: 1

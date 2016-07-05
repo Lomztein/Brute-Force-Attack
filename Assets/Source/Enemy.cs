@@ -15,6 +15,9 @@ public class Enemy : MonoBehaviour {
 	public bool isFlying;
 	public int researchDropChance;
 
+    public string enemyName;
+    public string description;
+
 	public EnemySpawnPoint spawnPoint;
 
 	public bool rotateSprite;
@@ -37,10 +40,19 @@ public class Enemy : MonoBehaviour {
 
 	public Slider healthSlider;
 
+    public static int GetHealth (int startingHealth, float progress) {
+        Debug.Log (Mathf.RoundToInt (startingHealth * progress * Game.difficulty.healthMultiplier));
+        return Mathf.RoundToInt (startingHealth * progress * Game.difficulty.healthMultiplier);
+    }
+
+    public static int GetValue (int startingValue, int wave) {
+        return Mathf.RoundToInt (startingValue + wave * 0.2f);
+    }
+
 	void Start () {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
-		health = Mathf.RoundToInt (health * EnemyManager.gameProgress * Game.difficulty.healthMultiplier);
+        health = GetHealth (health, EnemyManager.gameProgress);
 
         if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;
@@ -122,7 +134,7 @@ public class Enemy : MonoBehaviour {
 
 			if (!isDead) {
 				isDead = true;
-				Game.credits += Mathf.RoundToInt (value + EnemyManager.externalWaveNumber * 0.2f);
+                Game.credits += GetValue (value, EnemyManager.externalWaveNumber);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 
@@ -141,6 +153,7 @@ public class Enemy : MonoBehaviour {
                     }
                 }
                 EnemyManager.cur.OnEnemyDeath ();
+                EnemyManager.AddKill (enemyName);
             }
             if (healthSlider) healthSlider.transform.SetParent (transform);
             gameObject.SetActive (false);

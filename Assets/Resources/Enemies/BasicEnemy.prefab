@@ -60,6 +60,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 492754}
   m_RootOrder: 1
@@ -72,6 +73,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 492754}
   m_RootOrder: 0
@@ -84,6 +86,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.85, y: 9.21, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 449628}
   - {fileID: 445664}
@@ -122,6 +125,9 @@ MonoBehaviour:
   value: 10
   isFlying: 0
   researchDropChance: 50
+  enemyName: Basic Enemy
+  description: This vira is the most basic of all, and is both weak and pretty slow.
+    However, they should not be underestimated in large groups.
   spawnPoint: {fileID: 0}
   rotateSprite: 0
   freezeMultiplier: 1

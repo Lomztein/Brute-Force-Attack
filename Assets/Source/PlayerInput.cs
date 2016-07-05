@@ -430,6 +430,11 @@ public class PlayerInput : MonoBehaviour {
             ResearchMenu.cur.ToggleResearchMenu ();
         contextMenu.ExitMenu ();
         EnemyManager.cur.CloseWaveList ();
+        EnemyInformationPanel.Close ();
+    }
+
+    public void OpenEnemyInformationPanel (Enemy enemy, int wave) {
+        EnemyInformationPanel.Open (enemy, wave);
     }
 
     public Vector3 MovePosInsideBattlefield (Vector3 pos, float depth) {

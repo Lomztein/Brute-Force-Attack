@@ -55,6 +55,7 @@ public class EnemyManager : MonoBehaviour {
 	private Dictionary<Wave.Enemy, List<GameObject>> pooledEnemies = new Dictionary<Wave.Enemy, List<GameObject>> ();
 	public Transform enemyPool;
     private List<Enemy> spawnedEnemies = new List<Enemy> ();
+    public Dictionary<string, int> enemiesKilled = new Dictionary<string, int>();
 
 	public static EnemyManager cur;
 
@@ -235,7 +236,7 @@ public class EnemyManager : MonoBehaviour {
 	void Poop () {
 		// Hø hø hø hø..
 		waveNumber++;
-		UpdateUpcomingWaveScreen (waves [waveNumber], upcomingWindow);
+		UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
 		Invoke ("Poop", 1f);
 	}
 
@@ -391,16 +392,32 @@ public class EnemyManager : MonoBehaviour {
 		}
 	}
 
+    public static void AddKill (string enemyName) {
+        if (!cur.enemiesKilled.ContainsKey (enemyName)) {
+            cur.enemiesKilled.Add (enemyName, 1);
+        }else {
+            cur.enemiesKilled[enemyName]++;
+        }
+    }
+
+    public static int GetKills (string enemyName) {
+        if (cur.enemiesKilled.ContainsKey (enemyName)) {
+            return cur.enemiesKilled[enemyName];
+        }else {
+            return 0;
+        }
+    }
+
 	public void ContinueMastery () {
 		waveNumber = 0;
 		waveMastery *= 2;
         UpdateAmountModifier ();
         Game.game.masteryModeIndicator.SetActive (false);
-        UpdateUpcomingWaveScreen (waves[waveNumber], upcomingWindow);
+        UpdateUpcomingWaveScreen (waves[waveNumber], externalWaveNumber, upcomingWindow);
         UpdateAmountModifier ();
 	}
 
-	void UpdateUpcomingWaveScreen (Wave upcoming, RectTransform window) {
+	void UpdateUpcomingWaveScreen (Wave upcoming, int waveIndex, RectTransform window) {
 
         if (window == upcomingWindow) {
             upcomingHeader.text = "Upcoming";
@@ -418,6 +435,7 @@ public class EnemyManager : MonoBehaviour {
 		int sIndex = 0;
 		int eIndex = 0;
 
+        window.name = (waveIndex + 1).ToString ();
         RectTransform upcomingCanvas = window.FindChild ("Content").gameObject.GetComponent<RectTransform> ();
 
 		foreach (Wave.Subwave sub in upcoming.subwaves) {
@@ -441,7 +459,10 @@ public class EnemyManager : MonoBehaviour {
                     upcomingContent.Add (newEne);
 
 				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-				Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
+                Button button = newEne.transform.FindChild ("Image").GetComponent<Button> ();
+                Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
+
+                AddEnemyButtonListener (button, ene.enemy.GetComponent<Enemy>(), 1);
 
                 if (window == upcomingWindow) {
                     upcomingElements.Add (UpcomingElement.CreateInstance<UpcomingElement> ());
@@ -467,6 +488,12 @@ public class EnemyManager : MonoBehaviour {
         }
 	}
 
+    void AddEnemyButtonListener ( Button button, Enemy enemy, int wave ) {
+        button.onClick.AddListener (() => {
+            EnemyInformationPanel.Open (enemy, int.Parse (button.transform.parent.parent.parent.name));
+        });
+    }
+
     public void ShowWaveList () {
         Game.ForceDarkOverlay (true);
         waveListParent.SetActive (true);
@@ -484,7 +511,7 @@ public class EnemyManager : MonoBehaviour {
             newListTransform.SetParent (listContentParent, false);
 
             newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
-            UpdateUpcomingWaveScreen (waves[i], newListTransform);
+            UpdateUpcomingWaveScreen (waves[i], i, newListTransform);
         }
     }
 
@@ -511,11 +538,16 @@ public class EnemyManager : MonoBehaviour {
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
-			gameProgress *= gameProgressSpeed;
+            gameProgress = GetProgressForWave (externalWaveNumber);
+            Debug.Log (gameProgress + ", " + GetProgressForWave (externalWaveNumber));
 			ContinueWave (true);
 
             PlayerInput.cur.UpdateFlushBattlefieldHoverContextElement ();
         }
+    }
+
+    public static float GetProgressForWave (int wave) {
+        return Mathf.Pow (cur.gameProgressSpeed, wave);
     }
 
 	void ContinueWave (bool first) {
@@ -564,7 +596,7 @@ public class EnemyManager : MonoBehaviour {
         }
 
         if (waves.Count >= waveNumber + 1) {
-			UpdateUpcomingWaveScreen (waves [waveNumber], upcomingWindow);
+			UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
 		}
 
         waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
