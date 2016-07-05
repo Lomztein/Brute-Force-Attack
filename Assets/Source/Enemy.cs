@@ -40,8 +40,11 @@ public class Enemy : MonoBehaviour {
 
 	public Slider healthSlider;
 
+    public static int GetHealth (int startingHealth, float progress, float multiplier) {
+        return Mathf.RoundToInt (startingHealth * progress * multiplier);
+    }
+
     public static int GetHealth (int startingHealth, float progress) {
-        Debug.Log (Mathf.RoundToInt (startingHealth * progress * Game.difficulty.healthMultiplier));
         return Mathf.RoundToInt (startingHealth * progress * Game.difficulty.healthMultiplier);
     }
 

@@ -2186,23 +2186,23 @@ MonoBehaviour:
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 30
+        spawnAmount: 40
         index: 0
-      spawnTime: 20
+      spawnTime: 18
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 5
+        spawnAmount: 20
         index: 0
-      spawnTime: 10
+      spawnTime: 15
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 40
+        spawnAmount: 50
         index: 0
       spawnTime: 20
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 10
+        spawnAmount: 25
         index: 0
       spawnTime: 10
   - subwaves:
@@ -2213,7 +2213,7 @@ MonoBehaviour:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
         spawnAmount: 15
         index: 0
-      spawnTime: 25
+      spawnTime: 30
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
         spawnAmount: 5
@@ -2222,13 +2222,16 @@ MonoBehaviour:
   - subwaves:
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 25
+        spawnAmount: 40
+        index: 0
+      - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
+        spawnAmount: 5
         index: 0
       spawnTime: 15
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 40
+        spawnAmount: 60
         index: 0
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
         spawnAmount: 10
@@ -2236,29 +2239,32 @@ MonoBehaviour:
       spawnTime: 30
     - enemies:
       - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
-        spawnAmount: 3
+        spawnAmount: 10
         index: 0
       spawnTime: 5
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 30
+        spawnAmount: 35
         index: 0
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 10
+        spawnAmount: 25
         index: 0
-      spawnTime: 30
+      spawnTime: 35
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 10
+        spawnAmount: 15
         index: 0
-      spawnTime: 10
+      spawnTime: 5
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
-        spawnAmount: 10
+        spawnAmount: 50
         index: 0
-      spawnTime: 12
+      - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
+        spawnAmount: 20
+        index: 0
+      spawnTime: 20
   - subwaves:
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
@@ -2285,9 +2291,12 @@ MonoBehaviour:
   - subwaves:
     - enemies:
       - enemy: {fileID: 189944, guid: 1904d24f6ea8b164eb5ad0e5dde70651, type: 2}
-        spawnAmount: 3
+        spawnAmount: 25
         index: 0
-      spawnTime: 5
+      - enemy: {fileID: 148218, guid: 98138d1d3fdc1a84e939fa2760f0baf3, type: 2}
+        spawnAmount: 50
+        index: 0
+      spawnTime: 20
   - subwaves:
     - enemies:
       - enemy: {fileID: 189944, guid: 1904d24f6ea8b164eb5ad0e5dde70651, type: 2}
@@ -2296,83 +2305,97 @@ MonoBehaviour:
       - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
         spawnAmount: 10
         index: 0
-      spawnTime: 20
+      spawnTime: 25
     - enemies:
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
         spawnAmount: 20
         index: 0
       - enemy: {fileID: 182908, guid: a1b587017a047ae43aa9e0dc8cdfbe92, type: 2}
-        spawnAmount: 35
+        spawnAmount: 25
         index: 0
       spawnTime: 20
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
-        spawnAmount: 15
+        spawnAmount: 10
         index: 0
       - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 25
+        spawnAmount: 20
         index: 0
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 35
+        spawnAmount: 30
         index: 0
       spawnTime: 30
   - subwaves:
     - enemies:
       - enemy: {fileID: 175408, guid: a24ae99d281993446a0adf350b1cefa0, type: 2}
-        spawnAmount: 5
+        spawnAmount: 10
         index: 0
-      spawnTime: 0
+      - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
+        spawnAmount: 35
+        index: 0
+      spawnTime: 40
+    - enemies:
+      - enemy: {fileID: 189944, guid: 1904d24f6ea8b164eb5ad0e5dde70651, type: 2}
+        spawnAmount: 20
+        index: 0
+      spawnTime: 8
   - subwaves:
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 40
+        spawnAmount: 25
         index: 0
       - enemy: {fileID: 189944, guid: 1904d24f6ea8b164eb5ad0e5dde70651, type: 2}
         spawnAmount: 10
         index: 0
-      spawnTime: 20
+      spawnTime: 40
     - enemies:
       - enemy: {fileID: 182908, guid: a1b587017a047ae43aa9e0dc8cdfbe92, type: 2}
-        spawnAmount: 65
+        spawnAmount: 45
         index: 0
       spawnTime: 10
   - subwaves:
     - enemies:
       - enemy: {fileID: 198654, guid: 68e2d80c21a2bb446887d69ebd1c1aa6, type: 2}
-        spawnAmount: 100
-        index: 0
-      - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
         spawnAmount: 50
         index: 0
-      - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
-        spawnAmount: 100
+      - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
+        spawnAmount: 25
         index: 0
-      spawnTime: 50
+      - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
+        spawnAmount: 50
+        index: 0
+      spawnTime: 55
   - subwaves:
     - enemies:
       - enemy: {fileID: 182908, guid: a1b587017a047ae43aa9e0dc8cdfbe92, type: 2}
-        spawnAmount: 100
+        spawnAmount: 50
         index: 0
       - enemy: {fileID: 182908, guid: a1b587017a047ae43aa9e0dc8cdfbe92, type: 2}
-        spawnAmount: 100
+        spawnAmount: 50
         index: 0
       - enemy: {fileID: 182908, guid: a1b587017a047ae43aa9e0dc8cdfbe92, type: 2}
-        spawnAmount: 100
+        spawnAmount: 50
         index: 0
-      spawnTime: 60
+      - enemy: {fileID: 175408, guid: a24ae99d281993446a0adf350b1cefa0, type: 2}
+        spawnAmount: 50
+        index: 0
+      spawnTime: 75
   - subwaves:
     - enemies:
       - enemy: {fileID: 189944, guid: 1904d24f6ea8b164eb5ad0e5dde70651, type: 2}
         spawnAmount: 25
         index: 0
+      - enemy: {fileID: 166758, guid: 177e4f0bf42f1c94cb9fa6d3f458e71f, type: 2}
+        spawnAmount: 35
+        index: 0
       spawnTime: 20
   - subwaves:
     - enemies:
       - enemy: {fileID: 166758, guid: f210cc574d06aeb43809d38058dc20f6, type: 2}
-        spawnAmount: 100
+        spawnAmount: 200
         index: 0
-      spawnTime: 60
+      spawnTime: 30
     - enemies:
       - enemy: {fileID: 148218, guid: 98138d1d3fdc1a84e939fa2760f0baf3, type: 2}
         spawnAmount: 1000
@@ -3741,7 +3764,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 325358562}
   m_HandleRect: {fileID: 325358561}
   m_Direction: 3
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4241,7 +4264,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.000030517578, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &582618731
@@ -8018,7 +8041,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -29.650019}
+  m_AnchoredPosition: {x: 0.5, y: -29.65001}
   m_SizeDelta: {x: 300, y: 58.699997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1057484462
@@ -8603,20 +8626,20 @@ MonoBehaviour:
     startingCredits: 750
     startingResearch: 0
   - name: Hard
-    desc: Enemies have more health
-    amountMultiplier: 0
-    healthMultiplier: 1.4
+    desc: Enemies have more health, and twice as many spawn.
+    amountMultiplier: 2
+    healthMultiplier: 1.1
     startingCredits: 750
     startingResearch: 0
   - name: Brutal
-    desc: Enemies have much higher health, and twice as many spawn.
-    amountMultiplier: 2
-    healthMultiplier: 2
+    desc: Enemies have much higher health, and three times as many spawn.
+    amountMultiplier: 3
+    healthMultiplier: 1.4
     startingCredits: 750
     startingResearch: 0
   - name: Sandbox
     desc: Practically infinite resources
-    amountMultiplier: 1
+    amountMultiplier: 2
     healthMultiplier: 1
     startingCredits: 20000000
     startingResearch: 20000000

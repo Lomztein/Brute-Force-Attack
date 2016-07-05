@@ -550,7 +550,11 @@ public class EnemyManager : MonoBehaviour {
         return Mathf.Pow (cur.gameProgressSpeed, wave);
     }
 
-	void ContinueWave (bool first) {
+    public float GetProgressForWaveFromInstance (int wave) {
+        return Mathf.Pow (gameProgressSpeed, wave);
+    }
+
+    void ContinueWave (bool first) {
 
 		endedIndex = 0;
 		if (!first)
@@ -606,7 +610,9 @@ public class EnemyManager : MonoBehaviour {
         PlayerInput.ChangeFlushTimer (0);
 	}
 
-	EnemySpawnPoint GetSpawnPosition () {
+	EnemySpawnPoint GetSpawnPosition (Enemy enemy) {
+        if (enemy.isFlying)
+            return Game.game.enemySpawnPoints[Random.Range (0, Game.game.enemySpawnPoints.Count)];
         return availableSpawns[Random.Range(0, availableSpawns.Count)];
 	}
 
@@ -617,7 +623,7 @@ public class EnemyManager : MonoBehaviour {
             e.SetActive (true);
 
             Enemy ene = e.GetComponent<Enemy> ();
-            ene.spawnPoint = GetSpawnPosition ();
+            ene.spawnPoint = GetSpawnPosition (ene);
             ene.transform.position = ene.spawnPoint.worldPosition;
             ene.path = ene.spawnPoint.path;
 
