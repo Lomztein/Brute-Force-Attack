@@ -228,6 +228,8 @@ MonoBehaviour:
   muzzles:
   - {fileID: 480924}
   - {fileID: 407184}
+  muzzleFlashes: []
+  particles: 50
   bullet:
   - {fileID: 121860, guid: 8e30af8349cb6e145b1ca2537a5e0ea4, type: 2}
   bulletData: {fileID: 0}
@@ -237,7 +239,6 @@ MonoBehaviour:
   bulletAmount: 1
   maxRange: 0
   target: {fileID: 0}
-  fireParticle: {fileID: 0}
   locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
@@ -247,6 +248,7 @@ MonoBehaviour:
   amountMul: 1
   firerate: 0.6
   sequenceTime: 0.3
+  weaponModule: {fileID: 11440858}
   pointer: {fileID: 0}
   pool: {fileID: 0}
   canFire: 1

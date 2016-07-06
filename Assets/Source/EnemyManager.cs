@@ -644,7 +644,10 @@ public class EnemyManager : MonoBehaviour {
             Enemy ene = e.GetComponent<Enemy> ();
             ene.spawnPoint = GetSpawnPosition (ene);
             ene.transform.position = ene.spawnPoint.worldPosition;
+
             ene.path = ene.spawnPoint.path;
+            if (ene.isFlying)
+                ene.path = new Vector2[1];
 
             pooledEnemies[enemy].RemoveAt (0);
             spawnIndex[index]++;

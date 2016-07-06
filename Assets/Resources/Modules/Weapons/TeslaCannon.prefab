@@ -73,6 +73,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 405184}
   - {fileID: 432436}
@@ -87,6 +88,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 471062}
   m_Father: {fileID: 400672}
@@ -100,6 +102,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 400672}
   m_RootOrder: 1
@@ -112,6 +115,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.943, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 405184}
   m_RootOrder: 0
@@ -150,6 +154,18 @@ MonoBehaviour:
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   moduleType: 2
   moduleClass: 2
   moduleCost: 1500
@@ -182,6 +198,8 @@ MonoBehaviour:
   weaponIdentifier: ArcLauncher
   muzzles:
   - {fileID: 471062}
+  muzzleFlashes: []
+  particles: 50
   bullet:
   - {fileID: 160900, guid: 2931f2be9d45e1b4d8ae258c10ff609d, type: 2}
   bulletData: {fileID: 0}
@@ -191,7 +209,6 @@ MonoBehaviour:
   bulletAmount: 3
   maxRange: 0
   target: {fileID: 0}
-  fireParticle: {fileID: 0}
   locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
@@ -201,6 +218,7 @@ MonoBehaviour:
   amountMul: 1
   firerate: 4
   sequenceTime: 0
+  weaponModule: {fileID: 11446910}
   pointer: {fileID: 0}
   pool: {fileID: 0}
   canFire: 1

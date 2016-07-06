@@ -74,6 +74,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.811, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 487068}
   m_RootOrder: 0
@@ -86,6 +87,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 443154}
   m_RootOrder: 1
@@ -98,6 +100,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.6922345, y: -1.2174666, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 487068}
   - {fileID: 434758}
@@ -112,6 +115,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 409096}
   m_Father: {fileID: 443154}
@@ -194,6 +198,8 @@ MonoBehaviour:
   weaponIdentifier: ChargingBeamCannon
   muzzles:
   - {fileID: 409096}
+  muzzleFlashes: []
+  particles: 50
   bullet: []
   bulletData: {fileID: 11485914, guid: 1c2b243b396335440bd70667cfb7d07f, type: 2}
   bulletSpeed: 0
@@ -202,7 +208,6 @@ MonoBehaviour:
   bulletAmount: 0
   maxRange: 15
   target: {fileID: 0}
-  fireParticle: {fileID: 0}
   locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
@@ -212,6 +217,7 @@ MonoBehaviour:
   amountMul: 1
   firerate: 5
   sequenceTime: 0
+  weaponModule: {fileID: 11472288}
   pointer: {fileID: 0}
   pool: {fileID: 0}
   canFire: 1

@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour {
 	public int value;
 	public bool isFlying;
 	public int researchDropChance;
+    public float difficultyMultiplier = 1f;
 
     public string enemyName;
     public string description;

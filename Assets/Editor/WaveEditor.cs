@@ -121,11 +121,11 @@ public class WaveEditor : EditorWindow {
                 if (ene.enemy) {
                     Enemy enemy = ene.enemy.GetComponent<Enemy> ();
                     if (enemy) {
-                        locValue += Enemy.GetHealth (enemy.health, spawner.GetProgressForWaveFromInstance (waveIndex), 1f) * enemy.speed * ene.spawnAmount;
+                        locValue += Enemy.GetHealth (enemy.health, spawner.GetProgressForWaveFromInstance (waveIndex), 1f) * enemy.speed * ene.spawnAmount * enemy.difficultyMultiplier;
                         SplitterEnemySplit split = enemy.GetComponent<SplitterEnemySplit> ();
                         if (split) {
                             Enemy splitEnemy = split.minion.GetComponent<Enemy> ();
-                            locValue += Enemy.GetHealth (splitEnemy.health, spawner.GetProgressForWaveFromInstance (waveIndex), 1f) * splitEnemy.speed * split.spawnPos.Length;
+                            locValue += Enemy.GetHealth (splitEnemy.health, spawner.GetProgressForWaveFromInstance (waveIndex), 1f) * splitEnemy.speed * split.spawnPos.Length * splitEnemy.difficultyMultiplier;
                         }
                     }
                 }

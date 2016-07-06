@@ -40,6 +40,7 @@ public class FireProjectile : Projectile {
 		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime * 2f)) {
 			if (ShouldHit (hit)) {
 				OnHit (hit.collider, hit.point, transform.right);
+                damage /= 5;
 			}
 		}
 	}

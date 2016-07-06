@@ -90,6 +90,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 441102}
   m_RootOrder: 1
@@ -102,6 +103,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.41, y: 0, z: -0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 441102}
   m_RootOrder: 0
@@ -114,6 +116,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 408852}
   - {fileID: 408244}
@@ -128,6 +131,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 441102}
   - {fileID: 481132}
@@ -142,6 +146,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 455292}
   m_RootOrder: 1
@@ -225,6 +230,8 @@ MonoBehaviour:
   weaponIdentifier: Railgun
   muzzles:
   - {fileID: 408244}
+  muzzleFlashes: []
+  particles: 50
   bullet:
   - {fileID: 150572, guid: 33fc02d523284d64780412c0a42ceb9b, type: 2}
   bulletData: {fileID: 0}
@@ -234,7 +241,6 @@ MonoBehaviour:
   bulletAmount: 1
   maxRange: 5
   target: {fileID: 0}
-  fireParticle: {fileID: 0}
   locBulletIndex: 0
   upgradeMul: 1
   damageUpgradeMul: 1
@@ -244,6 +250,7 @@ MonoBehaviour:
   amountMul: 1
   firerate: 3
   sequenceTime: 0
+  weaponModule: {fileID: 11450394}
   pointer: {fileID: 0}
   pool: {fileID: 0}
   canFire: 1

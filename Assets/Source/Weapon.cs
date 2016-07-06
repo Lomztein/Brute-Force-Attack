@@ -9,6 +9,8 @@ public class Weapon : MonoBehaviour {
 
     public string weaponIdentifier;
 	public Transform[] muzzles;
+    public ParticleSystem[] muzzleFlashes;
+    public int particles = 50;
 
 	public GameObject[] bullet;
 	public Projectile bulletData;
@@ -18,7 +20,6 @@ public class Weapon : MonoBehaviour {
 	public int bulletAmount = 1;
 	public float maxRange;
 	public Transform target;
-	public GameObject fireParticle;
     public int locBulletIndex;
 
 	public float upgradeMul = 1f;
@@ -31,7 +32,8 @@ public class Weapon : MonoBehaviour {
 
 	public float firerate;
 	public float sequenceTime;
-		
+
+    public WeaponModule weaponModule;
 	public Transform pointer;
     public Transform pool;
 
@@ -39,6 +41,7 @@ public class Weapon : MonoBehaviour {
 	private Queue<GameObject> bulletPool = new Queue<GameObject>();
 
     private const int FIRERATE_LIMIT = 50;
+    private const float FIRERATE_UPGRADE_MAX_MULTIPLIER = 3f;
 
     public static void TechUpWeapon (string identifier) {
         bulletIndex[identifier]++;
@@ -118,6 +121,7 @@ public class Weapon : MonoBehaviour {
 			for (int i = 0; i < bulletAmount * amountMul; i++) {
 
 				GameObject newBullet = GetPooledBullet (new Vector3 (muzzles[m].position.x, muzzles[m].position.y, 0), muzzles[m].rotation);
+                if (muzzleFlashes != null && muzzleFlashes.Length - 1 >= m) muzzleFlashes[m].Emit (particles);
 				Projectile pro = newBullet.GetComponent<Projectile>();
 
                 pro.transform.SetParent(pool);
@@ -125,12 +129,12 @@ public class Weapon : MonoBehaviour {
 				pro.velocity = muzzles[m].rotation * new Vector3 (bulletSpeed * Random.Range (0.9f, 1.1f), Random.Range (-bulletSpread, bulletSpread));
 				pro.parent = gameObject;
                 pro.damage = GetDamage ();
-				pro.range = maxRange * ResearchMenu.rangeMul * upgradeMul;
+                pro.range = weaponModule.parentBase.GetRange ();
 				pro.target = target;
 				pro.Initialize ();
 				
 				if (pro.destroyOnTime)
-					pro.Invoke ("ReturnToPool", maxRange * upgradeMul * ResearchMenu.rangeMul / bulletSpeed * 1.5f);
+					pro.Invoke ("ReturnToPool", weaponModule.parentBase.GetRange () / bulletSpeed);
 			
 			}
 
@@ -144,18 +148,23 @@ public class Weapon : MonoBehaviour {
         if (muzzles.Length == 1)
             return 1f;
         if (limit)
-            return Mathf.Max (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+            return Mathf.Max (sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f / GetWeaponFirerateLimit () / muzzles.Length
+                );
         return sequenceTime * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
     }
 
     private float GetFirerate (bool limit) {
         if (limit)
-            return Mathf.Max (firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/FIRERATE_LIMIT);
+            return Mathf.Max (firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul, 1f/ GetWeaponFirerateLimit ());
         return firerate * firerateMul * ResearchMenu.firerateMul[(int)GetBulletData ().effectiveAgainst] / upgradeMul;
     }
 
     private float GetFirerateLimitDamageMultiplier (float rate) {
-        return Mathf.Max (((1f / rate - FIRERATE_LIMIT) / FIRERATE_LIMIT + 1), 1f);
+        return Mathf.Max (((1f / rate - GetWeaponFirerateLimit ()) / GetWeaponFirerateLimit () + 1) * muzzles.Length, 1f);
+    }
+
+    private int GetWeaponFirerateLimit () {
+        return Mathf.RoundToInt (Mathf.Min (1f / firerate * FIRERATE_UPGRADE_MAX_MULTIPLIER, FIRERATE_LIMIT));
     }
 
     private int GetDamage () {
