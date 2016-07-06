@@ -137,8 +137,8 @@ MonoBehaviour:
   type: 5
   speed: 3
   health: 20
-  damage: 15
-  value: 30
+  damage: 0
+  value: 0
   isFlying: 0
   researchDropChance: 35
   enemyName: Heavy Healing

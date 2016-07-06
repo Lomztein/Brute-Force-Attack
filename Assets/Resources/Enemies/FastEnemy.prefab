@@ -121,8 +121,8 @@ MonoBehaviour:
   type: 3
   speed: 10
   health: 3
-  damage: 7
-  value: 15
+  damage: 10
+  value: 10
   isFlying: 0
   researchDropChance: 50
   enemyName: Fast Enemy

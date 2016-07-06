@@ -119,10 +119,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 4
-  speed: 7
+  speed: 3
   health: 1
-  damage: 10
-  value: 20
+  damage: 5
+  value: 5
   isFlying: 1
   researchDropChance: 50
   enemyName: Flying Enemy

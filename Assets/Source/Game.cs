@@ -286,6 +286,9 @@ public class Game : MonoBehaviour {
 
         }
 
+        if (Application.platform == RuntimePlatform.Android)
+            gamemode = Gamemode.TitaniumEnemies;
+
         Debug.Log ("Done initializing!");
     }
 
@@ -646,11 +649,25 @@ public class Game : MonoBehaviour {
 
         string dp = Application.dataPath;
 
-        MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
-        WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
-        BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
-        RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
-        SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
+        switch (Application.platform) {
+
+            case RuntimePlatform.Android:
+                MODULE_ASSEMBLY_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Module Assemblies/";
+                WAVESET_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Wave Sets/";
+                BATTLEFIELD_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Battlefield Sets/";
+                RESEARCH_BACKUP_DATA_DIRECTORY = "jar:file://" + dp + "/Research Backup Data/";
+                SAVED_GAME_DIRECTORY = "jar:file://" + dp + "!/assets/Saved Games/";
+                break;
+
+            default:
+                MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
+                WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
+                BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
+                RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+                SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
+                break;
+
+        }
 
         if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
             Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);

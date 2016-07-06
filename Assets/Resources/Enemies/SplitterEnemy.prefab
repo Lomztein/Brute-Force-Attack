@@ -121,8 +121,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 6
   speed: 3
-  health: 15
-  damage: 30
+  health: 10
+  damage: 10
   value: 0
   isFlying: 0
   researchDropChance: 50

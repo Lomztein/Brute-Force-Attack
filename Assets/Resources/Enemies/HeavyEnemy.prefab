@@ -121,8 +121,8 @@ MonoBehaviour:
   type: 5
   speed: 1.5
   health: 20
-  damage: 15
-  value: 30
+  damage: 10
+  value: 10
   isFlying: 0
   researchDropChance: 35
   enemyName: Heavy Enemy

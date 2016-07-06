@@ -7,7 +7,7 @@ public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 public class Module : MonoBehaviour {
 
     public const string MODULE_FILE_EXTENSION = ".dat";
-    public const int MAX_UPGRADE_AMOUNT = 5;
+    public const int MAX_UPGRADE_AMOUNT = 10;
     public bool isOnBattlefield = true;
 
     public enum Type { Base, Rotator, Weapon, Structural, Independent };

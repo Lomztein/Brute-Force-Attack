@@ -123,7 +123,7 @@ MonoBehaviour:
   speed: 4
   health: 10
   damage: 10
-  value: 15
+  value: 10
   isFlying: 0
   researchDropChance: 50
   enemyName: Healing Enemy

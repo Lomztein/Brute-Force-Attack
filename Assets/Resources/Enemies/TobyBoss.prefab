@@ -121,7 +121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   speed: 0.5
-  health: 800
+  health: 2000
   damage: 1000
   value: 1000
   isFlying: 1

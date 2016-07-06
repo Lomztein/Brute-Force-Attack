@@ -37,11 +37,12 @@ public class EnemyManager : MonoBehaviour {
 	private int[] spawnIndex;
 	private int endedIndex;
 	public int waveMastery = 1;
-    public int amountModifier = 1;
+    public float amountModifier = 1f;
 
 	public static float readyWaitTime = 2f;
-	
 	public static float gameProgress = 1f;
+
+    [Range (0, 10)]
 	public float gameProgressSpeed = 1f;
 
     // Paths are build first, enemies second, so EnemiesBuild also means PathsBuild.
@@ -58,6 +59,8 @@ public class EnemyManager : MonoBehaviour {
     public Dictionary<string, int> enemiesKilled = new Dictionary<string, int>();
 
 	public static EnemyManager cur;
+    public GameObject enemyPortalPrefab;
+    public List<GameObject> currentPortals = new List<GameObject>();
 
     [Header ("Upcoming Wave")]
     public Text upcomingHeader;
@@ -84,6 +87,8 @@ public class EnemyManager : MonoBehaviour {
     public static void Initialize () {
         cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
         cur.EndWave (false);
+        externalWaveNumber = 0;
+
         cur.AddFinalBoss ();
     }
 
@@ -191,7 +196,7 @@ public class EnemyManager : MonoBehaviour {
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
             amountModifier *= 10;
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
-            amountModifier = (int)(amountModifier * 0.1f);
+            amountModifier = amountModifier * 0.1f;
         }
     }
 
@@ -264,8 +269,8 @@ public class EnemyManager : MonoBehaviour {
 
                     SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
                     if (split)
-                        currentEnemies += ene.spawnAmount * split.spawnPos.Length * amountModifier;
-                    currentEnemies += ene.spawnAmount * amountModifier;
+                        currentEnemies += Mathf.RoundToInt (ene.spawnAmount * (float)split.spawnPos.Length * amountModifier);
+                    currentEnemies += Mathf.RoundToInt (ene.spawnAmount * amountModifier);
                 }
             }
 
@@ -274,7 +279,7 @@ public class EnemyManager : MonoBehaviour {
 
             index = 0;
             while (spawnQueue.Count > 0) {
-                for (int i = 0; i < spawnQueue.Peek().spawnAmount * amountModifier; i++) {
+                for (int i = 0; i < Mathf.RoundToInt (spawnQueue.Peek().spawnAmount * amountModifier); i++) {
                     GameObject newEne = (GameObject)Instantiate(spawnQueue.Peek().enemy, enemyPool.position, Quaternion.identity);
                     toArray.Add(newEne.GetComponent<Enemy>());
 
@@ -337,6 +342,7 @@ public class EnemyManager : MonoBehaviour {
                 if (cancellingWave) {
                     yield break;
                 }
+                SetPortals (true);
                 StartWave ();
             } else if (waveStarted) {
                 Game.ToggleFastGameSpeed ();
@@ -344,6 +350,19 @@ public class EnemyManager : MonoBehaviour {
         }
 
 	}
+
+    void SetPortals (bool state) {
+        if (state) {
+            for (int i = 0; i < availableSpawns.Count; i++) {
+                GameObject newPortal = (GameObject)Instantiate (enemyPortalPrefab, availableSpawns[i].worldPosition - Vector3.forward, Quaternion.identity);
+                currentPortals.Add (newPortal);
+            }
+        }else {
+            for (int i = 0; i < currentPortals.Count; i++) {
+                Destroy (currentPortals[i]);
+            }
+        }
+    }
 
     void SetAvailableSpawnpoints () {
         Pathfinding.BakePaths ();
@@ -467,7 +486,7 @@ public class EnemyManager : MonoBehaviour {
                 if (window == upcomingWindow) {
                     upcomingElements.Add (UpcomingElement.CreateInstance<UpcomingElement> ());
                     upcomingElements[upcomingElements.Count - 1].upcomingText = text;
-                    upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * amountModifier + 1;
+                    upcomingElements[upcomingElements.Count - 1].remaining = Mathf.RoundToInt (ene.spawnAmount * amountModifier + 1);
                     upcomingElements[upcomingElements.Count - 1].Decrease ();
                 }else {
                     text.text = "x " + (ene.spawnAmount * amountModifier).ToString ();
@@ -539,7 +558,6 @@ public class EnemyManager : MonoBehaviour {
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
             gameProgress = GetProgressForWave (externalWaveNumber);
-            Debug.Log (gameProgress + ", " + GetProgressForWave (externalWaveNumber));
 			ContinueWave (true);
 
             PlayerInput.cur.UpdateFlushBattlefieldHoverContextElement ();
@@ -583,6 +601,7 @@ public class EnemyManager : MonoBehaviour {
         }
 
         Game.CrossfadeMusic (Game.game.constructionMusic, 2f);
+        SetPortals (false);
 
         Game.ChangeButtons (true);
 		waveStarted = false;
