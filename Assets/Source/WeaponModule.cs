@@ -14,9 +14,10 @@ public class WeaponModule : Module {
 		FindParentRotator ();
 		UpdateWeaponRange ();
 		base.Start ();
-	}
+        rootModule.scoreName = "Kills";
+    }
 
-	public override bool UpgradeModule () {
+    public override bool UpgradeModule () {
 		bool passed = base.UpgradeModule ();
 		weapon.upgradeMul = upgradeMul;
         weapon.damageUpgradeMul *= 1 + GetUpgradePercentage () * 2f;

@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 4
   speed: 3
+  startingHealth: 1
   health: 1
   damage: 5
   value: 5
   isFlying: 1
   researchDropChance: 50
+  difficultyMultiplier: 1
   enemyName: Flying Enemy
   description: Very different from any other kind of vira, these are able to completely
     ignore any and all obstacles in their way, excluding bullets of course.

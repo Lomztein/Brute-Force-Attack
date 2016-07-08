@@ -121,11 +121,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 2
   speed: 4
+  startingHealth: 10
   health: 10
   damage: 10
   value: 10
   isFlying: 0
   researchDropChance: 50
+  difficultyMultiplier: 1
   enemyName: Healing Enemy
   description: These vira posess an ability previously unseen. If damaged, they can
     rewrite their lost code automatically. This is however hampered by tesla weapons.
@@ -154,6 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healSpeed: 1
   healMax: 0
+  startHealth: 0
   enemy: {fileID: 11472536}
 --- !u!135 &13566530
 SphereCollider:

@@ -30,7 +30,7 @@ public class PointExplosionAbility : Ability {
 		if (doExplodeDamage) {
 			Collider[] nearby = Physics.OverlapSphere (pos, range, Game.game.enemyLayer);
 			for (int i = 0; i < nearby.Length; i++) {
-				nearby [i].SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Red), SendMessageOptions.DontRequireReceiver);
+				nearby [i].SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Red, null), SendMessageOptions.DontRequireReceiver);
 			}
 		}
 		button.OnAbilityUsed ();

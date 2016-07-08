@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a553e92bf2a724ead0932814fb4453, type: 3}
+  m_Name: PrioritySubmenu
+  m_EditorClassIdentifier: 
+  type: 0
+  partName: Targeting Priority
+  subparts:
+  - {fileID: 11400000, guid: dcbc122f4acd11349b57d680cef2e22d, type: 2}
+  - {fileID: 11400000, guid: 78211583b5a206c4fade32b27b783229, type: 2}
+  - {fileID: 11400000, guid: 2f5c0f862687f244bb60a4e31da7cd26, type: 2}
+  - {fileID: 11400000, guid: 8213649b439d73c459cf322f9d17fb0e, type: 2}
+  - {fileID: 11400000, guid: 8e4c67eb503a98e42b42e74d15698ab1, type: 2}
+  - {fileID: 11400000, guid: ab961f4eebc77ae44ae56c4260853233, type: 2}
+  position: {x: 707.0001, y: 455.30002, z: 0}
+  text: {fileID: 0}
+  module: {fileID: 0}

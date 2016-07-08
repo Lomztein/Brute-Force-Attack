@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a553e92bf2a724ead0932814fb4453, type: 3}
+  m_Name: RotatorMode
+  m_EditorClassIdentifier: 
+  type: 1
+  partName: Mode
+  subparts:
+  - {fileID: 11400000, guid: 596d6005b7d0b6340bcb6687cc88991a, type: 2}
+  - {fileID: 11400000, guid: 67061749c94d0474da0b445cd5282c37, type: 2}
+  - {fileID: 11400000, guid: f01399ea3c318ba44bcf5f38a302b4c7, type: 2}
+  position: {x: 0, y: 0, z: 0}
+  text: {fileID: 0}
+  module: {fileID: 0}

@@ -160,20 +160,20 @@ public class Game : MonoBehaviour {
 
     public static void ForceDarkOverlay ( bool setting ) {
 
+        if (setting && currentScene == Scene.Play)
+            PlayerInput.cur.CancelAll ();
+
         Animator anim = null;
         Image image = null;
-        BoxCollider col = null;
 
         if (game) {
             anim = game.darkOverlay.GetComponent<Animator> ();
             image = game.darkOverlay.GetComponent<Image> ();
-            col = game.darkOverlay.GetComponent<BoxCollider> ();
             darkOverlaySiblingIndex = game.darkOverlay.transform.GetSiblingIndex ();
         } else {
             GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
             anim = overlay.GetComponent<Animator> ();
             image = overlay.GetComponent<Image> ();
-            col = overlay.GetComponent<BoxCollider> ();
             darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
         }
 
@@ -697,10 +697,9 @@ public class Game : MonoBehaviour {
 		GenerateWallMesh ();
 
         // Initialize datastream graphic
-        datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
-		datastream.flyDistance = battlefieldWidth;
-		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
-        datastream.Reset (Datastream.healthAmount);
+        datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3);
+        datastream.GetComponent<BoxCollider> ().center += Vector3.up * 6f / battlefieldHeight;
+        datastream.Initialize ();
 
         PurchaseMenu.cur.InitializeAssemblyButtons ();
 
@@ -917,6 +916,7 @@ public class Game : MonoBehaviour {
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
+            rootModule.score = sg.turrets[i].score;
             for (int j = 0; j < rootModule.modules.Count; j++) {
 
                 rootModule.modules[j].SetStartingUpgradeCost ();
@@ -955,6 +955,7 @@ public class Game : MonoBehaviour {
         EnemyManager.cur.waveNumber = sg.waveNumber;
         EnemyManager.externalWaveNumber = sg.totalWaveNumber;
         EnemyManager.gameProgress = sg.gameProgress;
+        EnemyManager.cur.enemiesKilled = sg.enemiesKilled;
 
         EnemyManager.cur.EndWave (false);
     }
@@ -1001,6 +1002,7 @@ public class Game : MonoBehaviour {
         saved.totalWaveNumber = EnemyManager.externalWaveNumber;
         saved.masteryNumber = EnemyManager.cur.waveMastery;
         saved.gameProgress = EnemyManager.gameProgress;
+        saved.enemiesKilled = EnemyManager.cur.enemiesKilled;
 
         saved.health = Datastream.healthAmount;
 
@@ -1027,6 +1029,7 @@ public class Game : MonoBehaviour {
         public int masteryNumber;
         public int totalWaveNumber;
         public float gameProgress;
+        public Dictionary<string, int> enemiesKilled;
 
         public DifficultySettings difficulty;
 
@@ -1065,6 +1068,7 @@ public class Game : MonoBehaviour {
             public float posX;
             public float posY;
             public float rot;
+            public int score;
 
             public List<int> levels = new List<int>();
 
@@ -1073,6 +1077,7 @@ public class Game : MonoBehaviour {
                 posX = rootModule.transform.localPosition.x;
                 posY = rootModule.transform.localPosition.y;
                 rot = rootModule.transform.localEulerAngles.z;
+                score = rootModule.score;
                 for (int i = 0; i < 3; i++) {
                     levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
                 }
@@ -1084,12 +1089,14 @@ public class Game : MonoBehaviour {
     public class DifficultySettings {
 
         public string name;
+        [TextArea]
         public string desc;
 
         public int amountMultiplier;
         public float healthMultiplier;
         public int startingCredits;
         public int startingResearch;
+        public int researchPerRound = 1;
 
     }
 }

@@ -225,7 +225,7 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Research Collector
-  moduleDesc: Collects fallen bytecode from baddies, which can in turn be used to
+  moduleDesc: Collects fallen bytecode from enemies, which can in turn be used to
     research upgrades.
   assemblyDesc: 
   assemblyName: 
@@ -242,7 +242,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  moduleType: 2
+  scoreName: 
+  score: 0
+  moduleType: 4
   moduleClass: 2
   moduleCost: 750
   moduleIndex: 0

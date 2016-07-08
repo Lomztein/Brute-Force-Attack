@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 3
   speed: 12
+  startingHealth: 2
   health: 2
   damage: 2
   value: 2
   isFlying: 0
   researchDropChance: 100
+  difficultyMultiplier: 1
   enemyName: Swarm Enemy
   description: Childlike versions of their larger brothers, these vira are even weaker
     and even faster, and in even more numbers. Lasers are highly recommended to deal

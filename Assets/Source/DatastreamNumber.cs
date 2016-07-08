@@ -3,7 +3,7 @@ using System.Collections;
 
 public class DatastreamNumber : MonoBehaviour {
 
-	public float speed;
+	/*public float speed;
 	public Datastream datastream;
 
 	void FixedUpdate () {
@@ -19,5 +19,5 @@ public class DatastreamNumber : MonoBehaviour {
 		n.GetComponent<DatastreamNumber>().speed = datastream.flySpeed * speedMul;
 
 		Invoke ("ResetNumber", datastream.flyDistance / (datastream.flySpeed * speedMul));
-	}
+	}*/
 }

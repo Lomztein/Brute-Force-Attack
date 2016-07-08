@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 6
   speed: 4
+  startingHealth: 2
   health: 2
   damage: 2
   value: 2
   isFlying: 0
   researchDropChance: 150
+  difficultyMultiplier: 1
   enemyName: Splitter Minion
   description: Tiny, slow and weak but in large numbers, these vira can quickly overwhelm
     any defence not ready to deal with them.

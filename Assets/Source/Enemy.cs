@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour {
     public float difficultyMultiplier = 1f;
 
     public string enemyName;
+    [TextArea]
     public string description;
 
 	public EnemySpawnPoint spawnPoint;
@@ -142,15 +143,18 @@ public class Enemy : MonoBehaviour {
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
 
+                if (damage.weapon)
+                    damage.weapon.AddKill ();
+
                 if (deathParticle) {
                     deathParticle.transform.parent = null;
                     deathParticle.Emit (particleAmount);
                     Invoke ("DisableParticle", particleLifetime);
                 }
 
-                if (EnemyManager.spawnedResearch < EnemyManager.researchPerWave) {
+                if (EnemyManager.spawnedResearch < Game.difficulty.researchPerRound) {
                     if ((Random.Range (0, EnemyManager.chanceToSpawnResearch) == 0)
-                    || EnemyManager.cur.currentEnemies == 1) {
+                    || EnemyManager.cur.currentEnemies <= Game.difficulty.researchPerRound - EnemyManager.spawnedResearch) {
 
                         Instantiate (researchPoint, transform.position, Quaternion.identity);
                         EnemyManager.spawnedResearch++;
@@ -177,27 +181,7 @@ public class Enemy : MonoBehaviour {
 			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
         Datastream.healthAmount -= damage;
-		for (int j = 0; j < damage; j++) {
-
-			float dist = float.MaxValue;
-			Transform near = null;
-		
-			for (int i = 0; i < stream.pooledNumbers.Count; i++) {
-
-				float d = Vector3.Distance (transform.position, stream.pooledNumbers[i].transform.position);
-				if (d < dist) {
-					dist = d;
-					near = stream.pooledNumbers[i].transform;
-				}
-			}
-
-			if (near) {
-				stream.pooledNumbers.Remove(near.gameObject);
-				stream.curruptNumbers.Add  (near.gameObject);
-				nearest.Add (near);
-			}
-
-		}
+        Datastream.cur.EmitCorruptionParticles (transform.position, damage / 10f);
 
 		for (int i = 0; i < nearest.Count; i++) {
 			nearest[i].GetComponent<SpriteRenderer>().color = Color.red;

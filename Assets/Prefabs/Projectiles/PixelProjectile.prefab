@@ -42,6 +42,7 @@ Transform:
   m_LocalRotation: {x: -0.5000006, y: -0.49999946, z: 0.49999946, w: 0.5000006}
   m_LocalPosition: {x: 0.38, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 478794}
   m_RootOrder: 0
@@ -54,6 +55,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.2528968, y: 0.07890996, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 436840}
   m_Father: {fileID: 0}
@@ -80,6 +82,27 @@ MonoBehaviour:
   hitOnlyTarget: 0
   effectiveAgainst: 6
   isHitscan: 0
+  damageFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 0.49366283
+      value: 0.5156234
+      inSlope: -3.2376966
+      outSlope: -3.2376966
+      tangentMode: 0
+    - time: 1.0083333
+      value: 0.00000011920929
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
   particle: {fileID: 0}
   hitParticle: {fileID: 0}
   particleCount: 0

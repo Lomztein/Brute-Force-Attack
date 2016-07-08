@@ -142,7 +142,23 @@ MonoBehaviour:
   parentWeapon: {fileID: 0}
   hitOnlyTarget: 0
   effectiveAgainst: 5
-  isHitscan: 0
+  isHitscan: 1
+  damageFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
   particle: {fileID: 19818638}
   hitParticle: {fileID: 0}
   particleCount: 50

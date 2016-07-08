@@ -55,7 +55,7 @@ public class SawmillSaw : Projectile {
 		Debug.Log (hits.Length);
 		Debug.DrawLine (ray.origin, ray.origin + ray.direction * speed * Time.fixedDeltaTime, Color.white, 1f);
 		for (int i = 0; i < hits.Length; i++) {
-			hits[i].collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Yellow), SendMessageOptions.DontRequireReceiver);
+			hits[i].collider.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, Colour.Yellow, null), SendMessageOptions.DontRequireReceiver);
 		}
 	}
 }

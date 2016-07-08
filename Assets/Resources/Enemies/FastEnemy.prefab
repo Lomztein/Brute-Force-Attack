@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 3
   speed: 10
+  startingHealth: 3
   health: 3
   damage: 10
   value: 10
   isFlying: 0
   researchDropChance: 50
+  difficultyMultiplier: 1
   enemyName: Fast Enemy
   description: Much faster than their blue brothers, these vira has a larger chance
     of dodging bullets. They are however weaker.

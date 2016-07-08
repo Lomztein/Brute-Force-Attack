@@ -9,6 +9,13 @@ TagManager:
   - PathDemonstrator
   - DarkOverlay
   - UI
+  - None
+  - Blue
+  - Yellow
+  - Red
+  - Orange
+  - Purple
+  - Green
   layers:
   - Default
   - TransparentFX

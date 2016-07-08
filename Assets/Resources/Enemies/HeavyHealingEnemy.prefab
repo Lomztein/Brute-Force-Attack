@@ -122,6 +122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healSpeed: 1
   healMax: 0
+  startHealth: 0
   enemy: {fileID: 11488706}
 --- !u!114 &11488706
 MonoBehaviour:
@@ -136,11 +137,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 5
   speed: 3
+  startingHealth: 20
   health: 20
   damage: 0
   value: 0
   isFlying: 0
   researchDropChance: 35
+  difficultyMultiplier: 1
   enemyName: Heavy Healing
   description: In some sort of freak accident, the healing enemy entered a heavy enemy
     and ate all its insides. It now uses the armored husk as protection.

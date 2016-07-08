@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 5
   speed: 1.5
+  startingHealth: 20
   health: 20
   damage: 10
   value: 10
   isFlying: 0
   researchDropChance: 35
+  difficultyMultiplier: 1
   enemyName: Heavy Enemy
   description: This vira is much slower than any other vira, but also much tougher
     and requires a considerable amount of firepower to bring down.

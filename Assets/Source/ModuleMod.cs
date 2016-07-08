@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class ModuleMod {
+[CreateAssetMenu (fileName = "New Module Mod", menuName = "Create New Module Mod", order = 0)]
+public class ModuleMod : ScriptableObject {
 
     public enum Type { Menu, Toggle, Slider }
     public Type type;

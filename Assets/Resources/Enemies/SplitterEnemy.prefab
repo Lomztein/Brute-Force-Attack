@@ -121,11 +121,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 6
   speed: 3
+  startingHealth: 10
   health: 10
   damage: 10
   value: 0
   isFlying: 0
   researchDropChance: 50
+  difficultyMultiplier: 1
   enemyName: Splitter Enemy
   description: Once destroyed, these vira sends out smaller and weaker enemies, though
     they can quickly be overwhelming if not stopped effeciently.

@@ -89,36 +89,7 @@ MonoBehaviour:
   rootModule: {fileID: 0}
   modules: []
   moduleMods:
-  - type: 1
-    partName: Rotation
-    subparts:
-    - type: 0
-      partName: Direct
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Sprayer
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Spinner
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
-  - type: 0
-    partName: 
-    subparts: []
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
+  - {fileID: 11400000, guid: 6ef141a47a48c994ca8a5b00409becaf, type: 2}
   moduleName: Standard Rotator
   moduleDesc: The standard rotater simply rotates stuff towards wherever the underlying
     base wants it to point.
@@ -137,6 +108,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  scoreName: 
+  score: 0
   moduleType: 1
   moduleClass: 2
   moduleCost: 250

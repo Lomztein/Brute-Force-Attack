@@ -52,7 +52,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public static void InitializeStatics () {
-		Datastream.healSpeed = 0f;
+        Datastream.healPerWave = 0;
 		Datastream.repurposeEnemies = false;
 		Datastream.enableFirewall = false;
 		FireProjectile.fireWidth = 0.2f;
@@ -487,7 +487,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void UnlockAutoBaseHeal (Research research) {
-		Datastream.healSpeed = 0.1f;
+		Datastream.healPerWave = 5;
 	}
 
 	public void EnableBroadbandConnection (Research research) {

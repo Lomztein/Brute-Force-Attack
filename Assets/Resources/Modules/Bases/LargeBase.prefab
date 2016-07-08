@@ -42,6 +42,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -22.194899, y: -6.399873, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 457920}
   m_Father: {fileID: 0}
@@ -55,6 +56,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 404174}
   m_RootOrder: 0
@@ -87,18 +89,28 @@ MonoBehaviour:
   rootModule: {fileID: 0}
   modules: []
   moduleMods:
-  - type: 0
-    partName: 
-    subparts: []
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
+  - {fileID: 11400000, guid: 50b69d055edbb4c479a59c0fd120dea3, type: 2}
+  - {fileID: 11400000, guid: b3f5fa843b7c6cf419d0c01739e1c0bf, type: 2}
   moduleName: Large Base
   moduleDesc: The long range base is a rather large module, as the advanced computation
     needs quite a lot of room to function. This has double the range of other bases.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  scoreName: 
+  score: 0
   moduleType: 0
   moduleClass: 4
   moduleCost: 1250

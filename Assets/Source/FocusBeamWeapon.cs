@@ -59,7 +59,7 @@ public class FocusBeamWeapon : Weapon {
 	}
 
 	void FixedUpdate () {
-		if (target && !target.gameObject.activeSelf) {
+		if (weaponModule.parentBase.target && !weaponModule.parentBase.target.gameObject.activeSelf) {
 			BreakBeam ();
 		}
 	}
@@ -79,18 +79,17 @@ public class FocusBeamWeapon : Weapon {
 		if (charge > GetMaxCharge ()) {
 			BreakBeam ();
 			canFire = false;
-			Invoke ("Reload", reloadTime * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst] / upgradeMul);
 		}else{
-			charge += GetChargeSpeed ();
+            charge = maxCharge;
 		}
 		
-		line.SetWidth (Mathf.Clamp01 (charge / GetMaxCharge ()),
-		               Mathf.Clamp01 (charge / GetMaxCharge ()));
+		line.SetWidth (Mathf.Clamp01 (charge / GetMaxCharge () / 4f),
+		               Mathf.Clamp01 (charge / GetMaxCharge ()) / 4f);
 
 		if (Physics.Raycast (ray, out hit, maxRange * ResearchMenu.rangeMul * upgradeMul, Game.game.enemyLayer)) {
 			line.SetPosition (0, muzzles [0].position);
 			line.SetPosition (1, hit.point);
-			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (charge * upgradeMul * Time.deltaTime), GetBulletData ().effectiveAgainst));
+			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (GetDPS () * Time.deltaTime), GetBulletData ().effectiveAgainst, this));
 		} else {
 			line.SetPosition (0, muzzles[0].position);
 			line.SetPosition (1, ray.GetPoint (maxRange));

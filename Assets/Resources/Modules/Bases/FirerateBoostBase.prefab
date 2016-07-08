@@ -42,6 +42,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 414928}
   m_RootOrder: 0
@@ -54,6 +55,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 402836}
   m_Father: {fileID: 0}
@@ -87,216 +89,28 @@ MonoBehaviour:
   rootModule: {fileID: 0}
   modules: []
   moduleMods:
-  - type: 1
-    partName: Sort
-    subparts:
-    - type: 0
-      partName: Closest
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Furthest
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Strongest
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Weakest
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: First
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Last
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 0
-      partName: Random
-      subparts: []
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
-  - type: 0
-    partName: Targeting
-    subparts:
-    - type: 1
-      partName: Blue
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 1
-      partName: Green
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 1
-      partName: Yellow
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 1
-      partName: Orange
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 1
-      partName: Red
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    - type: 1
-      partName: Purple
-      subparts:
-      - type: 0
-        partName: Normal
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Prioritize
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      - type: 0
-        partName: Ignore
-        subparts: []
-        position: {x: 0, y: 0, z: 0}
-        text: {fileID: 0}
-        module: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      text: {fileID: 0}
-      module: {fileID: 0}
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
-  - type: 2
-    partName: Factor
-    subparts: []
-    position: {x: 0, y: 0, z: 0}
-    text: {fileID: 0}
-    module: {fileID: 0}
+  - {fileID: 11400000, guid: 50b69d055edbb4c479a59c0fd120dea3, type: 2}
+  - {fileID: 11400000, guid: b3f5fa843b7c6cf419d0c01739e1c0bf, type: 2}
   moduleName: Firerate Boost Base
   moduleDesc: The medium sized firerate booster base sacrifices a bit of the damge
     of weapons, to allow for almost double the firerate.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 
+  upgradeNameReplacement:
+  - 
+  - 
+  - 
+  upgradeDescReplacement:
+  - 
+  - 
+  - 
+  upgradeImageReplacement:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  scoreName: 
+  score: 0
   moduleType: 0
   moduleClass: 2
   moduleCost: 800

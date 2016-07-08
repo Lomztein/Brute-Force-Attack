@@ -75,6 +75,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 475544}
   m_RootOrder: 0
@@ -87,6 +88,7 @@ Transform:
   m_LocalRotation: {x: -0.5000006, y: -0.49999946, z: 0.49999946, w: 0.5000006}
   m_LocalPosition: {x: -0.77, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: -0.0001, y: -90, z: 90}
   m_Children: []
   m_Father: {fileID: 475544}
   m_RootOrder: 1
@@ -99,6 +101,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 475544}
   m_RootOrder: 2
@@ -109,8 +112,9 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 194094}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.9829068, y: 0.003022179, z: 0}
+  m_LocalPosition: {x: -8.297309, y: -1.277217, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 401840}
   - {fileID: 412800}
@@ -125,7 +129,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 194094}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: befde68d32f20c34cbf0bfed2d300fe4, type: 3}
+  m_Script: {fileID: 11500000, guid: 74445bb3766479b4296485eb28369b52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: {x: 0, y: 0, z: 0}
@@ -139,16 +143,31 @@ MonoBehaviour:
   hitOnlyTarget: 0
   effectiveAgainst: 6
   isHitscan: 0
+  damageFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
   particle: {fileID: 19875166}
   hitParticle: {fileID: 19859592}
-  particleCount: 50
+  particleCount: 500
   bulletSleepTime: 1
   turnSpeed: 90
   speed: 0
   slowWhenTurning: 0
-  searchRange: 10
-  clusterMissle: {fileID: 194094, guid: 5469117797a2fed4c8d124e027b1d461, type: 2}
-  maxCluster: 16
+  splashRange: 2.5
+  splashDamageMultiplier: 1
 --- !u!198 &19859592
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -228,7 +247,7 @@ ParticleSystem:
         m_RotationOrder: 0
       minMaxState: 3
     startSpeed:
-      scalar: 5
+      scalar: 20
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -239,7 +258,7 @@ ParticleSystem:
           tangentMode: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
-        m_RotationOrder: 4
+        m_RotationOrder: 0
       minCurve:
         serializedVersion: 2
         m_Curve:
@@ -250,7 +269,7 @@ ParticleSystem:
           tangentMode: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
-        m_RotationOrder: 4
+        m_RotationOrder: 0
       minMaxState: 3
     startColor:
       maxGradient:
@@ -539,11 +558,11 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
       minMaxState: 0
-    cnt0: 250
+    cnt0: 500
     cnt1: 30
     cnt2: 30
     cnt3: 30
-    cntmax0: 250
+    cntmax0: 500
     cntmax1: 30
     cntmax2: 30
     cntmax3: 30

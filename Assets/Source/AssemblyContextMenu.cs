@@ -12,6 +12,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	public Text moduleDesc;
 	public Text moduleStats;
     public Text upgradeStats;
+    public Text scoreText;
 
 	public Text assemblyName;
     public HoverContextElement sellContextElement;
@@ -367,6 +368,12 @@ public class AssemblyContextMenu : MonoBehaviour {
         moduleName.text = rootModule.assemblyName;
 		moduleDesc.text = rootModule.assemblyDesc;
         moduleImage.texture = rootModule.assembly.GetSprite();
+        
+        if (rootModule.scoreName != "") {
+            scoreText.text = rootModule.scoreName + ": " + rootModule.score.ToString ();
+        }else {
+            scoreText.text = "";
+        }
 
         // UpdateRangeIndicator ();
 

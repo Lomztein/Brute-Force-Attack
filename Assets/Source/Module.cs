@@ -19,6 +19,7 @@ public class Module : MonoBehaviour {
     public ModuleMod[] moduleMods;
 
     public string moduleName;
+    [TextArea]
     public string moduleDesc;
     public string assemblyDesc;
     public string assemblyName;
@@ -27,6 +28,8 @@ public class Module : MonoBehaviour {
     public string[] upgradeNameReplacement = new string[3];
     public string[] upgradeDescReplacement = new string[3];
     public Sprite[] upgradeImageReplacement = new Sprite[3];
+    public string scoreName;
+    public int score;
 
 	public Type moduleType;
 	public int moduleClass = 2;

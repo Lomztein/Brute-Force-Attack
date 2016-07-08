@@ -121,11 +121,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   speed: 0.5
+  startingHealth: 2000
   health: 2000
   damage: 1000
   value: 1000
   isFlying: 1
   researchDropChance: 1
+  difficultyMultiplier: 1
   enemyName: The Boss
   description: According to legend, the "IronSheen" virus is the most dangerous out
     there, and can effortlessly break through a defence. It could attack at any time,

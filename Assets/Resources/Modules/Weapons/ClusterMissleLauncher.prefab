@@ -152,7 +152,7 @@ MonoBehaviour:
   bulletData: {fileID: 0}
   bulletSpeed: 25
   bulletSpread: 0
-  bulletDamage: 500
+  bulletDamage: 250
   bulletAmount: 1
   maxRange: 0
   target: {fileID: 0}
@@ -163,7 +163,7 @@ MonoBehaviour:
   firerateMul: 1
   spreadMul: 1
   amountMul: 1
-  firerate: 7
+  firerate: 2
   sequenceTime: 0.1
   weaponModule: {fileID: 11455914}
   pointer: {fileID: 0}
@@ -188,8 +188,8 @@ MonoBehaviour:
   modules: []
   moduleMods: []
   moduleName: Cluster Missle Launcher
-  moduleDesc: This is what happens when you go ahead and put missles into missles.
-    It's pretty awesome.
+  moduleDesc: A highly explosive warhead + a bunch of rocket fuel = splash damage
+    of legend.
   assemblyDesc: 
   assemblyName: 
   upgradeButtonDisabled: 

@@ -39,6 +39,7 @@ public class Weapon : MonoBehaviour {
 
 	public bool canFire = true;
 	private Queue<GameObject> bulletPool = new Queue<GameObject>();
+    public int kills;
 
     private const int FIRERATE_LIMIT = 50;
     private const float FIRERATE_UPGRADE_MAX_MULTIPLIER = 3f;
@@ -110,6 +111,10 @@ public class Weapon : MonoBehaviour {
             activeWeapons.Add(this);
         }
 	}
+
+    public void AddKill () {
+        weaponModule.rootModule.score++;
+    }
 
 	IEnumerator DoFire () {
 

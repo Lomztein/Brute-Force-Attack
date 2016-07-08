@@ -120,11 +120,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   speed: 5
+  startingHealth: 5
   health: 5
   damage: 10
   value: 10
   isFlying: 0
   researchDropChance: 50
+  difficultyMultiplier: 1
   enemyName: Basic Enemy
   description: This vira is the most basic of all, and is both weak and pretty slow.
     However, they should not be underestimated in large groups.

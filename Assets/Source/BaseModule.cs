@@ -117,7 +117,7 @@ public class BaseModule : Module {
         mod.GetReturnedMeta (GetSortMeta (Colour.Purple));
     }
 
-    public void OnInitializeToggleModSort (ModuleMod mod) {
+    public void OnInitializeToggleModSorting (ModuleMod mod) {
         mod.GetReturnedMeta ((int)sortType);
     }
 
@@ -207,7 +207,7 @@ public class BaseModule : Module {
 		return text;
 	}
 
-    public void OnToggleModSort (int newSort) {
+    public void OnToggleModSorting (int newSort) {
         sortType = (TargetFinder.SortType)newSort;
     }
 

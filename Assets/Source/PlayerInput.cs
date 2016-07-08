@@ -123,7 +123,7 @@ public class PlayerInput : MonoBehaviour {
 		return activeAbility;
 	}
 
-    void CancelAll () {
+    public void CancelAll () {
 		CancelPurchase ();
 		if (isEditingWalls)
 			EditWalls (true);

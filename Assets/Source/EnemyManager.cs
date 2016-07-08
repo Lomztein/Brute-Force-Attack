@@ -80,7 +80,6 @@ public class EnemyManager : MonoBehaviour {
     public RectTransform listContentParent;
     public List<GameObject> listContent = new List<GameObject>();
 
-    public static int researchPerWave = 1;
     public static int spawnedResearch = 0;
     public static int chanceToSpawnResearch;
 
@@ -639,9 +638,12 @@ public class EnemyManager : MonoBehaviour {
         if (waveStarted) {
             Wave.Enemy enemy = currentSubwave.enemies[index];
             GameObject e = pooledEnemies[enemy][0];
+
             e.SetActive (true);
 
             Enemy ene = e.GetComponent<Enemy> ();
+            e.tag = ene.type.ToString ();
+
             ene.spawnPoint = GetSpawnPosition (ene);
             ene.transform.position = ene.spawnPoint.worldPosition;
 
