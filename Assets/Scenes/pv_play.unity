@@ -5331,6 +5331,7 @@ MonoBehaviour:
   numberTextures:
   - {fileID: 2800000, guid: 70f59b8f57b448043b962bd20fdf3080, type: 3}
   - {fileID: 2800000, guid: 707b31f7c2988c14a94f5b6cc9702250, type: 3}
+  - {fileID: 2800000, guid: 0ebcbebb1e7d2094fb91d5f8a3036ae2, type: 3}
   materialPrefab: {fileID: 2100000, guid: 757591d68e314bd449eefdea7f6d395b, type: 2}
 --- !u!65 &480467736
 BoxCollider:
