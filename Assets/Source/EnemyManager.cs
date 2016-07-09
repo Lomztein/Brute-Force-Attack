@@ -331,6 +331,7 @@ public class EnemyManager : MonoBehaviour {
                 waveCounterIndicator.text = "Wave: Initializing..";
                 spawnedResearch = 0;
                 SetAvailableSpawnpoints ();
+                SetPortals (true);
                 while (readyStatus != ReadyStatus.PathsBuild) {
                     yield return new WaitForEndOfFrame ();
                 }
@@ -341,7 +342,6 @@ public class EnemyManager : MonoBehaviour {
                 if (cancellingWave) {
                     yield break;
                 }
-                SetPortals (true);
                 StartWave ();
             } else if (waveStarted) {
                 Game.ToggleFastGameSpeed ();
@@ -615,6 +615,7 @@ public class EnemyManager : MonoBehaviour {
             Game.credits += 25 * externalWaveNumber;
             Game.game.SaveGame ("autosave");
             PlayerInput.ChangeFlushTimer (-1);
+            Datastream.healthAmount = Mathf.Min (Datastream.healthAmount + Datastream.healPerWave, Datastream.STARTING_HEALTH);
         }
 
         if (waves.Count >= waveNumber + 1) {

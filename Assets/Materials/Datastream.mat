@@ -82,14 +82,14 @@ Material:
         first:
           name: _MainNoise
         second:
-          m_Texture: {fileID: 2800000, guid: 221884b92777f414eb5c0b0bc44ef3d2, type: 3}
+          m_Texture: {fileID: 2800000, guid: e4bbcbe41f137c046ab366f37367e704, type: 3}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
         first:
           name: _UniformNoise
         second:
-          m_Texture: {fileID: 2800000, guid: 5737e5b5b044cd74d8e735cfbc2be8d3, type: 3}
+          m_Texture: {fileID: 2800000, guid: c53e4cc80d76bc549a621dbca0805b84, type: 3}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
@@ -98,6 +98,13 @@ Material:
         second:
           m_Texture: {fileID: 2800000, guid: 8fb3d4bfcf6cadd4d952892806e3b698, type: 3}
           m_Scale: {x: 1, y: 1}
+          m_Offset: {x: 0, y: 0}
+      data:
+        first:
+          name: _Numbers
+        second:
+          m_Texture: {fileID: 2800000, guid: 67261a081f0c84f49ac2bf2fce1236ff, type: 3}
+          m_Scale: {x: 50, y: 6}
           m_Offset: {x: 0, y: 0}
     m_Floats:
       data:
@@ -150,16 +157,16 @@ Material:
         second: 0
       data:
         first:
+          name: _DatastreamHealth
+        second: 0.9999998
+      data:
+        first:
           name: _Health
         second: 1
       data:
         first:
           name: _Alpha
-        second: 0.3
-      data:
-        first:
-          name: _DatastreamHealth
-        second: 0.9999998
+        second: 0.5
       data:
         first:
           name: _DatastreamSpeed

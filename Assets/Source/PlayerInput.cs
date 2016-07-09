@@ -24,6 +24,7 @@ public class PlayerInput : MonoBehaviour {
     public SpriteRenderer upgradingMarker;
     public GameObject constructionFlash;
     public AudioClip placementAudio;
+    public Module mouseModule;
 
     private bool enableFastBuild;
 	private Vector2 dragStart;
@@ -105,16 +106,25 @@ public class PlayerInput : MonoBehaviour {
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
 
-		rangeIndicator.ForceParent (loc, placePos);
+        loc.GetComponent<BaseModule> ().GetFastestBulletSpeed ();
+        mouseModule = loc.GetComponent<Module> ();
 
-		if (activePurchaseCopy)
+        StartCoroutine (DelayedRangeIndicator ());
+
+        if (activePurchaseCopy)
 			Destroy (activePurchaseCopy);
 
 		activePurchaseCopy = (GameObject)Instantiate (purchaseModule, Vector3.right * 10000f, Quaternion.identity);
 		activePurchaseCopy.GetComponent<Module>().isOnBattlefield = false;
 	}
 
-	public GameObject SelectAbilty (GameObject ability, AbilityButton button) {
+    IEnumerator DelayedRangeIndicator () {
+        yield return new WaitForEndOfFrame ();
+		rangeIndicator.ForceParent (mouseModule.gameObject, placePos);
+        rangeIndicator.GetRange (mouseModule.GetRange ());
+    }
+
+    public GameObject SelectAbilty (GameObject ability, AbilityButton button) {
 		CancelAll ();
 		if (activeAbility)
 			Destroy (activeAbility);

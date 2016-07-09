@@ -181,7 +181,7 @@ public class Enemy : MonoBehaviour {
 			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
         Datastream.healthAmount -= damage;
-        Datastream.cur.EmitCorruptionParticles (transform.position, damage / 10f);
+        stream.EmitCorruptionParticles (transform.position, damage / 10f);
 
 		for (int i = 0; i < nearest.Count; i++) {
 			nearest[i].GetComponent<SpriteRenderer>().color = Color.red;

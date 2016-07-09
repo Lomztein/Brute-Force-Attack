@@ -99,7 +99,8 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 					                                    m.transform.position.y,
 					                                    m.transform.parent.position.z - 1);
 			}
-		}
+            rootModule.GetComponent<Module> ().modules.Add (m);
+        }
 
         // Activate gameObject, but disable module components
         if (!directToWorld) {
@@ -110,7 +111,6 @@ public class ModuleAssemblyLoader : MonoBehaviour {
         } else {
             foreach (GameObject obj in moduleObjects) {
                 obj.GetComponent<Module> ().enabled = true;
-                rootModule.GetComponent<Module> ().modules.Add (obj.GetComponent<Module> ());
             }
         }
 

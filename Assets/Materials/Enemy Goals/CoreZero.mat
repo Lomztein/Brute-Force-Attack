@@ -7,10 +7,10 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: CoreZero
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 6c995b06598bd114ca0044fbdd5e1a39, type: 3}
   m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _EMISSION
   m_LightmapFlags: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2000
   stringTagMap:
     RenderType: Transparent
   m_SavedProperties:
@@ -122,16 +122,24 @@ Material:
         second: 0
       data:
         first:
-          name: _EmissionScaleUI
-        second: 10
-      data:
-        first:
           name: _Mode
         second: 3
       data:
         first:
           name: _Metallic
         second: 0
+      data:
+        first:
+          name: _DatastreamHealth
+        second: 0
+      data:
+        first:
+          name: _EmissionScaleUI
+        second: 10
+      data:
+        first:
+          name: _Index
+        second: 0.51
     m_Colors:
       data:
         first:
@@ -141,6 +149,14 @@ Material:
         first:
           name: _Color
         second: {r: 0, g: 1, b: 0, a: 1}
+      data:
+        first:
+          name: _NormalColor
+        second: {r: 0, g: 1, b: 0, a: 1}
+      data:
+        first:
+          name: _CorruptColor
+        second: {r: 1, g: 0, b: 0, a: 1}
       data:
         first:
           name: _EmissionColorUI

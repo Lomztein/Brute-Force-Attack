@@ -1117,7 +1117,7 @@ ParticleSystem:
   ForceModule:
     enabled: 1
     x:
-      scalar: 250
+      scalar: 175
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1133,7 +1133,7 @@ ParticleSystem:
         serializedVersion: 2
         m_Curve:
         - time: 0
-          value: -0.1
+          value: -0.14285715
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -4458,7 +4458,7 @@ MonoBehaviour:
   currentEnemies: 0
   endBoss: {fileID: 151300, guid: 5b7a717d44eabb94f98836a3cff048b4, type: 2}
   enemyPool: {fileID: 2097322082}
-  enemyPortalPrefab: {fileID: 197424, guid: fb7bfaf4f0a3e3445bd1388c3620c941, type: 2}
+  enemyPortalPrefab: {fileID: 149152, guid: ea7c24f990a3b9c4cb0b33d658e69229, type: 2}
   currentPortals: []
   upcomingHeader: {fileID: 1549830732}
   upcomingWindow: {fileID: 2072584270}
@@ -5323,6 +5323,15 @@ MonoBehaviour:
   datastreamGraphic: {fileID: 1755321668}
   datastreamMaterial: {fileID: 2100000, guid: 7c9553fad36aad842bb800f019259ecb, type: 2}
   correptParticles: {fileID: 20269080}
+  numberPrefab: {fileID: 170536, guid: 36a2dcad4ef9f2342b7f6a9da5661672, type: 2}
+  numbers: []
+  flyDistance: 0
+  flySpeed: 0
+  start: {x: 0, y: 0, z: 0}
+  numberTextures:
+  - {fileID: 2800000, guid: 70f59b8f57b448043b962bd20fdf3080, type: 3}
+  - {fileID: 2800000, guid: 707b31f7c2988c14a94f5b6cc9702250, type: 3}
+  materialPrefab: {fileID: 2100000, guid: 757591d68e314bd449eefdea7f6d395b, type: 2}
 --- !u!65 &480467736
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10354,36 +10363,35 @@ MonoBehaviour:
     healthMultiplier: 0.6
     startingCredits: 1000
     startingResearch: 2
-    researchPerRound: 1
+    researchPerRound: 2
   - name: Medium
     desc: Enemies have standard health
     amountMultiplier: 1
     healthMultiplier: 1
     startingCredits: 750
     startingResearch: 0
-    researchPerRound: 1
+    researchPerRound: 2
   - name: Hard
-    desc: Enemies have more health.
+    desc: Enemies have more health. You get less research per round.
     amountMultiplier: 1
     healthMultiplier: 1.5
     startingCredits: 750
     startingResearch: 0
     researchPerRound: 1
   - name: Brutal
-    desc: Enemies have much higher health, and twice as many spawn. Bonus credits
-      to handle first waves.
+    desc: Enemies have much higher health, and twice as many spawn. Less research.
     amountMultiplier: 2
     healthMultiplier: 1.8
     startingCredits: 750
     startingResearch: 0
     researchPerRound: 1
   - name: Sandbox
-    desc: Practically infinite resources
+    desc: Practically infinite resources. This can be used to test assemblies.
     amountMultiplier: 1
     healthMultiplier: 1
     startingCredits: 20000000
     startingResearch: 20000000
-    researchPerRound: 1
+    researchPerRound: 0
   difficultySetting: 1
   header: {fileID: 1107759802}
   desciption: {fileID: 659453268}
@@ -12002,7 +12010,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 455144, guid: fb7bfaf4f0a3e3445bd1388c3620c941, type: 2}
       propertyPath: m_RootOrder
-      value: 13
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fb7bfaf4f0a3e3445bd1388c3620c941, type: 2}
@@ -15402,7 +15410,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1755321667}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 10, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 5}
   m_LocalScale: {x: 0, y: 6, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
@@ -15415,14 +15423,14 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1755321667}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_Materials:
   - {fileID: 2100000, guid: 7c9553fad36aad842bb800f019259ecb, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
-  m_ReflectionProbeUsage: 1
+  m_ReflectionProbeUsage: 0
   m_ProbeAnchor: {fileID: 0}
   m_ScaleInLightmap: 1
   m_PreserveUVs: 1
@@ -15702,7 +15710,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1856867369}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
@@ -16201,6 +16209,7 @@ MonoBehaviour:
   upgradingMarker: {fileID: 177551846}
   constructionFlash: {fileID: 189796, guid: 5dad4e70d378cb04faa84ab96f8b369a, type: 2}
   placementAudio: {fileID: 8300000, guid: 5fa86f1e878d2e74cad17f8bc8b971e4, type: 3}
+  mouseModule: {fileID: 0}
   placePos: {x: 0, y: 0, z: 0}
   camDepth: 0
   focusRoot: {fileID: 0}
@@ -17714,6 +17723,16 @@ MonoBehaviour:
     y: 7
     prerequisite: 18
     index: 38
+  - name: Research Reconstructive Connection
+    desc: 
+    func: UnlockAutoBaseHeal
+    sprite: {fileID: 21300000, guid: 6e40fcd16413cb84c84c592513664ed1, type: 3}
+    meta: 
+    colour: 0
+    x: 2
+    y: 6
+    prerequisite: 21
+    index: 39
   scrollThingie: {fileID: 1602341298}
   startRect: {fileID: 1289806269}
   scrollRect: {fileID: 393210251}

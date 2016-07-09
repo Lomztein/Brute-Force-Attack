@@ -694,11 +694,16 @@ public class Game : MonoBehaviour {
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
+        wallMeshFilter.GetComponent<MeshRenderer> ().enabled = true;
 		GenerateWallMesh ();
 
         // Initialize datastream graphic
         datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3);
         datastream.GetComponent<BoxCollider> ().center += Vector3.up * 6f / battlefieldHeight;
+        datastream.start = new Vector3 (-battlefieldWidth / 2, -battlefieldHeight / 2 + 3f);
+        datastream.flyDistance = battlefieldWidth;
+        datastream.flySpeed = UnityEngine.Random.Range (5f, 10f);
+        datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
         datastream.Initialize ();
 
         PurchaseMenu.cur.InitializeAssemblyButtons ();
