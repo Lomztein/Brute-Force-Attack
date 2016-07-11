@@ -121,6 +121,7 @@ public class Game : MonoBehaviour {
     public static string BATTLEFIELD_SAVE_DIRECTORY;
     public static string RESEARCH_BACKUP_DATA_DIRECTORY;
     public static string SAVED_GAME_DIRECTORY;
+    public static string GAME_DATA_DIRECTORY;
     public string[] stockModuleNames;
 
     [Header("Settings")]
@@ -651,20 +652,13 @@ public class Game : MonoBehaviour {
 
         switch (Application.platform) {
 
-            case RuntimePlatform.Android:
-                MODULE_ASSEMBLY_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Module Assemblies/";
-                WAVESET_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Wave Sets/";
-                BATTLEFIELD_SAVE_DIRECTORY = "jar:file://" + dp + "!/assets/Battlefield Sets/";
-                RESEARCH_BACKUP_DATA_DIRECTORY = "jar:file://" + dp + "/Research Backup Data/";
-                SAVED_GAME_DIRECTORY = "jar:file://" + dp + "!/assets/Saved Games/";
-                break;
-
             default:
                 MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
                 WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
                 BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
                 RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
                 SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
+                GAME_DATA_DIRECTORY = dp + "/Player Data/";
                 break;
 
         }
@@ -683,6 +677,9 @@ public class Game : MonoBehaviour {
 
         if (!Directory.Exists (SAVED_GAME_DIRECTORY))
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
+
+        if (!Directory.Exists (GAME_DATA_DIRECTORY))
+            Directory.CreateDirectory (GAME_DATA_DIRECTORY);
     }
 
     void PostInitialization () {
@@ -726,6 +723,8 @@ public class Game : MonoBehaviour {
                 ForceDarkOverlay (true);
                 HideGUI ();
                 gameOverIndicator.SetActive(true);
+
+                Highscore.instance.InstanceDisplay ();
             }
 
             researchText.text = "Research: " + research.ToString();

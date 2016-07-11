@@ -43,7 +43,6 @@ public static class Utility {
                 file.Close ();
                 return data;
             }
-            Debug.LogError ("Failed to load file at " + path);
             return default (T);
         } catch (IOException) {
             Application.Quit ();

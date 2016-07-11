@@ -72,7 +72,7 @@ public class Datastream : MonoBehaviour {
             num.materialInstance.SetFloat ("_DatastreamHealth", Mathf.Clamp01 ((float)healthAmount / STARTING_HEALTH));
             num.renderer.material = num.materialInstance;
 
-            yield return new WaitForSeconds (0.1f);
+            yield return new WaitForEndOfFrame ();
         }
     }
 
