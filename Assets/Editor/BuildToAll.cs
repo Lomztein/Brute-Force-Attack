@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Diagnostics;
 
 public class BuildToAll : EditorWindow {
 
@@ -10,6 +13,8 @@ public class BuildToAll : EditorWindow {
     public List<string> targetExtensions = new List<string>();
 
     public string buildName;
+    public string[] debugExtensions = new string[] { ".pdb" };
+    private string sevenZipPath = "D:\\Program Files\\7-Zip\\7zG.exe";
 
     [MenuItem ("Project Virus/Build Multiple")]
     public static void ShowWindow () {
@@ -54,8 +59,29 @@ public class BuildToAll : EditorWindow {
 
     void Build () {
         for (int i = 0; i < targets.Count; i++) {
+            string path = Application.dataPath.Substring (0, Application.dataPath.LastIndexOf ('/'));
+            string buildPath = path + "\\Compiled\\" + targets[i].ToString ();
             BuildPipeline.BuildPlayer (GetScenes (), "Compiled\\" + targets[i].ToString () + "\\" + buildName + targetExtensions[i],
                            targets[i], BuildOptions.None);
+
+            string[] debugFiles = Directory.GetFiles (buildPath);
+            foreach (string file in debugFiles) {
+                if (debugExtensions.Contains (file.Substring (file.LastIndexOf ('.')))) {
+                    File.Delete (file);
+                }
+            }
+
+            CreateZip (buildPath, buildPath + ".zip");
+            Directory.Delete (buildPath, true);
         }
+    }
+
+    public void CreateZip (string sourceName, string targetName) {
+        ProcessStartInfo p = new ProcessStartInfo ();
+        p.FileName = @sevenZipPath;
+        p.Arguments = "a -tzip \"" + targetName + "\" \"" + sourceName + "\" -mx=9";
+        p.WindowStyle = ProcessWindowStyle.Normal;
+        Process x = Process.Start (p);
+        x.WaitForExit ();
     }
 }
