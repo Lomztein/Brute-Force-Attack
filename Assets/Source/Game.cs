@@ -793,13 +793,8 @@ public class Game : MonoBehaviour {
             return;
         }
 
-        BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
-        Debug.Log(file);
-
 		BattlefieldData data = new BattlefieldData (fileName, "", battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
-		bf.Serialize (file, data);
-		file.Close ();
+        Utility.SaveObjectToFile (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat", data);
 	}
 
 	public BattlefieldData LoadBattlefieldData (string fileName, bool isFullPath = false) {
@@ -808,15 +803,10 @@ public class Game : MonoBehaviour {
         if (isFullPath)
             fullFile = fileName;
 
-		if (File.Exists (fullFile)) {
+        BattlefieldData data = Utility.LoadObjectFromFile<BattlefieldData> (fullFile);
 
-			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream file = File.Open (fullFile, FileMode.Open);
-
-			BattlefieldData data = (BattlefieldData)bf.Deserialize (file);
+		if (data != null) {
             data.spawns = new List<EnemySpawnPoint> ();
-			file.Close ();
-
 			for (int i = 0; i < data.spawnsX.Length; i++) {
 
 				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
@@ -1041,28 +1031,14 @@ public class Game : MonoBehaviour {
         public int health;
 
         public void Save (string fileName) {
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Create (SAVED_GAME_DIRECTORY + fileName + ".dat");
-
-            bf.Serialize (file, this);
-            file.Close ();
+            Utility.SaveObjectToFile (SAVED_GAME_DIRECTORY + fileName + ".dat", this);
         }
 
         public static SavedGame Load (string fileName) {
             string fullFile = fileName;
-            if (File.Exists (fullFile)) {
+            SavedGame data = Utility.LoadObjectFromFile<SavedGame> (fullFile);
 
-                BinaryFormatter bf = new BinaryFormatter ();
-                FileStream file = File.Open (fullFile, FileMode.Open);
-
-                SavedGame data = (SavedGame)bf.Deserialize (file);
-                file.Close ();
-
-                return data;
-            }
-
-            Debug.LogError ("Tried to open non-existant savefile.");
-            return null;
+            return data;
         }
 
         [Serializable]

@@ -19,18 +19,35 @@ public static class Utility {
         return f.Substring (0, f.Length - ".dat".Length);
     }
 
-    public static T LoadObjectFromFile<T> (string path) {
-        if (File.Exists (path)) {
-
+    public static void SaveObjectToFile (string path, object obj) {
+        try {
             BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Open (path, FileMode.Open);
+            FileStream file = File.Create (path);
 
-            T data = (T)bf.Deserialize (file);
+            bf.Serialize (file, obj);
             file.Close ();
-            return data;
+        } catch (IOException) {
+            Application.Quit ();
+            throw;
         }
-        Debug.LogError ("Failed to load file at " + path);
-        return default (T);
+    }
+
+    public static T LoadObjectFromFile<T> (string path) {
+        try {
+            if (File.Exists (path)) {
+
+                BinaryFormatter bf = new BinaryFormatter ();
+                FileStream file = File.Open (path, FileMode.Open);
+
+                T data = (T)bf.Deserialize (file);
+                file.Close ();
+                return data;
+            }
+            Debug.LogError ("Failed to load file at " + path);
+            return default (T);
+        } catch (IOException) {
+            Application.Quit ();
+            throw;
+        }
     }
 }
-

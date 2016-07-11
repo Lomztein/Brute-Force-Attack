@@ -1,0 +1,15 @@
+PROJECT VIRUS WAVE SET FILE, EDIT WITH CAUTION
+DEFAULT
+	wave:
+		sptm:20
+		enms:
+			enmy:BasicEnemy
+			amnt:20
+	wave:
+		sptm:20
+		enms:
+			enmy:FastEnemy
+			amnt:10
+			enmy:BasicEnemy
+			amnt:15
+END OF FILE

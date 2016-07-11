@@ -417,27 +417,9 @@ public class ResearchMenu : MonoBehaviour {
     }
     public void SaveBackup () {
         for (int i = 0; i < research.Count; i++) {
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Create (Game.RESEARCH_BACKUP_DATA_DIRECTORY + research[i].name + ".dat");
-
-            bf.Serialize (file, new SimpleResearch (research[i]));
-            file.Close ();
+            Utility.SaveObjectToFile (Game.RESEARCH_BACKUP_DATA_DIRECTORY + research[i].name + ".dat", new SimpleResearch (research[i]));
         }
     }
-
-    /*public void LoadResearchBackup () {
-
-        string fullFile = Game.RESEARCH_BACKUP_DATA_DIRECTORY + "BACKUP.dat";
-
-        if (File.Exists (fullFile)) {
-
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Open (fullFile, FileMode.Open);
-
-            Research[] data = (Research[])bf.Deserialize (file);
-            file.Close ();
-        }
-    }*/
 
     public void ResearchAll () {
         for (int i = 0; i < research.Count; i++) {

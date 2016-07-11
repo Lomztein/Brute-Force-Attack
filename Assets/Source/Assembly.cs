@@ -48,11 +48,7 @@ public class Assembly {
 
 		if (!isFullPath) fileName = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION;
 
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Open (fileName, FileMode.Open);
-		
-		Assembly data = (Assembly)bf.Deserialize (file);
-		file.Close ();
+        Assembly data = Utility.LoadObjectFromFile<Assembly> (fileName);
 
 		Texture2D[] sprites = null;
 		Vector3[] positions = null;
@@ -90,11 +86,7 @@ public class Assembly {
     }
 
 	public static void SaveToFile (string fileName, Assembly assembly) {
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION);
-		
-		bf.Serialize (file, assembly);
-		file.Close ();
+        Utility.SaveObjectToFile (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION, assembly);
 	}
 
     public Texture2D GetSprite () {
