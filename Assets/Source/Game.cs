@@ -1077,6 +1077,7 @@ public class Game : MonoBehaviour {
         public int startingCredits;
         public int startingResearch;
         public int researchPerRound = 1;
+        public float weaponDamageToDifferentColor = 2f;
 
     }
 }

@@ -616,6 +616,7 @@ public class EnemyManager : MonoBehaviour {
             Game.game.SaveGame ("autosave");
             PlayerInput.ChangeFlushTimer (-1);
             Datastream.healthAmount = Mathf.Min (Datastream.healthAmount + Datastream.healPerWave, Datastream.STARTING_HEALTH);
+            Datastream.cur.UpdateNumberMaterials ();
         }
 
         if (waves.Count >= waveNumber + 1) {
@@ -640,17 +641,19 @@ public class EnemyManager : MonoBehaviour {
             Wave.Enemy enemy = currentSubwave.enemies[index];
             GameObject e = pooledEnemies[enemy][0];
 
-            e.SetActive (true);
+            if (e) {
+                e.SetActive (true);
 
-            Enemy ene = e.GetComponent<Enemy> ();
-            e.tag = ene.type.ToString ();
+                Enemy ene = e.GetComponent<Enemy> ();
+                e.tag = ene.type.ToString ();
 
-            ene.spawnPoint = GetSpawnPosition (ene);
-            ene.transform.position = ene.spawnPoint.worldPosition;
+                ene.spawnPoint = GetSpawnPosition (ene);
+                ene.transform.position = ene.spawnPoint.worldPosition;
 
-            ene.path = ene.spawnPoint.path;
-            if (ene.isFlying)
-                ene.path = new Vector2[1];
+                ene.path = ene.spawnPoint.path;
+                if (ene.isFlying)
+                    ene.path = new Vector2[1];
+            }
 
             pooledEnemies[enemy].RemoveAt (0);
             spawnIndex[index]++;

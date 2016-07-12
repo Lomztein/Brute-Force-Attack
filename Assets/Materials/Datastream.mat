@@ -158,7 +158,7 @@ Material:
       data:
         first:
           name: _DatastreamHealth
-        second: 0
+        second: 0.9999998
       data:
         first:
           name: _Health

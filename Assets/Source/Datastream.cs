@@ -76,7 +76,7 @@ public class Datastream : MonoBehaviour {
         }
     }
 
-    void UpdateNumberMaterials () {
+    public void UpdateNumberMaterials () {
         for (int i = 0; i < numbers.Length; i++) {
             numbers[i].materialInstance.SetFloat ("_DatastreamHealth", (float)healthAmount / STARTING_HEALTH);
         }

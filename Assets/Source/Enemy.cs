@@ -132,7 +132,7 @@ public class Enemy : MonoBehaviour {
 		if (damage.effectiveAgainst == type) {
 			health -= damage.damage;
 		}else{
-			health -= Mathf.RoundToInt ((float)damage.damage / 2f);
+			health -= Mathf.RoundToInt (damage.damage * Game.difficulty.weaponDamageToDifferentColor);
 		}
 
 		if (health < 0) {

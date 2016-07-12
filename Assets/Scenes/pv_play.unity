@@ -10727,8 +10727,8 @@ RectTransform:
   m_RootOrder: 6
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 425, y: -65.323}
-  m_SizeDelta: {x: 250, y: 130.65}
+  m_AnchoredPosition: {x: 425, y: -75.524}
+  m_SizeDelta: {x: 250, y: 151.05}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1090866153
 MonoBehaviour:
@@ -10749,34 +10749,42 @@ MonoBehaviour:
     startingCredits: 1000
     startingResearch: 2
     researchPerRound: 2
+    weaponDamageToDifferentColor: 1
   - name: Medium
-    desc: Enemies have standard health
+    desc: Enemies have standard health. Weapons do standard damage. Two research points
+      per round.
     amountMultiplier: 1
     healthMultiplier: 1
     startingCredits: 750
     startingResearch: 0
     researchPerRound: 2
+    weaponDamageToDifferentColor: 0.5
   - name: Hard
-    desc: Enemies have more health. You get less research per round.
+    desc: Enemies have more health. You get less research per round. Weapons are weaker
+      against different colors.
     amountMultiplier: 1
+    healthMultiplier: 1.3
+    startingCredits: 750
+    startingResearch: 0
+    researchPerRound: 1
+    weaponDamageToDifferentColor: 0.2
+  - name: Brutal
+    desc: Enemies have much higher health, and twice as many spawn. Less research.
+      Weapons are very weak against different colors.
+    amountMultiplier: 2
     healthMultiplier: 1.5
     startingCredits: 750
     startingResearch: 0
     researchPerRound: 1
-  - name: Brutal
-    desc: Enemies have much higher health, and twice as many spawn. Less research.
-    amountMultiplier: 2
-    healthMultiplier: 1.8
-    startingCredits: 750
-    startingResearch: 0
-    researchPerRound: 1
+    weaponDamageToDifferentColor: 0.1
   - name: Sandbox
     desc: Practically infinite resources. This can be used to test assemblies.
     amountMultiplier: 1
     healthMultiplier: 1
     startingCredits: 20000000
     startingResearch: 20000000
-    researchPerRound: 0
+    researchPerRound: 1
+    weaponDamageToDifferentColor: 0.5
   difficultySetting: 1
   header: {fileID: 1107759802}
   desciption: {fileID: 659453268}

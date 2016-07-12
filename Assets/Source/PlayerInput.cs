@@ -106,7 +106,9 @@ public class PlayerInput : MonoBehaviour {
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
 
-        loc.GetComponent<BaseModule> ().GetFastestBulletSpeed ();
+        BaseModule locBase = loc.GetComponent<BaseModule> ();
+        if (locBase)
+            locBase.GetFastestBulletSpeed ();
         mouseModule = loc.GetComponent<Module> ();
 
         StartCoroutine (DelayedRangeIndicator ());

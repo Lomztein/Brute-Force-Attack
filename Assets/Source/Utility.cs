@@ -26,7 +26,8 @@ public static class Utility {
 
             bf.Serialize (file, obj);
             file.Close ();
-        } catch (IOException) {
+        } catch (IOException e) {
+            Debug.LogError (e.ToString ());
             Application.Quit ();
             throw;
         }
@@ -44,7 +45,8 @@ public static class Utility {
                 return data;
             }
             return default (T);
-        } catch (IOException) {
+        } catch (IOException e) {
+            Debug.LogError (e.ToString ());
             Application.Quit ();
             throw;
         }
