@@ -23,6 +23,7 @@ public class MainMenuScene : MonoBehaviour {
 
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
+        Game.currentScene = Scene.Play;
 	}
 
     public void ToggleLoadGameMenu () {
@@ -48,6 +49,7 @@ public class MainMenuScene : MonoBehaviour {
     void Start () {
         Game.InitializeDirectories ();
         Game.ForceDarkOverlay (false);
+        Game.currentScene = Scene.Menu;
     }
 
     public void Build () {

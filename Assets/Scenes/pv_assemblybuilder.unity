@@ -936,7 +936,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071067}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_Children: []
   m_Father: {fileID: 1780257093}
   m_RootOrder: 0
@@ -1206,6 +1206,7 @@ MonoBehaviour:
   datastream: {fileID: 0}
   enemySpawn: {fileID: 0}
   purchaseMenu: {fileID: 176961404}
+  enemyInformationPanel: {fileID: 0}
   pathfinder: {fileID: 0}
   pathMap: {fileID: 0}
   researchMenu: {fileID: 0}
@@ -2606,7 +2607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5879974cca259e147b1030ad4f3b13e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Toggle Pause
+  text: Back to menu
   isWorldElement: 0
 --- !u!65 &1780257096
 BoxCollider:
@@ -2824,6 +2825,7 @@ MonoBehaviour:
   upgradingMarker: {fileID: 523443574}
   constructionFlash: {fileID: 189796, guid: 5dad4e70d378cb04faa84ab96f8b369a, type: 2}
   placementAudio: {fileID: 0}
+  mouseModule: {fileID: 0}
   placePos: {x: 0, y: 0, z: 0}
   camDepth: 0
   focusRoot: {fileID: 0}

@@ -14,7 +14,7 @@ public class WeaponModule : Module {
 		FindParentRotator ();
 		UpdateWeaponRange ();
 		base.Start ();
-        rootModule.scoreName = "Kills";
+        if (rootModule) rootModule.scoreName = "Kills";
     }
 
     public override bool UpgradeModule () {

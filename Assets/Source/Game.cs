@@ -8,14 +8,14 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 using System.Collections;
 
-public enum Scene { Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
+public enum Scene { Menu, Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
 
     public enum State { NotStarted, Started, Ended }
 
-    public static Scene currentScene;
+    public static Scene currentScene = Scene.Play;
 
     [Header("Battlefield")]
     public Transform background;
@@ -51,7 +51,7 @@ public class Game : MonoBehaviour {
     public static List<Module> currentModules = new List<Module>();
     public GameObject darkOverlay;
     public static int darkOverlaySiblingIndex;
-    public static bool darkOverlayActive;
+    public static bool darkOverlayActive = true;
     public GameObject errorMessage;
     public Transform[] postStartGUI;
 
@@ -161,6 +161,10 @@ public class Game : MonoBehaviour {
 
     public static void ForceDarkOverlay ( bool setting ) {
 
+        // Just ignore the call if it's already set the same.
+        if (darkOverlayActive == setting)
+            return;
+
         if (setting && currentScene == Scene.Play)
             PlayerInput.cur.CancelAll ();
 
@@ -210,6 +214,10 @@ public class Game : MonoBehaviour {
 
     void ResetStatics () {
         currentModules.Clear ();
+    }
+
+    public void ReturnToMainMenu () {
+        SceneManager.LoadScene ("pv_menu");
     }
 
     // Use this for initialization
