@@ -27,14 +27,6 @@ public class LoadAssemblyButton : MonoBehaviour {
         ButtonUpdate ();
     }
 
-    void OnMouseEnterElement () {
-        assembly.ChangeHighlightRequiredResearch (true);
-    }
-
-    void OnMouseExitElement () {
-        assembly.ChangeHighlightRequiredResearch (false);
-    }
-
     public void ButtonUpdate () {
         if (allModulesResearched) {
             if (cost <= Game.credits) {
@@ -50,7 +42,7 @@ public class LoadAssemblyButton : MonoBehaviour {
                 required += "\n\t" + missingModules[i].moduleName;
             }
             button.interactable = false;
-            button.GetComponent<HoverContextElement> ().text = assemblyName + " - RESEARCH NEEDED"
+            button.GetComponent<HoverContextElement> ().text = assemblyName + ", " + cost.ToString () +  " LoC - RESEARCH NEEDED"
                 + required;
         }
     }
@@ -70,7 +62,12 @@ public class LoadAssemblyButton : MonoBehaviour {
         ButtonUpdate ();
 	}
 
-	public void Purchase () {
+    void OnMouseDownElement () {
+        assembly.ChangeHighlightRequiredResearch (true);
+        Game.game.researchMenu.ToggleResearchMenu ();
+    }
+
+    public void Purchase () {
 		PurchaseMenu.cur.LoadAssembly (assembly);
 	}
 }

@@ -34,7 +34,7 @@ namespace IngameEditors {
 		}
 
         void Start () {
-            Game.ForceDarkOverlay(false);
+            Game.UpdateDarkOverlay();
         }
 
         public void QuitScene () {
@@ -74,19 +74,19 @@ namespace IngameEditors {
         }
 
         public void SaveAssembly () {
-            Game.ForceDarkOverlay(true);
+            Game.UpdateDarkOverlay();
             saveMenu.SetActive(true);
             continueSave = false;
             StartCoroutine(SAVE());
         }
 
         public void LoadAssembly () {
-            Game.ForceDarkOverlay (true);
+            Game.UpdateDarkOverlay ();
             FileBrowser.OpenFileBrowser (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, gameObject, "OnLoadAssembly");
         }
 
         void OnFileBrowserClosed () {
-            Game.ForceDarkOverlay (false);
+            Game.UpdateDarkOverlay ();
         }
 
         public void OnLoadAssembly (string file) {
@@ -115,7 +115,7 @@ namespace IngameEditors {
         }
 
         public void ContinueSave () {
-            Game.ForceDarkOverlay(false);
+            Game.UpdateDarkOverlay();
             saveMenu.SetActive(false);
             continueSave = true;
         }

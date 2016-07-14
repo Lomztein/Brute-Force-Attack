@@ -64,7 +64,9 @@ public class PurchaseMenu : MonoBehaviour {
     }
 
     public List<Assembly> GetAssemblies () {
-        return assemblies.ToList ();
+        if (assemblies != null)
+            return assemblies.ToList ();
+        return new List<Assembly> ();
     }
 
     public void InitializeAssemblyButtons () {

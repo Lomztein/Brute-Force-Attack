@@ -28,7 +28,7 @@ public class MainMenuScene : MonoBehaviour {
 
     public void ToggleLoadGameMenu () {
         FileBrowser.OpenFileBrowser (Game.SAVED_GAME_DIRECTORY, gameObject, "OnSaveChosen");
-        Game.ForceDarkOverlay (FileBrowser.currentBrowser);
+        Game.UpdateDarkOverlay ();
     }
 
     public void OnSaveChosen (string saveName) {
@@ -37,18 +37,18 @@ public class MainMenuScene : MonoBehaviour {
     }
 
     public void OnFileBrowserClosed () {
-        Game.ForceDarkOverlay (false);
+        Game.UpdateDarkOverlay ();
     }
 
     public void ToggleCreditsScreen () {
         isCreditsOpen = !isCreditsOpen;
         creditsScreen.SetActive (isCreditsOpen);
-        Game.ForceDarkOverlay (isCreditsOpen);
+        Game.UpdateDarkOverlay ();
     }
 
     void Start () {
         Game.InitializeDirectories ();
-        Game.ForceDarkOverlay (false);
+        Game.UpdateDarkOverlay ();
         Game.currentScene = Scene.Menu;
     }
 

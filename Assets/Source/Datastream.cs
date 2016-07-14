@@ -25,6 +25,10 @@ public class Datastream : MonoBehaviour {
     public Texture2D[] numberTextures;
     public Material materialPrefab;
 
+    public Color backgroundHealthyColor;
+    public Color backgroundCorruptColor;
+    private Color lerpingColor;
+
     public static int healPerWave = 0;
 
 	void Start () {
@@ -33,6 +37,7 @@ public class Datastream : MonoBehaviour {
 
     public void Initialize () {
         Game.currentScene = Scene.Play;
+        Camera.main.backgroundColor = backgroundHealthyColor;
         datastreamGraphic.position = Vector3.down * (Game.game.battlefieldHeight / 2 - 3f);
         datastreamGraphic.localScale = new Vector3 (Game.game.battlefieldWidth, 6f, 1f);
         StartCoroutine (InitializeNumbers ());
@@ -41,9 +46,13 @@ public class Datastream : MonoBehaviour {
     void FixedUpdate () {
         lerpingHealth = Mathf.Lerp (lerpingHealth, healthAmount, 10 * Time.fixedDeltaTime);
         datastreamMaterial.SetFloat ("_DatastreamHealth", Mathf.Clamp01 (lerpingHealth / STARTING_HEALTH));
+        Camera.main.backgroundColor = Color.Lerp (Camera.main.backgroundColor,
+            Color.Lerp (backgroundCorruptColor, backgroundHealthyColor, (float)healthAmount / STARTING_HEALTH), 10f * Time.fixedDeltaTime);
     }
 
     public void EmitCorruptionParticles (Vector3 pos, float multiplier) {
+        if (PlayerInput.cur.flushBattlefieldButton.interactable)
+            PlayerInput.cur.flushBattlefieldAnimator.SetBool ("Flashing", true);
         correptParticles.transform.position = pos;
         correptParticles.transform.localScale = Vector3.one * multiplier;
         correptParticles.Emit (Mathf.RoundToInt (100 * multiplier));

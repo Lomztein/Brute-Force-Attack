@@ -81,7 +81,8 @@ public class Assembly {
         if (requiredResearch != null)
             for (int i = 0; i < requiredResearch.Length; i++) {
                 Research r = requiredResearch[i];
-                r.highlighter.gameObject.SetActive (highlight);
+                if (r.highlighter)
+                    r.highlighter.gameObject.SetActive (highlight);
             }
     }
 

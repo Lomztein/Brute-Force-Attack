@@ -79,6 +79,7 @@ public class PlayerInput : MonoBehaviour {
     public Slider flushBattlefieldSlider;
     public Button flushBattlefieldButton;
     public bool flushBattlefieldSure;
+    public Animator flushBattlefieldAnimator;
 
     public static void ChangeFlushTimer (int value) {
         flushTimer += value;
@@ -210,8 +211,9 @@ public class PlayerInput : MonoBehaviour {
         if (rangeIndicator)
             rangeIndicator.GetRange (0f);
 
-        if (Input.GetButtonDown ("Cancel"))
+        if (Input.GetButtonDown ("Cancel")) {
             CancelAll ();
+        }
 
         if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
 
@@ -386,6 +388,7 @@ public class PlayerInput : MonoBehaviour {
                 ChangeFlushTimer (0);
                 CancelInvoke ("ResetFlushBattlefieldSure");
                 flushBattlefieldSure = false;
+                flushBattlefieldAnimator.SetBool ("Flashing", false);
             }
 
         } else {
@@ -655,7 +658,7 @@ public class PlayerInput : MonoBehaviour {
 			rangeIndicatorMaterial.color = Color.green;
             HoverContext.ChangeText ("");
 		}else {
-            placementMaterial.color = Color.red;
+            placementMaterial.color = Color.black;
 			rangeIndicatorMaterial.color = Color.red;
             HoverContext.ChangeText (canPlaceText);
 		}

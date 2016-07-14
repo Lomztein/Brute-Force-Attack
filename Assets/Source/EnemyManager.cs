@@ -79,6 +79,7 @@ public class EnemyManager : MonoBehaviour {
     public GameObject waveListParent;
     public RectTransform listContentParent;
     public List<GameObject> listContent = new List<GameObject>();
+    public ScrollRect listScrollRect;
 
     public static int spawnedResearch = 0;
     public static int chanceToSpawnResearch;
@@ -96,11 +97,14 @@ public class EnemyManager : MonoBehaviour {
             showingPaths = !showingPaths;
             Destroy (PathDemonstrator.cur.gameObject);
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[0];
+            pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Display enemy paths";
         } else {
             showingPaths = !showingPaths;
             StartCoroutine (DPATHS ());
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[1];
+            pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Stop displaying enemy paths";
         }
+        HoverContextElement.activeElement = null;
     }
 
     private IEnumerator DPATHS () {
@@ -411,6 +415,9 @@ public class EnemyManager : MonoBehaviour {
 	}
 
     public static void AddKill (string enemyName) {
+        if (cur.enemiesKilled == null)
+            cur.enemiesKilled = new Dictionary<string, int> ();
+
         if (!cur.enemiesKilled.ContainsKey (enemyName)) {
             cur.enemiesKilled.Add (enemyName, 1);
         }else {
@@ -513,7 +520,7 @@ public class EnemyManager : MonoBehaviour {
     }
 
     public void ShowWaveList () {
-        Game.ForceDarkOverlay (true);
+        Game.UpdateDarkOverlay ();
         waveListParent.SetActive (true);
 
         foreach (GameObject obj in listContent) {
@@ -531,10 +538,12 @@ public class EnemyManager : MonoBehaviour {
             newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
             UpdateUpcomingWaveScreen (waves[i], i, newListTransform);
         }
+
+        listScrollRect.horizontalNormalizedPosition = waveNumber / (float)waves.Count;
     }
 
     public void CloseWaveList () {
-        Game.ForceDarkOverlay (false);
+        Game.UpdateDarkOverlay ();
 
         foreach (GameObject obj in listContent) {
             Destroy (obj);
@@ -595,6 +604,7 @@ public class EnemyManager : MonoBehaviour {
 	public void EndWave (bool finished) {
         if (finished) {
             StartCoroutine (CleanEnemyArray ());
+            PlayerInput.cur.flushBattlefieldAnimator.SetBool ("Flashing", false);
         } else {
             ForceInstantCleanEnemyArray ();
         }

@@ -155,46 +155,84 @@ public class Game : MonoBehaviour {
         Assembly.SaveToFile(assembly.assemblyName, assembly);
     }
 
-    public static void ToggleDarkOverlay () {
-        ForceDarkOverlay(!game.darkOverlay.activeSelf);
-    }
+    public static void UpdateDarkOverlay () {
 
-    public static void ForceDarkOverlay ( bool setting ) {
+        GameObject overlay = null;
+
+        if (game) {
+            overlay = game.darkOverlay;
+        } else {
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+        }
 
         // Just ignore the call if it's already set the same.
-        if (darkOverlayActive == setting)
-            return;
+        overlay.GetComponent<DarkOverlay>().StartCoroutine (DelayedUpdateDarkOverlay ());
+        //col.enabled = setting;
+    }
+
+    public static bool AnyActiveAboveOverlay () {
+        bool setting = false;
+
+        GameObject overlay = null;
+
+        if (game) {
+            overlay = game.darkOverlay;
+            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
+        } else {
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
+        }
+
+        int children = overlay.transform.parent.childCount;
+        for (int i = darkOverlaySiblingIndex + 1; i < children; i++) {
+            Transform loc = overlay.transform.parent.GetChild (i);
+            if (loc.gameObject.activeSelf
+                && Vector3.Distance (loc.position, Vector3.zero) < 5000) {
+                setting = true;
+            }
+        }
+
+        return setting;
+    }
+
+    public static IEnumerator DelayedUpdateDarkOverlay () {
+        yield return new WaitForEndOfFrame ();
+        yield return new WaitForEndOfFrame ();
+
+        Animator anim = null;
+        Image image = null;
+        GameObject overlay = null;
+
+        bool setting = AnyActiveAboveOverlay ();
+
+        if (game) {
+            overlay = game.darkOverlay;
+            anim = overlay.GetComponent<Animator> ();
+            image = overlay.GetComponent<Image> ();
+        } else {
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            anim = overlay.GetComponent<Animator> ();
+            image = overlay.GetComponent<Image> ();
+        }
 
         if (setting && currentScene == Scene.Play)
             PlayerInput.cur.CancelAll ();
 
-        Animator anim = null;
-        Image image = null;
-
-        if (game) {
-            anim = game.darkOverlay.GetComponent<Animator> ();
-            image = game.darkOverlay.GetComponent<Image> ();
-            darkOverlaySiblingIndex = game.darkOverlay.transform.GetSiblingIndex ();
-        } else {
-            GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
-            anim = overlay.GetComponent<Animator> ();
-            image = overlay.GetComponent<Image> ();
-            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
-        }
+        if (darkOverlayActive == setting)
+            yield break;
 
         switch (setting) {
 
             case false:
-                anim.Play("OverlayFadeOut");
+                anim.Play ("OverlayFadeOut");
                 break;
-               
+
             case true:
                 anim.Play ("OverlayFadeIn");
                 break;
         }
         image.raycastTarget = setting;
         darkOverlayActive = setting;
-        //col.enabled = setting;
     }
 
     public static void PlaySFXAudio (AudioClip audio) {
@@ -326,24 +364,30 @@ public class Game : MonoBehaviour {
 
     public void QuitToDesktop () {
         SceneManager.LoadScene (0);
-        TogglePause ();
+        if (isPaused)
+            TogglePause ();
+        SetGameSpeed (1f);
     }
 
     public static void ToggleFastGameSpeed () {
         HoverContextElement ele = EnemyManager.cur.waveStartedIndicator.GetComponentInParent<HoverContextElement> ();
         if (ele) {
             if (fastGame) {
-                Time.timeScale = 1f;
+                SetGameSpeed (1f);
                 EnemyManager.cur.waveStartedIndicator.color = Color.red;
                 ele.text = "Speed up the game";
             } else {
-                Time.timeScale = 2f;
+                SetGameSpeed (2f);
                 EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
                 ele.text = "Slow down the game";
             }
             HoverContextElement.activeElement = null;
             fastGame = !fastGame;
         }
+    }
+
+    public static void SetGameSpeed (float speed) {
+        Time.timeScale = speed;
     }
 
     public void LooseGame () {
@@ -373,7 +417,7 @@ public class Game : MonoBehaviour {
 			Time.timeScale = 0f;
 			pauseMenu.SetActive (true);
 		}
-        ForceDarkOverlay (isPaused);
+        UpdateDarkOverlay ();
 	}
 
     public void ToggleSaveGameMenu () {
@@ -665,8 +709,8 @@ public class Game : MonoBehaviour {
                 WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
                 BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
                 RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
-                SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
-                GAME_DATA_DIRECTORY = dp + "/Player Data/";
+                SAVED_GAME_DIRECTORY = dp + "/Player Data/Saved Games/";
+                GAME_DATA_DIRECTORY = dp + "/Player Data/Highscores";
                 break;
 
         }
@@ -713,7 +757,7 @@ public class Game : MonoBehaviour {
 
         PurchaseMenu.cur.InitializeAssemblyButtons ();
 
-        ForceDarkOverlay (false);
+        UpdateDarkOverlay ();
         AssembliesSelectionMenu.cur.gameObject.SetActive (false);
         EnemyManager.Initialize ();
 
@@ -728,7 +772,7 @@ public class Game : MonoBehaviour {
             if (state == State.Started && Datastream.healthAmount <= 0 && gameOverIndicator.activeSelf == false) {
                 Debug.Log ("Game has ended.");
                 state = State.Ended;
-                ForceDarkOverlay (true);
+                UpdateDarkOverlay ();
                 HideGUI ();
                 gameOverIndicator.SetActive(true);
 

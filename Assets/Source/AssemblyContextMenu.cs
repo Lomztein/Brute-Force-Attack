@@ -195,7 +195,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		modules.Clear ();
 		gameObject.SetActive (false);
         subModMenu.SetActive (false);
-        Game.ForceDarkOverlay(false);
+        Game.UpdateDarkOverlay();
         if (ModuleMod.currentMenu[0])
             Destroy (ModuleMod.currentMenu[0]);
     }
@@ -205,7 +205,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void OpenAssembly (Module _rootModule) {
-        Game.ForceDarkOverlay(true);
+        Game.UpdateDarkOverlay();
         gameObject.SetActive(true);
 		rootModule = _rootModule;
 		modules = rootModule.GetModuleTree ().ToList ();

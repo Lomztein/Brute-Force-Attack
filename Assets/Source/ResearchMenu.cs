@@ -78,15 +78,19 @@ public class ResearchMenu : MonoBehaviour {
 		if (isOpen) {
 			isOpen = false;
 			transform.localPosition += Vector3.right * 100000;
-            Game.ForceDarkOverlay(false);
+
+            Assembly[] assemblies = PurchaseMenu.cur.GetAssemblies ().ToArray ();
+            for (int i = 0; i < assemblies.Length; i++) {
+                assemblies[i].ChangeHighlightRequiredResearch (false);
+            }
 		}else{
 			isOpen = true;
 			transform.localPosition = startPos;
-            Game.ForceDarkOverlay(true);
         }
 
+        Game.UpdateDarkOverlay();
         UpdateButtonActiveness ();
-	}
+    }
 
     void UpdateButtonActiveness () {
         for (int i = 0; i < buttons.Count; i++) {

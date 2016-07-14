@@ -20,7 +20,7 @@ public class EnemyInformationPanel : MonoBehaviour {
     }
 
     public static void Open (Enemy enemyType, int wave) {
-        Game.ForceDarkOverlay (true);
+        Game.UpdateDarkOverlay ();
         panel.gameObject.SetActive (true);
         panel.enemySprite.sprite = enemyType.transform.FindChild ("Sprite").GetComponent<SpriteRenderer> ().sprite;
         panel.enemyName.text = enemyType.enemyName;
@@ -42,7 +42,7 @@ public class EnemyInformationPanel : MonoBehaviour {
 
     public static void Close () {
         panel.gameObject.SetActive (false);
-        Game.ForceDarkOverlay (false);
+        Game.UpdateDarkOverlay ();
     }
 
     public void CloseInstance () {
