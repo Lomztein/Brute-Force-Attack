@@ -194,7 +194,7 @@ public class ResearchMenu : MonoBehaviour {
 		for (int i = 0; i < research.Count; i++) {
 			if (research[i] != null) {
 				research[i].y++;
-				research[i].button.GetComponent<HoverContextElement>().text = research[i].name + ", " + research[i].y + " Research";
+				research[i].button.GetComponent<HoverContextElement>().text = research[i].name + ", " + research[i].y + " Research\n<i> - " + research[i].desc + "</i>";
 			}
 		}
 	}
@@ -311,7 +311,7 @@ public class ResearchMenu : MonoBehaviour {
 			u.y++;
 
             u.highlighter = newU.transform.FindChild ("Highlighter").GetComponent<Image> ();
-			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
+			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research\n<i><size=16><color=#C0C0C0ff> - " + SplitStringIntoLines (research[i].desc, (int)(research[i].name.Length * 1.5f)) + "</color></size></i>";
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
@@ -340,6 +340,31 @@ public class ResearchMenu : MonoBehaviour {
         scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
+    }
+
+    string SplitStringIntoLines (string input, int charsPerLine) {
+        if (input.Length == 0)
+            return "";
+
+        string result = input;
+
+        int index = 0;
+        int counted = 0;
+        while (index < result.Length) {
+            if (result[index] != ' ') {
+
+                counted++;
+            } else {
+                if (counted > charsPerLine) {
+                    result = result.Insert (index, "\n");
+                    counted = 0;
+                }
+            }
+
+            index++;
+        }
+
+        return result;
     }
 
     public void InvalidateUselessButtons () {

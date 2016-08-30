@@ -322,6 +322,7 @@ public class EnemyManager : MonoBehaviour {
         if (Game.state == Game.State.Started) {
             if (!waveStarted && !wavePrebbing) {
                 Game.ChangeButtons (false);
+                PlayerInput.cur.CancelAll ();
                 waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
                 HoverContextElement.activeElement = null;
                 Game.CrossfadeMusic (Game.game.combatMusic, 2f);

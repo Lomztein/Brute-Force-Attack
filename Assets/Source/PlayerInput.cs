@@ -136,14 +136,25 @@ public class PlayerInput : MonoBehaviour {
 		return activeAbility;
 	}
 
-    public void CancelAll () {
-		CancelPurchase ();
-		if (isEditingWalls)
-			EditWalls (true);
+    // Returns true if something was cancelled.
+    public bool CancelAll () {
+        bool somethingCancelled = false;
+
+        if (placementParent.childCount != 0)
+            somethingCancelled = true;
+
+        CancelPurchase ();
+		if (isEditingWalls) {
+            EditWalls (true);
+            somethingCancelled = true;
+        }
         if (isUpgrading) {
             ToggleUpgrading (true);
+            somethingCancelled = true;
         }
-	}
+
+        return somethingCancelled;
+    }
 
     public void ToggleUpgrading (bool fromCancelAll) {
         if (!fromCancelAll)
@@ -212,7 +223,9 @@ public class PlayerInput : MonoBehaviour {
             rangeIndicator.GetRange (0f);
 
         if (Input.GetButtonDown ("Cancel")) {
-            CancelAll ();
+
+            if (!CancelAll ())
+                Game.game.TogglePause ();
         }
 
         if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
@@ -279,7 +292,7 @@ public class PlayerInput : MonoBehaviour {
                     wallDragStatus = WallDragStatus.Inactive;
                 }
 
-                if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
+                if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive && !(HoverContext.hoveringButton && HoverContext.hoveringButton.tag == "DarkOverlay")) {
                     wallDragStatus = WallDragStatus.Adding;
                     wallDragStart = pos;
                     wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
@@ -294,7 +307,8 @@ public class PlayerInput : MonoBehaviour {
                     Game.PlaySFXAudio (placementAudio);
                 }
 
-                if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
+                
+                if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive && !(HoverContext.hoveringButton && HoverContext.hoveringButton.tag == "DarkOverlay")) {
                     wallDragStatus = WallDragStatus.Removing;
                     wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
                     wallDragGraphic.sharedMaterial.color = Color.red;

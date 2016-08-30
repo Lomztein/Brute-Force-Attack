@@ -11,6 +11,7 @@ public class HoverContext : MonoBehaviour {
 
     public LayerMask worldLayers;
     public LayerMask GUILayers;
+    public static GameObject hoveringButton;
 
 	void Start () {
 		cur = this;
@@ -33,7 +34,7 @@ public class HoverContext : MonoBehaviour {
             // Handle world raycasting
             if (!raycast) {
                 ray = Camera.main.ScreenPointToRay(pos);
-                raycast = Physics.Raycast(ray, out hit, Mathf.Infinity, cur.worldLayers);
+                raycast = Physics.Raycast (ray, out hit, Mathf.Infinity, cur.worldLayers);
             }
 
             cur.CheckHit(raycast, hit);
@@ -61,6 +62,8 @@ public class HoverContext : MonoBehaviour {
 
     void CheckHit (bool raycast, RaycastHit hit) {
         if (hit.collider && IsReachable (hit.collider.transform)) {
+
+            hoveringButton = hit.collider.gameObject;
 
             HoverContextElement hoverHit = hit.collider.GetComponent<HoverContextElement>();
             // This code might cause cancer, need optimizations if possible. I mean, you might as well just use Rect.Contains ().

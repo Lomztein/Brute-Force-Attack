@@ -86,7 +86,20 @@ public class ResearchEditor : EditorWindow {
 				if (action != Action.MovingResearch) {
 
 					offset.y = GUI.VerticalSlider (new Rect (position.width - 15, 5, 10, position.height - 10), offset.y, position.height, 0);
-					if (GUI.Button (new Rect (position.width / 3, position.height - 25, position.width / 3, 20), "Add Research")) {
+                    if (GUI.Button (new Rect (position.width / 3, position.height - 50, position.width / 3, 20), "Suggest All Names")) {
+                        for (int i = 0; i < research.research.Count; i++) {
+
+                            string n;
+                            string d;
+
+                            SuggestTitle (research.research[i], out n, out d);
+                            research.research[i].name = n;
+                            research.research[i].desc = d;
+
+                        }
+                    }
+
+                    if (GUI.Button (new Rect (position.width / 3, position.height - 25, position.width / 3, 20), "Add Research")) {
 						research.research.Add (new Research ());
                         SelectResearch (research.research[research.research.Count-1]);
                         research.research[research.research.Count - 1].index = research.research.Count - 1;
@@ -185,7 +198,12 @@ public class ResearchEditor : EditorWindow {
 				}
 
                 if (GUILayout.Button ("Suggest Name")) {
-                    focusResearch.name = SuggestTitle (focusResearch);
+                    string n;
+                    string d;
+
+                    SuggestTitle (focusResearch, out n, out d);
+                    focusResearch.name = n;
+                    focusResearch.desc = d;
                 }
 
 				if (GUILayout.Button ("Return")) {
@@ -197,26 +215,42 @@ public class ResearchEditor : EditorWindow {
 		}
 	}
 
-    private string SuggestTitle (Research r) {
+    private void SuggestTitle (Research r, out string title, out string desc) {
         switch (r.func) {
             case "UnlockModule":
-                return "Research the " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
+                title = "Research the " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
+                desc = research.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ().moduleDesc;
+                break;
 
             case "UnlockSpecialModule":
-                return "Research the specialized " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
+                title = "Research the specialized " + research.unlockableModules[int.Parse(r.meta)].GetComponent<Module> ().moduleName + " module";
+                desc = research.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ().moduleDesc;
+                break;
 
             case "IncreaseFirerate":
-                return "Increase " + r.colour.ToString ().ToLower () + " firerate by " + r.meta + "%";
+                title = "Increase " + r.colour.ToString ().ToLower () + " firerate by " + r.meta + "%";
+                desc = "Increase the firerate of " + r.colour.ToString ().ToLower () + " weapons by " + r.meta + "%";
+                break;
             case "IncreaseDamage":
-                return "Increase " + r.colour.ToString ().ToLower () + " damage by " + r.meta + "%";
+                title = "Increase " + r.colour.ToString ().ToLower () + " damage by " + r.meta + "%";
+                desc = "Increase the damage of " + r.colour.ToString ().ToLower () + " weapons by " + r.meta + "%";
+                break;
             case "DecreaseCost":
-                return "Decrease " + r.colour.ToString ().ToLower () + " cost by " + r.meta + "%";
+                title = "Decrease " + r.colour.ToString ().ToLower () + " cost by " + r.meta + "%";
+                desc = "Decrease the cost of " + r.colour.ToString ().ToLower () + " modules by " + r.meta + "%";
+                break;
             case "IncreaseRange":
-                return "Increase base range by " + r.meta + "%";
+                title = "Increase base range by " + r.meta + "%";
+                desc = "Increase the range of base modules by " + r.meta + "%";
+                break;
             case "IncreaseTurnrate":
-                return "Increase rotator turnrate by " + r.meta + "%";
+                title = "Increase rotator turnrate by " + r.meta + "%";
+                desc = "Increase the turnrate of rotator modules by " + r.meta + "%";
+                break;
             default:
-                return r.name;
+                title = r.name;
+                desc = r.desc;
+                break;
         }
     }
 

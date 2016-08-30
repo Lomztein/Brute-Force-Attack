@@ -54,6 +54,7 @@ public class Game : MonoBehaviour {
     public static bool darkOverlayActive = true;
     public GameObject errorMessage;
     public Transform[] postStartGUI;
+    public GameObject turretExplosionParticle;
 
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
@@ -522,6 +523,36 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+    public void ExplodeAllTurrets () {
+        List<Module> modules = new List<Module> ();
+        for (int i = 0; i < currentModules.Count; i++) {
+            if (currentModules[i].isRoot)
+                modules.Add (currentModules[i]);
+        }
+        
+        StartCoroutine (ExplodeTurrets (RandomizeOrder (modules)));
+    }
+
+    public static List<Module> RandomizeOrder ( List<Module> list ) {
+        List<Module> result = new List<Module> ();
+        while (list.Count != 0) {
+            int index = UnityEngine.Random.Range (0, list.Count);
+            result.Add (list[index]);
+            list.RemoveAt (index);
+        }
+        return result;
+    }
+
+    IEnumerator ExplodeTurrets (List<Module> turrets) {
+        for (int i = 0; i < turrets.Count; i++) {
+            Module turret = turrets[i];
+            Destroy (Instantiate (turretExplosionParticle, turret.transform.position, turret.transform.rotation), 2);
+            turret.DestroyModule ();
+
+            yield return new WaitForSeconds (UnityEngine.Random.Range (0.5f, 3));
+        }
+    }
+
     public bool IsInsideField ( int x, int y ) {
         if (x < 0 || x > battlefieldWidth - 1)
             return false;
@@ -775,6 +806,7 @@ public class Game : MonoBehaviour {
                 UpdateDarkOverlay ();
                 HideGUI ();
                 gameOverIndicator.SetActive(true);
+                ExplodeAllTurrets ();
 
                 Highscore.instance.InstanceDisplay ();
             }
