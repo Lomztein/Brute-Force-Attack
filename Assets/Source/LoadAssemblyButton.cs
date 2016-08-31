@@ -36,6 +36,9 @@ public class LoadAssemblyButton : MonoBehaviour {
                 button.interactable = false;
                 button.GetComponent<HoverContextElement> ().text = assemblyName + ", " + cost.ToString () + " LoC - INSUFFICIENT FUNDS";
             }
+            if (assembly.assemblyDesc != "") {
+                button.GetComponent<HoverContextElement> ().text += "\n" + Utility.ConstructDescriptionText (assembly.assemblyDesc, (int)(assembly.assemblyName.Length * 1.5f));
+            }
         } else {
             string required = "";
             for (int i = 0; i < missingModules.Count; i++) {

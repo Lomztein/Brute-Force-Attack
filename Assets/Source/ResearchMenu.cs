@@ -311,7 +311,7 @@ public class ResearchMenu : MonoBehaviour {
 			u.y++;
 
             u.highlighter = newU.transform.FindChild ("Highlighter").GetComponent<Image> ();
-			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research\n<i><size=16><color=#C0C0C0ff> - " + SplitStringIntoLines (research[i].desc, (int)(research[i].name.Length * 1.5f)) + "</color></size></i>";
+			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research Points\n" + Utility.ConstructDescriptionText (research[i].desc, (int)(research[i].name.Length * 1.5f));
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
@@ -328,7 +328,7 @@ public class ResearchMenu : MonoBehaviour {
                 GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
                 RectTransform lr = line.GetComponent<RectTransform> ();
                 lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
-                line.transform.SetParent (lineParent, true);
+                line.transform.SetParent (lineParent, false );
 
                 lr.transform.localScale = Vector3.one;
             }
@@ -340,31 +340,6 @@ public class ResearchMenu : MonoBehaviour {
         scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
-    }
-
-    string SplitStringIntoLines (string input, int charsPerLine) {
-        if (input.Length == 0)
-            return "";
-
-        string result = input;
-
-        int index = 0;
-        int counted = 0;
-        while (index < result.Length) {
-            if (result[index] != ' ') {
-
-                counted++;
-            } else {
-                if (counted > charsPerLine) {
-                    result = result.Insert (index, "\n");
-                    counted = 0;
-                }
-            }
-
-            index++;
-        }
-
-        return result;
     }
 
     public void InvalidateUselessButtons () {

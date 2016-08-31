@@ -25,7 +25,7 @@ public class ResearchEditor : EditorWindow {
 		Rect rect = new Rect (pos.x * 30 - offset.x + position.width/2, pos.y * 30 - offset.y + 10f, 20, 20);
 
 		if (u != null) {
-			if (u.sprite) {
+            if (u.sprite) {
 				if (GUI.Button (rect, u.sprite.texture)) {
 					SelectResearch (u);
 				}
