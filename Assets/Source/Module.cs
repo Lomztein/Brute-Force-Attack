@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using IngameEditors;
+using System.Linq;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
@@ -8,6 +9,7 @@ public class Module : MonoBehaviour {
 
     public const string MODULE_FILE_EXTENSION = ".dat";
     public const int MAX_UPGRADE_AMOUNT = 10;
+    public static Colour[] allColours = new Colour[] { Colour.Blue, Colour.Green, Colour.Yellow, Colour.Orange, Colour.Red, Colour.Purple };
     public bool isOnBattlefield = true;
 
     public enum Type { Base, Rotator, Weapon, Structural, Independent };
@@ -501,6 +503,15 @@ public class Module : MonoBehaviour {
 
 		return power;
 	}
+
+    public void ForceUpdateAllModGUI () {
+        List<ModuleMod> remaining = moduleMods.ToList ();
+        while (remaining.Count > 0) {
+            remaining[0].UpdateGUIElement ();
+            remaining.AddRange (remaining[0].subparts);
+            remaining.RemoveAt (0);
+        }
+    }
 
 	public void RequestChildModules () {
 		requestedModules = new List<Module>();

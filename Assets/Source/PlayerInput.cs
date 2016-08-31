@@ -431,7 +431,7 @@ public class PlayerInput : MonoBehaviour {
 
         if (EnemyManager.waveStarted == true) {
             if (cur.flushBattlefieldButton.interactable) {
-                element.text = "Flush memory";
+                element.text = "Flush memory\n<i><size=16><color=#C0C0C0ff> - Destroy all vira on screen.</color></size></i>";
                 return;
             } else {
                 element.text = "Flush available in " + flushTimer + " waves";

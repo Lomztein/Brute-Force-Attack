@@ -55,6 +55,8 @@ public class Game : MonoBehaviour {
     public GameObject errorMessage;
     public Transform[] postStartGUI;
     public GameObject turretExplosionParticle;
+    public Button revertGameButton;
+    public Highscore highscoreMenu;
 
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
@@ -286,6 +288,8 @@ public class Game : MonoBehaviour {
         if (saveToLoad != null && saveToLoad.Length > 0) {
             Debug.Log ("Loading save: " + saveToLoad);
             StartCoroutine (LoadSaveOnSceneStart ());
+        }else {
+            DeleteAutosave ();
         }
     }
 
@@ -363,11 +367,23 @@ public class Game : MonoBehaviour {
 		EnemyManager.gameProgress = 1f;
 	}
 
-    public void QuitToDesktop () {
+    public void DeleteAutosave () {
+        string path = SAVED_GAME_DIRECTORY + "autosave.dat";
+        if (File.Exists (path))
+            File.Delete (path);
+    }
+
+    public void QuitToMenu () {
         SceneManager.LoadScene (0);
         if (isPaused)
             TogglePause ();
         SetGameSpeed (1f);
+    }
+
+    public void OpenHighscore () {
+        gameOverIndicator.SetActive (false);
+        highscoreMenu.InstanceDisplay ();
+        DeleteAutosave ();
     }
 
     public static void ToggleFastGameSpeed () {
@@ -741,7 +757,7 @@ public class Game : MonoBehaviour {
                 BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
                 RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
                 SAVED_GAME_DIRECTORY = dp + "/Player Data/Saved Games/";
-                GAME_DATA_DIRECTORY = dp + "/Player Data/Highscores";
+                GAME_DATA_DIRECTORY = dp + "/Player Data/Highscores/";
                 break;
 
         }
@@ -808,7 +824,7 @@ public class Game : MonoBehaviour {
                 gameOverIndicator.SetActive(true);
                 ExplodeAllTurrets ();
 
-                Highscore.instance.InstanceDisplay ();
+                revertGameButton.interactable = File.Exists (SAVED_GAME_DIRECTORY + "autosave.dat");
             }
 
             researchText.text = "Research: " + research.ToString();

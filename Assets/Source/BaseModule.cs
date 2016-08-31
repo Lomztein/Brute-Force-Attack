@@ -97,6 +97,16 @@ public class BaseModule : Module {
     public void OnToggleModPurple (int newIndex) {
         ChangePriority (Colour.Purple, newIndex);
     }
+    public void OnToggleModAll ( int newIndex ) {
+        Debug.Log ("ALL");
+        ChangePriority (Colour.Blue, newIndex);
+        ChangePriority (Colour.Green, newIndex);
+        ChangePriority (Colour.Yellow, newIndex);
+        ChangePriority (Colour.Orange, newIndex);
+        ChangePriority (Colour.Red, newIndex);
+        ChangePriority (Colour.Purple, newIndex);
+        ForceUpdateAllModGUI ();
+    }
 
     public void OnInitializeToggleModBlue (ModuleMod mod) {
         mod.GetReturnedMeta (GetSortMeta (Colour.Blue));
@@ -115,6 +125,33 @@ public class BaseModule : Module {
     }
     public void OnInitializeToggleModPurple (ModuleMod mod) {
         mod.GetReturnedMeta (GetSortMeta (Colour.Purple));
+    }
+
+    public void OnInitializeToggleModAll ( ModuleMod mod ) {
+        // Ignore, normal, prioritize
+        int[] results = new int[3];
+
+        for (int i = 0; i < allColours.Length; i++) {
+            Colour col = allColours[i];
+
+            if (ignore.Contains (col))
+                results[2]++;
+            if (priorities.Contains (col))
+                results[1]++;
+
+            if (!priorities.Contains (col) && !ignore.Contains(col))
+                results[0]++;
+        }
+
+        for (int i = 0; i < results.Length; i++) {
+            if (results[i] == allColours.Length) {
+                mod.GetReturnedMeta(i);
+                return;
+            }
+            Debug.Log (results[i] + ", " + allColours.Length);
+        }
+
+        mod.GetReturnedMeta (3);
     }
 
     public void OnInitializeToggleModSorting (ModuleMod mod) {

@@ -32,18 +32,21 @@ public class Highscore : MonoBehaviour {
     }
 
     public void AddPlayer () {
-        Add (inputName.text, EnemyManager.externalWaveNumber);
-        inputName.interactable = false;
-        submitButton.interactable = false;
-        Display (names, scores);
-    }
-
-    void Awake () {
-        instance = this;
+        if (IsInputEmpty ()) {
+            Game.game.QuitToMenu ();
+        } else {
+            Add (inputName.text, EnemyManager.externalWaveNumber);
+            inputName.interactable = false;
+            Display (names, scores);
+        }
+        OnInputNameChanged ();
     }
 
     public void InstanceDisplay () {
+        instance = this;
+        gameObject.SetActive (true);
         Display (names, scores);
+        OnInputNameChanged ();
     }
 
     public static void Display (Text names, Text scores) {
@@ -64,6 +67,21 @@ public class Highscore : MonoBehaviour {
 
         names.text = nameText;
         scores.text = scoreText;
+    }
+
+    public void OnInputNameChanged () {
+        Text text = submitButton.GetComponentInChildren<Text> ();
+        if (IsInputEmpty ()) {
+            text.text = "Quit";
+        }else {
+            text.text = "Submit";
+        }
+    }
+
+    private bool IsInputEmpty () {
+        if (!inputName.interactable)
+            return true;
+        return inputName.text == "";
     }
 
     [System.Serializable]
