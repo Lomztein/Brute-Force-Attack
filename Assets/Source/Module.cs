@@ -300,7 +300,10 @@ public class Module : MonoBehaviour {
 	}
 
     public virtual float GetRange () {
-        return parentBase.GetRange ();
+        if (parentBase)
+            return parentBase.GetRange ();
+        else
+            return 0f;
     }
 
     public virtual float GetEfficiency () {
@@ -389,10 +392,6 @@ public class Module : MonoBehaviour {
     }
 
 	public void SellModule () {
-        if (Game.currentScene == Scene.Play) {
-            Pathfinding.ChangeArea(GetModuleRect(), true);
-            Game.ChangeWalls(GetRelativeModuleRect(), Game.WallType.Player, true);
-        }
         Game.credits += GetSellAmount ();
 
         PlayerInput.cur.contextMenu.ExitMenu();
@@ -425,7 +424,14 @@ public class Module : MonoBehaviour {
 		Destroy (gameObject);
 		if (removeFromList)
             Game.currentModules.Remove (this);
-	}
+
+        if (Game.currentScene == Scene.Play) {
+            Pathfinding.ChangeArea (GetModuleRect (), true);
+            Game.ChangeWalls (GetRelativeModuleRect (), Game.WallType.Player, true);
+        }
+
+        rootModule.modules.Remove (this);
+    }
 
 	public Module FindRootModule () {
 		Transform cur = transform;

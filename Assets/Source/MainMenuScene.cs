@@ -47,14 +47,17 @@ public class MainMenuScene : MonoBehaviour {
     }
 
     void Start () {
+        Game.darkOverlayActive = true;
         Game.InitializeDirectories ();
-        Game.UpdateDarkOverlay ();
         Game.currentScene = Scene.Menu;
+        Game.DeleteAssemblySave ();
+        Game.UpdateDarkOverlay ();
     }
 
     public void Build () {
+        IngameEditors.AssemblyEditorScene.openedFromIngame = false;
         SceneManager.LoadScene ("pv_assemblybuilder");
-	}
+    }
 
 	public void Quit () {
 		Application.Quit ();

@@ -70,9 +70,10 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public bool ShouldHit (RaycastHit hit) {
-		if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
-			return true;
-		}
+        if (parent)
+		    if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
+			    return true;
+		    }
 		return false;
 	}
 

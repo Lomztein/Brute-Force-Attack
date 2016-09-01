@@ -98,7 +98,6 @@ public class BaseModule : Module {
         ChangePriority (Colour.Purple, newIndex);
     }
     public void OnToggleModAll ( int newIndex ) {
-        Debug.Log ("ALL");
         ChangePriority (Colour.Blue, newIndex);
         ChangePriority (Colour.Green, newIndex);
         ChangePriority (Colour.Yellow, newIndex);

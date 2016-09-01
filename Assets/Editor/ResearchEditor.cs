@@ -77,6 +77,11 @@ public class ResearchEditor : EditorWindow {
         GUI.SetNextControlName("DUMMY");
         GUI.Label(new Rect(-100, -100, 1, 1), "DUMMY");
 
+        if (research && research.research != null)
+            for (int i = 0; i < research.research.Count; i++) {
+                research.research[i].index = i;
+            }
+
         if (!research) {
 			GameObject r = GameObject.Find ("ResearchMenu");
 			if (r) research = r.GetComponent<ResearchMenu>();

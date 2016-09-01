@@ -4,11 +4,13 @@ using IngameEditors;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace IngameEditors {
 
 	public class AssemblyEditorScene : MonoBehaviour {
 
+        public static bool openedFromIngame;
 		public PurchaseMenu purchaseMenu;
 		public float zoomSpeed;
 
@@ -22,6 +24,7 @@ namespace IngameEditors {
         public Text statsText;
 
         public static AssemblyEditorScene cur;
+        public static List<Assembly> newAssemblies;
 
         // Use this for initialization
         void Awake () {
@@ -31,18 +34,29 @@ namespace IngameEditors {
 			Game.credits = int.MaxValue;
 			purchaseMenu.standard = Resources.LoadAll<GameObject> ("Modules").ToList ();
 			purchaseMenu.Initialize ();
+            newAssemblies = new List<Assembly> ();
+            Game.UpdateDarkOverlay ();
 		}
 
         void Start () {
+            Game.darkOverlayActive = true;
             Game.UpdateDarkOverlay();
         }
 
         public void QuitScene () {
-			Game.currentScene = Scene.Play;
-            SceneManager.LoadScene ("pv_menu");
-		}
+            if (openedFromIngame) {
+                Game.darkOverlayActive = true;
+                Game.saveToLoad = Game.SAVED_GAME_DIRECTORY + "assemblysave.dat";
 
-		void Update () {
+                Game.currentScene = Scene.Play;
+                SceneManager.LoadScene ("pv_play");
+            } else {
+			    Game.currentScene = Scene.Menu;
+                SceneManager.LoadScene ("pv_menu");
+            }
+        }
+
+        void Update () {
 			Camera.main.orthographicSize = Mathf.Lerp (Camera.main.orthographicSize, 
 			                                           Camera.main.orthographicSize + zoomSpeed * Input.GetAxis ("Scroll Wheel") * Time.deltaTime,
 			                                           -zoomSpeed * Time.deltaTime);
@@ -128,6 +142,10 @@ namespace IngameEditors {
             rootModule.assemblyName = assemblyName.text;
             rootModule.assemblyDesc = assemblyDesc.text;
             rootModule.SaveModuleAssembly(rootModule.assemblyName);
+            if (openedFromIngame) {
+                Assembly newAssembly = Assembly.LoadFromFile (rootModule.assemblyName);
+                newAssemblies.Add (newAssembly);
+            }
         }
     }
 }

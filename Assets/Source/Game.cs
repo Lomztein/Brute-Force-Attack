@@ -234,6 +234,7 @@ public class Game : MonoBehaviour {
                 anim.Play ("OverlayFadeIn");
                 break;
         }
+
         image.raycastTarget = setting;
         darkOverlayActive = setting;
     }
@@ -663,6 +664,20 @@ public class Game : MonoBehaviour {
 		return mask;
 	}
 
+    public void EnterAssemblyEditorFromGame () {
+        if (fastGame)
+            ToggleFastGameSpeed ();
+        Time.timeScale = 1f;
+
+        IngameEditors.AssemblyEditorScene.openedFromIngame = true;
+        SaveGame ("assemblysave");
+        SceneManager.LoadScene ("pv_assemblybuilder");
+    }
+
+    public static void DeleteAssemblySave () {
+        File.Delete (SAVED_GAME_DIRECTORY + "assemblysave.dat");
+    }
+
 	void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
@@ -720,11 +735,14 @@ public class Game : MonoBehaviour {
 
 		float sizeX = 1f/16f;
 		float sizeY = 0.5f;
-		
-		uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY + sizeY); 		//1,1
-		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY);   			//1,0
-		uvs[index * 4 + 2] = new Vector2 (id * sizeX,			horIndex * sizeY); 				//0,0
-		uvs[index * 4 + 3] = new Vector2 (id * sizeX,			horIndex * sizeY + sizeY); 		//0,1
+
+        float sizeXmod = sizeX / 16f;
+        float sizeYmod = sizeY / 16f;
+
+        uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX - sizeXmod,	horIndex * sizeY + sizeY - sizeYmod); 		//1,1
+		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX - sizeXmod,	horIndex * sizeY + sizeYmod);   			//1,0
+		uvs[index * 4 + 2] = new Vector2 (id * sizeX + sizeXmod,			horIndex * sizeY + sizeYmod); 				//0,0
+		uvs[index * 4 + 3] = new Vector2 (id * sizeX + sizeXmod,			horIndex * sizeY + sizeY - sizeYmod); 		//0,1
 
 		norms[index * 4 + 0] = Vector3.back;
 		norms[index * 4 + 1] = Vector3.back;
@@ -809,6 +827,7 @@ public class Game : MonoBehaviour {
         EnemyManager.Initialize ();
 
         //researchMenu.InvalidateUselessButtons ();
+        Game.DeleteAssemblySave ();
 
         if (fastGame)
             ToggleFastGameSpeed ();
@@ -989,6 +1008,11 @@ public class Game : MonoBehaviour {
         difficulty = sg.difficulty;
 
         // Set purchaseables and spawnpoints.
+        if (IngameEditors.AssemblyEditorScene.newAssemblies != null) {
+            sg.selectedTurrets.AddRange (IngameEditors.AssemblyEditorScene.newAssemblies);
+            IngameEditors.AssemblyEditorScene.newAssemblies.Clear ();
+        }
+
         purchaseMenu.SetAssemblies (sg.selectedTurrets);
         enemySpawnPoints = new List<EnemySpawnPoint> ();
 

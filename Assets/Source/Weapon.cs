@@ -195,8 +195,10 @@ public class Weapon : MonoBehaviour {
             return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
                     ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] *
                     muzzles.Length) / (firerate / upgradeMul * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst]));
+        }else {
+            return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
+                muzzles.Length) / (firerate / upgradeMul));
         }
-        return 0f;
     }
 
 	void ChamberBullet () {
