@@ -73,6 +73,13 @@ public class BaseModule : Module {
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul * 2.5f;
     }
 
+    public float GetBaseRange () {
+        if (Game.game && Game.game.gamemode != Gamemode.VDay)
+            return range * upgradeMul * ResearchMenu.rangeMul;
+        else
+            return range * upgradeMul * ResearchMenu.rangeMul * 2.5f;
+    }
+
 	void FindTarget () {
 		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), ignore.ToArray (), sortType);
         if (target)
@@ -212,8 +219,8 @@ public class BaseModule : Module {
                     priorities.Add(weapons[i].GetBulletData().effectiveAgainst);
                 }
 
-                if (weapons[i].maxRange > 0.1f && weapons[i].maxRange < r) {
-                    r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
+                if (weapons[i].weaponModule.rangeMultiplier * GetBaseRange () < r) {
+                    r = weapons[i].weaponModule.rangeMultiplier * GetBaseRange ();
                 }
 
                 weapons[i].damageMul = damageBoost;

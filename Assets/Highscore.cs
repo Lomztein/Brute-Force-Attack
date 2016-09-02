@@ -13,7 +13,7 @@ public class Highscore : MonoBehaviour {
     public Button submitButton;
 
     public static void Add ( string playerName, int score) {
-        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (Game.GAME_DATA_DIRECTORY + Game.difficulty.name + "-highscores.dat");
+        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (Game.GAME_DATA_DIRECTORY + Game.game.battlefieldName + "-" + Game.difficulty.name + "-highscores.dat");
         if (entries == null)
             entries = new List<Entry> ();
 

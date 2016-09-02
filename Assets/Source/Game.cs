@@ -21,6 +21,7 @@ public class Game : MonoBehaviour {
     public Transform background;
     public int battlefieldWidth;
     public int battlefieldHeight;
+    public string battlefieldName;
     public List<EnemySpawnPoint> enemySpawnPoints;
 
     [Header("Difficulty Settings")]
@@ -770,7 +771,7 @@ public class Game : MonoBehaviour {
         switch (Application.platform) {
 
             default:
-                MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
+                MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/Player Data/Module Assemblies/";
                 WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
                 BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
                 RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
@@ -977,6 +978,9 @@ public class Game : MonoBehaviour {
 
 		public BattlefieldData (string name, string desc, int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
 
+            this.name = name;
+            this.desc = desc;
+
 			width = _w;
 			height = _h;
             walls = _walls;
@@ -1006,6 +1010,7 @@ public class Game : MonoBehaviour {
         battlefieldHeight = sg.battlefieldData.height;
         isWalled = sg.battlefieldData.walls;
         difficulty = sg.difficulty;
+        battlefieldName = sg.battlefieldData.name;
 
         // Set purchaseables and spawnpoints.
         if (IngameEditors.AssemblyEditorScene.newAssemblies != null) {
@@ -1101,7 +1106,7 @@ public class Game : MonoBehaviour {
             }
         }
 
-        saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
+        saved.battlefieldData = new BattlefieldData (battlefieldName, "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
 
         saved.researchedResearch = new List<int> ();

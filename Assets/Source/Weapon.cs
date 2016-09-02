@@ -18,7 +18,6 @@ public class Weapon : MonoBehaviour {
 	public float bulletSpread = 5f;
 	public int bulletDamage = 10;
 	public int bulletAmount = 1;
-	public float maxRange;
 	public Transform target;
     public int locBulletIndex;
 

@@ -59,7 +59,7 @@ public class FocusBeamWeapon : Weapon {
 	}
 
 	void FixedUpdate () {
-		if (weaponModule.parentBase.target && !weaponModule.parentBase.target.gameObject.activeSelf) {
+		if (weaponModule.parentBase && weaponModule.parentBase.target && !weaponModule.parentBase.target.gameObject.activeSelf) {
 			BreakBeam ();
 		}
 	}
@@ -73,7 +73,7 @@ public class FocusBeamWeapon : Weapon {
 
     void UpdateBeam () {
 		bulletDamage = (int)maxCharge;
-		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * maxRange * ResearchMenu.rangeMul * upgradeMul);
+		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * weaponModule.parentBase.GetRange ());
 		RaycastHit hit;
 
 		if (charge > GetMaxCharge ()) {
@@ -86,13 +86,13 @@ public class FocusBeamWeapon : Weapon {
 		line.SetWidth (Mathf.Clamp01 (charge / GetMaxCharge () / 4f),
 		               Mathf.Clamp01 (charge / GetMaxCharge ()) / 4f);
 
-		if (Physics.Raycast (ray, out hit, maxRange * ResearchMenu.rangeMul * upgradeMul, Game.game.enemyLayer)) {
+		if (Physics.Raycast (ray, out hit, weaponModule.parentBase.GetRange (), Game.game.enemyLayer)) {
 			line.SetPosition (0, muzzles [0].position);
 			line.SetPosition (1, hit.point);
 			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (GetDPS () * Time.deltaTime), GetBulletData ().effectiveAgainst, this));
 		} else {
 			line.SetPosition (0, muzzles[0].position);
-			line.SetPosition (1, ray.GetPoint (maxRange));
+			line.SetPosition (1, ray.GetPoint (weaponModule.parentBase.GetRange ()));
 		}
 	}
 }

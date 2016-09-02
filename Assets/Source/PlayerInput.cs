@@ -565,6 +565,9 @@ public class PlayerInput : MonoBehaviour {
 			}
 		}
 
+        if (hitModule && (hitModule.moduleType == pModule.moduleType && hitModule.moduleType != Module.Type.Structural) && !errors.Contains ("Cannot be placed on the same type."))
+            errors.Add ("Cannot be placed on the same type.");
+
         if (hits < 4 && !errors.Contains ("Not enough structural support"))
             errors.Add ("Not enough structural support");
 

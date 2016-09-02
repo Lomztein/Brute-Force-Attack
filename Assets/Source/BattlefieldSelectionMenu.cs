@@ -69,6 +69,7 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
             game.battlefieldWidth = data.width;
             game.battlefieldHeight = data.height;
             game.enemySpawnPoints = data.spawns;
+            game.battlefieldName = data.name;
 
             Game.isWalled = (Game.WallType[,])data.walls.Clone ();
         }
@@ -88,8 +89,7 @@ public class BattlefieldSelectionMenu : MonoBehaviour {
         }
 
         preview.texture = textures[index];
-        //battlefieldName.text = loadedBattlefields[index].name;
-        battlefieldName.text = "Untitled";
+        battlefieldName.text = loadedBattlefields[index].name;
     }
 
     void Initialize () {

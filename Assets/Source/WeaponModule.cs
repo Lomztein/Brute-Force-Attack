@@ -12,7 +12,6 @@ public class WeaponModule : Module {
 	// Update is called once per frame
 	new void Start () {
 		FindParentRotator ();
-		UpdateWeaponRange ();
 		base.Start ();
         if (rootModule) rootModule.scoreName = "Kills";
     }
@@ -24,18 +23,8 @@ public class WeaponModule : Module {
 		return passed;
 	}
 
-	void UpdateWeaponRange () {
-		if (parentBase) {
-			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
-		}else{
-			weapon.maxRange = indieRange * rangeMultiplier;
-		}
-	}
-		
-
 	void Update () {
 		if (Game.currentScene == Scene.Play) {
-			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
 			if (parentBase.target) {
 				weapon.target = parentBase.target;
 				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);
