@@ -3,9 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
-using System.Linq;
 using System.Collections;
 
 public enum Scene { Menu, Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
@@ -58,6 +56,7 @@ public class Game : MonoBehaviour {
     public GameObject turretExplosionParticle;
     public Button revertGameButton;
     public Highscore highscoreMenu;
+    public SettingsMenu settingsMenu;
 
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
@@ -79,9 +78,6 @@ public class Game : MonoBehaviour {
     public AudioClip combatMusic;
 
     [Header("Resources")]
-    //public int startingCredits;
-    //public int startingResearch;
-
     private static bool _creditsUpdatedThisFrame = false;
     private static int _credits;
     public static int credits {
@@ -129,14 +125,9 @@ public class Game : MonoBehaviour {
     public string[] stockModuleNames;
 
     [Header("Settings")]
-    public static float musicVolume;
-    public static float soundVolume;
     public GameObject optionsMenu;
-    public static bool enableMouseMovement = true;
     public Toggle toggleMouseMovementButton;
     public Toggle toggleOptionsMenuButton;
-    public Slider musicSlider;
-    public Slider soundSlider;
     public static bool fastGame;
     public static State state;
 
@@ -241,7 +232,7 @@ public class Game : MonoBehaviour {
     }
 
     public static void PlaySFXAudio (AudioClip audio) {
-        game.mainAudioSource.PlayOneShot (audio, soundVolume);
+        game.mainAudioSource.PlayOneShot (audio, SettingsMenu.soundVolume);
     }
 
     public static void ShowErrorMessage (string message, float time) {
@@ -327,17 +318,11 @@ public class Game : MonoBehaviour {
             researchMenu.gameObject.SetActive (true);
             researchMenu.Initialize ();
             enemyInformationPanel.Initialize ();
+        }
 
-            if (PlayerPrefs.HasKey ("fMusicVolume")) {
-                musicVolume = PlayerPrefs.GetFloat ("fMusicVolume");
-                musicSlider.value = musicVolume;
-            }
-
-            if (PlayerPrefs.HasKey ("fSoundVolume")) {
-                soundVolume = PlayerPrefs.GetFloat ("fSoundVolume");
-                soundSlider.value = soundVolume;
-            }
-
+        if (currentScene == Scene.Play || currentScene == Scene.Menu) {
+            SettingsMenu.cur = settingsMenu;
+            SettingsMenu.LoadSettings ();
         }
 
         if (Application.platform == RuntimePlatform.Android)
@@ -429,8 +414,8 @@ public class Game : MonoBehaviour {
 			optionsMenu.SetActive (false);
 			saveGameMenu.SetActive (false);
 
-            PlayerPrefs.SetFloat ("fMusicVolume", musicVolume);
-            PlayerPrefs.SetFloat ("fSoundVolume", soundVolume);
+            PlayerPrefs.SetFloat ("fMusicVolume", SettingsMenu.musicVolume);
+            PlayerPrefs.SetFloat ("fSoundVolume", SettingsMenu.soundVolume);
         } else{
 			isPaused = true;
 			Time.timeScale = 0f;
@@ -465,15 +450,6 @@ public class Game : MonoBehaviour {
 
 	public void ToggleOptionsMenu () {
 		optionsMenu.SetActive (toggleOptionsMenuButton.isOn);
-	}
-
-	public void ToggleMouseMovement () {
-		enableMouseMovement = toggleMouseMovementButton.isOn;
-		if (enableMouseMovement) {
-			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "Mouse Movement";
-		}else{
-			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "WASD Movement";
-		}
 	}
 
 	public static Vector2 WorldToWallPos (Vector3 pos) {
@@ -829,6 +805,7 @@ public class Game : MonoBehaviour {
 
         //researchMenu.InvalidateUselessButtons ();
         Game.DeleteAssemblySave ();
+        SettingsMenu.cur.UpdateBloom ();
 
         if (fastGame)
             ToggleFastGameSpeed ();
@@ -874,7 +851,7 @@ public class Game : MonoBehaviour {
 
         int steps = Mathf.RoundToInt (fadeTime / Time.fixedDeltaTime) / 2;
         for (int i = 0; i < steps; i++) {
-            mainAudioSource.volume = Mathf.Min (1f - (i / (float)steps) * musicVolume, musicSlider.value);
+            mainAudioSource.volume = Mathf.Min (1f - (i / (float)steps) * SettingsMenu.musicVolume, SettingsMenu.cur.musicSlider.value);
             yield return new WaitForFixedUpdate ();
         }
 
@@ -884,10 +861,10 @@ public class Game : MonoBehaviour {
         mainAudioSource.clip = newMusic;
         mainAudioSource.Play ();
 
-        mainAudioSource.volume = musicVolume;
+        mainAudioSource.volume = SettingsMenu.musicVolume;
 
         for (int i = 0; i < steps; i++) {
-            mainAudioSource.volume = Mathf.Min ((i / (float)steps) * musicVolume, musicSlider.value);
+            mainAudioSource.volume = Mathf.Min ((i / (float)steps) * SettingsMenu.musicVolume, SettingsMenu.cur.musicSlider.value);
         yield return new WaitForFixedUpdate ();
         }
     }
@@ -895,13 +872,8 @@ public class Game : MonoBehaviour {
     void Update () {
         HoverContext.StaticUpdate();
 
-        if (currentScene == Scene.Play) {
-            musicVolume = musicSlider.value;
-            soundVolume = soundSlider.value;
-        }
-
         if (isPaused) {
-            mainAudioSource.volume = musicVolume;
+            mainAudioSource.volume = SettingsMenu.musicVolume;
         }
     }
 

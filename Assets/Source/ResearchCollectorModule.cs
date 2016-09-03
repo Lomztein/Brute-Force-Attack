@@ -20,6 +20,7 @@ public class ResearchCollectorModule : Module {
 		if (parentBase.target) {
 			float angle = Angle.CalculateAngle (transform.position, parentBase.target.position);
 			pointer.eulerAngles = new Vector3 (0,0,angle);
+            UpdateNumberwangPosition ();
 			if (Vector3.Distance (transform.eulerAngles, pointer.eulerAngles) < 5f) {
                 if (line.enabled == false) {
                     line.enabled = true;
@@ -43,13 +44,18 @@ public class ResearchCollectorModule : Module {
             }
 		}
 	}
+    
+    public void UpdateNumberwangPosition () {
+        foreach (ParticleSystem system in numberWang) {
+            system.transform.position = parentBase.target.position;
+            system.transform.LookAt (parentBase.transform);
+            system.startSpeed = Vector3.Distance (parentBase.transform.position, parentBase.target.transform.position);
+        }
+    }
 
     public void EnableNumberwang () {
         foreach (ParticleSystem system in numberWang) {
             system.gameObject.SetActive (true);
-            system.transform.position = parentBase.target.position;
-            system.transform.LookAt (parentBase.transform);
-            system.startSpeed = Vector3.Distance (parentBase.transform.position, parentBase.target.transform.position);
         }
     }
 

@@ -20,6 +20,8 @@ public class MainMenuScene : MonoBehaviour {
 
     private bool isCreditsOpen;
     public GameObject creditsScreen;
+    public SettingsMenu settingsScreen;
+    public AudioSource audioSource;
 
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
@@ -46,12 +48,20 @@ public class MainMenuScene : MonoBehaviour {
         Game.UpdateDarkOverlay ();
     }
 
+    public void ToggleSettingsScreen () {
+        settingsScreen.gameObject.SetActive (!settingsScreen.gameObject.activeSelf);
+        Game.UpdateDarkOverlay ();
+    }
+
     void Start () {
         Game.darkOverlayActive = true;
         Game.InitializeDirectories ();
         Game.currentScene = Scene.Menu;
         Game.DeleteAssemblySave ();
         Game.UpdateDarkOverlay ();
+        audioSource.Play ();
+        SettingsMenu.cur = settingsScreen;  
+        SettingsMenu.LoadSettings ();
     }
 
     public void Build () {
@@ -81,5 +91,6 @@ public class MainMenuScene : MonoBehaviour {
         }
 
         progress += Time.fixedDeltaTime;
+        audioSource.volume = settingsScreen.musicSlider.value;
     }
 }
