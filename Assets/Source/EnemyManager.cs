@@ -133,8 +133,9 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void Update () {
-        if (Input.GetButtonDown("StartWave") && !Game.isPaused)
-            StartReadyWave();
+        if (Input.GetButtonDown("StartWave") && !Game.isPaused) {
+            StartReadyWave ();
+        }
     }
 
     void FixedUpdate () {
@@ -624,8 +625,8 @@ public class EnemyManager : MonoBehaviour {
 
         if (finished && Datastream.healthAmount > 0) {
             Game.credits += 25 * externalWaveNumber;
-            Game.game.SaveGame ("autosave");
             PlayerInput.ChangeFlushTimer (-1);
+            Game.game.SaveGame ("autosave");
             Datastream.healthAmount = Mathf.Min (Datastream.healthAmount + Datastream.healPerWave, Datastream.STARTING_HEALTH);
             Datastream.cur.UpdateNumberMaterials ();
         }

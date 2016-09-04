@@ -93,6 +93,7 @@ public class PlayerInput : MonoBehaviour {
             rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
             rangeIndicatorMaterial = rangeIndicator.transform.GetChild (0).GetComponent<Renderer> ().material;
         }
+        flushTimer = 0;
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
@@ -224,8 +225,19 @@ public class PlayerInput : MonoBehaviour {
 
         if (Input.GetButtonDown ("Cancel")) {
 
-            if (!CancelAll ())
+            bool isPaused = Game.isPaused;
+            bool anyActive = Game.AnyActiveAboveOverlay ();
+
+            if (isPaused) {
                 Game.game.TogglePause ();
+            }
+
+            if (!CancelAll ()) {
+                CloseAllWindows ();
+                if (!anyActive && !isPaused) {
+                    Game.game.TogglePause ();
+                }
+            }
         }
 
         if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {

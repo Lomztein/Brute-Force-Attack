@@ -13,7 +13,7 @@ public class HealingEnemyHealing : MonoBehaviour {
 	public Enemy enemy;
 	private float healProgress;
 
-    void Start () {
+    void OnSpawn () {
         startHealth = enemy.health;
     }
 
@@ -21,16 +21,18 @@ public class HealingEnemyHealing : MonoBehaviour {
 	void FixedUpdate () {
 		if (enemy.health < startHealth * healMax) {
 			healProgress += startHealth * healSpeed * Time.fixedDeltaTime;
+            Debug.Log (startHealth * healSpeed * Time.fixedDeltaTime);
 			if (healProgress > 1f) {
 				enemy.health += Mathf.RoundToInt (healProgress);
                 healProgress = 0f;
 			}
 		}else{
-            enemy.health = Mathf.RoundToInt (startHealth * healMax);
+            enemy.health = Mathf.Max (Mathf.RoundToInt (startHealth * healMax), enemy.health);
 		}
 	}
 
-	void OnTakeDamage () {
-		healSpeed = 0f;
+	void OnTakeDamage (Projectile.Damage d) {
+        if (d.effectiveAgainst == Colour.Green)
+		    healSpeed = 0f;
 	}
 }

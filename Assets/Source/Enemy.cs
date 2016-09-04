@@ -67,6 +67,8 @@ public class Enemy : MonoBehaviour {
 
         if (Game.game)
             CreateHealthMeter ();
+
+        SendMessage ("OnSpawn");
     }
 
     void CreateHealthMeter () {
