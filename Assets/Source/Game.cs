@@ -190,6 +190,18 @@ public class Game : MonoBehaviour {
         return setting;
     }
 
+    public bool AnyWallOfType (WallType wallType) {
+        int width = isWalled.GetLength (0);
+        int height = isWalled.GetLength (1);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (isWalled[x, y] == wallType)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public static IEnumerator DelayedUpdateDarkOverlay () {
         yield return new WaitForEndOfFrame ();
         yield return new WaitForEndOfFrame ();
