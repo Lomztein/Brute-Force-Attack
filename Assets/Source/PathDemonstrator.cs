@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PathDemonstrator : MonoBehaviour {
 
@@ -8,6 +9,7 @@ public class PathDemonstrator : MonoBehaviour {
     public GameObject nodeArrow;
 
     public static PathDemonstrator cur;
+    public static List<PathDemonstrator> demonstrators = new List<PathDemonstrator>();
 
     public void StartPath () {
         StartCoroutine (Demonstrate ());
@@ -15,13 +17,25 @@ public class PathDemonstrator : MonoBehaviour {
 
     private IEnumerator Demonstrate () {
         cur = this;
+        demonstrators.Add (this);
+
         for (int i = 0; i < path.Length; i++) {
             if (i < path.Length - 2) {
                 Quaternion rot = Quaternion.Euler (0f, 0f, Angle.CalculateAngle (path[i], path[i + 1]));
                 Destroy ((GameObject)Instantiate (nodeArrow, path[i], rot), 1f);
                 yield return new WaitForSeconds (1f / nodesPerSecond);
             } else {
+                demonstrators.Remove (this);
                 Destroy (gameObject);
+                OnEndFinishedDemonstration ();
+            }
+        }
+    }
+
+    public void OnEndFinishedDemonstration () {
+        if (EnemyManager.cur.pathDemonstratorButton.sprite == EnemyManager.cur.pathDemonstratorButtonSprites[1]) {
+            if (demonstrators.Count == 0) {
+                EnemyManager.cur.DemonstratePaths ();
             }
         }
     }

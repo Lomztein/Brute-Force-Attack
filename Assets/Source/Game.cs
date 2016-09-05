@@ -61,6 +61,10 @@ public class Game : MonoBehaviour {
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
 
+    public List<ResearchPoint> researchPoints;
+    public GameObject researchPoint;
+    public GameObject largeResearchPoint;
+
     public Text creditsText;
     public Text powerText;
     public Text researchText;
@@ -1048,6 +1052,18 @@ public class Game : MonoBehaviour {
             r.Purchase (true);
         }
 
+        // Place research points
+        for (int i = 0; i < sg.researchPoints.Length; i++) {
+            GameObject obj = null;
+            Vector3 pos = new Vector3 (sg.researchPoints[i].x, sg.researchPoints[i].y);
+            if (sg.researchPoints[i].value < 2f) {
+                obj = (GameObject)Instantiate (researchPoint, pos, Quaternion.identity);
+            }else {
+                obj = (GameObject)Instantiate (largeResearchPoint, pos, Quaternion.identity);
+            }
+            researchPoints.Add (obj.GetComponent<ResearchPoint> ());
+        }
+
         // Set resources.
         credits = sg.credits;
         research = sg.research;
@@ -1100,6 +1116,11 @@ public class Game : MonoBehaviour {
                 saved.researchedResearch.Add (ResearchMenu.cur.research[i].index);
         }
 
+        saved.researchPoints = new SavedGame.SavedResearchPoint[researchPoints.Count]; 
+        for (int i = 0; i < researchPoints.Count; i++) {
+            saved.researchPoints[i] = new SavedGame.SavedResearchPoint (researchPoints[i]);
+        }
+
         saved.credits = credits;
         saved.research = research;
         saved.researchProgress = researchProgress;
@@ -1124,6 +1145,7 @@ public class Game : MonoBehaviour {
         public List<Assembly> selectedTurrets;
         public List<SavedAssembly> turrets;
 
+        public SavedResearchPoint[] researchPoints;
         public string waveSetPath;
         public List<int> researchedResearch;
 
@@ -1175,6 +1197,21 @@ public class Game : MonoBehaviour {
                     levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
                 }
             }
+        }
+
+        [Serializable]
+        public class SavedResearchPoint {
+
+            public float x;
+            public float y;
+            public float value;
+
+            public SavedResearchPoint (ResearchPoint point) {
+                x = point.transform.position.x;
+                y = point.transform.position.y;
+                value = point.researchValue;
+            }
+
         }
     }
 

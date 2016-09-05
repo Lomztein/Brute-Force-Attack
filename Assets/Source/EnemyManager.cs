@@ -99,6 +99,13 @@ public class EnemyManager : MonoBehaviour {
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[0];
             pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Display enemy paths";
         } else {
+
+            SetAvailableSpawnpoints ();
+            if (availableSpawns.Count == 0) {
+                Game.ShowErrorMessage ("Cannot show paths: Paths unclear", 5f);
+                return;
+            }
+
             showingPaths = !showingPaths;
             StartCoroutine (DPATHS ());
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[1];
@@ -107,9 +114,14 @@ public class EnemyManager : MonoBehaviour {
         HoverContextElement.activeElement = null;
     }
 
-    private IEnumerator DPATHS () {
+    public void CancelDemonstration ( string message ) {
+        if (pathDemonstratorButton.sprite == pathDemonstratorButtonSprites[1]) {
+            Game.ShowErrorMessage (message, 2f);
+            DemonstratePaths ();
+        }
+    }
 
-        SetAvailableSpawnpoints ();
+    private IEnumerator DPATHS () {
 
         for (int i = 0; i < availableSpawns.Count; i++) {
             while (availableSpawns[i].path == null) {

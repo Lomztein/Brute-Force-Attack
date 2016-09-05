@@ -68,7 +68,7 @@ public class Enemy : MonoBehaviour {
         if (Game.game)
             CreateHealthMeter ();
 
-        SendMessage ("OnSpawn");
+        SendMessage ("OnSpawn", SendMessageOptions.DontRequireReceiver);
     }
 
     void CreateHealthMeter () {

@@ -7,6 +7,10 @@ public class ResearchPoint : MonoBehaviour {
 	private bool isCapturing;
 	public ParticleSystem[] particle;
     new public Collider collider;
+
+    void Start () {
+        Game.game.researchPoints.Add (this);
+    }
 	
 	public void Capture (float multiplier, float speed) {
 		if (!isCapturing) {
