@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour {
 	public int damage;
 	public int value;
 	public bool isFlying;
+    public float flyingRotationSpeed;
 	public int researchDropChance;
     public float difficultyMultiplier = 1f;
 
@@ -58,6 +59,9 @@ public class Enemy : MonoBehaviour {
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
         health = GetHealth (health, EnemyManager.gameProgress);
+
+        if (isFlying)
+            offset *= 5f;
 
         if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;

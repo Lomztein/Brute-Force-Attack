@@ -529,9 +529,23 @@ public class Game : MonoBehaviour {
 
 			//Pathfinding.ChangeArea (loc, !doWall);
 			Game.game.GenerateWallMesh ();
-			credits -= cost;
+
+            if (EnemyManager.cur)
+                EnemyManager.cur.SetSpawnIndicators ();
+
+            credits -= cost;
 		}
 	}
+
+    public Vector3 GetVoidDirection (Vector3 position) {
+        Vector3[] nearby = new Vector3[] { new Vector3 (0, 1), new Vector3 (0, -1), new Vector3 (1, 0), new Vector3 (-1, 0) };
+        for (int i = 0; i < nearby.Length; i++) {
+            if (!IsInsideBattlefield (position + nearby[i]))
+                return position + nearby[i];
+        }
+
+        return position;
+    }
 
     public void ExplodeAllTurrets () {
         List<Module> modules = new List<Module> ();
@@ -671,7 +685,7 @@ public class Game : MonoBehaviour {
         File.Delete (SAVED_GAME_DIRECTORY + "assemblysave.dat");
     }
 
-	void GenerateWallMesh () {
+	public void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
 		wallMeshFilter.transform.localScale = new Vector3 (1f/background.localScale.x, 1f/background.localScale.y);
@@ -792,12 +806,16 @@ public class Game : MonoBehaviour {
             Directory.CreateDirectory (GAME_DATA_DIRECTORY);
     }
 
+    public void SetBackgoundGraphic () {
+        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
+        background.GetComponent<Renderer> ().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
+    }
+
     void PostInitialization () {
         ShowGUI ();
 
         // Initialize background graphic
-        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
-		background.GetComponent<Renderer>().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
+        SetBackgoundGraphic ();
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
@@ -1053,16 +1071,16 @@ public class Game : MonoBehaviour {
         }
 
         // Place research points
-        for (int i = 0; i < sg.researchPoints.Length; i++) {
-            GameObject obj = null;
-            Vector3 pos = new Vector3 (sg.researchPoints[i].x, sg.researchPoints[i].y);
-            if (sg.researchPoints[i].value < 2f) {
-                obj = (GameObject)Instantiate (researchPoint, pos, Quaternion.identity);
-            }else {
-                obj = (GameObject)Instantiate (largeResearchPoint, pos, Quaternion.identity);
+        if (sg.researchPoints != null)
+            for (int i = 0; i < sg.researchPoints.Length; i++) {
+                GameObject obj = null;
+                Vector3 pos = new Vector3 (sg.researchPoints[i].x, sg.researchPoints[i].y);
+                if (sg.researchPoints[i].value < 2f) {
+                    obj = (GameObject)Instantiate (researchPoint, pos, Quaternion.identity);
+                }else {
+                    obj = (GameObject)Instantiate (largeResearchPoint, pos, Quaternion.identity);
+                }
             }
-            researchPoints.Add (obj.GetComponent<ResearchPoint> ());
-        }
 
         // Set resources.
         credits = sg.credits;
@@ -1207,11 +1225,12 @@ public class Game : MonoBehaviour {
             public float value;
 
             public SavedResearchPoint (ResearchPoint point) {
-                x = point.transform.position.x;
-                y = point.transform.position.y;
-                value = point.researchValue;
+                if (point != null) {
+                    x = point.transform.position.x;
+                    y = point.transform.position.y;
+                    value = point.researchValue;
+                }
             }
-
         }
     }
 

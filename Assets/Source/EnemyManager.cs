@@ -60,7 +60,9 @@ public class EnemyManager : MonoBehaviour {
 
 	public static EnemyManager cur;
     public GameObject enemyPortalPrefab;
+    public GameObject enemySpawnIndicator;
     public List<GameObject> currentPortals = new List<GameObject>();
+    public List<GameObject> currentIndicators = new List<GameObject>();
 
     [Header ("Upcoming Wave")]
     public Text upcomingHeader;
@@ -90,6 +92,7 @@ public class EnemyManager : MonoBehaviour {
         externalWaveNumber = 0;
 
         cur.AddFinalBoss ();
+        cur.SetSpawnIndicators ();
     }
 
     public void DemonstratePaths () {
@@ -112,6 +115,33 @@ public class EnemyManager : MonoBehaviour {
             pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Stop displaying enemy paths";
         }
         HoverContextElement.activeElement = null;
+    }
+
+    public void SetSpawnIndicators () {
+        foreach (GameObject i in currentIndicators) {
+            Destroy (i);
+        }
+
+        currentIndicators.Clear ();
+        SetAvailableSpawnpoints ();
+        Pathfinding.BakePaths ();
+
+        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            EnemySpawnPoint point = Game.game.enemySpawnPoints[i];
+
+            Vector3 next = Game.game.GetVoidDirection (point.worldPosition);
+            Quaternion rotation = Quaternion.Euler (0f, 0f, Angle.CalculateAngle (point.worldPosition, next) + 180f);
+            GameObject newIndicator = (GameObject)Instantiate (enemySpawnIndicator, point.worldPosition, rotation);
+
+            currentIndicators.Add (newIndicator);
+            SpriteRenderer sprite = newIndicator.GetComponentInChildren<SpriteRenderer> ();
+
+            if (point.blocked) {
+                sprite.color = Color.red;
+            }else {
+                sprite.color = Color.green;
+            }
+        }
     }
 
     public void CancelDemonstration ( string message ) {
@@ -180,23 +210,35 @@ public class EnemyManager : MonoBehaviour {
                 }
 
                 // Movement code.
-                if (enemy.pathIndex == enemy.path.Length - 1 || enemy.isFlying) {
-                    enemy.transform.position += Vector3.down * Time.fixedDeltaTime * enemy.speed;
-                    if (enemy.rotateSprite)
-                        enemy.transform.rotation = Quaternion.Euler (0, 0, 270);
-                    continue;
+                if (enemy.pathIndex == enemy.path.Length - 1) {
+                    enemy.pathIndex--;
                 }
                 Vector3 loc = new Vector3 (enemy.path[enemy.pathIndex].x, enemy.path[enemy.pathIndex].y) + enemy.offset;
                 float dist = Vector3.Distance (enemy.transform.position, loc);
 
-                if (dist < enemy.speed * Time.fixedDeltaTime * 2f) {
+                if (enemy.isFlying) {
+                    float rotMul = 360f / enemy.flyingRotationSpeed;
+                    if (dist < rotMul * 3f) {
+                        enemy.pathIndex++;
+                    }
+                } else if (dist < enemy.speed * Time.fixedDeltaTime * 2f) {
                     enemy.pathIndex++;
                 }
 
-                enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, loc, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                if (enemy.isFlying) {
+                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, enemy.transform.position + enemy.transform.right, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                } else {
+                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, loc, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                }
 
-                if (enemy.rotateSprite)
-                    enemy.transform.rotation = Quaternion.Lerp (enemy.transform.rotation, Quaternion.Euler (0, 0, Angle.CalculateAngle (enemy.transform.position, loc)), 0.2f);
+                if (enemy.rotateSprite) {
+                    Quaternion rot = Quaternion.Euler (0, 0, Angle.CalculateAngle (enemy.transform.position, loc));
+                    if (enemy.isFlying) {
+                        enemy.transform.rotation = Quaternion.RotateTowards (enemy.transform.rotation, rot, enemy.flyingRotationSpeed * Time.fixedDeltaTime);
+                    }else {
+                        enemy.transform.rotation = Quaternion.Lerp (enemy.transform.rotation, rot, 0.2f);
+                    }
+                }
 
                 if (enemy.freezeMultiplier < 1f) {
                     enemy.freezeMultiplier += 0.5f * Time.fixedDeltaTime;
@@ -655,8 +697,6 @@ public class EnemyManager : MonoBehaviour {
 	}
 
 	EnemySpawnPoint GetSpawnPosition (Enemy enemy) {
-        if (enemy.isFlying)
-            return Game.game.enemySpawnPoints[Random.Range (0, Game.game.enemySpawnPoints.Count)];
         return availableSpawns[Random.Range(0, availableSpawns.Count)];
 	}
 
@@ -675,8 +715,6 @@ public class EnemyManager : MonoBehaviour {
                 ene.transform.position = ene.spawnPoint.worldPosition;
 
                 ene.path = ene.spawnPoint.path;
-                if (ene.isFlying)
-                    ene.path = new Vector2[1];
             }
 
             pooledEnemies[enemy].RemoveAt (0);

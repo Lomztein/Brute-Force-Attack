@@ -38,6 +38,7 @@ public class ResearchPoint : MonoBehaviour {
 			yield return new WaitForFixedUpdate ();
 		}
 
+        Game.game.researchPoints.Remove (this);
 		Destroy (gameObject);
 		yield return null;
 	}
