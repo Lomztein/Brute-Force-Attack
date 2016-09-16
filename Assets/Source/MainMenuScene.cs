@@ -26,7 +26,10 @@ public class MainMenuScene : MonoBehaviour {
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
         Game.currentScene = Scene.Play;
-	}
+
+        if (PlayerPrefs.HasKey ("fMusicVolume"))
+            audioSource.volume = PlayerPrefs.GetFloat ("fMusicVolume");
+    }
 
     public void ToggleLoadGameMenu () {
         FileBrowser.OpenFileBrowser (Game.SAVED_GAME_DIRECTORY, gameObject, "OnSaveChosen");

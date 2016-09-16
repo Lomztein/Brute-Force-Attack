@@ -13,6 +13,7 @@ public class Tutorial : MonoBehaviour {
     public Text tutorialText;
     public Button continueButton;
 
+    public GameObject pointingMouse;
     public AssembliesSelectionMenu selectionMenu;
 
     public TutorialStep[] steps;
@@ -20,6 +21,7 @@ public class Tutorial : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        Game.UpdateDarkOverlay ();
         if (PlayerPrefs.HasKey ("bHasPlayedBefore")) {
             Destroy (gameObject);
         } else {
@@ -119,17 +121,23 @@ public class Tutorial : MonoBehaviour {
             yield return null;
 
         proceedTutorial = false;
-        // Step 9 - Explain circle menu and upgrades.
+        // Step 9 - Explain starting wave and fast mode.
         while (!proceedTutorial)
             yield return null;
 
-        // Step 10 - Explain flush battlefield button.
+        proceedTutorial = false;
+        // Step 10 - Explain circle menu and upgrades.
+        while (!proceedTutorial)
+            yield return null;
+
+
+        // Step 11 - Explain flush battlefield button.
         while (PlayerInput.cur.flushTime != 0)
             yield return null;
         ContinueTutorial ();
 
         proceedTutorial = false;
-        // Step 9 - Start the game.
+        // Step 12 - Start the game.
         while (!proceedTutorial)
             yield return null;
 
@@ -153,6 +161,21 @@ public class Tutorial : MonoBehaviour {
             ChangeAllSelectables (steps[stepIndex - 1].toDisable, true);
         }
         ChangeAllSelectables (steps[stepIndex].toDisable, false);
+
+        if (steps[stepIndex].focusTransform) {
+            Transform trans = steps[stepIndex].focusTransform;
+            Vector3 middle = new Vector3 (Screen.width / 2f, Screen.height / 2f);
+
+            pointingMouse.SetActive (true);
+            float angle = Angle.CalculateAngle (middle, trans.position);
+            float distance = Vector3.Distance (middle, trans.position);
+            Vector3 pos = transform.position + (trans.position - middle).normalized * (distance - 100);
+
+            pointingMouse.transform.position = pos;
+            pointingMouse.transform.eulerAngles = new Vector3 (0f, 0f, angle);
+        } else {
+            pointingMouse.SetActive (false);
+        }
     }
 
     void ChangeAllSelectables (GameObject[] list, bool setting) {
@@ -181,6 +204,7 @@ public class Tutorial : MonoBehaviour {
     public class TutorialStep {
         public GameObject[] toDisable;
         public Vector3 position;
+        public Transform focusTransform;
         public string headerText;
         [TextArea]
         public string infoText;

@@ -276,6 +276,7 @@ public class Game : MonoBehaviour {
         game = this;
         ResetStatics ();
         ResearchMenu.InitializeAllStatics ();
+        darkOverlayActive = true;
         InitializeBasics ();
 
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
@@ -291,7 +292,14 @@ public class Game : MonoBehaviour {
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
         HideGUI();
+
+        UpdateMusicVolume ();
 	}
+
+    void UpdateMusicVolume () {
+        if (PlayerPrefs.HasKey ("fMusicVolume"))
+            mainAudioSource.volume = PlayerPrefs.GetFloat ("fMusicVolume");
+    }
 
     void Start () {
         if (saveToLoad != null && saveToLoad.Length > 0) {
@@ -432,6 +440,9 @@ public class Game : MonoBehaviour {
 
             PlayerPrefs.SetFloat ("fMusicVolume", SettingsMenu.musicVolume);
             PlayerPrefs.SetFloat ("fSoundVolume", SettingsMenu.soundVolume);
+
+            if (fastGame)
+                SetGameSpeed (2f);
         } else{
 			isPaused = true;
 			Time.timeScale = 0f;
@@ -510,7 +521,7 @@ public class Game : MonoBehaviour {
 
 		int cost = GetWallingCost (startX, startY, w, h, wallType);
 
-		if (credits > cost) {
+		if (credits >= cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
 
@@ -601,7 +612,7 @@ public class Game : MonoBehaviour {
                     }
                     if (wallType == WallType.None) {
                         if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
-						    cost -= 2;
+						    cost -= 4;
 					}
 				}
 			}
