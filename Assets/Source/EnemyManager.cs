@@ -88,8 +88,8 @@ public class EnemyManager : MonoBehaviour {
 
     public static void Initialize () {
         cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
-        cur.EndWave (false);
         externalWaveNumber = 0;
+        cur.EndWave (false);
 
         cur.AddFinalBoss ();
         cur.SetSpawnIndicators ();
@@ -97,8 +97,8 @@ public class EnemyManager : MonoBehaviour {
 
     public void DemonstratePaths () {
         if (showingPaths) {
-            showingPaths = !showingPaths;
-            Destroy (PathDemonstrator.cur.gameObject);
+            showingPaths = false;
+            PathDemonstrator.cur.Destroy ();
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[0];
             pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Display enemy paths";
         } else {
@@ -109,7 +109,7 @@ public class EnemyManager : MonoBehaviour {
                 return;
             }
 
-            showingPaths = !showingPaths;
+            showingPaths = true;
             StartCoroutine (DPATHS ());
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[1];
             pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Stop displaying enemy paths";

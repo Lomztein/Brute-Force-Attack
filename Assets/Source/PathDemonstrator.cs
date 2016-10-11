@@ -25,11 +25,15 @@ public class PathDemonstrator : MonoBehaviour {
                 Destroy ((GameObject)Instantiate (nodeArrow, path[i], rot), 1f);
                 yield return new WaitForSeconds (1f / nodesPerSecond);
             } else {
-                demonstrators.Remove (this);
-                Destroy (gameObject);
+                Destroy ();
                 OnEndFinishedDemonstration ();
             }
         }
+    }
+
+    public void Destroy () {
+        demonstrators.Remove (this);
+        Destroy (gameObject);
     }
 
     public void OnEndFinishedDemonstration () {

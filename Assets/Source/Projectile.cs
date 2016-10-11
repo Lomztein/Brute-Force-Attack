@@ -16,6 +16,7 @@ public class Projectile : MonoBehaviour {
 	public Colour effectiveAgainst;
     public bool isHitscan;
     public AnimationCurve damageFalloff;
+    private Vector3 spawnPos;
 
     public ParticleSystem particle;
     public ParticleSystem hitParticle;
@@ -34,6 +35,12 @@ public class Projectile : MonoBehaviour {
 
                 OnHit (col, transform.position, transform.forward);
             }
+        }
+
+        if (parentWeapon) {
+            spawnPos = parentWeapon.transform.position;
+        }else {
+            spawnPos = transform.position;
         }
 	}
 	
@@ -78,7 +85,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public virtual void OnHit (Collider col, Vector3 point, Vector3 dir) {
-        float distance = Vector3.Distance (parentWeapon.transform.position, point) / range;
+        float distance = Vector3.Distance (spawnPos, point) / range;
 		col.SendMessage ("OnTakeDamage", new Damage (Mathf.RoundToInt (damage * damageFalloff.Evaluate (distance)), effectiveAgainst, parentWeapon), SendMessageOptions.DontRequireReceiver);
         if (hitParticle) {
             hitParticle.Emit (particleCount);

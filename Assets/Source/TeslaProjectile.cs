@@ -27,7 +27,7 @@ public class TeslaProjectile : Projectile {
 			chainIndex = chainAmount;
 			Invoke ("ReturnToPool", 0.5f);
 		} else {
-			Destroy (gameObject, 1f);
+			Destroy (gameObject, 0.5f);
 		}
 
 		Ray ray = new Ray (transform.position, velocity.normalized);
@@ -49,10 +49,12 @@ public class TeslaProjectile : Projectile {
 			TargetFinder finder = new TargetFinder ();
 			Transform t = finder.FindTarget (point, 5f, Game.game.enemyLayer, new Colour[1] { Colour.None }, new Colour[0], TargetFinder.SortType.Random);
 			if (t) {
-				//Vector3 dir = (t.position - hit.point).normalized;
+				Vector3 direction = (t.position - point).normalized;
 				GameObject light = (GameObject)Instantiate (chainLighting, point, Quaternion.identity);
+
+                Quaternion rotation = Quaternion.Euler (0f, 0f, Angle.CalculateAngle (transform.position, t.position));
 				TeslaProjectile pro = light.GetComponent<TeslaProjectile>();
-				pro.velocity = dir;
+                pro.velocity = direction;
 				pro.chainIndex = chainIndex - 1;
 				pro.damage = Mathf.RoundToInt ((float)damage / 1.5f);
 				pro.parent = parent;

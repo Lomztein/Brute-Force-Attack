@@ -21,7 +21,6 @@ public class HealingEnemyHealing : MonoBehaviour {
 	void FixedUpdate () {
 		if (enemy.health < startHealth * healMax) {
 			healProgress += startHealth * healSpeed * Time.fixedDeltaTime;
-            Debug.Log (startHealth * healSpeed * Time.fixedDeltaTime);
 			if (healProgress > 1f) {
 				enemy.health += Mathf.RoundToInt (healProgress);
                 healProgress = 0f;
