@@ -14,7 +14,6 @@ public class ModuleAssemblyLoader : MonoBehaviour {
 
 		for (int i = 0; i < assembly.parts.Count; i++) {
 			Assembly.Part part = assembly.parts[i];
-            Debug.Log (part.type);
 			spr.Add (PurchaseMenu.cur.GetModulePrefab (part.type)
 				.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite.texture);
 

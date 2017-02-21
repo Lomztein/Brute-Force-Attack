@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 
 public class EnemyManager : MonoBehaviour {
 
@@ -818,7 +819,7 @@ public class EnemyManager : MonoBehaviour {
             for (int i = 0; i < availableSpawns.Count; i++) {
                 EnemySpawnPoint point = availableSpawns[i];
                 for (int j = 0; j < point.path.Length - 1; j++) {
-                    Debug.DrawLine (point.path[j], point.path[j + 1], Color.red);
+                    UnityEngine.Debug.DrawLine (point.path[j], point.path[j + 1], Color.red);
                 }
             }
         }

@@ -255,7 +255,7 @@ public class Module : MonoBehaviour {
     }
 
     public float GetUpgradePercentage () {
-        return upgradeCount / 10f;
+        return 0.3f;
     }
 
 	public static float CalculateUpgradeMul (int upgradeLevel) {

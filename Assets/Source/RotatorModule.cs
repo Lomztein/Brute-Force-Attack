@@ -14,7 +14,7 @@ public class RotatorModule : Module {
 	private float torqueSpeedMul;
 
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		Turn ();
 	}
 

@@ -23,7 +23,7 @@ public class WeaponModule : Module {
 		return passed;
 	}
 
-	void Update () {
+	void FixedUpdate () {
 		if (Game.currentScene == Scene.Play) {
 			if (parentBase.target) {
 				weapon.target = parentBase.target;

@@ -4,42 +4,39 @@ using System.Collections.Generic;
 
 public class BaseModule : Module {
 
-	[Header ("Targeting")]
-	public Transform target;
-	public Vector3 targetPos;
-	private Vector3 prevPos;
-	private Vector3 targetVel;
-	public TargetFinder.SortType sortType = TargetFinder.SortType.Closest;
+    [Header ("Targeting")]
+    public Transform target;
+    public Vector3 targetPos;
+    private Vector3 prevPos;
+    private Vector3 targetVel;
+    public TargetFinder.SortType sortType = TargetFinder.SortType.Closest;
 
-	public LayerMask targetLayer;
-	private TargetFinder targetFinder = new TargetFinder ();
+    public LayerMask targetLayer;
+    private TargetFinder targetFinder = new TargetFinder ();
 
-	public static bool enableAdvancedTracking;
+    public static bool enableAdvancedTracking;
 
-	[Header ("Stats")]
-	public float range;
-	private float targetingRange;
-	private float fastestBulletSpeed;
-	public List<Colour> priorities;
+    [Header ("Stats")]
+    public float range;
+    private float targetingRange;
+    private float fastestBulletSpeed;
+    public List<Colour> priorities;
     public List<Colour> ignore;
-	public int maxSupportedWeight;
-	public int currentWeight;
+    public int maxSupportedWeight;
+    public int currentWeight;
 
-	[Header ("Boosts")]
-	public float damageBoost = 1f;
-	public float firerateBoost = 1f;
-
-	// Update is called once per frame
-	void Update () {
-        if (!target) {
-            FindTarget ();
-        } else if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
-            target = null;
-		}
-	}
+    [Header ("Boosts")]
+    public float damageBoost = 1f;
+    public float firerateBoost = 1f;
 
     void FixedUpdate () {
         if (target) {
+            if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
+                target = null;
+            }
+            if (!target)
+                return;
+
             if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
                 Vector3 delPos = target.position - prevPos;
                 if (delPos.magnitude > 0.1f) {
@@ -52,6 +49,9 @@ public class BaseModule : Module {
             } else {
                 targetPos = target.position;
             }
+        } else {
+            FindTarget ();
+
         }
     }
 

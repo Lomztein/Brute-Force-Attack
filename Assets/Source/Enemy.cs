@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour, IDamagable {
 
 	[Header ("Stats")]
 	public Colour type;
@@ -134,7 +134,7 @@ public class Enemy : MonoBehaviour {
     }
     */
 
-	void OnTakeDamage (Projectile.Damage damage) {
+	public void OnTakeDamage (Projectile.Damage damage) {
 		if (damage.effectiveAgainst == type) {
 			health -= damage.damage;
 		}else{
