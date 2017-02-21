@@ -4,42 +4,39 @@ using System.Collections.Generic;
 
 public class BaseModule : Module {
 
-	[Header ("Targeting")]
-	public Transform target;
-	public Vector3 targetPos;
-	private Vector3 prevPos;
-	private Vector3 targetVel;
-	public TargetFinder.SortType sortType = TargetFinder.SortType.Closest;
+    [Header ("Targeting")]
+    public Transform target;
+    public Vector3 targetPos;
+    private Vector3 prevPos;
+    private Vector3 targetVel;
+    public TargetFinder.SortType sortType = TargetFinder.SortType.Closest;
 
-	public LayerMask targetLayer;
-	private TargetFinder targetFinder = new TargetFinder ();
+    public LayerMask targetLayer;
+    private TargetFinder targetFinder = new TargetFinder ();
 
-	public static bool enableAdvancedTracking;
+    public static bool enableAdvancedTracking;
 
-	[Header ("Stats")]
-	public float range;
-	private float targetingRange;
-	private float fastestBulletSpeed;
-	public List<Colour> priorities;
+    [Header ("Stats")]
+    public float range;
+    private float targetingRange;
+    private float fastestBulletSpeed;
+    public List<Colour> priorities;
     public List<Colour> ignore;
-	public int maxSupportedWeight;
-	public int currentWeight;
+    public int maxSupportedWeight;
+    public int currentWeight;
 
-	[Header ("Boosts")]
-	public float damageBoost = 1f;
-	public float firerateBoost = 1f;
-
-	// Update is called once per frame
-	void Update () {
-        if (!target) {
-            FindTarget ();
-        } else if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
-            target = null;
-		}
-	}
+    [Header ("Boosts")]
+    public float damageBoost = 1f;
+    public float firerateBoost = 1f;
 
     void FixedUpdate () {
         if (target) {
+            if (Vector3.Distance (transform.position, targetPos) > GetRange () || !target.gameObject.activeSelf) {
+                target = null;
+            }
+            if (!target)
+                return;
+
             if (enableAdvancedTracking && fastestBulletSpeed > 1.1) {
                 Vector3 delPos = target.position - prevPos;
                 if (delPos.magnitude > 0.1f) {
@@ -52,6 +49,9 @@ public class BaseModule : Module {
             } else {
                 targetPos = target.position;
             }
+        } else {
+            FindTarget ();
+
         }
     }
 
@@ -71,6 +71,13 @@ public class BaseModule : Module {
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul;
         else
             return Mathf.Min (range, targetingRange) * upgradeMul * ResearchMenu.rangeMul * 2.5f;
+    }
+
+    public float GetBaseRange () {
+        if (Game.game && Game.game.gamemode != Gamemode.VDay)
+            return range * upgradeMul * ResearchMenu.rangeMul;
+        else
+            return range * upgradeMul * ResearchMenu.rangeMul * 2.5f;
     }
 
 	void FindTarget () {
@@ -97,6 +104,15 @@ public class BaseModule : Module {
     public void OnToggleModPurple (int newIndex) {
         ChangePriority (Colour.Purple, newIndex);
     }
+    public void OnToggleModAll ( int newIndex ) {
+        ChangePriority (Colour.Blue, newIndex);
+        ChangePriority (Colour.Green, newIndex);
+        ChangePriority (Colour.Yellow, newIndex);
+        ChangePriority (Colour.Orange, newIndex);
+        ChangePriority (Colour.Red, newIndex);
+        ChangePriority (Colour.Purple, newIndex);
+        ForceUpdateAllModGUI ();
+    }
 
     public void OnInitializeToggleModBlue (ModuleMod mod) {
         mod.GetReturnedMeta (GetSortMeta (Colour.Blue));
@@ -117,7 +133,34 @@ public class BaseModule : Module {
         mod.GetReturnedMeta (GetSortMeta (Colour.Purple));
     }
 
-    public void OnInitializeToggleModSort (ModuleMod mod) {
+    public void OnInitializeToggleModAll ( ModuleMod mod ) {
+        // Ignore, normal, prioritize
+        int[] results = new int[3];
+
+        for (int i = 0; i < allColours.Length; i++) {
+            Colour col = allColours[i];
+
+            if (ignore.Contains (col))
+                results[2]++;
+            if (priorities.Contains (col))
+                results[1]++;
+
+            if (!priorities.Contains (col) && !ignore.Contains(col))
+                results[0]++;
+        }
+
+        for (int i = 0; i < results.Length; i++) {
+            if (results[i] == allColours.Length) {
+                mod.GetReturnedMeta(i);
+                return;
+            }
+            Debug.Log (results[i] + ", " + allColours.Length);
+        }
+
+        mod.GetReturnedMeta (3);
+    }
+
+    public void OnInitializeToggleModSorting (ModuleMod mod) {
         mod.GetReturnedMeta ((int)sortType);
     }
 
@@ -165,25 +208,23 @@ public class BaseModule : Module {
             float speed = 0;
             float r = float.MaxValue;
             for (int i = 0; i < weapons.Length; i++) {
-                if (weapons[i].transform.parent.GetComponent<WeaponModule>().parentBase == this) {
-                    if (weapons[i].bulletSpeed > speed) {
-                        speed = weapons[i].bulletSpeed;
-                        if (weapons[i].GetBulletData().isHitscan) {
-                            speed = 100000;
-                        }
+                if (weapons[i].bulletSpeed > speed) {
+                    speed = weapons[i].bulletSpeed;
+                    if (weapons[i].GetBulletData().isHitscan) {
+                    speed = 100000;
                     }
-
-                    if (!priorities.Contains(weapons[i].GetBulletData().effectiveAgainst)) {
-                        priorities.Add(weapons[i].GetBulletData().effectiveAgainst);
-                    }
-
-                    if (weapons[i].maxRange < r) {
-                        r = weapons[i].maxRange * weapons[i].upgradeMul * ResearchMenu.rangeMul;
-                    }
-
-                    weapons[i].damageMul = damageBoost;
-                    weapons[i].firerateMul = (1f / firerateBoost);
                 }
+
+                if (!priorities.Contains(weapons[i].GetBulletData().effectiveAgainst)) {
+                    priorities.Add(weapons[i].GetBulletData().effectiveAgainst);
+                }
+
+                if (weapons[i].weaponModule.rangeMultiplier * GetBaseRange () < r) {
+                    r = weapons[i].weaponModule.rangeMultiplier * GetBaseRange ();
+                }
+
+                weapons[i].damageMul = damageBoost;
+                weapons[i].firerateMul = (1f / firerateBoost);
             }
 
             targetingRange = r;
@@ -207,7 +248,7 @@ public class BaseModule : Module {
 		return text;
 	}
 
-    public void OnToggleModSort (int newSort) {
+    public void OnToggleModSorting (int newSort) {
         sortType = (TargetFinder.SortType)newSort;
     }
 

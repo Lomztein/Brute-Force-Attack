@@ -3,28 +3,26 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
-using System.Linq;
 using System.Collections;
 
-public enum Scene { Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
+public enum Scene { Menu, Play, AssemblyBuilder, WaveBuilder, BattlefieldEditor };
 public enum Gamemode { Standard, GlassEnemies, TitaniumEnemies, SciencePrevails, GallifreyStands, VDay, Length }
 
 public class Game : MonoBehaviour {
 
     public enum State { NotStarted, Started, Ended }
 
-    public static Scene currentScene;
+    public static Scene currentScene = Scene.Play;
 
     [Header("Battlefield")]
     public Transform background;
     public int battlefieldWidth;
     public int battlefieldHeight;
+    public string battlefieldName;
     public List<EnemySpawnPoint> enemySpawnPoints;
 
     [Header("Difficulty Settings")]
-    public int assembliesAllowed = 10;
     public static DifficultySettings difficulty;
 
     [Header("Gamemodes")]
@@ -35,13 +33,15 @@ public class Game : MonoBehaviour {
     public Datastream datastream;
     public EnemyManager enemySpawn;
     public PurchaseMenu purchaseMenu;
+    public EnemyInformationPanel enemyInformationPanel;
     public Pathfinding pathfinder;
     public Map pathMap;
     public ResearchMenu researchMenu;
     public GameObject pauseMenu;
     public GameObject saveGameMenu;
     public Text saveGameText;
-    public Button[] saveGameButtons;
+    public Button[] disabledDuringWaves;
+    public string[] disabledDuringWavesText;
     public Slider researchSlider;
     public GameObject rangeIndicator;
     public GameObject worldCanvas;
@@ -49,25 +49,39 @@ public class Game : MonoBehaviour {
     public GameObject GUICanvas;
     public static List<Module> currentModules = new List<Module>();
     public GameObject darkOverlay;
+    public static int darkOverlaySiblingIndex;
+    public static bool darkOverlayActive = true;
     public GameObject errorMessage;
     public Transform[] postStartGUI;
+    public GameObject turretExplosionParticle;
+    public Button revertGameButton;
+    public Highscore highscoreMenu;
+    public SettingsMenu settingsMenu;
 
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
 
+    public List<ResearchPoint> researchPoints;
+    public GameObject researchPoint;
+    public GameObject largeResearchPoint;
+
     public Text creditsText;
     public Text powerText;
     public Text researchText;
+    public Slider datastreamHealthSlider;
+    public Text datastreamHealthText;
 
     public static Game game;
 
     public LayerMask enemyLayer;
     public LayerMask moduleLayer;
 
-    [Header("Resources")]
-    //public int startingCredits;
-    //public int startingResearch;
+    [Header ("Audio")]
+    public AudioSource mainAudioSource;
+    public AudioClip constructionMusic;
+    public AudioClip combatMusic;
 
+    [Header("Resources")]
     private static bool _creditsUpdatedThisFrame = false;
     private static int _credits;
     public static int credits {
@@ -111,17 +125,13 @@ public class Game : MonoBehaviour {
     public static string BATTLEFIELD_SAVE_DIRECTORY;
     public static string RESEARCH_BACKUP_DATA_DIRECTORY;
     public static string SAVED_GAME_DIRECTORY;
+    public static string GAME_DATA_DIRECTORY;
     public string[] stockModuleNames;
 
     [Header("Settings")]
-    public static float musicVolume;
-    public static float soundVolume;
     public GameObject optionsMenu;
-    public static bool enableMouseMovement = true;
     public Toggle toggleMouseMovementButton;
     public Toggle toggleOptionsMenuButton;
-    public Slider musicSlider;
-    public Slider soundSlider;
     public static bool fastGame;
     public static State state;
 
@@ -144,37 +154,101 @@ public class Game : MonoBehaviour {
         Assembly.SaveToFile(assembly.assemblyName, assembly);
     }
 
-    public static void ToggleDarkOverlay () {
-        ForceDarkOverlay(!game.darkOverlay.activeSelf);
+    public static void UpdateDarkOverlay () {
+
+        GameObject overlay = null;
+
+        if (game) {
+            overlay = game.darkOverlay;
+        } else {
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+        }
+
+        // Just ignore the call if it's already set the same.
+        overlay.GetComponent<DarkOverlay>().StartCoroutine (DelayedUpdateDarkOverlay ());
+        //col.enabled = setting;
     }
 
-    public static void ForceDarkOverlay ( bool setting ) {
+    public static bool AnyActiveAboveOverlay () {
+        bool setting = false;
+
+        GameObject overlay = null;
+
+        if (game) {
+            overlay = game.darkOverlay;
+            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
+        } else {
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            darkOverlaySiblingIndex = overlay.transform.GetSiblingIndex ();
+        }
+
+        int children = overlay.transform.parent.childCount;
+        for (int i = darkOverlaySiblingIndex + 1; i < children; i++) {
+            Transform loc = overlay.transform.parent.GetChild (i);
+            if (loc.gameObject.activeSelf
+                && Vector3.Distance (loc.position, Vector3.zero) < 5000) {
+                setting = true;
+            }
+        }
+
+        return setting;
+    }
+
+    public bool AnyWallOfType (WallType wallType) {
+        int width = isWalled.GetLength (0);
+        int height = isWalled.GetLength (1);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (isWalled[x, y] == wallType)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static IEnumerator DelayedUpdateDarkOverlay () {
+        yield return new WaitForEndOfFrame ();
+        yield return new WaitForEndOfFrame ();
 
         Animator anim = null;
         Image image = null;
+        GameObject overlay = null;
+
+        bool setting = AnyActiveAboveOverlay ();
 
         if (game) {
-            anim = game.darkOverlay.GetComponent<Animator> ();
-            image = game.darkOverlay.GetComponent<Image> ();
+            overlay = game.darkOverlay;
+            anim = overlay.GetComponent<Animator> ();
+            image = overlay.GetComponent<Image> ();
         } else {
-            GameObject overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
+            overlay = GameObject.FindGameObjectWithTag ("DarkOverlay");
             anim = overlay.GetComponent<Animator> ();
             image = overlay.GetComponent<Image> ();
         }
 
+        if (setting && currentScene == Scene.Play)
+            PlayerInput.cur.CancelAll ();
+
+        if (darkOverlayActive == setting)
+            yield break;
+
         switch (setting) {
 
             case false:
-                anim.Play("OverlayFadeOut");
-                image.raycastTarget = false;
+                anim.Play ("OverlayFadeOut");
                 break;
 
             case true:
-                anim.Play("OverlayFadeIn");
-                image.raycastTarget = true;
+                anim.Play ("OverlayFadeIn");
                 break;
-
         }
+
+        image.raycastTarget = setting;
+        darkOverlayActive = setting;
+    }
+
+    public static void PlaySFXAudio (AudioClip audio) {
+        game.mainAudioSource.PlayOneShot (audio, SettingsMenu.soundVolume);
     }
 
     public static void ShowErrorMessage (string message, float time) {
@@ -192,31 +266,47 @@ public class Game : MonoBehaviour {
         currentModules.Clear ();
     }
 
+    public void ReturnToMainMenu () {
+        SceneManager.LoadScene ("pv_menu");
+    }
+
     // Use this for initialization
     void Awake () {
 
         game = this;
         ResetStatics ();
         ResearchMenu.InitializeAllStatics ();
+        darkOverlayActive = true;
         InitializeBasics ();
 
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
-        /*for (int i = 0; i < purchaseMenu.all.Count; i++) {
-            Module mod = purchaseMenu.all[i].GetComponent<Module> ();
-            if (mod.moduleType == Module.Type.Weapon) {
-                GenerateDefaultAssembly (mod);
+        if (currentScene == Scene.Play) {
+            for (int i = 0; i < purchaseMenu.all.Count; i++) {
+                Module mod = purchaseMenu.all[i].GetComponent<Module> ();
+                if (mod.moduleType == Module.Type.Weapon) {
+                    GenerateDefaultAssembly (mod);
+                }
             }
-        }*/
+        }
 
         ModuleAssemblyLoader.ConvertLegacyAssemblyFiles ();
         HideGUI();
+
+        UpdateMusicVolume ();
 	}
+
+    void UpdateMusicVolume () {
+        if (PlayerPrefs.HasKey ("fMusicVolume"))
+            mainAudioSource.volume = PlayerPrefs.GetFloat ("fMusicVolume");
+    }
 
     void Start () {
         if (saveToLoad != null && saveToLoad.Length > 0) {
             Debug.Log ("Loading save: " + saveToLoad);
             StartCoroutine (LoadSaveOnSceneStart ());
+        }else {
+            DeleteAutosave ();
         }
     }
 
@@ -251,8 +341,16 @@ public class Game : MonoBehaviour {
             researchMenu.SaveBackup ();
             researchMenu.gameObject.SetActive (true);
             researchMenu.Initialize ();
-
+            enemyInformationPanel.Initialize ();
         }
+
+        if (currentScene == Scene.Play || currentScene == Scene.Menu) {
+            SettingsMenu.cur = settingsMenu;
+            SettingsMenu.LoadSettings ();
+        }
+
+        if (Application.platform == RuntimePlatform.Android)
+            gamemode = Gamemode.TitaniumEnemies;
 
         Debug.Log ("Done initializing!");
     }
@@ -280,26 +378,44 @@ public class Game : MonoBehaviour {
 		EnemyManager.gameProgress = 1f;
 	}
 
-    public void QuitToDesktop () {
+    public void DeleteAutosave () {
+        string path = SAVED_GAME_DIRECTORY + "autosave.dat";
+        if (File.Exists (path))
+            File.Delete (path);
+    }
+
+    public void QuitToMenu () {
         SceneManager.LoadScene (0);
-        TogglePause ();
+        if (isPaused)
+            TogglePause ();
+        SetGameSpeed (1f);
+    }
+
+    public void OpenHighscore () {
+        gameOverIndicator.SetActive (false);
+        highscoreMenu.InstanceDisplay ();
+        DeleteAutosave ();
     }
 
     public static void ToggleFastGameSpeed () {
         HoverContextElement ele = EnemyManager.cur.waveStartedIndicator.GetComponentInParent<HoverContextElement> ();
         if (ele) {
             if (fastGame) {
-                Time.timeScale = 1f;
+                SetGameSpeed (1f);
                 EnemyManager.cur.waveStartedIndicator.color = Color.red;
                 ele.text = "Speed up the game";
             } else {
-                Time.timeScale = 2f;
+                SetGameSpeed (2f);
                 EnemyManager.cur.waveStartedIndicator.color = Color.magenta;
                 ele.text = "Slow down the game";
             }
             HoverContextElement.activeElement = null;
             fastGame = !fastGame;
         }
+    }
+
+    public static void SetGameSpeed (float speed) {
+        Time.timeScale = speed;
     }
 
     public void LooseGame () {
@@ -321,12 +437,18 @@ public class Game : MonoBehaviour {
 			pauseMenu.SetActive (false);
 			optionsMenu.SetActive (false);
 			saveGameMenu.SetActive (false);
+
+            PlayerPrefs.SetFloat ("fMusicVolume", SettingsMenu.musicVolume);
+            PlayerPrefs.SetFloat ("fSoundVolume", SettingsMenu.soundVolume);
+
+            if (fastGame)
+                SetGameSpeed (2f);
         } else{
 			isPaused = true;
 			Time.timeScale = 0f;
 			pauseMenu.SetActive (true);
 		}
-        ForceDarkOverlay (isPaused);
+        UpdateDarkOverlay ();
 	}
 
     public void ToggleSaveGameMenu () {
@@ -334,18 +456,20 @@ public class Game : MonoBehaviour {
         saveGameText.text = "Untitled Save";
     }
 
-    public static void ChangeSaveButtons (bool state) {
-        foreach (Button butt in game.saveGameButtons) {
+    public static void ChangeButtons (bool state) {
+        int index = 0;
+        foreach (Button butt in game.disabledDuringWaves) {
             butt.interactable = state;
             HoverContextElement ele = butt.GetComponent<HoverContextElement> ();
             if (ele) {
                 if (state) {
                     ele.text = butt.gameObject.name;
                 } else {
-                    ele.text = "Saving currently disabled";
+                    ele.text = game.disabledDuringWavesText[index];
                 }
                 HoverContextElement.activeElement = null;
             }
+            index++;
         }
         if (game.saveGameMenu.activeSelf)
             game.ToggleSaveGameMenu ();
@@ -353,15 +477,6 @@ public class Game : MonoBehaviour {
 
 	public void ToggleOptionsMenu () {
 		optionsMenu.SetActive (toggleOptionsMenuButton.isOn);
-	}
-
-	public void ToggleMouseMovement () {
-		enableMouseMovement = toggleMouseMovementButton.isOn;
-		if (enableMouseMovement) {
-			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "Mouse Movement";
-		}else{
-			toggleMouseMovementButton.transform.GetChild (0).GetComponent<Text>().text = "WASD Movement";
-		}
 	}
 
 	public static Vector2 WorldToWallPos (Vector3 pos) {
@@ -406,7 +521,7 @@ public class Game : MonoBehaviour {
 
 		int cost = GetWallingCost (startX, startY, w, h, wallType);
 
-		if (credits > cost) {
+		if (credits >= cost) {
 			for (int y = startY; y < startY + h; y++) {
 				for (int x = startX; x < startX + w; x++) {
 
@@ -425,9 +540,53 @@ public class Game : MonoBehaviour {
 
 			//Pathfinding.ChangeArea (loc, !doWall);
 			Game.game.GenerateWallMesh ();
-			credits -= cost;
+
+            if (EnemyManager.cur)
+                EnemyManager.cur.SetSpawnIndicators ();
+
+            credits -= cost;
 		}
 	}
+
+    public Vector3 GetVoidDirection (Vector3 position) {
+        Vector3[] nearby = new Vector3[] { new Vector3 (0, 1), new Vector3 (0, -1), new Vector3 (1, 0), new Vector3 (-1, 0) };
+        for (int i = 0; i < nearby.Length; i++) {
+            if (!IsInsideBattlefield (position + nearby[i]))
+                return position + nearby[i];
+        }
+
+        return position;
+    }
+
+    public void ExplodeAllTurrets () {
+        List<Module> modules = new List<Module> ();
+        for (int i = 0; i < currentModules.Count; i++) {
+            if (currentModules[i].isRoot)
+                modules.Add (currentModules[i]);
+        }
+        
+        StartCoroutine (ExplodeTurrets (RandomizeOrder (modules)));
+    }
+
+    public static List<Module> RandomizeOrder ( List<Module> list ) {
+        List<Module> result = new List<Module> ();
+        while (list.Count != 0) {
+            int index = UnityEngine.Random.Range (0, list.Count);
+            result.Add (list[index]);
+            list.RemoveAt (index);
+        }
+        return result;
+    }
+
+    IEnumerator ExplodeTurrets (List<Module> turrets) {
+        for (int i = 0; i < turrets.Count; i++) {
+            Module turret = turrets[i];
+            Destroy (Instantiate (turretExplosionParticle, turret.transform.position, turret.transform.rotation), 2);
+            turret.DestroyModule ();
+
+            yield return new WaitForSeconds (UnityEngine.Random.Range (0.5f, 3));
+        }
+    }
 
     public bool IsInsideField ( int x, int y ) {
         if (x < 0 || x > battlefieldWidth - 1)
@@ -453,7 +612,7 @@ public class Game : MonoBehaviour {
                     }
                     if (wallType == WallType.None) {
                         if (isWalled[x + game.battlefieldWidth / 2,y + game.battlefieldHeight / 2] == WallType.Player)
-						    cost -= 2;
+						    cost -= 4;
 					}
 				}
 			}
@@ -523,7 +682,21 @@ public class Game : MonoBehaviour {
 		return mask;
 	}
 
-	void GenerateWallMesh () {
+    public void EnterAssemblyEditorFromGame () {
+        if (fastGame)
+            ToggleFastGameSpeed ();
+        Time.timeScale = 1f;
+
+        IngameEditors.AssemblyEditorScene.openedFromIngame = true;
+        SaveGame ("assemblysave");
+        SceneManager.LoadScene ("pv_assemblybuilder");
+    }
+
+    public static void DeleteAssemblySave () {
+        File.Delete (SAVED_GAME_DIRECTORY + "assemblysave.dat");
+    }
+
+	public void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
 		wallMeshFilter.transform.localScale = new Vector3 (1f/background.localScale.x, 1f/background.localScale.y);
@@ -580,11 +753,14 @@ public class Game : MonoBehaviour {
 
 		float sizeX = 1f/16f;
 		float sizeY = 0.5f;
-		
-		uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY + sizeY); 		//1,1
-		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX,	horIndex * sizeY);   			//1,0
-		uvs[index * 4 + 2] = new Vector2 (id * sizeX,			horIndex * sizeY); 				//0,0
-		uvs[index * 4 + 3] = new Vector2 (id * sizeX,			horIndex * sizeY + sizeY); 		//0,1
+
+        float sizeXmod = sizeX / 16f;
+        float sizeYmod = sizeY / 16f;
+
+        uvs[index * 4 + 0] = new Vector2 (id * sizeX + sizeX - sizeXmod,	horIndex * sizeY + sizeY - sizeYmod); 		//1,1
+		uvs[index * 4 + 1] = new Vector2 (id * sizeX + sizeX - sizeXmod,	horIndex * sizeY + sizeYmod);   			//1,0
+		uvs[index * 4 + 2] = new Vector2 (id * sizeX + sizeXmod,			horIndex * sizeY + sizeYmod); 				//0,0
+		uvs[index * 4 + 3] = new Vector2 (id * sizeX + sizeXmod,			horIndex * sizeY + sizeY - sizeYmod); 		//0,1
 
 		norms[index * 4 + 0] = Vector3.back;
 		norms[index * 4 + 1] = Vector3.back;
@@ -609,11 +785,18 @@ public class Game : MonoBehaviour {
 
         string dp = Application.dataPath;
 
-        MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/StreamingAssets/Module Assemblies/";
-        WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
-        BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
-        RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
-        SAVED_GAME_DIRECTORY = dp + "/StreamingAssets/Saved Games/";
+        switch (Application.platform) {
+
+            default:
+                MODULE_ASSEMBLY_SAVE_DIRECTORY = dp + "/Player Data/Module Assemblies/";
+                WAVESET_SAVE_DIRECTORY = dp + "/StreamingAssets/Wave Sets/";
+                BATTLEFIELD_SAVE_DIRECTORY = dp + "/StreamingAssets/Battlefield Sets/";
+                RESEARCH_BACKUP_DATA_DIRECTORY = dp + "/Research Backup Data/";
+                SAVED_GAME_DIRECTORY = dp + "/Player Data/Saved Games/";
+                GAME_DATA_DIRECTORY = dp + "/Player Data/Highscores/";
+                break;
+
+        }
 
         if (!Directory.Exists (MODULE_ASSEMBLY_SAVE_DIRECTORY))
             Directory.CreateDirectory (MODULE_ASSEMBLY_SAVE_DIRECTORY);
@@ -629,30 +812,45 @@ public class Game : MonoBehaviour {
 
         if (!Directory.Exists (SAVED_GAME_DIRECTORY))
             Directory.CreateDirectory (SAVED_GAME_DIRECTORY);
+
+        if (!Directory.Exists (GAME_DATA_DIRECTORY))
+            Directory.CreateDirectory (GAME_DATA_DIRECTORY);
+    }
+
+    public void SetBackgoundGraphic () {
+        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
+        background.GetComponent<Renderer> ().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
     }
 
     void PostInitialization () {
         ShowGUI ();
 
         // Initialize background graphic
-        background.transform.localScale = new Vector3 (battlefieldWidth, battlefieldHeight, 1f);
-		background.GetComponent<Renderer>().material.mainTextureScale = new Vector2 (battlefieldWidth / 2f, battlefieldHeight / 2f);
+        SetBackgoundGraphic ();
 
 		// Initialize walls
 		pathfinder.map.Initialize ();
+        wallMeshFilter.GetComponent<MeshRenderer> ().enabled = true;
 		GenerateWallMesh ();
 
         // Initialize datastream graphic
-        datastream.start = new Vector3 (-battlefieldWidth/2, -battlefieldHeight/2 + 3f);
-		datastream.flyDistance = battlefieldWidth;
-		datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
-        datastream.Reset (Datastream.healthAmount);
+        datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3);
+        datastream.GetComponent<BoxCollider> ().center += Vector3.up * 6f / battlefieldHeight;
+        datastream.start = new Vector3 (-battlefieldWidth / 2, -battlefieldHeight / 2 + 3f);
+        datastream.flyDistance = battlefieldWidth;
+        datastream.flySpeed = UnityEngine.Random.Range (5f, 10f);
+        datastream.transform.position = Vector3.down * (battlefieldHeight / 2 + 3f);
+        datastream.Initialize ();
 
         PurchaseMenu.cur.InitializeAssemblyButtons ();
 
-        ForceDarkOverlay (false);
+        UpdateDarkOverlay ();
         AssembliesSelectionMenu.cur.gameObject.SetActive (false);
         EnemyManager.Initialize ();
+
+        //researchMenu.InvalidateUselessButtons ();
+        Game.DeleteAssemblySave ();
+        SettingsMenu.cur.UpdateBloom ();
 
         if (fastGame)
             ToggleFastGameSpeed ();
@@ -660,19 +858,21 @@ public class Game : MonoBehaviour {
 
     void FixedUpdate () {
 		if (currentScene == Scene.Play) {
-            musicVolume = musicSlider.value;
-            soundVolume = soundSlider.value;
-
             if (state == State.Started && Datastream.healthAmount <= 0 && gameOverIndicator.activeSelf == false) {
                 Debug.Log ("Game has ended.");
                 state = State.Ended;
-                ForceDarkOverlay (true);
+                UpdateDarkOverlay ();
                 HideGUI ();
                 gameOverIndicator.SetActive(true);
+                ExplodeAllTurrets ();
+
+                revertGameButton.interactable = File.Exists (SAVED_GAME_DIRECTORY + "autosave.dat");
             }
 
             researchText.text = "Research: " + research.ToString();
             creditsText.text = "Credits: " + credits.ToString() + " LoC";
+            datastreamHealthSlider.value = Datastream.healthAmount / (float)Datastream.STARTING_HEALTH;
+            datastreamHealthText.text = "DATASTREAM CORRUPTION AT <b>" + ((1 - (Datastream.healthAmount / (float)Datastream.STARTING_HEALTH)) * 100).ToString () + " PERCENT</b>";
             researchSlider.value = researchProgress;
 
             if (researchProgress > 1) {
@@ -686,8 +886,40 @@ public class Game : MonoBehaviour {
         }
     }
 
+    public static void CrossfadeMusic (AudioClip newMusic, float fadeTime) {
+        game.StartCoroutine (game.CFMUSIC (newMusic, fadeTime));
+    }
+
+    private IEnumerator CFMUSIC (AudioClip newMusic, float fadeTime) {
+        if (mainAudioSource.clip == newMusic)
+            yield break;
+
+        int steps = Mathf.RoundToInt (fadeTime / Time.fixedDeltaTime) / 2;
+        for (int i = 0; i < steps; i++) {
+            mainAudioSource.volume = Mathf.Min (1f - (i / (float)steps) * SettingsMenu.musicVolume, SettingsMenu.cur.musicSlider.value);
+            yield return new WaitForFixedUpdate ();
+        }
+
+        mainAudioSource.volume = 0f;
+
+        mainAudioSource.Stop ();
+        mainAudioSource.clip = newMusic;
+        mainAudioSource.Play ();
+
+        mainAudioSource.volume = SettingsMenu.musicVolume;
+
+        for (int i = 0; i < steps; i++) {
+            mainAudioSource.volume = Mathf.Min ((i / (float)steps) * SettingsMenu.musicVolume, SettingsMenu.cur.musicSlider.value);
+        yield return new WaitForFixedUpdate ();
+        }
+    }
+
     void Update () {
         HoverContext.StaticUpdate();
+
+        if (isPaused) {
+            mainAudioSource.volume = SettingsMenu.musicVolume;
+        }
     }
 
 	public void SaveBattlefieldData (string fileName) {
@@ -697,13 +929,8 @@ public class Game : MonoBehaviour {
             return;
         }
 
-        BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat");
-        Debug.Log(file);
-
 		BattlefieldData data = new BattlefieldData (fileName, "", battlefieldWidth, battlefieldHeight, isWalled, enemySpawnPoints);
-		bf.Serialize (file, data);
-		file.Close ();
+        Utility.SaveObjectToFile (BATTLEFIELD_SAVE_DIRECTORY + fileName + ".dat", data);
 	}
 
 	public BattlefieldData LoadBattlefieldData (string fileName, bool isFullPath = false) {
@@ -712,15 +939,10 @@ public class Game : MonoBehaviour {
         if (isFullPath)
             fullFile = fileName;
 
-		if (File.Exists (fullFile)) {
+        BattlefieldData data = Utility.LoadObjectFromFile<BattlefieldData> (fullFile);
 
-			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream file = File.Open (fullFile, FileMode.Open);
-
-			BattlefieldData data = (BattlefieldData)bf.Deserialize (file);
+		if (data != null) {
             data.spawns = new List<EnemySpawnPoint> ();
-			file.Close ();
-
 			for (int i = 0; i < data.spawnsX.Length; i++) {
 
 				Vector3 start = new Vector3 (data.spawnsX[i], data.spawnsY[i]);
@@ -773,6 +995,9 @@ public class Game : MonoBehaviour {
 
 		public BattlefieldData (string name, string desc, int _w, int _h, WallType[,] _walls, List<EnemySpawnPoint> _spawns) {
 
+            this.name = name;
+            this.desc = desc;
+
 			width = _w;
 			height = _h;
             walls = _walls;
@@ -802,8 +1027,14 @@ public class Game : MonoBehaviour {
         battlefieldHeight = sg.battlefieldData.height;
         isWalled = sg.battlefieldData.walls;
         difficulty = sg.difficulty;
+        battlefieldName = sg.battlefieldData.name;
 
         // Set purchaseables and spawnpoints.
+        if (IngameEditors.AssemblyEditorScene.newAssemblies != null) {
+            sg.selectedTurrets.AddRange (IngameEditors.AssemblyEditorScene.newAssemblies);
+            IngameEditors.AssemblyEditorScene.newAssemblies.Clear ();
+        }
+
         purchaseMenu.SetAssemblies (sg.selectedTurrets);
         enemySpawnPoints = new List<EnemySpawnPoint> ();
 
@@ -825,15 +1056,19 @@ public class Game : MonoBehaviour {
             root.transform.parent = null;
 
             Module rootModule = root.GetComponent<Module> ();
+            rootModule.score = sg.turrets[i].score;
             for (int j = 0; j < rootModule.modules.Count; j++) {
-                rootModule.modules[j].enabled = true;
+
                 rootModule.modules[j].SetStartingUpgradeCost ();
+
                 for (int a = 0; a < ass.levels.Count; a++) {
+
                     if (rootModule.modules[j].moduleType == (Module.Type)a) {
                         for (int b = 0; b < ass.levels[a]; b++) {
                             rootModule.modules[j].UpgradeModule ();
 
                             // So many bloody loops, though this should now save assembly upgrades in the SavedData data.
+                            // Haha, ass.
                         }
                     }
                 }
@@ -846,10 +1081,23 @@ public class Game : MonoBehaviour {
             r.Purchase (true);
         }
 
+        // Place research points
+        if (sg.researchPoints != null)
+            for (int i = 0; i < sg.researchPoints.Length; i++) {
+                GameObject obj = null;
+                Vector3 pos = new Vector3 (sg.researchPoints[i].x, sg.researchPoints[i].y);
+                if (sg.researchPoints[i].value < 2f) {
+                    obj = (GameObject)Instantiate (researchPoint, pos, Quaternion.identity);
+                }else {
+                    obj = (GameObject)Instantiate (largeResearchPoint, pos, Quaternion.identity);
+                }
+            }
+
         // Set resources.
         credits = sg.credits;
         research = sg.research;
         researchProgress = sg.researchProgress;
+        PlayerInput.flushTimer = sg.flushTimer;
 
         // Finalize loading.
         Datastream.healthAmount = sg.health;
@@ -859,12 +1107,13 @@ public class Game : MonoBehaviour {
         EnemyManager.cur.waveNumber = sg.waveNumber;
         EnemyManager.externalWaveNumber = sg.totalWaveNumber;
         EnemyManager.gameProgress = sg.gameProgress;
+        EnemyManager.cur.enemiesKilled = sg.enemiesKilled;
 
         EnemyManager.cur.EndWave (false);
     }
 
     public void RetryAutosave () {
-        saveToLoad = "autosave";
+        saveToLoad = SAVED_GAME_DIRECTORY + "autosave.dat";
         RestartMap ();
     }
 
@@ -886,7 +1135,7 @@ public class Game : MonoBehaviour {
             }
         }
 
-        saved.battlefieldData = new BattlefieldData ("", "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
+        saved.battlefieldData = new BattlefieldData (battlefieldName, "", game.battlefieldWidth, game.battlefieldHeight, Game.isWalled, game.enemySpawnPoints);
         saved.waveSetPath = WAVESET_SAVE_DIRECTORY + "DEFAULT" + EnemyManager.WAVESET_FILE_EXTENSION;
 
         saved.researchedResearch = new List<int> ();
@@ -896,14 +1145,21 @@ public class Game : MonoBehaviour {
                 saved.researchedResearch.Add (ResearchMenu.cur.research[i].index);
         }
 
+        saved.researchPoints = new SavedGame.SavedResearchPoint[researchPoints.Count]; 
+        for (int i = 0; i < researchPoints.Count; i++) {
+            saved.researchPoints[i] = new SavedGame.SavedResearchPoint (researchPoints[i]);
+        }
+
         saved.credits = credits;
         saved.research = research;
         saved.researchProgress = researchProgress;
+        saved.flushTimer = PlayerInput.flushTimer;
 
         saved.waveNumber = EnemyManager.cur.waveNumber;
         saved.totalWaveNumber = EnemyManager.externalWaveNumber;
         saved.masteryNumber = EnemyManager.cur.waveMastery;
         saved.gameProgress = EnemyManager.gameProgress;
+        saved.enemiesKilled = EnemyManager.cur.enemiesKilled;
 
         saved.health = Datastream.healthAmount;
 
@@ -918,45 +1174,34 @@ public class Game : MonoBehaviour {
         public List<Assembly> selectedTurrets;
         public List<SavedAssembly> turrets;
 
+        public SavedResearchPoint[] researchPoints;
         public string waveSetPath;
         public List<int> researchedResearch;
 
         public int credits;
         public int research;
         public float researchProgress;
+        public int flushTimer;
 
         public int waveNumber;
         public int masteryNumber;
         public int totalWaveNumber;
         public float gameProgress;
+        public Dictionary<string, int> enemiesKilled;
 
         public DifficultySettings difficulty;
 
         public int health;
 
         public void Save (string fileName) {
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Create (SAVED_GAME_DIRECTORY + fileName + ".dat");
-
-            bf.Serialize (file, this);
-            file.Close ();
+            Utility.SaveObjectToFile (SAVED_GAME_DIRECTORY + fileName + ".dat", this);
         }
 
         public static SavedGame Load (string fileName) {
-            string fullFile = SAVED_GAME_DIRECTORY + fileName + ".dat";
-            if (File.Exists (fullFile)) {
+            string fullFile = fileName;
+            SavedGame data = Utility.LoadObjectFromFile<SavedGame> (fullFile);
 
-                BinaryFormatter bf = new BinaryFormatter ();
-                FileStream file = File.Open (fullFile, FileMode.Open);
-
-                SavedGame data = (SavedGame)bf.Deserialize (file);
-                file.Close ();
-
-                return data;
-            }
-
-            Debug.LogError ("Tried to open non-existant savefile.");
-            return null;
+            return data;
         }
 
         [Serializable]
@@ -967,6 +1212,7 @@ public class Game : MonoBehaviour {
             public float posX;
             public float posY;
             public float rot;
+            public int score;
 
             public List<int> levels = new List<int>();
 
@@ -975,8 +1221,25 @@ public class Game : MonoBehaviour {
                 posX = rootModule.transform.localPosition.x;
                 posY = rootModule.transform.localPosition.y;
                 rot = rootModule.transform.localEulerAngles.z;
+                score = rootModule.score;
                 for (int i = 0; i < 3; i++) {
                     levels.Add (rootModule.GetAssemblyUpgradeLevel ((Module.Type)i));
+                }
+            }
+        }
+
+        [Serializable]
+        public class SavedResearchPoint {
+
+            public float x;
+            public float y;
+            public float value;
+
+            public SavedResearchPoint (ResearchPoint point) {
+                if (point != null) {
+                    x = point.transform.position.x;
+                    y = point.transform.position.y;
+                    value = point.researchValue;
                 }
             }
         }
@@ -986,12 +1249,15 @@ public class Game : MonoBehaviour {
     public class DifficultySettings {
 
         public string name;
+        [TextArea]
         public string desc;
 
         public int amountMultiplier;
         public float healthMultiplier;
         public int startingCredits;
         public int startingResearch;
+        public int researchPerRound = 1;
+        public float weaponDamageToDifferentColor = 2f;
 
     }
 }

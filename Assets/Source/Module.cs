@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using IngameEditors;
+using System.Linq;
 
 public enum Colour { None, Blue, Green, Yellow, Orange, Red, Purple };
 
 public class Module : MonoBehaviour {
 
     public const string MODULE_FILE_EXTENSION = ".dat";
-    public const int MAX_UPGRADE_AMOUNT = 5;
+    public const int MAX_UPGRADE_AMOUNT = 10;
+    public static Colour[] allColours = new Colour[] { Colour.Blue, Colour.Green, Colour.Yellow, Colour.Orange, Colour.Red, Colour.Purple };
     public bool isOnBattlefield = true;
 
     public enum Type { Base, Rotator, Weapon, Structural, Independent };
@@ -19,6 +21,7 @@ public class Module : MonoBehaviour {
     public ModuleMod[] moduleMods;
 
     public string moduleName;
+    [TextArea]
     public string moduleDesc;
     public string assemblyDesc;
     public string assemblyName;
@@ -27,6 +30,8 @@ public class Module : MonoBehaviour {
     public string[] upgradeNameReplacement = new string[3];
     public string[] upgradeDescReplacement = new string[3];
     public Sprite[] upgradeImageReplacement = new Sprite[3];
+    public string scoreName;
+    public int score;
 
 	public Type moduleType;
 	public int moduleClass = 2;
@@ -55,6 +60,19 @@ public class Module : MonoBehaviour {
 	public virtual void Start () {
 		if (isOnBattlefield) InitializeModule ();
 	}
+
+    // A lot of these functions look similar, and I'm sure there is a better way, but I am yet to learn that way.
+    public int GetAssemblyCost () {
+        if (isRoot) {
+            int cost = 0;
+            for (int i = 0; i < modules.Count; i++) {
+                cost += modules[i].moduleCost;
+            }
+            return cost;
+        }
+        Debug.LogWarning ("Tried to get assembly cost from non-root module.");
+        return 0;
+    }
 
     public float GetAssemblyDPS () {
         if (isRoot) {
@@ -105,7 +123,7 @@ public class Module : MonoBehaviour {
 			Debug.LogError ("Sprites array not equal length as positions array.");
 			return null;
 		}
-		// First, get total size;
+		// First, get total size. <-- Top notch commenting there pal.
 		int maxHeight = 0, maxWidth = 0, minHeight = 0, minWidth = 0, value = 0;
 		for (int i = 0; i < sprites.Length; i++) {
 			value =  Mathf.RoundToInt ((float)sprites[i].width / 2f + positions[i].x * (float)ppu);
@@ -237,7 +255,7 @@ public class Module : MonoBehaviour {
     }
 
     public float GetUpgradePercentage () {
-        return upgradeCount / 10f;
+        return 0.3f;
     }
 
 	public static float CalculateUpgradeMul (int upgradeLevel) {
@@ -282,7 +300,10 @@ public class Module : MonoBehaviour {
 	}
 
     public virtual float GetRange () {
-        return parentBase.GetRange ();
+        if (parentBase)
+            return parentBase.GetRange ();
+        else
+            return 0f;
     }
 
     public virtual float GetEfficiency () {
@@ -293,7 +314,8 @@ public class Module : MonoBehaviour {
         return 0f;
     }
 
-    void InitializeModule () {
+    public void InitializeModule () {
+
 		if (upgradeButtonDisabled == null || upgradeButtonDisabled.Length != 3)
             upgradeButtonDisabled = new bool[3];
 
@@ -318,18 +340,30 @@ public class Module : MonoBehaviour {
                 AssemblyEditorScene.cur.rootModule = this;
 
             UpdateHoverContextElement ();
+            modules = new List<Module> ();
+        }
 
+        if (!rootModule.modules.Contains (this))
+            rootModule.modules.Add (this);
+
+        rootModule.UpdateAssemblyColliders ();
+
+        moduleIndex = rootModule.GetModuleIndex ();
+
+        if (parentBase) parentBase.GetFastestBulletSpeed ();
+		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
+	}
+
+    void UpdateAssemblyColliders () {
+        if (isRoot) {
             for (int i = 0; i < modules.Count; i++) {
-                if (modules[i] != this) {
+                if (modules[i] != this && Game.currentScene == Scene.Play) {
                     modules[i].GetComponent<Collider> ().enabled = false;
                 }
             }
+            UpdateHoverContextElement ();
         }
-        moduleIndex = rootModule.GetModuleIndex ();
-
-		if (parentBase) parentBase.GetFastestBulletSpeed ();
-		SendMessageUpwards ("OnNewModuleAdded", SendMessageOptions.DontRequireReceiver);
-	}
+    }
 
     public int GetFullUpgradeCost () {
         return GetUpgradeCost (0) + GetUpgradeCost (1) + GetUpgradeCost (2);
@@ -358,10 +392,6 @@ public class Module : MonoBehaviour {
     }
 
 	public void SellModule () {
-        if (Game.currentScene == Scene.Play) {
-            Pathfinding.ChangeArea(GetModuleRect(), true);
-            Game.ChangeWalls(GetRelativeModuleRect(), Game.WallType.Player, true);
-        }
         Game.credits += GetSellAmount ();
 
         PlayerInput.cur.contextMenu.ExitMenu();
@@ -394,7 +424,14 @@ public class Module : MonoBehaviour {
 		Destroy (gameObject);
 		if (removeFromList)
             Game.currentModules.Remove (this);
-	}
+
+        if (Game.currentScene == Scene.Play) {
+            Pathfinding.ChangeArea (GetModuleRect (), true);
+            Game.ChangeWalls (GetRelativeModuleRect (), Game.WallType.Player, true);
+        }
+
+        rootModule.modules.Remove (this);
+    }
 
 	public Module FindRootModule () {
 		Transform cur = transform;
@@ -473,9 +510,12 @@ public class Module : MonoBehaviour {
 		return power;
 	}
 
-    void OnMouseDown () {
-        if (Game.currentScene == Scene.AssemblyBuilder && !PlayerInput.cur.isPlacing) {
-            PlayerInput.cur.contextMenu.OpenAssembly(parentBase);
+    public void ForceUpdateAllModGUI () {
+        List<ModuleMod> remaining = moduleMods.ToList ();
+        while (remaining.Count > 0) {
+            remaining[0].UpdateGUIElement ();
+            remaining.AddRange (remaining[0].subparts);
+            remaining.RemoveAt (0);
         }
     }
 

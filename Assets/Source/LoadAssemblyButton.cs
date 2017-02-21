@@ -27,14 +27,6 @@ public class LoadAssemblyButton : MonoBehaviour {
         ButtonUpdate ();
     }
 
-    void OnMouseEnterElement () {
-        assembly.ChangeHighlightRequiredResearch (true);
-    }
-
-    void OnMouseExitElement () {
-        assembly.ChangeHighlightRequiredResearch (false);
-    }
-
     public void ButtonUpdate () {
         if (allModulesResearched) {
             if (cost <= Game.credits) {
@@ -44,13 +36,16 @@ public class LoadAssemblyButton : MonoBehaviour {
                 button.interactable = false;
                 button.GetComponent<HoverContextElement> ().text = assemblyName + ", " + cost.ToString () + " LoC - INSUFFICIENT FUNDS";
             }
+            if (assembly.assemblyDesc != "") {
+                button.GetComponent<HoverContextElement> ().text += "\n" + Utility.ConstructDescriptionText (assembly.assemblyDesc, (int)(assembly.assemblyName.Length * 1.5f));
+            }
         } else {
             string required = "";
             for (int i = 0; i < missingModules.Count; i++) {
                 required += "\n\t" + missingModules[i].moduleName;
             }
             button.interactable = false;
-            button.GetComponent<HoverContextElement> ().text = assemblyName + " - RESEARCH NEEDED"
+            button.GetComponent<HoverContextElement> ().text = assemblyName + ", " + cost.ToString () +  " LoC - RESEARCH NEEDED"
                 + required;
         }
     }
@@ -70,7 +65,14 @@ public class LoadAssemblyButton : MonoBehaviour {
         ButtonUpdate ();
 	}
 
-	public void Purchase () {
+    void OnMouseDownElement () {
+        if (!button.interactable) {
+            assembly.ChangeHighlightRequiredResearch (true);
+            Game.game.researchMenu.ToggleResearchMenu ();
+        }
+    }
+
+    public void Purchase () {
 		PurchaseMenu.cur.LoadAssembly (assembly);
 	}
 }

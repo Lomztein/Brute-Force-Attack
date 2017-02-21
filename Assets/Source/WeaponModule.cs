@@ -12,29 +12,19 @@ public class WeaponModule : Module {
 	// Update is called once per frame
 	new void Start () {
 		FindParentRotator ();
-		UpdateWeaponRange ();
 		base.Start ();
-	}
+        if (rootModule) rootModule.scoreName = "Kills";
+    }
 
-	public override bool UpgradeModule () {
+    public override bool UpgradeModule () {
 		bool passed = base.UpgradeModule ();
 		weapon.upgradeMul = upgradeMul;
         weapon.damageUpgradeMul *= 1 + GetUpgradePercentage () * 2f;
 		return passed;
 	}
 
-	void UpdateWeaponRange () {
-		if (parentBase) {
-			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
-		}else{
-			weapon.maxRange = indieRange * rangeMultiplier;
-		}
-	}
-		
-
-	void Update () {
+	void FixedUpdate () {
 		if (Game.currentScene == Scene.Play) {
-			weapon.maxRange = parentBase.GetRange () * rangeMultiplier;
 			if (parentBase.target) {
 				weapon.target = parentBase.target;
 				weapon.Fire (parentRotator, parentBase.transform.position, parentBase.targetPos);

@@ -86,4 +86,33 @@ public class BattlefieldEditor : MonoBehaviour {
         Game.game.SaveBattlefieldData (saveName.text);
         savePanel.SetActive (false);
     }
+
+    public void OnPressedLoad () {
+        FileBrowser.OpenFileBrowser (Game.BATTLEFIELD_SAVE_DIRECTORY, gameObject, "EditorLoadBattlefield");
+    }
+
+    void EditorLoadBattlefield (string path) {
+        foreach (GameObject sp in spawnpoints) {
+            Destroy (sp);
+        }
+        spawnpoints.Clear ();
+
+        Game.BattlefieldData data = Game.game.LoadBattlefieldData (path, true);
+
+        Game.game.battlefieldWidth = data.width;
+        Game.game.battlefieldHeight = data.height;
+        Game.isWalled = data.walls;
+        
+        foreach (EnemySpawnPoint point in data.spawns) {
+            GameObject newSpawn = (GameObject)Instantiate (spawnpointPrefab, point.worldPosition, Quaternion.identity);
+            EditorEnemySpawnPoint spawnPoint = newSpawn.GetComponent<EditorEnemySpawnPoint> ();
+
+            spawnPoint.endPlaced = false;
+            spawnPoint.endPoint = point.endPoint.worldPosition;
+            spawnPoint.endPlaced = true;
+        }
+
+        Game.game.SetBackgoundGraphic ();
+        Game.game.GenerateWallMesh ();
+    }
 }

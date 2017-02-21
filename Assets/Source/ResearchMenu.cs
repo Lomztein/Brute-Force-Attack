@@ -10,6 +10,7 @@ public class ResearchMenu : MonoBehaviour {
 
 	public Transform lineParent;
 	public Transform buttonParent;
+    public Sprite intermediateUpgradeSprite;
 
 	public List<Research> research = new List<Research>();
 	public RectTransform scrollThingie;
@@ -51,7 +52,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public static void InitializeStatics () {
-		Datastream.healSpeed = 0f;
+        Datastream.healPerWave = 0;
 		Datastream.repurposeEnemies = false;
 		Datastream.enableFirewall = false;
 		FireProjectile.fireWidth = 0.2f;
@@ -77,15 +78,19 @@ public class ResearchMenu : MonoBehaviour {
 		if (isOpen) {
 			isOpen = false;
 			transform.localPosition += Vector3.right * 100000;
-            Game.ForceDarkOverlay(false);
+
+            Assembly[] assemblies = PurchaseMenu.cur.GetAssemblies ().ToArray ();
+            for (int i = 0; i < assemblies.Length; i++) {
+                assemblies[i].ChangeHighlightRequiredResearch (false);
+            }
 		}else{
 			isOpen = true;
 			transform.localPosition = startPos;
-            Game.ForceDarkOverlay(true);
         }
 
+        Game.UpdateDarkOverlay();
         UpdateButtonActiveness ();
-	}
+    }
 
     void UpdateButtonActiveness () {
         for (int i = 0; i < buttons.Count; i++) {
@@ -189,7 +194,7 @@ public class ResearchMenu : MonoBehaviour {
 		for (int i = 0; i < research.Count; i++) {
 			if (research[i] != null) {
 				research[i].y++;
-				research[i].button.GetComponent<HoverContextElement>().text = research[i].name + ", " + research[i].y + " Research";
+				research[i].button.GetComponent<HoverContextElement>().text = research[i].name + ", " + research[i].y + " Research\n<i> - " + research[i].desc + "</i>";
 			}
 		}
 	}
@@ -306,7 +311,7 @@ public class ResearchMenu : MonoBehaviour {
 			u.y++;
 
             u.highlighter = newU.transform.FindChild ("Highlighter").GetComponent<Image> ();
-			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research";
+			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research Points\n" + Utility.ConstructDescriptionText (research[i].desc, (int)(research[i].name.Length * 1.5f));
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
 				newU.SetActive (false);
@@ -323,7 +328,7 @@ public class ResearchMenu : MonoBehaviour {
                 GameObject line = (GameObject)Instantiate (prerequisiteLine, pPos, pRot);
                 RectTransform lr = line.GetComponent<RectTransform> ();
                 lr.sizeDelta = new Vector2 (Vector3.Distance (r.button.transform.localPosition, r.GetPrerequisite ().button.transform.localPosition), 10);
-                line.transform.SetParent (lineParent, true);
+                line.transform.SetParent (lineParent, false );
 
                 lr.transform.localScale = Vector3.one;
             }
@@ -335,6 +340,58 @@ public class ResearchMenu : MonoBehaviour {
         scrollRect.verticalNormalizedPosition = 0f;
 
         UpdateButtonActiveness ();
+    }
+
+    public void InvalidateUselessButtons () {
+
+        List<Colour> foundColours = new List<Colour> ();
+        for (int i = 0; i < research.Count; i++) {
+
+            Research u = research[i];
+            if (u.func != "UnlockModule") {
+                continue;
+            }
+
+            bool found = false;
+            GameObject reqModule = unlockableModules[int.Parse (u.meta)];
+            for (int j = 0; j < PurchaseMenu.assemblies.Length; j++) {
+                //Debug.Log (PurchaseMenu.assemblies[i].assemblyName);
+                
+                for (int a = 0; a < PurchaseMenu.assemblies[j].parts.Count; a++) {
+                    Assembly.Part part = PurchaseMenu.assemblies[j].parts[a];
+                    if (PurchaseMenu.cur.GetModulePrefab (part.type) == reqModule) {
+                        found = true;
+                    }
+                }
+
+            }
+
+            if (!found) {
+                IntermediateButton (u);
+            }
+        }
+
+        // Fuck it, Imma use foreach now.
+        foreach (Assembly ass in PurchaseMenu.assemblies) {
+            foreach (Assembly.Part part in ass.parts) {
+                Module m = PurchaseMenu.cur.GetModulePrefab (part.type).GetComponent<Module> ();
+
+                if (!foundColours.Contains (m.colour))
+                    foundColours.Add (m.colour);
+            }
+        }
+
+        for (int i = 0; i < research.Count; i++) {
+            if (!foundColours.Contains (research[i].colour)) {
+                IntermediateButton (research[i]);
+            }
+        }
+    }
+
+    void IntermediateButton (Research u) {
+        u.button.GetComponent<HoverContextElement> ().text = "Intermediate Upgrade, " + u.y.ToString () + " Research";
+        u.button.transform.FindChild ("Image").GetComponent<Image> ().sprite = intermediateUpgradeSprite;
+        u.button.transform.FindChild ("Image").GetComponent<Image> ().color = Color.white;
     }
 
     [System.Serializable]
@@ -364,27 +421,9 @@ public class ResearchMenu : MonoBehaviour {
     }
     public void SaveBackup () {
         for (int i = 0; i < research.Count; i++) {
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Create (Game.RESEARCH_BACKUP_DATA_DIRECTORY + research[i].name + ".dat");
-
-            bf.Serialize (file, new SimpleResearch (research[i]));
-            file.Close ();
+            Utility.SaveObjectToFile (Game.RESEARCH_BACKUP_DATA_DIRECTORY + research[i].name + ".dat", new SimpleResearch (research[i]));
         }
     }
-
-    /*public void LoadResearchBackup () {
-
-        string fullFile = Game.RESEARCH_BACKUP_DATA_DIRECTORY + "BACKUP.dat";
-
-        if (File.Exists (fullFile)) {
-
-            BinaryFormatter bf = new BinaryFormatter ();
-            FileStream file = File.Open (fullFile, FileMode.Open);
-
-            Research[] data = (Research[])bf.Deserialize (file);
-            file.Close ();
-        }
-    }*/
 
     public void ResearchAll () {
         for (int i = 0; i < research.Count; i++) {
@@ -434,7 +473,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void UnlockAutoBaseHeal (Research research) {
-		Datastream.healSpeed = 0.1f;
+		Datastream.healPerWave = 5;
 	}
 
 	public void EnableBroadbandConnection (Research research) {

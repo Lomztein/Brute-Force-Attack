@@ -15,8 +15,10 @@ public class Projectile : MonoBehaviour {
 	public bool hitOnlyTarget;
 	public Colour effectiveAgainst;
     public bool isHitscan;
+    public AnimationCurve damageFalloff;
+    private Vector3 spawnPos;
 
-	public ParticleSystem particle;
+    public ParticleSystem particle;
     public ParticleSystem hitParticle;
     public int particleCount;
 
@@ -33,6 +35,12 @@ public class Projectile : MonoBehaviour {
 
                 OnHit (col, transform.position, transform.forward);
             }
+        }
+
+        if (parentWeapon) {
+            spawnPos = parentWeapon.transform.position;
+        }else {
+            spawnPos = transform.position;
         }
 	}
 	
@@ -69,14 +77,16 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public bool ShouldHit (RaycastHit hit) {
-		if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
-			return true;
-		}
+        if (parent)
+		    if (hit.collider.gameObject.layer != parent.layer && hit.collider.tag != "ProjectileIgnore") {
+			    return true;
+		    }
 		return false;
 	}
 
 	public virtual void OnHit (Collider col, Vector3 point, Vector3 dir) {
-		col.SendMessage ("OnTakeDamage", new Projectile.Damage (damage, effectiveAgainst), SendMessageOptions.DontRequireReceiver);
+        float distance = Vector3.Distance (spawnPos, point) / range;
+		col.SendMessage ("OnTakeDamage", new Damage (Mathf.RoundToInt (damage * damageFalloff.Evaluate (distance)), effectiveAgainst, parentWeapon), SendMessageOptions.DontRequireReceiver);
         if (hitParticle) {
             hitParticle.Emit (particleCount);
             hitParticle.transform.position = point;
@@ -86,7 +96,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	public void ReturnToPool () {
-		if (gameObject.activeSelf) {
+		if (gameObject.activeSelf || (hitParticle && hitParticle.gameObject.activeSelf)) {
 			if (particle) {
 				particle.transform.parent = null;
 				particle.Stop ();
@@ -107,20 +117,28 @@ public class Projectile : MonoBehaviour {
 			particle.transform.rotation = transform.rotation;
 		}
 
+        if (hitParticle) {
+            hitParticle.transform.parent = parentWeapon.pool;
+        }
+
         if (parentWeapon) {
 			parentWeapon.ReturnBulletToPool (gameObject);
 		}else{
+            if (hitParticle) Destroy (hitParticle.gameObject);
 			Destroy (gameObject);
-		}
+        }
 	}
 
 	public struct Damage {
+
 		public int damage;
 		public Colour effectiveAgainst;
+        public Weapon weapon;
 
-		public Damage (int damage, Colour effectiveAgainst) {
+		public Damage (int damage, Colour effectiveAgainst, Weapon weapon) {
 			this.damage = damage;
 			this.effectiveAgainst = effectiveAgainst;
+            this.weapon = weapon;
 		}
 	}
 }

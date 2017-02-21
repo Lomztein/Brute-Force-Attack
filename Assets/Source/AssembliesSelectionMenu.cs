@@ -43,6 +43,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
         game = Game.game;
         cur = this;
         InitializeArray ();
+        ToggleAll ();
 	}
 
     List<Assembly> SortAssemblies (List<Assembly> assemblies) {
@@ -65,8 +66,9 @@ public class AssembliesSelectionMenu : MonoBehaviour {
                 int co;
                 int rc;
                 int tl;
+                int ds;
 
-                GetAssemblyDescData (cur, out co, out rc, out tl);
+                GetAssemblyDescData (cur, out co, out rc, out tl, out ds);
 
                 if (co <= curCost) {
                     curAssembly = cur;
@@ -87,7 +89,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     }
 
     void InitializeArray () {
-		header.text = "Select " + game.assembliesAllowed.ToString () + " assemblies";
+		header.text = "Select assemblies";
 		footer.text = "No tier 0 detected";
 
         string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
@@ -124,10 +126,11 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 			int cost = 0;
 			int rootClass = 0;
 			int tech = 0;
+            int dps = 0;
 
-			GetAssemblyDescData (tempLoaded[i], out cost, out rootClass, out tech);
+			GetAssemblyDescData (tempLoaded[i], out cost, out rootClass, out tech, out dps);
 
-			buttons[buttons.Count - 1].transform.FindChild ("DescText").GetComponent<Text>().text = "Cost: " + cost.ToString () + " - Class: " + rootClass.ToString () + " - Tech Level: " + tech.ToString();
+			buttons[buttons.Count - 1].transform.FindChild ("DescText").GetComponent<Text>().text = "Cost: " + cost.ToString () + " - DPS: " + dps + " - Class: " + rootClass.ToString () + " - Tier: " + tech.ToString();
             buttons[buttons.Count - 1].transform.name = tech.ToString ();
         }
     }
@@ -141,7 +144,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     public void SelectAssemblies () {
         // battlefieldSelector.StartGame ();
 		game.purchaseMenu.SetAssemblies (assemblies);
-        Game.ForceDarkOverlay (false);
+        Game.UpdateDarkOverlay ();
 
         battlefieldSelector.LoadDataToGame ();
         difficultySelector.ApplyDifficulty ();
@@ -154,10 +157,11 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 		gameObject.SetActive (false);
     }
 
-	void GetAssemblyDescData (Assembly assembly, out int cost, out int rootClass, out int techLevel) {
+	void GetAssemblyDescData (Assembly assembly, out int cost, out int rootClass, out int techLevel, out int dps) {
 		rootClass = PurchaseMenu.cur.GetModulePrefab (assembly.parts[0].type).GetComponent<Module>().moduleClass;
 		cost = 0;
 		techLevel = 0;
+        dps = 0;
 
 		for (int i = 0; i < assembly.parts.Count; i++) {
 			GameObject mod = PurchaseMenu.cur.GetModulePrefab (assembly.parts[i].type);
@@ -170,8 +174,21 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 						techLevel = research.y;
 				}
 			}
+
+            WeaponModule wep = mod.GetComponent<WeaponModule> ();
+            if (wep)
+                dps += Mathf.RoundToInt (wep.weapon.GetDPS ());
 		}
 	}
+
+    void ToggleAll () {
+        // This is quite messy, but thats a theme for this entire class.
+        for (int i = 0; i < buttons.Count; i++) {
+            if (remaining.Contains (buttons[i])) {
+                OnClickedButton (i);
+            }
+        }
+    }
 
     void OnClickedButton (int index) {
         Button button = buttons[index];
@@ -191,17 +208,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 			assemblies.Remove (tempLoaded[index]);
         }
 
-        if (selected.Count >= game.assembliesAllowed) {
-            for (int i = 0; i < remaining.Count; i++) {
-                remaining[i].interactable = false;
-            }
-        } else {
-            for (int i = 0; i < remaining.Count; i++) {
-                remaining[i].interactable = true;
-            }
-        }
-
-        string message = selected.Count.ToString () + " / " + game.assembliesAllowed.ToString () + " selected";
+        string message = selected.Count.ToString () + " selected";
         startButton.interactable = true;
 
         bool anyZero = false;

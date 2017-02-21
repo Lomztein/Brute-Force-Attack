@@ -12,6 +12,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	public Text moduleDesc;
 	public Text moduleStats;
     public Text upgradeStats;
+    public Text scoreText;
 
 	public Text assemblyName;
     public HoverContextElement sellContextElement;
@@ -194,7 +195,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 		modules.Clear ();
 		gameObject.SetActive (false);
         subModMenu.SetActive (false);
-        Game.ForceDarkOverlay(false);
+        Game.UpdateDarkOverlay();
         if (ModuleMod.currentMenu[0])
             Destroy (ModuleMod.currentMenu[0]);
     }
@@ -204,7 +205,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 	}
 
 	public void OpenAssembly (Module _rootModule) {
-        Game.ForceDarkOverlay(true);
+        Game.UpdateDarkOverlay();
         gameObject.SetActive(true);
 		rootModule = _rootModule;
 		modules = rootModule.GetModuleTree ().ToList ();
@@ -367,6 +368,12 @@ public class AssemblyContextMenu : MonoBehaviour {
         moduleName.text = rootModule.assemblyName;
 		moduleDesc.text = rootModule.assemblyDesc;
         moduleImage.texture = rootModule.assembly.GetSprite();
+        
+        if (rootModule.scoreName != "") {
+            scoreText.text = rootModule.scoreName + ": " + rootModule.score.ToString ();
+        }else {
+            scoreText.text = "";
+        }
 
         // UpdateRangeIndicator ();
 

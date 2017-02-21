@@ -97,6 +97,7 @@ Desktop.ini[Ll]ibrary/
 *.userprefs
 *.pidb
 *.booproj
+*.pdb
 
 # ReSharper is a .NET coding add-in
 _ReSharper*/

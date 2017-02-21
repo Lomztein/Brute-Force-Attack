@@ -48,11 +48,7 @@ public class Assembly {
 
 		if (!isFullPath) fileName = Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION;
 
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Open (fileName, FileMode.Open);
-		
-		Assembly data = (Assembly)bf.Deserialize (file);
-		file.Close ();
+        Assembly data = Utility.LoadObjectFromFile<Assembly> (fileName);
 
 		Texture2D[] sprites = null;
 		Vector3[] positions = null;
@@ -61,15 +57,17 @@ public class Assembly {
 		data.texture = Module.CombineSprites (sprites, positions);
 
         List<Research> hls = new List<Research> ();
-        for (int j = 0; j < data.parts.Count; j++) {
+        if (Game.currentScene == Scene.Play) {
+            for (int j = 0; j < data.parts.Count; j++) {
 
-            for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
-                Research r = ResearchMenu.cur.research[i];
-                if (r.func == "UnlockModule") {
-                    Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
+                for (int i = 0; i < ResearchMenu.cur.research.Count; i++) {
+                    Research r = ResearchMenu.cur.research[i];
+                    if (r.func == "UnlockModule") {
+                        Module mod = ResearchMenu.cur.unlockableModules[int.Parse (r.meta)].GetComponent<Module> ();
 
-                    if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
-                        hls.Add (r);
+                        if (mod.moduleName == data.parts[j].type && !hls.Contains (r)) {
+                            hls.Add (r);
+                        }
                     }
                 }
             }
@@ -83,16 +81,13 @@ public class Assembly {
         if (requiredResearch != null)
             for (int i = 0; i < requiredResearch.Length; i++) {
                 Research r = requiredResearch[i];
-                r.highlighter.gameObject.SetActive (highlight);
+                if (r.highlighter)
+                    r.highlighter.gameObject.SetActive (highlight);
             }
     }
 
 	public static void SaveToFile (string fileName, Assembly assembly) {
-		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Create (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION);
-		
-		bf.Serialize (file, assembly);
-		file.Close ();
+        Utility.SaveObjectToFile (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY + fileName + Module.MODULE_FILE_EXTENSION, assembly);
 	}
 
     public Texture2D GetSprite () {

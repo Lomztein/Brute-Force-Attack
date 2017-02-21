@@ -3,31 +3,35 @@ using System.Collections;
 
 public class HealingEnemyHealing : MonoBehaviour {
 
+    // Those beneath a range attribute are in percentages.
+    [Range (0, 1)]
 	public float healSpeed;
-	public int healMax;
+    [Range (0, 1)]
+    public float healMax;
+    public int startHealth;
 
 	public Enemy enemy;
 	private float healProgress;
 
-	// Use this for initialization
-	void Start () {
-		healSpeed *= EnemyManager.gameProgress;
-		healMax = enemy.health;
-	}
-	
+    void OnSpawn () {
+        startHealth = enemy.health;
+    }
+
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (enemy.health < healMax) {
-			healProgress += healSpeed * Time.fixedDeltaTime;
+		if (enemy.health < startHealth * healMax) {
+			healProgress += startHealth * healSpeed * Time.fixedDeltaTime;
 			if (healProgress > 1f) {
 				enemy.health += Mathf.RoundToInt (healProgress);
+                healProgress = 0f;
 			}
 		}else{
-			enemy.health = healMax;
+            enemy.health = Mathf.Max (Mathf.RoundToInt (startHealth * healMax), enemy.health);
 		}
 	}
 
-	void OnTakeDamage () {
-		healSpeed = 0f;
+	void OnTakeDamage (Projectile.Damage d) {
+        if (d.effectiveAgainst == Colour.Green)
+		    healSpeed = 0f;
 	}
 }

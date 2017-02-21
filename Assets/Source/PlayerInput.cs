@@ -1,13 +1,15 @@
-﻿using UnityEngine;
+﻿using IngameEditors;
 using System.Collections;
-using IngameEditors;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInput : MonoBehaviour {
 
 	private enum WallDragStatus { Inactive, Adding, Removing };
 
 	public float cameraMovementSpeed;
+    public float cameraMargin;
 	public LayerMask turretLayer;
 
 	public PurchaseMenu purchaseMenu;
@@ -21,6 +23,8 @@ public class PlayerInput : MonoBehaviour {
     public GameObject hoverMarker;
     public SpriteRenderer upgradingMarker;
     public GameObject constructionFlash;
+    public AudioClip placementAudio;
+    public Module mouseModule;
 
     private bool enableFastBuild;
 	private Vector2 dragStart;
@@ -69,13 +73,27 @@ public class PlayerInput : MonoBehaviour {
 
 	private GameObject activeAbility;
 
-	void Start () {
+    public GameObject flushBattlefieldAbility;
+    public int flushTime;
+    public static int flushTimer;
+    public Slider flushBattlefieldSlider;
+    public Button flushBattlefieldButton;
+    public bool flushBattlefieldSure;
+    public Animator flushBattlefieldAnimator;
+
+    public static void ChangeFlushTimer (int value) {
+        flushTimer += value;
+        cur.UpdateFlushBattlefieldHoverContextElement ();
+    }
+
+    void Start () {
 		cur = this;
 		camDepth = Camera.main.transform.position.z;
         if (Game.currentScene != Scene.BattlefieldEditor) {
             rangeIndicator = RangeIndicator.CreateRangeIndicator (null, Vector3.zero, false, false).GetComponent<RangeIndicator> ();
             rangeIndicatorMaterial = rangeIndicator.transform.GetChild (0).GetComponent<Renderer> ().material;
         }
+        flushTimer = 0;
 	}
 
 	public void SelectPurchaseable (GameObject purModule, bool resetRotation) {
@@ -90,16 +108,27 @@ public class PlayerInput : MonoBehaviour {
 		pModule = purModule.GetComponent<Module>();
 		isPlacing = true;
 
-		rangeIndicator.ForceParent (loc, placePos);
+        BaseModule locBase = loc.GetComponent<BaseModule> ();
+        if (locBase)
+            locBase.GetFastestBulletSpeed ();
+        mouseModule = loc.GetComponent<Module> ();
 
-		if (activePurchaseCopy)
+        StartCoroutine (DelayedRangeIndicator ());
+
+        if (activePurchaseCopy)
 			Destroy (activePurchaseCopy);
 
 		activePurchaseCopy = (GameObject)Instantiate (purchaseModule, Vector3.right * 10000f, Quaternion.identity);
 		activePurchaseCopy.GetComponent<Module>().isOnBattlefield = false;
 	}
 
-	public GameObject SelectAbilty (GameObject ability, AbilityButton button) {
+    IEnumerator DelayedRangeIndicator () {
+        yield return new WaitForEndOfFrame ();
+		rangeIndicator.ForceParent (mouseModule.gameObject, placePos);
+        rangeIndicator.GetRange (mouseModule.GetRange ());
+    }
+
+    public GameObject SelectAbilty (GameObject ability, AbilityButton button) {
 		CancelAll ();
 		if (activeAbility)
 			Destroy (activeAbility);
@@ -108,14 +137,25 @@ public class PlayerInput : MonoBehaviour {
 		return activeAbility;
 	}
 
-    void CancelAll () {
-		CancelPurchase ();
-		if (isEditingWalls)
-			EditWalls (true);
+    // Returns true if something was cancelled.
+    public bool CancelAll () {
+        bool somethingCancelled = false;
+
+        if (placementParent.childCount != 0)
+            somethingCancelled = true;
+
+        CancelPurchase ();
+		if (isEditingWalls) {
+            EditWalls (true);
+            somethingCancelled = true;
+        }
         if (isUpgrading) {
             ToggleUpgrading (true);
+            somethingCancelled = true;
         }
-	}
+
+        return somethingCancelled;
+    }
 
     public void ToggleUpgrading (bool fromCancelAll) {
         if (!fromCancelAll)
@@ -170,72 +210,90 @@ public class PlayerInput : MonoBehaviour {
 		}
 	}
 
+    void LateUpdate () {
+        if (Game.currentScene != Scene.AssemblyBuilder)
+            MoveCamera ();
+    }
+
     // Update is called once per frame
     void Update () {
-        if (Game.currentScene == Scene.Play)
-            MoveCamera ();
         // Grap mouse position, and round it.
-        pos = RoundPos(Camera.main.ScreenToWorldPoint(Input.mousePosition), pModule ? pModule.moduleClass : 1);
+        pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition), pModule ? pModule.moduleClass : 1);
 
         if (rangeIndicator)
             rangeIndicator.GetRange (0f);
 
-        if (Input.GetButtonDown("Cancel"))
-            CancelAll ();
+        if (Input.GetButtonDown ("Cancel")) {
 
-        if (!EnemyManager.waveStarted) {
-            if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
+            bool isPaused = Game.isPaused;
+            bool anyActive = Game.AnyActiveAboveOverlay ();
 
-                rangeIndicator.transform.position = placementParent.position;
+            if (isPaused) {
+                Game.game.TogglePause ();
+            }
 
-                if (!isRotting) {
-                    placePos = new Vector3 (pos.x, pos.y, 0f);
-                    placeRot = Quaternion.Euler (0, 0, 90f);
-                }
-
-                UpdatePlacementSprite ();
-                GetHitModule ();
-
-                indicatorRange = 0f;
-                RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
-
-                if (hitModule) {
-                    placeRot = hitModule.transform.rotation;
-
-                    if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
-                        rangeIndicator.GetRange (0f);
-                    } else if (pModule.moduleType == Module.Type.Weapon) {
-                        if (hitModule.parentBase) {
-                            rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
-                        } else {
-                            rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
-                        }
-                    } else {
-                        rangeIndicator.GetRange (indicatorRange);
-                    }
-                } else {
-                    RangeIndicator.ForceRequestRange (pModule.gameObject, rangeIndicator.gameObject);
-                }
-
-                if (isRotting) {
-                    ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
-                    if (Input.GetButton ("LCtrl"))
-                        placeRot = Quaternion.Euler (0, 0, ang);
-                } else {
-                    ang = placeRot.eulerAngles.z;
-                }
-
-                if (Input.GetMouseButtonDown (1))
-                    CancelPurchase ();
-
-                if (!purchaseMenu.isOpen) {
-                    if (Input.GetMouseButtonUp (0))
-                        PlaceModule ();
-
-                    if (Input.GetMouseButtonDown (0))
-                        isRotting = true;
+            if (!CancelAll ()) {
+                CloseAllWindows ();
+                if (!anyActive && !isPaused) {
+                    Game.game.TogglePause ();
                 }
             }
+        }
+
+        if (isPlacing && !isEditingWalls && Game.currentScene != Scene.BattlefieldEditor) {
+
+            rangeIndicator.transform.position = placementParent.position;
+
+            if (!isRotting) {
+                placePos = new Vector3 (pos.x, pos.y, 0f);
+                placeRot = Quaternion.Euler (0, 0, 90f);
+            }
+
+            UpdatePlacementSprite ();
+            GetHitModule ();
+
+            indicatorRange = 0f;
+            RangeIndicator.ForceRequestRange (activePurchaseCopy, gameObject);
+
+            if (hitModule) {
+                placeRot = hitModule.transform.rotation;
+
+                if (hitModule.moduleType == Module.Type.Weapon || hitModule.moduleType == Module.Type.Independent) {
+                    rangeIndicator.GetRange (0f);
+                } else if (pModule.moduleType == Module.Type.Weapon) {
+                    if (hitModule.parentBase) {
+                        rangeIndicator.GetRange (indicatorRange * hitModule.parentBase.GetRange ());
+                    } else {
+                        rangeIndicator.GetRange (indicatorRange * WeaponModule.indieRange);
+                    }
+                } else {
+                    rangeIndicator.GetRange (indicatorRange);
+                }
+            } else {
+                RangeIndicator.ForceRequestRange (pModule.gameObject, rangeIndicator.gameObject);
+            }
+
+            if (isRotting) {
+                ang = Mathf.RoundToInt (Angle.CalculateAngle (placePos, pos) / 90f) * 90;
+                if (Input.GetButton ("LCtrl"))
+                    placeRot = Quaternion.Euler (0, 0, ang);
+            } else {
+                ang = placeRot.eulerAngles.z;
+            }
+
+            if (Input.GetMouseButtonDown (1))
+                CancelPurchase ();
+
+            if (!purchaseMenu.isOpen) {
+                if (Input.GetMouseButtonUp (0))
+                    PlaceModule ();
+
+                if (Input.GetMouseButtonDown (0))
+                    isRotting = true;
+            }
+        }
+
+        if (!EnemyManager.waveStarted) {
 
             if (!isPlacing && isEditingWalls) {
 
@@ -246,9 +304,10 @@ public class PlayerInput : MonoBehaviour {
                     wallDragStatus = WallDragStatus.Inactive;
                 }
 
-                if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive) {
+                if (Input.GetMouseButtonDown (0) && wallDragStatus == WallDragStatus.Inactive && !(HoverContext.hoveringButton && HoverContext.hoveringButton.tag == "DarkOverlay")) {
                     wallDragStatus = WallDragStatus.Adding;
                     wallDragStart = pos;
+                    wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
                     wallDragGraphic.sharedMaterial.color = Color.green;
                 }
 
@@ -257,11 +316,13 @@ public class PlayerInput : MonoBehaviour {
                     Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.Player);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
+                    Game.PlaySFXAudio (placementAudio);
                 }
 
-                if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive) {
+                
+                if (Input.GetMouseButtonDown (1) && wallDragStatus == WallDragStatus.Inactive && !(HoverContext.hoveringButton && HoverContext.hoveringButton.tag == "DarkOverlay")) {
                     wallDragStatus = WallDragStatus.Removing;
-                    wallDragStart = pos;
+                    wallDragStart = MovePosInsideBattlefield (pos, 0.5f);
                     wallDragGraphic.sharedMaterial.color = Color.red;
                 }
 
@@ -270,12 +331,15 @@ public class PlayerInput : MonoBehaviour {
                     Game.ChangeWalls (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y), Game.WallType.None);
                     wallDragGraphic.sharedMaterial.color = Color.white;
                     HoverContext.ChangeText ("");
+                    Game.PlaySFXAudio (placementAudio);
                 }
 
                 if (wallDragStatus != WallDragStatus.Inactive) {
 
-                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (pos.x - wallDragStart.x), Mathf.Abs (pos.y - wallDragStart.y)) + Vector3.one;
-                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (pos.x - wallDragStart.x) / 2f, wallDragStart.y + (pos.y - wallDragStart.y) / 2f);
+                    Vector3 locPos = MovePosInsideBattlefield (pos, 0.5f);
+
+                    wallDragGraphic.transform.localScale = new Vector3 (Mathf.Abs (locPos.x - wallDragStart.x), Mathf.Abs (locPos.y - wallDragStart.y)) + Vector3.one;
+                    wallDragGraphic.transform.position = new Vector3 (wallDragStart.x + (locPos.x - wallDragStart.x) / 2f, wallDragStart.y + (locPos.y - wallDragStart.y) / 2f);
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
 
                     //Vector3 absStart = new Vector3(Mathf.Abs(wallDragStart.x), Mathf.Abs(wallDragStart.y));
@@ -285,19 +349,19 @@ public class PlayerInput : MonoBehaviour {
 
                     Rect rect = Game.PositivizeRect (new Rect (wallGraphicStart.x, wallGraphicStart.y, wallGraphicEnd.x, wallGraphicEnd.y));
 
-                    int rectX = Mathf.RoundToInt(rect.x);
-                    int rectY = Mathf.RoundToInt(rect.y);
-                    int rectW = Mathf.RoundToInt(rect.width);
-                    int rectH = Mathf.RoundToInt(rect.height);
+                    int rectX = Mathf.RoundToInt (rect.x);
+                    int rectY = Mathf.RoundToInt (rect.y);
+                    int rectW = Mathf.RoundToInt (rect.width);
+                    int rectH = Mathf.RoundToInt (rect.height);
 
                     if (wallDragStatus == WallDragStatus.Adding) {
                         HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, Game.WallType.Player));
                     } else {
-                        HoverContext.ChangeText("Cost: " + Game.GetWallingCost(rectX, rectY, rectW, rectH, Game.WallType.None));
+                        HoverContext.ChangeText ("Cost: " + Game.GetWallingCost (rectX, rectY, rectW, rectH, Game.WallType.None));
                     }
 
                 } else {
-                    wallDragGraphic.transform.position = pos + Vector3.forward;
+                    wallDragGraphic.transform.position = MovePosInsideBattlefield (pos, 0.5f) + Vector3.forward;
                     wallDragGraphic.transform.localScale = Vector3.one;
                     wallDragGraphic.sharedMaterial.mainTextureScale = new Vector2 (wallDragGraphic.transform.localScale.x, wallDragGraphic.transform.localScale.y);
                     HoverContext.ChangeText ("");
@@ -314,8 +378,10 @@ public class PlayerInput : MonoBehaviour {
 
                 Module mod = hit.collider.GetComponent<Module> ();
 
-                hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);
-                hoverMarker.transform.localScale = Vector3.one * mod.moduleClass;
+                if (HoverContext.cur.IsReachable (mod.transform)) {
+                    hoverMarker.transform.position = hit.collider.transform.position + Vector3.forward * (camDepth + 1);
+                    hoverMarker.transform.localScale = Vector3.one * mod.moduleClass;
+                }
 
                 if (isUpgrading) {
                     upgradingMarker.transform.position = hit.collider.transform.position + Vector3.right * mod.moduleClass * 2f;
@@ -325,7 +391,7 @@ public class PlayerInput : MonoBehaviour {
                         upgradingMarker.color = Color.green;
                     }
                 }
-            } else if (!contextMenu.gameObject.activeSelf) {
+            } else if (contextMenu && !contextMenu.gameObject.activeSelf) {
                 hoverMarker.transform.position = Vector3.right * 10000f;
                 upgradingMarker.transform.position = (Vector3)(Vector2)(Camera.main.ScreenToWorldPoint (Input.mousePosition) + Vector3.right * 2f) + Vector3.forward * (camDepth + 1f);
                 upgradingMarker.color = Color.white;
@@ -336,6 +402,103 @@ public class PlayerInput : MonoBehaviour {
             if (Input.GetMouseButtonDown (1))
                 CancelAll ();
         }
+    }
+
+    // This should be in a class for itself. Stoopid cross references.
+    public void FlushBattlefield () {
+
+        if (flushBattlefieldSure) {
+            if (flushTimer <= 0) {
+                Instantiate (flushBattlefieldAbility);
+                flushTimer = flushTime;
+                ChangeFlushTimer (0);
+                CancelInvoke ("ResetFlushBattlefieldSure");
+                flushBattlefieldSure = false;
+                flushBattlefieldAnimator.SetBool ("Flashing", false);
+            }
+
+        } else {
+            flushBattlefieldSure = true;
+            Invoke ("ResetFlushBattlefieldSure", 1f);
+        }
+
+        UpdateFlushBattlefieldHoverContextElement ();
+    }
+
+    public void UpdateFlushBattlefieldHoverContextElement () {
+        HoverContextElement element = flushBattlefieldButton.GetComponent<HoverContextElement> ();
+        HoverContextElement.activeElement = null;
+
+        flushBattlefieldSlider.value = (float)flushTimer / cur.flushTime;
+        flushBattlefieldButton.interactable = flushTimer <= 0;
+
+        if (!EnemyManager.waveStarted) {
+            flushBattlefieldButton.interactable = false;
+        }
+
+        if (flushBattlefieldSure) {
+            element.text = "Are you sure?";
+            return;
+        }
+
+        if (EnemyManager.waveStarted == true) {
+            if (cur.flushBattlefieldButton.interactable) {
+                element.text = "Flush memory\n" + Utility.ConstructDescriptionText ("Obliterates all vira on the screen.", 100);
+                return;
+            } else {
+                element.text = "Flush available in " + flushTimer + " waves";
+                return;
+            }
+        } else {
+            if (flushTimer <= 0) {
+                element.text = "Not available between waves.";
+            } else {
+                element.text = "Flush available in " + flushTimer + " waves";
+            }
+            return;
+        }
+
+        //element.text = "Flush memory";
+    }
+
+    public void ResetFlushBattlefieldSure () {
+        flushBattlefieldSure = false;
+        UpdateFlushBattlefieldHoverContextElement ();
+    }
+
+    public void CloseAllWindows () {
+        if (ResearchMenu.isOpen)
+            ResearchMenu.cur.ToggleResearchMenu ();
+        contextMenu.ExitMenu ();
+        EnemyManager.cur.CloseWaveList ();
+        EnemyInformationPanel.Close ();
+    }
+
+    public void OpenEnemyInformationPanel (Enemy enemy, int wave) {
+        EnemyInformationPanel.Open (enemy, wave);
+    }
+
+    public Vector3 MovePosInsideBattlefield (Vector3 pos, float depth) {
+        if (Game.IsInsideBattlefield (pos))
+            return pos;
+
+        Vector3 newPos = pos;
+        if (pos.x < -Game.game.battlefieldWidth / 2f) {
+            newPos.x = -Game.game.battlefieldWidth / 2f + depth;
+        }
+
+        if (pos.y < -Game.game.battlefieldHeight / 2f) {
+            newPos.y = -Game.game.battlefieldHeight / 2f + depth;
+        }
+
+        if (pos.x > Game.game.battlefieldWidth / 2f) {
+            newPos.x = Game.game.battlefieldWidth / 2f - depth;
+        }
+
+        if (pos.y > Game.game.battlefieldHeight / 2f) {
+            newPos.y = Game.game.battlefieldHeight / 2f - depth;
+        }
+        return newPos;
     }
 
 	public Vector3 RoundPos (Vector3 p, int moduleClass) {
@@ -381,8 +544,8 @@ public class PlayerInput : MonoBehaviour {
                 if (!isInside && !errors.Contains ("Placement must be within the battlefield"))
                     errors.Add ("Placement must be within the battlefield");
 
-                if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player && !errors.Contains ("Must fully be placed on player made walls"))
-                    errors.Add ("Must fully be placed on player made walls");
+                if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player && !errors.Contains ("Must be placed on player made walls"))
+                    errors.Add ("Must be placed on player made walls");
             }
 
 			Ray ray = new Ray (new Vector3 (pos.x + canPlaceTestPos[i].x * pModule.moduleClass, pos.y + canPlaceTestPos[i].y * pModule.moduleClass, camDepth), Vector3.forward * -camDepth * 2f);
@@ -390,8 +553,8 @@ public class PlayerInput : MonoBehaviour {
 
 			Debug.DrawRay (ray.origin, ray.direction, Color.blue);
 
-            if (Physics.Raycast (ray, -camDepth, blockBuildLayer) && !errors.Contains ("Cannot be placed here"))
-                errors.Add ("Cannot be placed here");
+            if (Physics.Raycast (ray, -camDepth, blockBuildLayer) && !errors.Contains ("Placement blocked by something"))
+                errors.Add ("Placement blocked by something");
 
 			Module locModule = null;
 			if (Physics.Raycast (ray, out hit, -camDepth * 2f, turretLayer)) {
@@ -414,6 +577,9 @@ public class PlayerInput : MonoBehaviour {
 			}
 		}
 
+        if (hitModule && (hitModule.moduleType == pModule.moduleType && hitModule.moduleType != Module.Type.Structural) && !errors.Contains ("Cannot be placed on the same type."))
+            errors.Add ("Cannot be placed on the same type.");
+
         if (hits < 4 && !errors.Contains ("Not enough structural support"))
             errors.Add ("Not enough structural support");
 
@@ -431,12 +597,15 @@ public class PlayerInput : MonoBehaviour {
 		}
 
         string full = "";
+        if (errors.Count > 0)
+            full += "Cannot be placed here:\n";
+
         for (int i = 0; i < errors.Count - 1; i++) {
-            full += errors[i] + "\n";
+            full += " - " + errors[i] + "\n";
         }
 
         if (errors.Count > 0)
-            full += errors[errors.Count - 1];
+            full += " - " + errors[errors.Count - 1];
 
         return full;
 	}
@@ -484,7 +653,10 @@ public class PlayerInput : MonoBehaviour {
         // I'll go and fix the wall blocking bug now. I'm gonna go for the first solution described in my Reddit reply for now.
 
 		if (allowPlacement) {
-            ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+            if (Game.currentScene == Scene.Play)
+                ConstructionFlashShrink.Create(Vector3.one * pModule.moduleClass * 16f, placePos - Vector3.back * (camDepth + 5));
+
+            Game.PlaySFXAudio (placementAudio);
 
             GameObject m = (GameObject)Instantiate (purchaseModule, placePos, placementParent.GetChild (0).rotation);
 			m.BroadcastMessage ("ResetMaterial");
@@ -515,7 +687,7 @@ public class PlayerInput : MonoBehaviour {
 			rangeIndicatorMaterial.color = Color.green;
             HoverContext.ChangeText ("");
 		}else {
-            placementMaterial.color = Color.red;
+            placementMaterial.color = Color.black;
 			rangeIndicatorMaterial.color = Color.red;
             HoverContext.ChangeText (canPlaceText);
 		}
@@ -532,32 +704,44 @@ public class PlayerInput : MonoBehaviour {
 
 	void MoveCamera () {
 
-		Vector3 movement = new Vector3 ();
-
-		if (Input.mousePosition.x < 10)
-			movement.x = -cameraMovementSpeed;
-		if (Input.mousePosition.x > Screen.width - 10)
-			movement.x = cameraMovementSpeed;
-		if (Input.mousePosition.y < 10)
-			movement.y = -cameraMovementSpeed;
-		if (Input.mousePosition.y > Screen.height - 10)
-			movement.y = cameraMovementSpeed;
-
-		movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
-		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
-
+        Camera cam = Camera.main;
 		Vector3 camPos = transform.position;
+        Vector3 movement = new Vector3 ();
 
-        if (Game.game) {
-            if (camPos.x > Game.game.battlefieldWidth / 2f)
-                camPos.x = Game.game.battlefieldWidth / 2f;
-            if (camPos.y > Game.game.battlefieldHeight / 2f)
-                camPos.y = Game.game.battlefieldHeight / 2f;
-            if (camPos.x < -Game.game.battlefieldWidth / 2f)
-                camPos.x = -Game.game.battlefieldWidth / 2f;
-            if (camPos.y < -Game.game.battlefieldHeight / 2f)
-                camPos.y = -Game.game.battlefieldHeight / 2f;
+        if (Game.game.battlefieldWidth / 2f > cam.orthographicSize * cam.aspect - cameraMargin) {
+            if (Input.mousePosition.x < 10)
+                movement.x = -cameraMovementSpeed;
+            if (Input.mousePosition.x > Screen.width - 10)
+                movement.x = cameraMovementSpeed;
+
+            if (camPos.x + movement.x * Time.unscaledDeltaTime > (Game.game.battlefieldWidth / 2f) - cam.orthographicSize + cameraMargin)
+                camPos.x = (Game.game.battlefieldWidth / 2f) - cam.orthographicSize + cameraMargin;
+            if (camPos.x + movement.x * Time.unscaledDeltaTime < (-Game.game.battlefieldWidth / 2f) + cam.orthographicSize - cameraMargin)
+                camPos.x = (-Game.game.battlefieldWidth / 2f) + cam.orthographicSize - cameraMargin;
+        } else {
+            movement.x = -cam.transform.position.x;
         }
+
+        if (Game.game.battlefieldHeight / 2f > cam.orthographicSize - cameraMargin) {
+            if (Input.mousePosition.y < 10)
+                movement.y = -cameraMovementSpeed;
+            if (Input.mousePosition.y > Screen.height - 10)
+                movement.y = cameraMovementSpeed;
+
+            if (camPos.y + movement.y * Time.unscaledDeltaTime > (Game.game.battlefieldHeight / 2f) - cam.orthographicSize + cameraMargin) {
+                camPos.y = (Game.game.battlefieldHeight / 2f) - cam.orthographicSize + cameraMargin;
+                movement.y = 0f;
+            }
+            if (camPos.y + movement.y * Time.unscaledDeltaTime < (-Game.game.battlefieldHeight / 2f) + cam.orthographicSize - cameraMargin) {
+                camPos.y = (-Game.game.battlefieldHeight / 2f) + cam.orthographicSize - cameraMargin;
+                movement.y = 0f;
+            }
+        } else {
+            movement.y = -cam.transform.position.y;
+        }
+
+        movement.x += Input.GetAxis ("RightLeft") * cameraMovementSpeed;
+		movement.y += Input.GetAxis ("UpDown") * cameraMovementSpeed;
 
 		transform.position = camPos;
 		transform.position += movement * Time.unscaledDeltaTime;
@@ -576,6 +760,8 @@ public class PlayerInput : MonoBehaviour {
 				}
 			}
 		}
+
+        Gizmos.DrawWireCube (transform.position, new Vector3 (Camera.main.orthographicSize * Camera.main.aspect * 2 - cameraMargin * 2, Camera.main.orthographicSize * 2 - cameraMargin * 2));
 
         if (isEditingWalls && wallDragStatus != WallDragStatus.Inactive) {
             Gizmos.DrawSphere(pos, 0.5f);

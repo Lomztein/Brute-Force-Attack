@@ -29,6 +29,7 @@ public class PurchaseMenu : MonoBehaviour {
     public GameObject assemblyLoader;
     public GameObject assemblyButton;
     public Transform assemblyButtonStart;
+    public Transform assemblyButtonParent;
     public List<LoadAssemblyButton> assemblyButtonList = new List<LoadAssemblyButton> ();
 
     public RectTransform scrollThingie;
@@ -63,7 +64,9 @@ public class PurchaseMenu : MonoBehaviour {
     }
 
     public List<Assembly> GetAssemblies () {
-        return assemblies.ToList ();
+        if (assemblies != null)
+            return assemblies.ToList ();
+        return new List<Assembly> ();
     }
 
     public void InitializeAssemblyButtons () {
@@ -77,7 +80,7 @@ public class PurchaseMenu : MonoBehaviour {
         for (int i = 0; i < assemblies.Length; i++) {
             GameObject butt = (GameObject)Instantiate (assemblyButton, assemblyButtonStart.position + Vector3.right * (purchaseButtonSize) * i, Quaternion.identity);
             assemblyButtonList.Add (butt.GetComponent<LoadAssemblyButton> ());
-            butt.transform.SetParent (assemblyButtonStart, true);
+            butt.transform.SetParent (assemblyButtonParent, true);
             LoadAssemblyButton button = butt.GetComponent<LoadAssemblyButton> ();
             button.assembly = assemblies[i];
 
@@ -175,18 +178,15 @@ public class PurchaseMenu : MonoBehaviour {
 
 			//Module m = purchaseables[i].GetComponent<Module>();
 
-			// Instantiate weapon buttons on lower button row,
-			// and all other types on top row.
-
 			GameObject newButton = (GameObject)Instantiate (buttonPrefab, firstTopButton.position + Vector3.left * purchaseButtonSize * i, Quaternion.identity);
 
 			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();
 			newButton.transform.FindChild ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-			newButton.transform.SetParent (firstTopButton, true);
+			newButton.transform.SetParent (assemblyButtonParent, true);
 			newButton.transform.localScale = Vector3.one;
-			AddPurchaseButtonListener (button, i);
 
+			AddPurchaseButtonListener (button, i);
 		}
 
 		UpdateButtons ();

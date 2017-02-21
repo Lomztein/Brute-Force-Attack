@@ -18,50 +18,59 @@ public class MainMenuScene : MonoBehaviour {
     public float progress;
     public float maxProgress;
 
-    public string[] loadableGames;
-    public GameObject loadGameMenu;
-    public GameObject loadGameButtonPrefab;
+    private bool isCreditsOpen;
+    public GameObject creditsScreen;
+    public SettingsMenu settingsScreen;
+    public AudioSource audioSource;
 
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
-	}
+        Game.currentScene = Scene.Play;
+
+        if (PlayerPrefs.HasKey ("fMusicVolume"))
+            audioSource.volume = PlayerPrefs.GetFloat ("fMusicVolume");
+    }
 
     public void ToggleLoadGameMenu () {
-        loadGameMenu.SetActive (!loadGameMenu.activeSelf);
-        Game.ForceDarkOverlay (loadGameMenu.activeSelf);
+        FileBrowser.OpenFileBrowser (Game.SAVED_GAME_DIRECTORY, gameObject, "OnSaveChosen");
+        Game.UpdateDarkOverlay ();
+    }
+
+    public void OnSaveChosen (string saveName) {
+        Game.saveToLoad = saveName;
+        Play ();
+    }
+
+    public void OnFileBrowserClosed () {
+        Game.UpdateDarkOverlay ();
+    }
+
+    public void ToggleCreditsScreen () {
+        isCreditsOpen = !isCreditsOpen;
+        creditsScreen.SetActive (isCreditsOpen);
+        Game.UpdateDarkOverlay ();
+    }
+
+    public void ToggleSettingsScreen () {
+        settingsScreen.gameObject.SetActive (!settingsScreen.gameObject.activeSelf);
+        Game.UpdateDarkOverlay ();
     }
 
     void Start () {
+        Game.darkOverlayActive = true;
         Game.InitializeDirectories ();
-        Game.ForceDarkOverlay (false);
-
-        loadableGames = Directory.GetFiles (Game.SAVED_GAME_DIRECTORY, "*.dat");
-        for (int i = 0; i < loadableGames.Length; i++) {
-            string name = ExtractSaveName (loadableGames[i]);
-            string date = File.GetCreationTime (loadableGames[i]).ToString ();
-            GameObject button = Instantiate (loadGameButtonPrefab);
-            button.transform.SetParent (loadGameMenu.transform);
-            button.transform.FindChild ("Name").GetComponent<Text> ().text = "  " + name;
-            button.transform.FindChild ("Date").GetComponent<Text> ().text = date + "  ";
-            AddLoadGameButtonListener (button.GetComponent<Button> (), i);
-        }
-    }
-
-    void AddLoadGameButtonListener (Button button, int index) {
-        button.onClick.AddListener (() => {
-            Game.saveToLoad = ExtractSaveName (loadableGames[index]);
-            Play ();
-        });
-    }
-
-    string ExtractSaveName (string file) {
-        string f = file.Substring (file.LastIndexOf ('/') + 1);
-        return f.Substring (0, f.Length - ".dat".Length);
+        Game.currentScene = Scene.Menu;
+        Game.DeleteAssemblySave ();
+        Game.UpdateDarkOverlay ();
+        audioSource.Play ();
+        SettingsMenu.cur = settingsScreen;  
+        SettingsMenu.LoadSettings ();
     }
 
     public void Build () {
+        IngameEditors.AssemblyEditorScene.openedFromIngame = false;
         SceneManager.LoadScene ("pv_assemblybuilder");
-	}
+    }
 
 	public void Quit () {
 		Application.Quit ();
@@ -85,5 +94,6 @@ public class MainMenuScene : MonoBehaviour {
         }
 
         progress += Time.fixedDeltaTime;
+        audioSource.volume = settingsScreen.musicSlider.value;
     }
 }

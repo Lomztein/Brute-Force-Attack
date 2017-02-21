@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class HoverContext : MonoBehaviour {
 
@@ -10,6 +11,7 @@ public class HoverContext : MonoBehaviour {
 
     public LayerMask worldLayers;
     public LayerMask GUILayers;
+    public static GameObject hoveringButton;
 
 	void Start () {
 		cur = this;
@@ -32,25 +34,47 @@ public class HoverContext : MonoBehaviour {
             // Handle world raycasting
             if (!raycast) {
                 ray = Camera.main.ScreenPointToRay(pos);
-                raycast = Physics.Raycast(ray, out hit, Mathf.Infinity, cur.worldLayers);
+                raycast = Physics.Raycast (ray, out hit, Mathf.Infinity, cur.worldLayers);
             }
 
             cur.CheckHit(raycast, hit);
         }
     }
 
+    bool InsideLayerMask (int layer, LayerMask layerMask) {
+        return (Mathf.RoundToInt (Mathf.Pow (2, layer)) & layerMask) == layerMask;
+    }
+
+    public bool IsReachable (Transform r) {
+        if (Game.darkOverlayActive) {
+            if (InsideLayerMask (r.gameObject.layer, GUILayers)) {
+                while (r.parent && r.parent.parent) {
+                    r = r.parent;
+                }
+                if (r.GetSiblingIndex () < Game.darkOverlaySiblingIndex)
+                    return false;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void CheckHit (bool raycast, RaycastHit hit) {
-        if (hit.collider) {
+        if (hit.collider && IsReachable (hit.collider.transform)) {
+
+            hoveringButton = hit.collider.gameObject;
+
             HoverContextElement hoverHit = hit.collider.GetComponent<HoverContextElement>();
             // This code might cause cancer, need optimizations if possible. I mean, you might as well just use Rect.Contains ().
             if (HoverContextElement.activeElement == null) {
                 if (raycast) {
-                    hit.collider.SendMessage ("OnMouseEnterElement");
+                    hit.collider.SendMessage ("OnMouseEnterElement", SendMessageOptions.DontRequireReceiver);
                     HoverContextElement.activeElement = hoverHit;
                 }
             } else {
                 if (HoverContextElement.activeElement != hoverHit || !raycast) {
-                    HoverContextElement.activeElement.SendMessage ("OnMouseExitElement");
+                    HoverContextElement.activeElement.SendMessage ("OnMouseExitElement", SendMessageOptions.DontRequireReceiver);
                     HoverContextElement.activeElement = null;
                 }
             }
@@ -59,7 +83,7 @@ public class HoverContext : MonoBehaviour {
                 hit.collider.SendMessage ("OnMouseDownElement", SendMessageOptions.DontRequireReceiver);
             }
         } else if (HoverContextElement.activeElement) {
-            HoverContextElement.activeElement.SendMessage ("OnMouseExitElement");
+            HoverContextElement.activeElement.SendMessage ("OnMouseExitElement", SendMessageOptions.DontRequireReceiver);
             HoverContextElement.activeElement = null;
         } else if (!PlayerInput.cur.isEditingWalls && !PlayerInput.cur.isPlacing) {
             HoverContextElement.activeElement = null;
@@ -74,10 +98,10 @@ public class HoverContext : MonoBehaviour {
     void SetPos () {
 		Vector3 mousePos = Input.mousePosition;
 		transform.position = mousePos + new Vector3 (rectTransform.rect.width / 2f ,rectTransform.rect.height / 2);
-        if (mousePos.y > Screen.height / 2) {
+        if (mousePos.y > Screen.height - rectTransform.rect.height) {
             transform.position += Vector3.down * rectTransform.rect.height;
         }
-        if (mousePos.x > Screen.width / 2) {
+        if (mousePos.x > Screen.width - rectTransform.rect.width) {
             transform.position += Vector3.left * rectTransform.rect.width;
         }
     }

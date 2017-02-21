@@ -50,19 +50,17 @@ public class FocusBeamWeapon : Weapon {
 		canFire = true;
 	}
 
-	float GetChargeSpeed () {
-		return chargeSpeed * firerate * Time.fixedDeltaTime * chargeSpeedMultiplier * upgradeMul;
-	}
-
 	float GetMaxCharge () {
 		return maxCharge * ResearchMenu.damageMul [(int)GetBulletData ().effectiveAgainst] * upgradeMul;
 	}
 
 	void FixedUpdate () {
-		if (target && !target.gameObject.activeSelf) {
+		if (weaponModule.parentBase && weaponModule.parentBase.target && !weaponModule.parentBase.target.gameObject.activeSelf) {
 			BreakBeam ();
-		}
-	}
+		}else if (weaponModule.parentBase && !weaponModule.parentBase.target) {
+            BreakBeam ();
+        }
+    }
 
     public override float GetDPS () {
         if (Game.currentScene == Scene.Play) {
@@ -73,27 +71,19 @@ public class FocusBeamWeapon : Weapon {
 
     void UpdateBeam () {
 		bulletDamage = (int)maxCharge;
-		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * maxRange * ResearchMenu.rangeMul * upgradeMul);
+		Ray ray = new Ray (new Vector3 (muzzles[0].position.x, muzzles[0].position.y, 0), muzzles [0].right * weaponModule.parentBase.GetRange ());
 		RaycastHit hit;
-
-		if (charge > GetMaxCharge ()) {
-			BreakBeam ();
-			canFire = false;
-			Invoke ("Reload", reloadTime * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst] / upgradeMul);
-		}else{
-			charge += GetChargeSpeed ();
-		}
 		
-		line.SetWidth (Mathf.Clamp01 (charge / GetMaxCharge ()),
-		               Mathf.Clamp01 (charge / GetMaxCharge ()));
+		line.SetWidth (Mathf.Clamp01 (0.25f),
+		               Mathf.Clamp01 (0.25f));
 
-		if (Physics.Raycast (ray, out hit, maxRange * ResearchMenu.rangeMul * upgradeMul, Game.game.enemyLayer)) {
+		if (Physics.Raycast (ray, out hit, weaponModule.parentBase.GetRange (), Game.game.enemyLayer)) {
 			line.SetPosition (0, muzzles [0].position);
 			line.SetPosition (1, hit.point);
-			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (charge * upgradeMul * Time.deltaTime), GetBulletData ().effectiveAgainst));
+			hit.collider.SendMessage ("OnTakeDamage", new Projectile.Damage (Mathf.RoundToInt (GetDPS () * Time.deltaTime), GetBulletData ().effectiveAgainst, this));
 		} else {
 			line.SetPosition (0, muzzles[0].position);
-			line.SetPosition (1, ray.GetPoint (maxRange));
+			line.SetPosition (1, ray.GetPoint (weaponModule.parentBase.GetRange ()));
 		}
 	}
 }

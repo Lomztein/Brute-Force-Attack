@@ -25,21 +25,23 @@ public class AssemblyCircleMenu : MonoBehaviour {
     }
 
     public static void Open (Vector3 position, Module _module) {
-        Close();
-        cur.module = _module;
-        cur.gameObject.SetActive(true);
-        cur.transform.position = (Vector2)position;
-        for (int i = 0; i < cur.buttons.Length; i++) {
-            cur.buttons[i].transform.position = cur.transform.position;
-            cur.buttons[i].transform.localScale = Vector3.zero;
-        }
-        cur.StartCoroutine(cur.Animate());
-        cur.UpdateHoverContextElements();
+        if (cur) {
+            Close ();
+            cur.module = _module;
+            cur.gameObject.SetActive (true);
+            cur.transform.position = (Vector2)position;
+            for (int i = 0; i < cur.buttons.Length; i++) {
+                cur.buttons[i].transform.position = cur.transform.position;
+                cur.buttons[i].transform.localScale = Vector3.zero;
+            }
+            cur.StartCoroutine (cur.Animate ());
+            cur.UpdateHoverContextElements ();
 
-        cur.rangeIndicator = RangeIndicator.CreateRangeIndicator(cur.module.gameObject, cur.module.transform.position, true, false).GetComponent<RangeIndicator>();
-        cur.rangeIndicator.GetComponentInChildren<SpriteRenderer>().color = Color.green;
-        cur.rangeIndicator.GetRange(cur.module.GetRange());
-        UpdateButtons();
+            cur.rangeIndicator = RangeIndicator.CreateRangeIndicator (cur.module.gameObject, cur.module.transform.position, true, false).GetComponent<RangeIndicator> ();
+            cur.rangeIndicator.GetComponentInChildren<SpriteRenderer> ().color = Color.green;
+            cur.rangeIndicator.GetRange (cur.module.GetRange ());
+            UpdateButtons ();
+        }
     }
 
     void Update () {
@@ -132,8 +134,10 @@ public class AssemblyCircleMenu : MonoBehaviour {
     }
 
     public static void Close () {
-        cur.gameObject.SetActive(false);
-        if (cur.rangeIndicator)
-            Destroy(cur.rangeIndicator.gameObject);
+        if (cur) {
+            cur.gameObject.SetActive (false);
+            if (cur.rangeIndicator)
+                Destroy (cur.rangeIndicator.gameObject);
+        }
     }
 }

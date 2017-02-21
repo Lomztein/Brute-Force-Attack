@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
 
 public class EnemyManager : MonoBehaviour {
 
@@ -22,6 +23,9 @@ public class EnemyManager : MonoBehaviour {
     public Image pathDemonstratorButton;
     public Sprite[] pathDemonstratorButtonSprites;
     public bool showingPaths;
+    public Slider flushBattlefieldSlider;
+
+    public Button[] disabledDuringWaves;
 
 	[Header ("Wave Stuffs")]
 	public List<Wave> waves = new List<Wave>();
@@ -34,11 +38,12 @@ public class EnemyManager : MonoBehaviour {
 	private int[] spawnIndex;
 	private int endedIndex;
 	public int waveMastery = 1;
-    public int amountModifier = 1;
+    public float amountModifier = 1f;
 
 	public static float readyWaitTime = 2f;
-	
 	public static float gameProgress = 1f;
+
+    [Range (0, 10)]
 	public float gameProgressSpeed = 1f;
 
     // Paths are build first, enemies second, so EnemiesBuild also means PathsBuild.
@@ -52,12 +57,16 @@ public class EnemyManager : MonoBehaviour {
 	private Dictionary<Wave.Enemy, List<GameObject>> pooledEnemies = new Dictionary<Wave.Enemy, List<GameObject>> ();
 	public Transform enemyPool;
     private List<Enemy> spawnedEnemies = new List<Enemy> ();
+    public Dictionary<string, int> enemiesKilled = new Dictionary<string, int>();
 
 	public static EnemyManager cur;
+    public GameObject enemyPortalPrefab;
+    public GameObject enemySpawnIndicator;
+    public List<GameObject> currentPortals = new List<GameObject>();
+    public List<GameObject> currentIndicators = new List<GameObject>();
 
     [Header ("Upcoming Wave")]
     public Text upcomingHeader;
-	public RectTransform upcomingCanvas;
 	public RectTransform upcomingWindow;
 	public GameObject upcomingEnemyPrefab;
 	public GameObject upcomingSeperatorPrefab;
@@ -69,32 +78,81 @@ public class EnemyManager : MonoBehaviour {
 	public float seperatorSize;
 	public float windowPosY;
 
-    public static int researchPerWave = 1;
+    public GameObject listPartPrefab;
+    public GameObject waveListParent;
+    public RectTransform listContentParent;
+    public List<GameObject> listContent = new List<GameObject>();
+    public ScrollRect listScrollRect;
+
     public static int spawnedResearch = 0;
     public static int chanceToSpawnResearch;
 
     public static void Initialize () {
         cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
+        externalWaveNumber = 0;
         cur.EndWave (false);
+
         cur.AddFinalBoss ();
+        cur.SetSpawnIndicators ();
     }
 
     public void DemonstratePaths () {
         if (showingPaths) {
-            showingPaths = !showingPaths;
-            Destroy (PathDemonstrator.cur.gameObject);
+            showingPaths = false;
+            PathDemonstrator.cur.Destroy ();
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[0];
+            pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Display enemy paths";
         } else {
-            showingPaths = !showingPaths;
+
+            SetAvailableSpawnpoints ();
+            if (availableSpawns.Count == 0) {
+                Game.ShowErrorMessage ("Cannot show paths: Paths unclear", 5f);
+                return;
+            }
+
+            showingPaths = true;
             StartCoroutine (DPATHS ());
             pathDemonstratorButton.sprite = pathDemonstratorButtonSprites[1];
+            pathDemonstratorButton.GetComponentInParent<HoverContextElement> ().text = "Stop displaying enemy paths";
+        }
+        HoverContextElement.activeElement = null;
+    }
+
+    public void SetSpawnIndicators () {
+        foreach (GameObject i in currentIndicators) {
+            Destroy (i);
+        }
+
+        currentIndicators.Clear ();
+        SetAvailableSpawnpoints ();
+        Pathfinding.BakePaths ();
+
+        for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
+            EnemySpawnPoint point = Game.game.enemySpawnPoints[i];
+
+            Vector3 next = Game.game.GetVoidDirection (point.worldPosition);
+            Quaternion rotation = Quaternion.Euler (0f, 0f, Angle.CalculateAngle (point.worldPosition, next) + 180f);
+            GameObject newIndicator = (GameObject)Instantiate (enemySpawnIndicator, point.worldPosition, rotation);
+
+            currentIndicators.Add (newIndicator);
+            SpriteRenderer sprite = newIndicator.GetComponentInChildren<SpriteRenderer> ();
+
+            if (point.blocked) {
+                sprite.color = Color.red;
+            }else {
+                sprite.color = Color.green;
+            }
+        }
+    }
+
+    public void CancelDemonstration ( string message ) {
+        if (pathDemonstratorButton.sprite == pathDemonstratorButtonSprites[1]) {
+            Game.ShowErrorMessage (message, 2f);
+            DemonstratePaths ();
         }
     }
 
     private IEnumerator DPATHS () {
-
-        SetAvailableSpawnpoints ();
-        Pathfinding.BakePaths ();
 
         for (int i = 0; i < availableSpawns.Count; i++) {
             while (availableSpawns[i].path == null) {
@@ -118,8 +176,9 @@ public class EnemyManager : MonoBehaviour {
     }
 
     void Update () {
-        if (Input.GetButtonDown("StartWave") && !Game.isPaused)
-            StartReadyWave();
+        if (Input.GetButtonDown("StartWave") && !Game.isPaused) {
+            StartReadyWave ();
+        }
     }
 
     void FixedUpdate () {
@@ -152,23 +211,35 @@ public class EnemyManager : MonoBehaviour {
                 }
 
                 // Movement code.
-                if (enemy.pathIndex == enemy.path.Length - 1 || enemy.isFlying) {
-                    enemy.transform.position += Vector3.down * Time.fixedDeltaTime * enemy.speed;
-                    if (enemy.rotateSprite)
-                        enemy.transform.rotation = Quaternion.Euler (0, 0, 270);
-                    continue;
+                if (enemy.pathIndex == enemy.path.Length - 1) {
+                    enemy.pathIndex--;
                 }
                 Vector3 loc = new Vector3 (enemy.path[enemy.pathIndex].x, enemy.path[enemy.pathIndex].y) + enemy.offset;
                 float dist = Vector3.Distance (enemy.transform.position, loc);
 
-                if (dist < enemy.speed * Time.fixedDeltaTime * 2f) {
+                if (enemy.isFlying) {
+                    float rotMul = 360f / enemy.flyingRotationSpeed;
+                    if (dist < rotMul * 3f) {
+                        enemy.pathIndex++;
+                    }
+                } else if (dist < enemy.speed * Time.fixedDeltaTime * 2f) {
                     enemy.pathIndex++;
                 }
 
-                enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, loc, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                if (enemy.isFlying) {
+                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, enemy.transform.position + enemy.transform.right, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                } else {
+                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, loc, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
+                }
 
-                if (enemy.rotateSprite)
-                    enemy.transform.rotation = Quaternion.Lerp (enemy.transform.rotation, Quaternion.Euler (0, 0, Angle.CalculateAngle (enemy.transform.position, loc)), 0.2f);
+                if (enemy.rotateSprite) {
+                    Quaternion rot = Quaternion.Euler (0, 0, Angle.CalculateAngle (enemy.transform.position, loc));
+                    if (enemy.isFlying) {
+                        enemy.transform.rotation = Quaternion.RotateTowards (enemy.transform.rotation, rot, enemy.flyingRotationSpeed * Time.fixedDeltaTime);
+                    }else {
+                        enemy.transform.rotation = Quaternion.Lerp (enemy.transform.rotation, rot, 0.2f);
+                    }
+                }
 
                 if (enemy.freezeMultiplier < 1f) {
                     enemy.freezeMultiplier += 0.5f * Time.fixedDeltaTime;
@@ -184,7 +255,7 @@ public class EnemyManager : MonoBehaviour {
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
             amountModifier *= 10;
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
-            amountModifier = (int)(amountModifier * 0.1f);
+            amountModifier = amountModifier * 0.1f;
         }
     }
 
@@ -193,6 +264,7 @@ public class EnemyManager : MonoBehaviour {
 
         for (int i = 0; i < spawnedEnemies.Count; i++) {
             Destroy (spawnedEnemies[i].gameObject);
+            Destroy (spawnedEnemies[i].deathParticle.gameObject);
             if (i % destroyPerTick == 0)
                 yield return new WaitForFixedUpdate ();
         }
@@ -203,7 +275,8 @@ public class EnemyManager : MonoBehaviour {
     public void ForceInstantCleanEnemyArray () {
         for (int i = 0; i < spawnedEnemies.Count; i++) {
             Destroy (spawnedEnemies[i].gameObject);
-            Enemy ene = spawnedEnemies[i].GetComponent<Enemy> ();
+            Destroy (spawnedEnemies[i].deathParticle.gameObject);
+            Enemy ene = spawnedEnemies[i];
             if (ene.healthSlider && ene.healthSlider.transform.parent != ene.transform) {
                 Destroy (ene.healthSlider.gameObject);
             }
@@ -227,7 +300,7 @@ public class EnemyManager : MonoBehaviour {
 	void Poop () {
 		// Hø hø hø hø..
 		waveNumber++;
-		UpdateUpcomingWaveScreen (waves [waveNumber]);
+		UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
 		Invoke ("Poop", 1f);
 	}
 
@@ -235,18 +308,8 @@ public class EnemyManager : MonoBehaviour {
 
 	public IEnumerator PoolBaddies () {
         yield return new WaitForSeconds (1f);
-        bool allClear = true;
 
-        if (availableSpawns.Count > 0) {
-            for (int i = 0; i < availableSpawns.Count; i++) {
-                if (availableSpawns[i].path == null)
-                    allClear = false;
-            }
-        } else {
-            allClear = false;
-        }
-
-        if (!allClear) {
+        if (availableSpawns.Count == 0) {
             CancelWave();
             readyStatus = ReadyStatus.EnemiesBuild;
             Game.ShowErrorMessage("Unable to start wave: Paths unclear", 3f);
@@ -265,8 +328,8 @@ public class EnemyManager : MonoBehaviour {
 
                     SplitterEnemySplit split = ene.enemy.GetComponent<SplitterEnemySplit>();
                     if (split)
-                        currentEnemies += ene.spawnAmount * split.spawnPos.Length * amountModifier;
-                    currentEnemies += ene.spawnAmount * amountModifier;
+                        currentEnemies += Mathf.RoundToInt (ene.spawnAmount * (float)split.spawnPos.Length * amountModifier);
+                    currentEnemies += Mathf.RoundToInt (ene.spawnAmount * amountModifier);
                 }
             }
 
@@ -275,7 +338,7 @@ public class EnemyManager : MonoBehaviour {
 
             index = 0;
             while (spawnQueue.Count > 0) {
-                for (int i = 0; i < spawnQueue.Peek().spawnAmount * amountModifier; i++) {
+                for (int i = 0; i < Mathf.RoundToInt (spawnQueue.Peek().spawnAmount * amountModifier); i++) {
                     GameObject newEne = (GameObject)Instantiate(spawnQueue.Peek().enemy, enemyPool.position, Quaternion.identity);
                     toArray.Add(newEne.GetComponent<Enemy>());
 
@@ -314,9 +377,11 @@ public class EnemyManager : MonoBehaviour {
 	public IEnumerator ReadyWave () {
         if (Game.state == Game.State.Started) {
             if (!waveStarted && !wavePrebbing) {
-                Game.ChangeSaveButtons (false);
+                Game.ChangeButtons (false);
+                PlayerInput.cur.CancelAll ();
                 waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Initializing...";
                 HoverContextElement.activeElement = null;
+                Game.CrossfadeMusic (Game.game.combatMusic, 2f);
 
                 externalWaveNumber++;
                 waveNumber++;
@@ -327,7 +392,7 @@ public class EnemyManager : MonoBehaviour {
                 waveCounterIndicator.text = "Wave: Initializing..";
                 spawnedResearch = 0;
                 SetAvailableSpawnpoints ();
-                Pathfinding.BakePaths ();
+                SetPortals (true);
                 while (readyStatus != ReadyStatus.PathsBuild) {
                     yield return new WaitForEndOfFrame ();
                 }
@@ -343,9 +408,24 @@ public class EnemyManager : MonoBehaviour {
                 Game.ToggleFastGameSpeed ();
             }
         }
+
 	}
 
+    void SetPortals (bool state) {
+        if (state) {
+            for (int i = 0; i < availableSpawns.Count; i++) {
+                GameObject newPortal = (GameObject)Instantiate (enemyPortalPrefab, availableSpawns[i].worldPosition - Vector3.forward, Quaternion.identity);
+                currentPortals.Add (newPortal);
+            }
+        }else {
+            for (int i = 0; i < currentPortals.Count; i++) {
+                Destroy (currentPortals[i]);
+            }
+        }
+    }
+
     void SetAvailableSpawnpoints () {
+        Pathfinding.BakePaths ();
         availableSpawns = new List<EnemySpawnPoint>();
 
         for (int i = 0; i < Game.game.enemySpawnPoints.Count; i++) {
@@ -355,7 +435,7 @@ public class EnemyManager : MonoBehaviour {
             int x = Mathf.RoundToInt(wp.x) - 1;
             int y = Mathf.RoundToInt(wp.y) - 1;
 
-            if (Game.isWalled[x,y] == Game.WallType.None) {
+            if (Game.isWalled[x,y] == Game.WallType.None && sp.path != null) {
                 availableSpawns.Add(sp);
                 sp.blocked = false;
             } else {
@@ -391,37 +471,64 @@ public class EnemyManager : MonoBehaviour {
 		}
 	}
 
+    public static void AddKill (string enemyName) {
+        if (cur.enemiesKilled == null)
+            cur.enemiesKilled = new Dictionary<string, int> ();
+
+        if (!cur.enemiesKilled.ContainsKey (enemyName)) {
+            cur.enemiesKilled.Add (enemyName, 1);
+        }else {
+            cur.enemiesKilled[enemyName]++;
+        }
+    }
+
+    public static int GetKills (string enemyName) {
+        if (cur.enemiesKilled.ContainsKey (enemyName)) {
+            return cur.enemiesKilled[enemyName];
+        }else {
+            return 0;
+        }
+    }
+
 	public void ContinueMastery () {
 		waveNumber = 0;
 		waveMastery *= 2;
         UpdateAmountModifier ();
         Game.game.masteryModeIndicator.SetActive (false);
-        UpdateUpcomingWaveScreen (waves[waveNumber]);
+        UpdateUpcomingWaveScreen (waves[waveNumber], externalWaveNumber, upcomingWindow);
         UpdateAmountModifier ();
 	}
 
-	void UpdateUpcomingWaveScreen (Wave upcoming) {
+	void UpdateUpcomingWaveScreen (Wave upcoming, int waveIndex, RectTransform window) {
 
-        upcomingHeader.text = "Upcoming";
-		for (int i = 0; i < upcomingContent.Count; i++) {
-			Destroy (upcomingContent [i]);
-		}
+        if (window == upcomingWindow) {
+            upcomingHeader.text = "Upcoming";
+            for (int i = 0; i < upcomingContent.Count; i++) {
+                Destroy (upcomingContent[i]);
+            }
 
-		for (int i = 0; i < upcomingElements.Count; i++) {
-			Destroy (upcomingElements [i]);
-		}
+            for (int i = 0; i < upcomingElements.Count; i++) {
+                Destroy (upcomingElements[i]);
+            }
 
-		upcomingElements.Clear ();
+            upcomingElements.Clear ();
+        }
 
 		int sIndex = 0;
 		int eIndex = 0;
+
+        window.name = (waveIndex + 1).ToString ();
+        RectTransform upcomingCanvas = window.FindChild ("Content").gameObject.GetComponent<RectTransform> ();
 
 		foreach (Wave.Subwave sub in upcoming.subwaves) {
 
 			Vector3 sepPos = Vector3.down * (4 + eIndex * buttonSize) + Vector3.down * sIndex * seperatorSize;
 			GameObject newSep = (GameObject)Instantiate (upcomingSeperatorPrefab, sepPos, Quaternion.identity);
 			newSep.transform.SetParent (upcomingCanvas, false);
-			upcomingContent.Add (newSep);
+
+            if (window == upcomingWindow)
+                upcomingContent.Add (newSep);
+
 			sIndex++;
 			foreach (Wave.Enemy ene in sub.enemies) {
 
@@ -429,25 +536,81 @@ public class EnemyManager : MonoBehaviour {
 				Vector3 enePos = new Vector3 (-rt.sizeDelta.x ,-rt.sizeDelta.y, 0) / 2 + Vector3.down * sIndex * seperatorSize + Vector3.down * eIndex * buttonSize + Vector3.right * 45;
 				GameObject newEne = (GameObject)Instantiate (upcomingEnemyPrefab, enePos, Quaternion.identity);
 				newEne.transform.SetParent (upcomingCanvas, false);
-				upcomingContent.Add (newEne);
+
+                if (window == upcomingWindow)
+                    upcomingContent.Add (newEne);
 
 				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-				Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
+                Button button = newEne.transform.FindChild ("Image").GetComponent<Button> ();
+                Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
 
-				upcomingElements.Add (UpcomingElement.CreateInstance <UpcomingElement>());
-				upcomingElements[upcomingElements.Count - 1].upcomingText = text;
-				upcomingElements[upcomingElements.Count - 1].remaining = ene.spawnAmount * amountModifier + 1;
-				upcomingElements[upcomingElements.Count - 1].Decrease ();
+                AddEnemyButtonListener (button, ene.enemy.GetComponent<Enemy>(), 1);
 
-				eIndex++;
+                if (window == upcomingWindow) {
+                    upcomingElements.Add (UpcomingElement.CreateInstance<UpcomingElement> ());
+                    upcomingElements[upcomingElements.Count - 1].upcomingText = text;
+                    upcomingElements[upcomingElements.Count - 1].remaining = Mathf.RoundToInt (ene.spawnAmount * amountModifier + 1);
+                    upcomingElements[upcomingElements.Count - 1].Decrease ();
+                }else {
+                    text.text = "x " + (ene.spawnAmount * amountModifier).ToString ();
+                }
+
+                eIndex++;
 			}
 		}
 
-		upcomingWindow.sizeDelta = new Vector2 (upcomingWindow.sizeDelta.x, sIndex * seperatorSize + eIndex * buttonSize + buttonSize);
-		upcomingWindow.position = new Vector3 (upcomingWindow.position.x, Screen.height - windowPosY - upcomingWindow.sizeDelta.y / 2);
+        float sy = sIndex * seperatorSize + eIndex * buttonSize + buttonSize;
+        window.sizeDelta = new Vector2 (window.sizeDelta.x, sy);
+        window.position = new Vector3 (window.position.x, Screen.height - windowPosY - window.sizeDelta.y / 2);
+
+        LayoutElement ele = window.GetComponent<LayoutElement> ();
+        // If it contains a layout element, it's from the list.
+        if (ele) {
+            ele.preferredHeight = sy;
+        }
 	}
 
-	public void StartWave () {
+    void AddEnemyButtonListener ( Button button, Enemy enemy, int wave ) {
+        button.onClick.AddListener (() => {
+            EnemyInformationPanel.Open (enemy, int.Parse (button.transform.parent.parent.parent.name));
+        });
+    }
+
+    public void ShowWaveList () {
+        Game.UpdateDarkOverlay ();
+        waveListParent.SetActive (true);
+
+        foreach (GameObject obj in listContent) {
+            Destroy (obj);
+        }
+        listContent = new List<GameObject> ();
+
+        for (int i = 0; i < waves.Count; i++) {
+            GameObject newListPart = Instantiate (listPartPrefab);
+            listContent.Add (newListPart);
+
+            RectTransform newListTransform = newListPart.GetComponent<RectTransform> ();
+            newListTransform.SetParent (listContentParent, false);
+
+            newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
+            UpdateUpcomingWaveScreen (waves[i], i, newListTransform);
+        }
+
+        listScrollRect.horizontalNormalizedPosition = waveNumber / (float)waves.Count;
+    }
+
+    public void CloseWaveList () {
+        Game.UpdateDarkOverlay ();
+
+        foreach (GameObject obj in listContent) {
+            Destroy (obj);
+        }
+        listContent = new List<GameObject> ();
+
+        waveListParent.SetActive (false);
+    }
+
+    public void StartWave () {
 		if (waveNumber <= waves.Count) {
 
             waveStartedIndicator.GetComponentInParent<HoverContextElement> ().text = "Speed up the game";
@@ -459,12 +622,22 @@ public class EnemyManager : MonoBehaviour {
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
 			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
-			gameProgress *= gameProgressSpeed;
+            gameProgress = GetProgressForWave (externalWaveNumber);
 			ContinueWave (true);
-		}
-	}
 
-	void ContinueWave (bool first) {
+            PlayerInput.cur.UpdateFlushBattlefieldHoverContextElement ();
+        }
+    }
+
+    public static float GetProgressForWave (int wave) {
+        return Mathf.Pow (cur.gameProgressSpeed, wave);
+    }
+
+    public float GetProgressForWaveFromInstance (int wave) {
+        return Mathf.Pow (gameProgressSpeed, wave);
+    }
+
+    void ContinueWave (bool first) {
 
 		endedIndex = 0;
 		if (!first)
@@ -488,11 +661,15 @@ public class EnemyManager : MonoBehaviour {
 	public void EndWave (bool finished) {
         if (finished) {
             StartCoroutine (CleanEnemyArray ());
+            PlayerInput.cur.flushBattlefieldAnimator.SetBool ("Flashing", false);
         } else {
             ForceInstantCleanEnemyArray ();
         }
 
-        Game.ChangeSaveButtons (true);
+        Game.CrossfadeMusic (Game.game.constructionMusic, 2f);
+        SetPortals (false);
+
+        Game.ChangeButtons (true);
 		waveStarted = false;
 		currentSubwave = null;
 		subwaveNumber = 0;
@@ -503,19 +680,24 @@ public class EnemyManager : MonoBehaviour {
 
         if (finished && Datastream.healthAmount > 0) {
             Game.credits += 25 * externalWaveNumber;
+            PlayerInput.ChangeFlushTimer (-1);
             Game.game.SaveGame ("autosave");
+            Datastream.healthAmount = Mathf.Min (Datastream.healthAmount + Datastream.healPerWave, Datastream.STARTING_HEALTH);
+            Datastream.cur.UpdateNumberMaterials ();
         }
 
-		if (waves.Count >= waveNumber + 1) {
-			UpdateUpcomingWaveScreen (waves [waveNumber]);
+        if (waves.Count >= waveNumber + 1) {
+			UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
 		}
+
         waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
         if (Game.state == Game.State.Started)
             waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
+        PlayerInput.ChangeFlushTimer (0);
 	}
 
-	EnemySpawnPoint GetSpawnPosition () {
+	EnemySpawnPoint GetSpawnPosition (Enemy enemy) {
         return availableSpawns[Random.Range(0, availableSpawns.Count)];
 	}
 
@@ -523,12 +705,18 @@ public class EnemyManager : MonoBehaviour {
         if (waveStarted) {
             Wave.Enemy enemy = currentSubwave.enemies[index];
             GameObject e = pooledEnemies[enemy][0];
-            e.SetActive (true);
 
-            Enemy ene = e.GetComponent<Enemy> ();
-            ene.spawnPoint = GetSpawnPosition ();
-            ene.transform.position = ene.spawnPoint.worldPosition;
-            ene.path = ene.spawnPoint.path;
+            if (e) {
+                e.SetActive (true);
+
+                Enemy ene = e.GetComponent<Enemy> ();
+                e.tag = ene.type.ToString ();
+
+                ene.spawnPoint = GetSpawnPosition (ene);
+                ene.transform.position = ene.spawnPoint.worldPosition;
+
+                ene.path = ene.spawnPoint.path;
+            }
 
             pooledEnemies[enemy].RemoveAt (0);
             spawnIndex[index]++;
@@ -631,7 +819,7 @@ public class EnemyManager : MonoBehaviour {
             for (int i = 0; i < availableSpawns.Count; i++) {
                 EnemySpawnPoint point = availableSpawns[i];
                 for (int j = 0; j < point.path.Length - 1; j++) {
-                    Debug.DrawLine (point.path[j], point.path[j + 1], Color.red);
+                    UnityEngine.Debug.DrawLine (point.path[j], point.path[j + 1], Color.red);
                 }
             }
         }

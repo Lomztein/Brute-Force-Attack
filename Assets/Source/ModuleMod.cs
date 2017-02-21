@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class ModuleMod {
+[CreateAssetMenu (fileName = "New Module Mod", menuName = "Create New Module Mod", order = 0)]
+public class ModuleMod : ScriptableObject {
 
     public enum Type { Menu, Toggle, Slider }
     public Type type;
     public string partName;
     public ModuleMod[] subparts;
+    public int forcedCount = -1;
 
     public Vector3 position;
     public Text text;
@@ -27,9 +29,8 @@ public class ModuleMod {
                 break;
             case Type.Toggle:
                 meta += modmod;
-                if (meta < 0)
-                    meta = subparts.Length - 1;
-                meta %= (subparts.Length);
+                WrapMeta ();
+
                 text.text = partName + ": " + subparts[meta].partName;
                 module.SendMessage ("OnToggleMod" + partName, meta, SendMessageOptions.DontRequireReceiver);
                 break;
@@ -39,6 +40,13 @@ public class ModuleMod {
                 text.text = partName + ": " + meta.ToString ();
                 break;
         }
+    }
+
+    public void WrapMeta () {
+        int length = forcedCount == -1 ? subparts.Length : forcedCount;
+        if (meta < 0)
+            meta = length - 1;
+        meta %= (length);
     }
 
     public void Initialize () {
@@ -64,6 +72,20 @@ public class ModuleMod {
                 break;
 
             default:
+                break;
+        }
+    }
+
+    public void UpdateGUIElement () {
+        if (subparts.Length == 0)
+            return;
+
+        switch (type) {
+            case Type.Toggle:
+                text.text = partName + ": " + subparts[meta].partName;
+                break;
+            case Type.Slider:
+                text.text = partName + ": " + meta.ToString ();
                 break;
         }
     }
