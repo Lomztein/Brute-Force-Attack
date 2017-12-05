@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 
 Shader "Hidden/EdgeDetect" { 
 	Properties {
@@ -40,7 +42,7 @@ Shader "Hidden/EdgeDetect" {
 	v2flum vertLum (appdata_img v)
 	{
 		v2flum o;
-		o.pos = mul (UNITY_MATRIX_MVP, v.vertex);
+		o.pos = UnityObjectToClipPos (v.vertex);
 		float2 uv = MultiplyUV( UNITY_MATRIX_TEXTURE0, v.texcoord );
 		o.uv[0] = uv;
 		o.uv[1] = uv + float2(-_MainTex_TexelSize.x, -_MainTex_TexelSize.y) * _SampleDistance;
@@ -73,24 +75,24 @@ Shader "Hidden/EdgeDetect" {
 		// difference in normals
 		// do not bother decoding normals - there's no need here
 		half2 diff = abs(centerNormal - theSample.xy) * _Sensitivity.y;
-		half isSameNormal = (diff.x + diff.y) * _Sensitivity.y < 0.1;
+		int isSameNormal = (diff.x + diff.y) * _Sensitivity.y < 0.1;
 		// difference in depth
 		float sampleDepth = DecodeFloatRG (theSample.zw);
 		float zdiff = abs(centerDepth-sampleDepth);
 		// scale the required threshold by the distance
-		half isSameDepth = zdiff * _Sensitivity.x < 0.09 * centerDepth;
+		int isSameDepth = zdiff * _Sensitivity.x < 0.09 * centerDepth;
 	
 		// return:
 		// 1 - if normals and depth are similar enough
 		// 0 - otherwise
 		
-		return isSameNormal * isSameDepth;
+		return isSameNormal * isSameDepth ? 1.0 : 0.0;
 	}	
 		
 	v2f vertRobert( appdata_img v ) 
 	{
 		v2f o;
-		o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		o.pos = UnityObjectToClipPos(v.vertex);
 		
 		float2 uv = v.texcoord.xy;
 		o.uv[0] = uv;
@@ -114,7 +116,7 @@ Shader "Hidden/EdgeDetect" {
 	v2f vertThin( appdata_img v )
 	{
 		v2f o;
-		o.pos = mul (UNITY_MATRIX_MVP, v.vertex);
+		o.pos = UnityObjectToClipPos (v.vertex);
 		
 		float2 uv = v.texcoord.xy;
 		o.uv[0] = uv;
@@ -137,7 +139,7 @@ Shader "Hidden/EdgeDetect" {
 	v2fd vertD( appdata_img v )
 	{
 		v2fd o;
-		o.pos = mul (UNITY_MATRIX_MVP, v.vertex);
+		o.pos = UnityObjectToClipPos (v.vertex);
 		
 		float2 uv = v.texcoord.xy;
 		o.uv[0] = uv;

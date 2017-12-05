@@ -5,7 +5,10 @@ public class FireProjectile : Projectile {
 
 	public float dampen;
 	public float distTraveled;
-	public static float fireWidth = 0.1f;
+
+	public static float fireWidth = 0.5f;
+
+    public float timeTraveled;
 
     public ParticleSystem fireParticle;
     public float fireGrowthRate;
@@ -13,7 +16,7 @@ public class FireProjectile : Projectile {
     public override void Initialize () {
         base.Initialize ();
         ParticleSystem.ShapeModule shape = fireParticle.shape;
-        shape.radius = 0.01f;
+        timeTraveled = 0f;
     }
 
     void FixedUpdate () {
@@ -30,16 +33,21 @@ public class FireProjectile : Projectile {
 		}
 
         ParticleSystem.ShapeModule shape = fireParticle.shape;
-        shape.radius += fireGrowthRate * Time.fixedDeltaTime;
+        timeTraveled += Time.fixedDeltaTime;
+        shape.radius = GetGrowth ();
 	}
+
+    private float GetGrowth() {
+        return timeTraveled * fireGrowthRate;
+    }
 
 	void CastSphereRay () {
 		Ray ray = new Ray (transform.position, transform.right * velocity.magnitude * Time.fixedDeltaTime * 2f);
-		RaycastHit hit;
-		
-		if (Physics.SphereCast (ray, fireWidth, out hit, velocity.magnitude * Time.fixedDeltaTime * 2f)) {
-			if (ShouldHit (hit)) {
-				OnHit (hit.collider, hit.point, transform.right);
+
+        RaycastHit [ ] hits = Physics.SphereCastAll (ray, fireWidth * GetGrowth (), velocity.magnitude * Time.fixedDeltaTime * 2f);
+        for (int i = 0; i < hits.Length; i++) {
+			if (ShouldHit (hits[i])) {
+				OnHit (hits [ i ].collider, hits [ i ].point, transform.right);
 			}
 		}
 	}

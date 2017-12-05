@@ -34,7 +34,7 @@ public class ClusterHomingMissle : HomingProjectile {
 					missle.Initialize ();
 				}
 
-				Destroy ((GameObject)Instantiate (hitParticle, transform.position, Quaternion.identity), 1f);
+				Destroy (Instantiate (hitParticle, transform.position, Quaternion.identity), 1f);
 				ReturnToPool ();
 			}
 		}	

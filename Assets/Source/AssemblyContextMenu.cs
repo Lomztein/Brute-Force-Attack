@@ -6,6 +6,8 @@ using System.Linq;
 
 public class AssemblyContextMenu : MonoBehaviour {
 
+    public static AssemblyContextMenu menu;
+
     [Header ("Stats")]
 	public RawImage moduleImage;
 	public Text moduleName;
@@ -18,7 +20,7 @@ public class AssemblyContextMenu : MonoBehaviour {
     public HoverContextElement sellContextElement;
 
     [Header ("Modules")]
-	private Module rootModule;
+	public Module rootModule;
 	public List<Module> modules = new List<Module> ();
 	private RangeIndicator rangeIndicator;
 	private float indicatorRange;
@@ -41,6 +43,9 @@ public class AssemblyContextMenu : MonoBehaviour {
     public GameObject subModButtonPrefab;
     public GameObject[] subModButtons;
 
+    public void Initialize() {
+        menu = this;
+    }
 
     // Update is called once per frame
     void Update () {
@@ -279,7 +284,7 @@ public class AssemblyContextMenu : MonoBehaviour {
 			GameObject button = (GameObject)Instantiate (treeButtonPrefab, treeButtonParent.position + Vector3.down * buttonSize * i, Quaternion.identity);
 			button.transform.SetParent (treeButtonParent, true);
 
-			button.transform.FindChild ("Image").GetComponent<Image>().sprite = m.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+			button.transform.Find ("Image").GetComponent<Image>().sprite = m.transform.Find ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			button.GetComponentInChildren<Text>().text = "x " + loc[lName];
 
             Button butt = button.GetComponent<Button> ();
@@ -347,7 +352,7 @@ public class AssemblyContextMenu : MonoBehaviour {
             GameObject button = (GameObject)Instantiate (subModButtonPrefab, pos, Quaternion.identity);
             button.transform.SetParent (subModButtonParent, true);
 
-            button.transform.FindChild ("Image").GetComponent<Image> ().sprite = locModules[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer> ().sprite;
+            button.transform.Find ("Image").GetComponent<Image> ().sprite = locModules[i].transform.Find ("Sprite").GetComponent<SpriteRenderer> ().sprite;
             button.GetComponent<SubModuleModMenuButton> ().module = locModules[i];
             Button butt = button.GetComponent<Button> ();
 
@@ -364,7 +369,7 @@ public class AssemblyContextMenu : MonoBehaviour {
         ModuleMod.OpenMods (button.position + Vector3.right * buttonSize, m.moduleMods, 0, m);
     }
 
-	void UpdateDescText () {
+	public void UpdateDescText () {
         moduleName.text = rootModule.assemblyName;
 		moduleDesc.text = rootModule.assemblyDesc;
         moduleImage.texture = rootModule.assembly.GetSprite();

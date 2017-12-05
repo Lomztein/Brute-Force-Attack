@@ -182,7 +182,7 @@ public class PurchaseMenu : MonoBehaviour {
 
 			buttons.Add (newButton);
 			Button button = newButton.GetComponent<Button>();
-			newButton.transform.FindChild ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
+			newButton.transform.Find ("Image").GetComponent<Image>().sprite = purchaseables[i].transform.Find ("Sprite").GetComponent<SpriteRenderer>().sprite;
 			newButton.transform.SetParent (assemblyButtonParent, true);
 			newButton.transform.localScale = Vector3.one;
 
@@ -251,7 +251,7 @@ public class PurchaseMenu : MonoBehaviour {
 		});
 		
 		button.GetComponent<HoverContextElement>().text = loadButton.assemblyName + ", " + loadButton.cost.ToString () + " LoC";
-		button.transform.FindChild ("Text").GetComponent<Text>().text = loadButton.assemblyName;
+		button.transform.Find ("Text").GetComponent<Text>().text = loadButton.assemblyName;
 	}
 
 	public void SelectPurchaseable (int index) {

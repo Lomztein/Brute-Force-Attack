@@ -14,7 +14,7 @@ public class BuildToAll : EditorWindow {
 
     public string buildName;
     public string[] debugExtensions = new string[] { ".pdb" };
-    private string sevenZipPath = "D:\\Program Files\\7-Zip\\7zG.exe";
+    private string sevenZipPath = "D:/Program Files/7-Zip/7zG.exe";
 
     [MenuItem ("Project Virus/Build Multiple")]
     public static void ShowWindow () {
@@ -52,7 +52,7 @@ public class BuildToAll : EditorWindow {
     string[] GetScenes () {
         string[] s = new string[scenes.Count];
         for (int i = 0; i < scenes.Count; i++) {
-            s[i] = "Assets\\Scenes\\" + scenes[i] + ".unity";
+            s[i] = "Assets/Scenes/" + scenes[i] + ".unity";
         }
         return s;
     }
@@ -60,8 +60,9 @@ public class BuildToAll : EditorWindow {
     void Build () {
         for (int i = 0; i < targets.Count; i++) {
             string path = Application.dataPath.Substring (0, Application.dataPath.LastIndexOf ('/'));
-            string buildPath = path + "\\Compiled\\" + targets[i].ToString ();
-            BuildPipeline.BuildPlayer (GetScenes (), "Compiled\\" + targets[i].ToString () + "\\" + buildName + targetExtensions[i],
+            string buildPath = path + "/Compiled/" + targets[i].ToString ();
+            Directory.CreateDirectory (buildPath);
+            BuildPipeline.BuildPlayer (GetScenes (), buildPath + "/" + buildName + targetExtensions[i],
                            targets[i], BuildOptions.None);
 
             string[] debugFiles = Directory.GetFiles (buildPath);

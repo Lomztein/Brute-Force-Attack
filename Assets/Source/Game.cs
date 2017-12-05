@@ -57,6 +57,7 @@ public class Game : MonoBehaviour {
     public Button revertGameButton;
     public Highscore highscoreMenu;
     public SettingsMenu settingsMenu;
+    public AssemblyContextMenu assemblyContextMenu;
 
     public GameObject gameOverIndicator;
     public GameObject masteryModeIndicator;
@@ -276,6 +277,7 @@ public class Game : MonoBehaviour {
         game = this;
         ResetStatics ();
         ResearchMenu.InitializeAllStatics ();
+        assemblyContextMenu.Initialize ();
         darkOverlayActive = true;
         InitializeBasics ();
 
@@ -699,7 +701,7 @@ public class Game : MonoBehaviour {
 	public void GenerateWallMesh () {
 
 		wallMeshFilter.transform.position = new Vector3 (-battlefieldWidth/2f, -battlefieldHeight/2f, background.transform.position.z - 1);
-		wallMeshFilter.transform.localScale = new Vector3 (1f/background.localScale.x, 1f/background.localScale.y);
+		wallMeshFilter.transform.localScale = new Vector3 (1f/background.localScale.x, 1f/background.localScale.y, 1f);
 		
 		verts = new Vector3[4 * battlefieldHeight * battlefieldWidth];
 		tris  = new     int[6 * battlefieldHeight * battlefieldWidth];

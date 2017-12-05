@@ -104,4 +104,40 @@ public class Assembly {
 
         return Module.CombineSprites(sprites.ToArray(), positions.ToArray());
     }
+
+    public static void GetAssemblyDescData(Assembly assembly, out int cost, out int rootClass, out int techLevel, out int dps) {
+        rootClass = PurchaseMenu.cur.GetModulePrefab (assembly.parts [ 0 ].type).GetComponent<Module> ().moduleClass;
+        cost = 0;
+        techLevel = 0;
+        dps = 0;
+
+        for (int i = 0; i < assembly.parts.Count; i++) {
+            GameObject mod = PurchaseMenu.cur.GetModulePrefab (assembly.parts [ i ].type);
+            cost += mod.GetComponent<Module> ().moduleCost;
+            for (int j = 0; j < ResearchMenu.cur.research.Count; j++) {
+                Research research = ResearchMenu.cur.research [ j ];
+
+                if (research.func == "UnlockModule") {
+                    if (mod == ResearchMenu.cur.unlockableModules [ int.Parse (research.meta) ] && techLevel < research.y)
+                        techLevel = research.y;
+                }
+            }
+
+            WeaponModule wep = mod.GetComponent<WeaponModule> ();
+            if (wep)
+                dps += Mathf.RoundToInt (wep.weapon.GetDPS ());
+        }
+    }
+
+    public class Comparer : IComparer<Assembly> {
+        public int Compare(Assembly x, Assembly y) {
+            int cost1, rootClass1, techLevel1, dps1;
+            int cost2, rootClass2, techLevel2, dps2;
+
+            GetAssemblyDescData (x, out cost1, out rootClass1, out techLevel1, out dps1);
+            GetAssemblyDescData (y, out cost2, out rootClass2, out techLevel2, out dps2);
+
+            return Mathf.Clamp (cost1 - cost2, -1, 1);
+        }
+    }
 }

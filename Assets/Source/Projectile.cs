@@ -88,9 +88,10 @@ public class Projectile : MonoBehaviour {
         float distance = Vector3.Distance (spawnPos, point) / range;
 		col.SendMessage ("OnTakeDamage", new Damage (Mathf.RoundToInt (damage * damageFalloff.Evaluate (distance)), effectiveAgainst, parentWeapon), SendMessageOptions.DontRequireReceiver);
         if (hitParticle) {
-            hitParticle.Emit (particleCount);
             hitParticle.transform.position = point;
             hitParticle.transform.rotation = transform.rotation;
+
+            hitParticle.Play();
         }
         if (!penetrative) ReturnToPool ();
 	}

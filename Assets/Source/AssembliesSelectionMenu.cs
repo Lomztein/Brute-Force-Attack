@@ -17,7 +17,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
     public BattlefieldSelectionMenu battlefieldSelector;
     public DifficultySelector difficultySelector;
 
-	public Assembly[] tempLoaded;
+	public List<Assembly> tempLoaded;
 
     [Header ("Buttons")]
     public List<Button> buttons;
@@ -46,46 +46,8 @@ public class AssembliesSelectionMenu : MonoBehaviour {
         ToggleAll ();
 	}
 
-    List<Assembly> SortAssemblies (List<Assembly> assemblies) {
-        int classTypes = 4;
-
-        List<Assembly>[] newList = new List<Assembly>[classTypes];
-        for (int i = 0; i < classTypes; i++) {
-            newList[i] = new List<Assembly> ();
-        }
-
-        int curCost = int.MaxValue;
-        Assembly curAssembly = null;
-        int rootClass = 1;
-
-        while (assemblies.Count > 0) {
-
-            for (int i = 0; i < assemblies.Count; i++) {
-                Assembly cur = assemblies[i];
-
-                int co;
-                int rc;
-                int tl;
-                int ds;
-
-                GetAssemblyDescData (cur, out co, out rc, out tl, out ds);
-
-                if (co <= curCost) {
-                    curAssembly = cur;
-                    rootClass = rc;
-                }
-            }
-
-            assemblies.Remove (curAssembly);
-            newList[rootClass].Add (curAssembly);
-        }
-
-        List<Assembly> endList = new List<Assembly> ();
-        for (int i = 0; i < classTypes; i++) {
-            endList.AddRange (newList[i]);
-        }
-
-        return endList;
+    void SortAssemblies (ref List<Assembly> assemblies) {
+        assemblies.Sort (new Assembly.Comparer ());
     }
 
     void InitializeArray () {
@@ -93,13 +55,13 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 		footer.text = "No tier 0 detected";
 
         string[] files = Directory.GetFiles (Game.MODULE_ASSEMBLY_SAVE_DIRECTORY, "*" + Module.MODULE_FILE_EXTENSION);
-        tempLoaded = new Assembly[files.Length];
+        tempLoaded = new List<Assembly> ();
 
         for (int i = 0; i < files.Length; i++) {
-            tempLoaded[i] = Assembly.LoadFromFile (files[i], true);
+            tempLoaded.Add (Assembly.LoadFromFile (files[i], true));
         }
 
-        tempLoaded = SortAssemblies (tempLoaded.ToList ()).ToArray ();
+        SortAssemblies (ref tempLoaded);
 
         RectTransform rect = GetComponent<RectTransform> ();
         scrollRect.sizeDelta = new Vector2 (rect.sizeDelta.x, assemblyButtonSize * files.Length + 2);
@@ -111,7 +73,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
 
         for (int i = 0; i < files.Length; i++) {
-            GameObject butt = (GameObject)Instantiate (assemblyButtonPrefab, assemblyButtonStart.position + Vector3.down * (assemblyButtonSize) * i, Quaternion.identity);
+            GameObject butt = Instantiate (assemblyButtonPrefab, assemblyButtonStart.position + Vector3.down * (assemblyButtonSize) * i, Quaternion.identity);
             Button button = butt.GetComponent<Button> ();
             butt.transform.SetParent (assemblyButtonStart, true);
 
@@ -120,17 +82,17 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 
 			AddAssemblyButtonListener (button, i);
 
-			buttons[buttons.Count - 1].transform.FindChild ("Image").GetComponent<RawImage>().texture = tempLoaded[i].texture;
-			buttons[buttons.Count - 1].transform.FindChild ("NameText").GetComponent<Text>().text = tempLoaded[i].assemblyName;
+			buttons[buttons.Count - 1].transform.Find ("Image").GetComponent<RawImage>().texture = tempLoaded[i].texture;
+			buttons[buttons.Count - 1].transform.Find ("NameText").GetComponent<Text>().text = tempLoaded[i].assemblyName;
 
 			int cost = 0;
 			int rootClass = 0;
 			int tech = 0;
             int dps = 0;
 
-			GetAssemblyDescData (tempLoaded[i], out cost, out rootClass, out tech, out dps);
+			Assembly.GetAssemblyDescData (tempLoaded[i], out cost, out rootClass, out tech, out dps);
 
-			buttons[buttons.Count - 1].transform.FindChild ("DescText").GetComponent<Text>().text = "Cost: " + cost.ToString () + " - DPS: " + dps + " - Class: " + rootClass.ToString () + " - Tier: " + tech.ToString();
+			buttons[buttons.Count - 1].transform.Find ("DescText").GetComponent<Text>().text = "Cost: " + cost.ToString () + " - DPS: " + dps + " - Class: " + rootClass.ToString () + " - Tier: " + tech.ToString();
             buttons[buttons.Count - 1].transform.name = tech.ToString ();
         }
     }
@@ -157,29 +119,7 @@ public class AssembliesSelectionMenu : MonoBehaviour {
 		gameObject.SetActive (false);
     }
 
-	void GetAssemblyDescData (Assembly assembly, out int cost, out int rootClass, out int techLevel, out int dps) {
-		rootClass = PurchaseMenu.cur.GetModulePrefab (assembly.parts[0].type).GetComponent<Module>().moduleClass;
-		cost = 0;
-		techLevel = 0;
-        dps = 0;
 
-		for (int i = 0; i < assembly.parts.Count; i++) {
-			GameObject mod = PurchaseMenu.cur.GetModulePrefab (assembly.parts[i].type);
-			cost += mod.GetComponent<Module>().moduleCost;
-			for (int j = 0; j < ResearchMenu.cur.research.Count; j++) {
-				Research research = ResearchMenu.cur.research[j];
-
-				if (research.func == "UnlockModule") {
-					if (mod == ResearchMenu.cur.unlockableModules[int.Parse (research.meta)] && techLevel < research.y)
-						techLevel = research.y;
-				}
-			}
-
-            WeaponModule wep = mod.GetComponent<WeaponModule> ();
-            if (wep)
-                dps += Mathf.RoundToInt (wep.weapon.GetDPS ());
-		}
-	}
 
     void ToggleAll () {
         // This is quite messy, but thats a theme for this entire class.

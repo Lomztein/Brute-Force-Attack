@@ -80,6 +80,7 @@ public class Enemy : MonoBehaviour, IDamagable {
 		healthSlider = loc.GetComponent<Slider>();
 		healthSlider.maxValue = health;
 		loc.transform.SetParent (Game.game.worldCanvas.transform, true);
+        healthSlider.transform.SetParent (transform);
 	}
 
 	public int GetPathDistanceRemaining () {

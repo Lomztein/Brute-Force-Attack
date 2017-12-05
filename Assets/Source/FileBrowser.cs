@@ -45,11 +45,11 @@ public class FileBrowser : MonoBehaviour {
             string date = File.GetCreationTime (files[i]).ToString ();
             GameObject button = Instantiate (buttonPrefab);
             button.transform.SetParent (transform.GetChild(0).GetChild(0).GetChild(0));
-            button.transform.FindChild ("Name").GetComponent<Text> ().text = "  " + name;
-            button.transform.FindChild ("Date").GetComponent<Text> ().text = date + "  ";
+            button.transform.Find ("Name").GetComponent<Text> ().text = "  " + name;
+            button.transform.Find ("Date").GetComponent<Text> ().text = date + "  ";
 
             AddLoadGameButtonListener (button.GetComponent<Button> (), i);
-            AddDeleteListener (button.transform.FindChild ("Delete").gameObject.GetComponent<Button> (), i);
+            AddDeleteListener (button.transform.Find ("Delete").gameObject.GetComponent<Button> (), i);
         }
 
         returnObject = returnO;

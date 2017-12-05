@@ -22,9 +22,11 @@ public class ConstructionFlashShrink : MonoBehaviour {
 
     public static void Create (Vector3 size, Vector3 position) {
         GameObject flash = (GameObject)Instantiate(PlayerInput.cur.constructionFlash, position, Quaternion.identity);
-        flash.SendMessage("Animate", new Vector3(size.x, size.y));
+        flash.SendMessage("Animate", new Vector3(size.x, size.y, 1f));
     }
 
     // I figured I was a bit sick of fixing bugs right now :b
     // Yeah, fun little bugs like that often happen, though they are mostly patched instantly.
+
+    // About 10 months later when I finially decided to finish this game, I have no idea what this^ is about.
 }

@@ -22,7 +22,7 @@ public class EnemyInformationPanel : MonoBehaviour {
     public static void Open (Enemy enemyType, int wave) {
         Game.UpdateDarkOverlay ();
         panel.gameObject.SetActive (true);
-        panel.enemySprite.sprite = enemyType.transform.FindChild ("Sprite").GetComponent<SpriteRenderer> ().sprite;
+        panel.enemySprite.sprite = enemyType.transform.Find ("Sprite").GetComponent<SpriteRenderer> ().sprite;
         panel.enemyName.text = enemyType.enemyName;
         panel.enemyStats.text = Enemy.GetHealth (enemyType.health, EnemyManager.GetProgressForWave (wave)).ToString () + " hitpoints in wave " + wave.ToString () + "\n" +
             Enemy.GetValue (enemyType.value, wave) + " value in wave " + wave.ToString () + "\n" +

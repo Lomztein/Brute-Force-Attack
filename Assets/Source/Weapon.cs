@@ -113,6 +113,9 @@ public class Weapon : MonoBehaviour {
 
     public void AddKill () {
         weaponModule.rootModule.score++;
+        if (AssemblyContextMenu.menu.rootModule == weaponModule.rootModule) {
+            AssemblyContextMenu.menu.UpdateDescText ();
+        }
     }
 
 	IEnumerator DoFire () {
@@ -143,7 +146,6 @@ public class Weapon : MonoBehaviour {
 			}
 
             yield return new WaitForSeconds (GetSequenceTime (true));
-
 		}
 
 	}
@@ -172,7 +174,7 @@ public class Weapon : MonoBehaviour {
     }
 
     private int GetDamage () {
-        return (int)((float)bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul * GetFirerateLimitDamageMultiplier (GetFirerate (false)));
+        return (int)(bulletDamage * damageMul * ResearchMenu.damageMul[(int)GetBulletData ().effectiveAgainst] * damageUpgradeMul * GetFirerateLimitDamageMultiplier (GetFirerate (false)));
     }
 
     public virtual void Fire (RotatorModule rotator, Vector3 basePos, Vector3 position, string fireFunc = "DoFire") {
@@ -191,9 +193,7 @@ public class Weapon : MonoBehaviour {
 
     public virtual float GetDPS () {
         if (Game.currentScene == Scene.Play) {
-            return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
-                    ResearchMenu.damageMul[(int)GetBulletData().effectiveAgainst] *
-                    muzzles.Length) / (firerate / upgradeMul * ResearchMenu.firerateMul[(int)GetBulletData().effectiveAgainst]));
+            return ((GetDamage () / GetFirerate (true)) * muzzles.Length * bulletAmount);
         }else {
             return ((bulletDamage * damageMul * bulletAmount * damageUpgradeMul *
                 muzzles.Length) / (firerate / upgradeMul));

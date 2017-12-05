@@ -537,13 +537,13 @@ public class Module : MonoBehaviour {
 	}
 
 	void ResetMaterial () {
-		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.defualtMaterial;
+		transform.Find ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.defualtMaterial;
 		GetComponent<Collider>().enabled = true;
 		enabled = true;
 	}
 
 	public virtual void SetIsBeingPlaced () {
-		transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.placementMaterial;
+		transform.Find ("Sprite").GetComponent<SpriteRenderer>().material = PlayerInput.cur.placementMaterial;
 		GetComponent<Collider>().enabled = false;
 		enabled = false;
 	}

@@ -458,6 +458,7 @@ public class EnemyManager : MonoBehaviour {
 
 	public void OnEnemyDeath () {
 		currentEnemies--;
+        chanceToSpawnResearch = currentEnemies;
 		if (currentEnemies < 1 && Game.state == Game.State.Started) {
 			EndWave (true);
 
@@ -518,7 +519,7 @@ public class EnemyManager : MonoBehaviour {
 		int eIndex = 0;
 
         window.name = (waveIndex + 1).ToString ();
-        RectTransform upcomingCanvas = window.FindChild ("Content").gameObject.GetComponent<RectTransform> ();
+        RectTransform upcomingCanvas = window.Find ("Content").gameObject.GetComponent<RectTransform> ();
 
 		foreach (Wave.Subwave sub in upcoming.subwaves) {
 
@@ -540,9 +541,9 @@ public class EnemyManager : MonoBehaviour {
                 if (window == upcomingWindow)
                     upcomingContent.Add (newEne);
 
-				newEne.transform.FindChild ("Image").GetComponent<Image>().sprite = ene.enemy.transform.FindChild ("Sprite").GetComponent<SpriteRenderer>().sprite;
-                Button button = newEne.transform.FindChild ("Image").GetComponent<Button> ();
-                Text text = newEne.transform.FindChild ("Amount").GetComponent<Text>();
+				newEne.transform.Find ("Image").GetComponent<Image>().sprite = ene.enemy.transform.Find ("Sprite").GetComponent<SpriteRenderer>().sprite;
+                Button button = newEne.transform.Find ("Image").GetComponent<Button> ();
+                Text text = newEne.transform.Find ("Amount").GetComponent<Text>();
 
                 AddEnemyButtonListener (button, ene.enemy.GetComponent<Enemy>(), 1);
 
@@ -592,7 +593,7 @@ public class EnemyManager : MonoBehaviour {
             RectTransform newListTransform = newListPart.GetComponent<RectTransform> ();
             newListTransform.SetParent (listContentParent, false);
 
-            newListTransform.FindChild ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
+            newListTransform.Find ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
             UpdateUpcomingWaveScreen (waves[i], i, newListTransform);
         }
 

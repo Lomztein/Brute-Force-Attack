@@ -538,13 +538,13 @@ public class PlayerInput : MonoBehaviour {
 
 		for (int i = 0; i < canPlaceTestPos.Length; i++) {
 
-            bool isInside = Game.IsInsideBattlefield (pos + canPlaceTestPos[i]);
+            bool isInside = Game.IsInsideBattlefield (pos + canPlaceTestPos[i ] * pModule.moduleClass);
 
             if (Game.currentScene == Scene.Play) {
                 if (!isInside && !errors.Contains ("Placement must be within the battlefield"))
                     errors.Add ("Placement must be within the battlefield");
 
-                if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i]).y] != Game.WallType.Player && !errors.Contains ("Must be placed on player made walls"))
+                if (isInside && Game.isWalled[(int)Game.WorldToWallPos (pos + canPlaceTestPos[i ] * pModule.moduleClass).x, (int)Game.WorldToWallPos (pos + canPlaceTestPos[i ] * pModule.moduleClass).y] != Game.WallType.Player && !errors.Contains ("Must be placed on player made walls"))
                     errors.Add ("Must be placed on player made walls");
             }
 

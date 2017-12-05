@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
 
 public class Highscore : MonoBehaviour {
 
@@ -13,22 +14,17 @@ public class Highscore : MonoBehaviour {
     public Button submitButton;
 
     public static void Add ( string playerName, int score) {
-        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (Game.GAME_DATA_DIRECTORY + Game.game.battlefieldName + "-" + Game.difficulty.name + "-highscores.dat");
+        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (instance.GetFileName ());
         if (entries == null)
             entries = new List<Entry> ();
 
-        int result = 0;
-        for (int i = 0; i < entries.Count; i++) {
-            if (entries[i].scoreValue < score) {
-                result = i;
-                break;
-            }
-        }
+        entries.Add (new Entry (playerName, score));
+        entries.Sort (new Entry.Comparer ());
+        Utility.SaveObjectToFile (instance.GetFileName (), entries);
+    }
 
-        if (result < 10) {
-            entries.Insert (result, new Entry (playerName, score));
-            Utility.SaveObjectToFile (Game.GAME_DATA_DIRECTORY + Game.difficulty.name + "-highscores.dat", entries);
-        }
+    private string GetFileName() {
+        return Game.GAME_DATA_DIRECTORY + Game.difficulty.name + "_" + Game.game.battlefieldName + ".dat";
     }
 
     public void AddPlayer () {
@@ -50,7 +46,7 @@ public class Highscore : MonoBehaviour {
     }
 
     public static void Display (Text names, Text scores) {
-        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (Game.GAME_DATA_DIRECTORY + Game.difficulty.name + "-highscores.dat");
+        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (instance.GetFileName ());
         if (entries == null)
             entries = new List<Entry> ();
 
@@ -93,6 +89,12 @@ public class Highscore : MonoBehaviour {
         public Entry (string n, int s) {
             playerName = n;
             scoreValue = s;
+        }
+
+        public class Comparer : IComparer<Entry> {
+            public int Compare(Entry x, Entry y) {
+                return Mathf.Clamp (y.scoreValue - x.scoreValue, -1, 1); // Unsure if clamping is neccesary, but why not I guess /shrug.
+            }
         }
     }
 }

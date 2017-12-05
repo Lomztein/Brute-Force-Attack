@@ -95,7 +95,7 @@ public class ResearchMenu : MonoBehaviour {
     void UpdateButtonActiveness () {
         for (int i = 0; i < buttons.Count; i++) {
             buttons[i].SetActive (isOpen);
-        }
+        }   
     }
 
 	public static void InitializeMultipliers () {
@@ -310,7 +310,7 @@ public class ResearchMenu : MonoBehaviour {
 			u.index = i;
 			u.y++;
 
-            u.highlighter = newU.transform.FindChild ("Highlighter").GetComponent<Image> ();
+            u.highlighter = newU.transform.Find ("Highlighter").GetComponent<Image> ();
 			newU.GetComponent<HoverContextElement>().text = u.name + ", " + u.y.ToString () + " Research Points\n" + Utility.ConstructDescriptionText (research[i].desc, (int)(research[i].name.Length * 1.5f));
 			AddPurchaseButtonListener (newU.GetComponent<Button>(), i);
 			if (u.name == "")
@@ -390,8 +390,8 @@ public class ResearchMenu : MonoBehaviour {
 
     void IntermediateButton (Research u) {
         u.button.GetComponent<HoverContextElement> ().text = "Intermediate Upgrade, " + u.y.ToString () + " Research";
-        u.button.transform.FindChild ("Image").GetComponent<Image> ().sprite = intermediateUpgradeSprite;
-        u.button.transform.FindChild ("Image").GetComponent<Image> ().color = Color.white;
+        u.button.transform.Find ("Image").GetComponent<Image> ().sprite = intermediateUpgradeSprite;
+        u.button.transform.Find ("Image").GetComponent<Image> ().color = Color.white;
     }
 
     [System.Serializable]
@@ -490,7 +490,7 @@ public class ResearchMenu : MonoBehaviour {
 	}
 
 	public void IncreasePixelThrowerFireSize (Research research) {
-		FireProjectile.fireWidth = 0.5f;
+		FireProjectile.fireWidth = 1f;
 	}
 
 	public void EnableAdvancedTracking (Research research) {

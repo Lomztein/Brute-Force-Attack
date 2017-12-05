@@ -21,7 +21,7 @@ public class LoadAssemblyButton : MonoBehaviour {
 		Texture2D[] sprites = null;
 		Vector3[] positions = null;
 		ModuleAssemblyLoader.GetSpriteData (assembly, out sprites, out positions);
-		button.transform.FindChild ("Image").GetComponent<RawImage>().texture = Module.CombineSprites (sprites, positions);
+		button.transform.Find ("Image").GetComponent<RawImage>().texture = Module.CombineSprites (sprites, positions);
 
         OnResearchUnlocked ();
         ButtonUpdate ();
