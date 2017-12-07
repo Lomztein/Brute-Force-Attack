@@ -2,13 +2,26 @@
 
 Brute Force Attack (Project codename: Project Virus) is a Tower Defence game developed mainly by Marcus "Lomztein" Jensen, with help and feedback from various freinds. It is made using the Unity Engine, Personal Edition and uses a bunch of image effects related standard assets, most notably the Bloom effect, but also the depth of field effect visible in the main menu.
 
-The game is build around a more or less standard Tower Defence core, but is leaning heavily towards trying to allow the player to customize his own turret "assemblies" through a modular turrets system and an in-game research menu. On top of this, the enemies update code is relatively fast and optimized, as well as various techniques being used for optimization, mostly object pooling, but also a lot, and I mean a lot of baking of information during the "Initializng" phase right before a wave.
+The game is build around a more or less standard Tower Defence core, but is has attempted to innovate by applying more modern Real Time Strategy elements to the formula. Most notably is the concept of the research tree, which controls the progression of the game, stopping the player from simply saving up to the most powerful weapons early on, and instead building a variety of weapons untill the most powerful are within the players grasp. Another attempted innovation is the concept of the modular turret system, in which a single turret is made out of a bunch of modules, most commonly a base, a rotator and a weapon. However, due to poor planning and game design, as well as less-than-well structured programming, this became little more than a neat side-feature with no real practical uses outside of more compact damage.
 
-Spritework is also made by Lomztein, mostly using GameMaker even though much better alternatives exists. This is due to simply being used to the GameMaker interface and no real need for more advanced spritework than what GameMaker allows for.
+One of the other notable features of this game is the mass enemy spam. Within a the first 30 waves, the game will spit out more enemies than most computers can handle dispite heavy optimization efforts. While the framerate might tank, all enemy and turret logic is written to be framerate independant, and therefore will play out as it should, dispite the framerates reaching something not too dissimilar to a particularily slow power point presentation. Due to the simple graphics of this game, future improvements in CPU technoligy might remidy this.
 
-Development of the game has happened on and off for many months, but an estimate is that it would take about 1-2 months to develop from start untill finish if worked on full time. It is planned to be released soon, and only few bug fixes and polishment remains before it is ready for the public to play.
+This game has been declared complete on the seventh of december, 2017. (07-12-2017), and so it is the first ever larger-scale complete project in my (Lomztein's) personal portfolio. Perhaps with this mess of spaghetticode and bloom I might be able to land a decent job.
+
+Any bug reports, feedback or constructive critisism should be directed to lomztein4@gmail.com or given in person. Alternatively, bug reports may be posted in the issues section of this repository.
 
 # Known Issues:
 
- * Sometimes, seemingly at random, enemies will not move away from their spawnpoint and be stuck. I can't reproduce this bug, and its rarity makes it outright impossible to diagnose and fix. To work around it, just quit to menu and reload the autosave, and it will put you back to after the previous wave.
+ * In the assembly editor, placing down two base modules will have the game "focus" on the second one. Deleting the second one does not revert this.
 
+# License
+
+The MIT License (MIT)
+
+Copyright (c) 2017 Marcus L. Jensen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
