@@ -61,7 +61,7 @@ public class Datastream : MonoBehaviour {
 
     IEnumerator InitializeNumbers () {
 
-        Rect rect = new Rect (-Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2 + 6, Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2);
+        Rect rect = new Rect (-Game.game.battlefieldWidth / 2, Mathf.Floor (-Game.game.battlefieldHeight / 2 + 6), Game.game.battlefieldWidth / 2, -Game.game.battlefieldHeight / 2);
         Game.ChangeWalls (rect, Game.WallType.Unbuildable);
 
         numbers = new DatastreamNumber[100];

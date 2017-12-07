@@ -32,7 +32,7 @@ public class AbilityFlushBattlefield : Ability {
                 for (int i = 0; i < nearby.Length; i++) {
                     Enemy ene = nearby[i].GetComponent<Enemy> ();
                     if (ene) {
-                        ene.SendMessage ("OnTakeDamage", new Projectile.Damage (ene.health * 3, Colour.None, null));
+                        ene.SendMessage ("OnTakeDamage", new Projectile.Damage (int.MaxValue, Colour.None, null));
                     }
                 }
 				Destroy ((GameObject)Instantiate (explosion, new Vector3 (x, y) + offset, Quaternion.identity), 1f);

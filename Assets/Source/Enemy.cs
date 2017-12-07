@@ -9,11 +9,9 @@ public class Enemy : MonoBehaviour, IDamagable {
 	public Colour type;
 
 	public float speed;
-	public int health;
+	public long health;
 	public int damage;
 	public int value;
-	public bool isFlying;
-    public float flyingRotationSpeed;
 	public int researchDropChance;
     public float difficultyMultiplier = 1f;
 
@@ -40,28 +38,35 @@ public class Enemy : MonoBehaviour, IDamagable {
     public GameObject researchPoint;
     public UpcomingElement upcomingElement;
 	private bool isDead;
+    public Transform thisTransform;
+    public Transform healthbarTransform;
+    public Rigidbody thisRigidody;
+    public bool active;
 
 	public Slider healthSlider;
 
-    public static int GetHealth (int startingHealth, float progress, float multiplier) {
-        return Mathf.RoundToInt (startingHealth * progress * multiplier);
+    public static long GetHealth (long startingHealth, float progress, float multiplier) {
+        return (long)(startingHealth * progress * multiplier);
     }
 
-    public static int GetHealth (int startingHealth, float progress) {
-        return Mathf.RoundToInt (startingHealth * progress * Game.difficulty.healthMultiplier);
+    public static long GetHealth (long startingHealth, float progress) {
+        return (long)(startingHealth * progress * Game.difficulty.healthMultiplier);
     }
 
     public static int GetValue (int startingValue, int wave) {
         return Mathf.RoundToInt (startingValue + wave * 0.2f);
     }
 
-	void Start () {
+    public void Initialize () {
+        thisTransform = transform;
+        thisRigidody = GetComponent<Rigidbody> ();
+    }
+
+    public virtual void Start () {
+        active = true;
 		Vector3 off = Random.insideUnitSphere / 2f;
 		offset = new Vector3 (off.x, off.y, 0f);
         health = GetHealth (health, EnemyManager.gameProgress);
-
-        if (isFlying)
-            offset *= 5f;
 
         if (Game.game && Game.game.gamemode == Gamemode.GlassEnemies) {
             health /= 10;
@@ -81,59 +86,54 @@ public class Enemy : MonoBehaviour, IDamagable {
 		healthSlider.maxValue = health;
 		loc.transform.SetParent (Game.game.worldCanvas.transform, true);
         healthSlider.transform.SetParent (transform);
+        healthbarTransform = healthSlider.transform;
 	}
 
 	public int GetPathDistanceRemaining () {
 		return path.Length - pathIndex;
 	}
 
-    /*
-    void CombinedUpdate () {
+    public void UpdateHealthbar() {
+        if (healthSlider) {
+            if (healthbarTransform.parent != thisTransform) {
+                healthSlider.value = health;
+                healthbarTransform.position = thisTransform.position + Vector3.up;
 
-        // Movement code.
-        while (pathIndex == path.Length - 1 || isFlying) {
-            transform.position += Vector3.down * Time.fixedDeltaTime * speed;
-            if (rotateSprite)
-                transform.rotation = Quaternion.Euler (0, 0, 270);
-            return;
+                if (((Vector2)thisTransform.position - PlayerInput.worldMousePos).sqrMagnitude > 25f) {
+                    if (healthbarTransform.parent != thisTransform) {
+                        healthbarTransform.SetParent (thisTransform);
+                    }
+                }
+            } else if (((Vector2)thisTransform.position - PlayerInput.worldMousePos).sqrMagnitude < 25f) {
+                healthbarTransform.SetParent (Game.game.worldCanvas.transform);
+                healthbarTransform.rotation = Quaternion.identity;
+            }
         }
-        Vector3 loc = new Vector3 (path[pathIndex].x, path[pathIndex].y) + offset;
-        float dist = Vector3.Distance (transform.position, loc);
+    }
 
-        if (dist < speed * Time.fixedDeltaTime) {
-            pathIndex++;
-        }
-
-        transform.position = Vector3.MoveTowards (transform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier);
-
-        if (rotateSprite)
-            transform.rotation = Quaternion.Euler (0, 0, Angle.CalculateAngle (transform.position, loc));
-
+    public void UpdateFreeze() {
         if (freezeMultiplier < 1f) {
             freezeMultiplier += 0.5f * Time.fixedDeltaTime;
         } else {
             freezeMultiplier = 1f;
         }
+    }
 
-        // Healthslider Code
-        healthSlider.value = health;
-        healthSlider.transform.position = transform.position + Vector3.up;
-
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-        mousePos.z = 0;
-
-        if (Vector3.Distance (transform.position, mousePos) > 5) {
-            if (healthSlider.gameObject.activeSelf) {
-                healthSlider.gameObject.SetActive (false);
-            }
-        } else {
-            if (!healthSlider.gameObject.activeSelf) {
-                healthSlider.gameObject.SetActive (true);
-            }
+    public virtual Vector3 DoMovement() {
+        if (pathIndex == path.Length - 1) {
+            pathIndex--;
         }
 
+        Vector3 loc = new Vector3 (path [ pathIndex ].x, path [ pathIndex ].y) + offset;
+        float dist = Vector3.Distance (thisTransform.position, loc);
+
+        if (dist < speed * Time.fixedDeltaTime * 2f) {
+            pathIndex++;
+        }
+
+        thisRigidody.MovePosition (Vector3.MoveTowards (thisTransform.position, loc, speed * Time.fixedDeltaTime * freezeMultiplier));
+        return loc;
     }
-    */
 
 	public void OnTakeDamage (Projectile.Damage damage) {
 		if (damage.effectiveAgainst == type) {
@@ -146,9 +146,10 @@ public class Enemy : MonoBehaviour, IDamagable {
 
 			if (!isDead) {
 				isDead = true;
-                Game.credits += GetValue (value, EnemyManager.externalWaveNumber);
+                Game.credits += GetValue (value, EnemyManager.ExternalWaveNumber);
 				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
+                active = false;
 
                 if (damage.weapon)
                     damage.weapon.AddKill ();
@@ -181,18 +182,13 @@ public class Enemy : MonoBehaviour, IDamagable {
 
 	void OnCollisionEnter (Collision col) {
 
-		Datastream stream = col.gameObject.GetComponent<Datastream>();
-		List<Transform> nearest = new List<Transform>();
+        Datastream stream = Datastream.cur;
 
 		if (Datastream.enableFirewall)
 			damage = Mathf.RoundToInt ((float)damage * 0.4f);
 
         Datastream.healthAmount -= damage;
         stream.EmitCorruptionParticles (transform.position, damage / 10f);
-
-		for (int i = 0; i < nearest.Count; i++) {
-			nearest[i].GetComponent<SpriteRenderer>().color = Color.red;
-		}
 
         if (healthSlider) healthSlider.transform.SetParent (transform);
         gameObject.SetActive (false);

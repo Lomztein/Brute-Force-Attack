@@ -7,7 +7,7 @@ public class TobyBoss : MonoBehaviour {
 	public Sprite[] tobySprites;
 	public Enemy enemyComponent;
 	private int spriteIndex;
-	private int startHealth;
+	private long startHealth;
 
 	void Start () {
 		startHealth = enemyComponent.health;

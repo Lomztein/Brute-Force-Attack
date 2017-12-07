@@ -14,9 +14,11 @@ public class SplitterEnemySplit : MonoBehaviour {
 
 			that.path = my.path;
 			that.pathIndex = my.pathIndex;
+            that.Initialize ();
+
             EnemyManager.AddEnemy (that);
-		}
-	}
+        }
+    }
 
 	void OnDrawGizmos () {
 		for (int i = 0; i < spawnPos.Length; i++) {

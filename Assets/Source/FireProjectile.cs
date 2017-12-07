@@ -11,11 +11,12 @@ public class FireProjectile : Projectile {
     public float timeTraveled;
 
     public ParticleSystem fireParticle;
+    ParticleSystem.ShapeModule fireShape;
     public float fireGrowthRate;
 
     public override void Initialize () {
         base.Initialize ();
-        ParticleSystem.ShapeModule shape = fireParticle.shape;
+        fireShape = fireParticle.shape;
         timeTraveled = 0f;
     }
 
@@ -32,9 +33,8 @@ public class FireProjectile : Projectile {
 			distTraveled = 0f;
 		}
 
-        ParticleSystem.ShapeModule shape = fireParticle.shape;
         timeTraveled += Time.fixedDeltaTime;
-        shape.radius = GetGrowth ();
+        fireShape.radius = GetGrowth ();
 	}
 
     private float GetGrowth() {

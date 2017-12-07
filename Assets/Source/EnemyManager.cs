@@ -32,12 +32,15 @@ public class EnemyManager : MonoBehaviour {
 	public Wave.Subwave currentSubwave;
     private List<EnemySpawnPoint> availableSpawns = new List<EnemySpawnPoint>();
 
-    public static int externalWaveNumber;
-	public int waveNumber;
+    public static int ExternalWaveNumber { get { return cur.waveNumber + cur.waveMasteryIndex * cur.waves.Count; } }
+    public static int WaveMastery { get { return Mathf.RoundToInt (Mathf.Pow (2, cur.waveMasteryIndex)); } }
+
+    public int waveNumber;
 	private int subwaveNumber;
 	private int[] spawnIndex;
 	private int endedIndex;
-	public int waveMastery = 1;
+    public int waveMasteryIndex;
+
     public float amountModifier = 1f;
 
 	public static float readyWaitTime = 2f;
@@ -55,8 +58,8 @@ public class EnemyManager : MonoBehaviour {
 	public int currentEnemies;
 	public GameObject endBoss;
 	private Dictionary<Wave.Enemy, List<GameObject>> pooledEnemies = new Dictionary<Wave.Enemy, List<GameObject>> ();
-	public Transform enemyPool;
-    private List<Enemy> spawnedEnemies = new List<Enemy> ();
+	//public Transform enemyPool;
+    public List<Enemy> spawnedEnemies = new List<Enemy> ();
     public Dictionary<string, int> enemiesKilled = new Dictionary<string, int>();
 
 	public static EnemyManager cur;
@@ -89,10 +92,9 @@ public class EnemyManager : MonoBehaviour {
 
     public static void Initialize () {
         cur = GameObject.Find ("EnemyManager").GetComponent<EnemyManager> ();
-        externalWaveNumber = 0;
-        cur.EndWave (false);
-
         cur.AddFinalBoss ();
+
+        cur.EndWave (false);
         cur.SetSpawnIndicators ();
     }
 
@@ -185,73 +187,20 @@ public class EnemyManager : MonoBehaviour {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
         mousePos.z = 0;
 
-
-        // Enemy movement code:
+        //Enemy movement code:
         for (int i = 0; i < spawnedEnemies.Count; i++) {
-            if (spawnedEnemies[i] && spawnedEnemies[i].gameObject.activeSelf) {
+            if (spawnedEnemies[i] && spawnedEnemies[i].active) {
                 Enemy enemy = spawnedEnemies[i];
 
-                //Healthslider Code
-                if (enemy.healthSlider) {
-                    if (enemy.healthSlider.transform.parent != enemy.transform) {
-                        enemy.healthSlider.value = enemy.health;
-                        enemy.healthSlider.transform.position = enemy.transform.position + Vector3.up;
-
-                        if (Vector3.Distance(enemy.transform.position, mousePos) > 5f) {
-                            if (enemy.healthSlider.transform.parent != enemy.transform) {
-                                enemy.healthSlider.transform.SetParent(enemy.transform);
-                                //enemy.healthSlider.gameObject.SetActive (false);
-                            }
-                        }
-                    } else if (Vector3.Distance(enemy.transform.position, mousePos) < 5f) {
-                        enemy.healthSlider.transform.SetParent(Game.game.worldCanvas.transform);
-                        enemy.healthSlider.transform.rotation = Quaternion.identity;
-                        //enemy.healthSlider.gameObject.SetActive (true);
-                    }
-                }
-
-                // Movement code.
-                if (enemy.pathIndex == enemy.path.Length - 1) {
-                    enemy.pathIndex--;
-                }
-                Vector3 loc = new Vector3 (enemy.path[enemy.pathIndex].x, enemy.path[enemy.pathIndex].y) + enemy.offset;
-                float dist = Vector3.Distance (enemy.transform.position, loc);
-
-                if (enemy.isFlying) {
-                    float rotMul = 360f / enemy.flyingRotationSpeed;
-                    if (dist < rotMul * 3f) {
-                        enemy.pathIndex++;
-                    }
-                } else if (dist < enemy.speed * Time.fixedDeltaTime * 2f) {
-                    enemy.pathIndex++;
-                }
-
-                if (enemy.isFlying) {
-                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, enemy.transform.position + enemy.transform.right, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
-                } else {
-                    enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, loc, enemy.speed * Time.fixedDeltaTime * enemy.freezeMultiplier);
-                }
-
-                if (enemy.rotateSprite) {
-                    Quaternion rot = Quaternion.Euler (0, 0, Angle.CalculateAngle (enemy.transform.position, loc));
-                    if (enemy.isFlying) {
-                        enemy.transform.rotation = Quaternion.RotateTowards (enemy.transform.rotation, rot, enemy.flyingRotationSpeed * Time.fixedDeltaTime);
-                    }else {
-                        enemy.transform.rotation = Quaternion.Lerp (enemy.transform.rotation, rot, 0.2f);
-                    }
-                }
-
-                if (enemy.freezeMultiplier < 1f) {
-                    enemy.freezeMultiplier += 0.5f * Time.fixedDeltaTime;
-                } else {
-                    enemy.freezeMultiplier = 1f;
-                }
+                enemy.UpdateHealthbar ();
+                enemy.DoMovement ();    
+                enemy.UpdateFreeze ();
             }
         }
     }
 
     void UpdateAmountModifier () {
-        amountModifier = waveMastery * Game.difficulty.amountMultiplier;
+        amountModifier = WaveMastery * Game.difficulty.amountMultiplier;
         if (Game.game.gamemode == Gamemode.GlassEnemies) {
             amountModifier *= 10;
         } else if (Game.game.gamemode == Gamemode.TitaniumEnemies) {
@@ -300,7 +249,7 @@ public class EnemyManager : MonoBehaviour {
 	void Poop () {
 		// Hø hø hø hø..
 		waveNumber++;
-		UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
+		UpdateUpcomingWaveScreen (waves [waveNumber], ExternalWaveNumber, upcomingWindow);
 		Invoke ("Poop", 1f);
 	}
 
@@ -339,14 +288,15 @@ public class EnemyManager : MonoBehaviour {
             index = 0;
             while (spawnQueue.Count > 0) {
                 for (int i = 0; i < Mathf.RoundToInt (spawnQueue.Peek().spawnAmount * amountModifier); i++) {
-                    GameObject newEne = (GameObject)Instantiate(spawnQueue.Peek().enemy, enemyPool.position, Quaternion.identity);
+                    GameObject newEne = (GameObject)Instantiate(spawnQueue.Peek().enemy, Vector3.right * 5000f, Quaternion.identity);
                     toArray.Add(newEne.GetComponent<Enemy>());
 
                     newEne.SetActive(false);
-                    newEne.transform.parent = enemyPool;
+                    //newEne.transform.parent = enemyPool;
 
                     Enemy e = newEne.GetComponent<Enemy>();
                     e.upcomingElement = upcomingElements[spawnQueue.Peek().index];
+                    e.Initialize ();
 
                     if (!pooledEnemies.ContainsKey(spawnQueue.Peek())) {
                         pooledEnemies.Add(spawnQueue.Peek(), new List<GameObject>());
@@ -383,7 +333,6 @@ public class EnemyManager : MonoBehaviour {
                 HoverContextElement.activeElement = null;
                 Game.CrossfadeMusic (Game.game.combatMusic, 2f);
 
-                externalWaveNumber++;
                 waveNumber++;
 
                 cancellingWave = false;
@@ -448,7 +397,6 @@ public class EnemyManager : MonoBehaviour {
 
     void CancelWave () {
 
-        externalWaveNumber--;
         waveNumber--;
 
         cancellingWave = true;
@@ -463,7 +411,7 @@ public class EnemyManager : MonoBehaviour {
 			EndWave (true);
 
 			if (waveNumber >= waves.Count) {
-				if (waveMastery == 1) {
+				if (WaveMastery == 1) {
                     Game.game.masteryModeIndicator.SetActive(true);
 				}else{
 					ContinueMastery ();
@@ -493,10 +441,10 @@ public class EnemyManager : MonoBehaviour {
 
 	public void ContinueMastery () {
 		waveNumber = 0;
-		waveMastery *= 2;
+        waveMasteryIndex++;
         UpdateAmountModifier ();
         Game.game.masteryModeIndicator.SetActive (false);
-        UpdateUpcomingWaveScreen (waves[waveNumber], externalWaveNumber, upcomingWindow);
+        UpdateUpcomingWaveScreen (waves[waveNumber], ExternalWaveNumber, upcomingWindow);
         UpdateAmountModifier ();
 	}
 
@@ -587,14 +535,16 @@ public class EnemyManager : MonoBehaviour {
         listContent = new List<GameObject> ();
 
         for (int i = 0; i < waves.Count; i++) {
+            int trueIndex = i + waveMasteryIndex * waves.Count;
+
             GameObject newListPart = Instantiate (listPartPrefab);
             listContent.Add (newListPart);
 
             RectTransform newListTransform = newListPart.GetComponent<RectTransform> ();
             newListTransform.SetParent (listContentParent, false);
 
-            newListTransform.Find ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (i+1);
-            UpdateUpcomingWaveScreen (waves[i], i, newListTransform);
+            newListTransform.Find ("Header").gameObject.GetComponent<Text> ().text = "Wave " + (trueIndex+1);
+            UpdateUpcomingWaveScreen (waves[i], trueIndex, newListTransform);
         }
 
         listScrollRect.horizontalNormalizedPosition = waveNumber / (float)waves.Count;
@@ -622,8 +572,8 @@ public class EnemyManager : MonoBehaviour {
             wavePrebbing = false;
 			waveStarted = true;
 			waveStartedIndicator.color = Color.red;
-			waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString ();
-            gameProgress = GetProgressForWave (externalWaveNumber);
+			waveCounterIndicator.text = "Wave: " + ExternalWaveNumber.ToString ();
+            gameProgress = GetProgressForWave (ExternalWaveNumber);
 			ContinueWave (true);
 
             PlayerInput.cur.UpdateFlushBattlefieldHoverContextElement ();
@@ -658,14 +608,10 @@ public class EnemyManager : MonoBehaviour {
 	void ContinueFalseWave () {
 		ContinueWave (false);
 	}
-    
-	public void EndWave (bool finished) {
-        if (finished) {
-            StartCoroutine (CleanEnemyArray ());
-            PlayerInput.cur.flushBattlefieldAnimator.SetBool ("Flashing", false);
-        } else {
-            ForceInstantCleanEnemyArray ();
-        }
+
+    public void EndWave(bool finished) {
+        PlayerInput.cur.flushBattlefieldAnimator.SetBool ("Flashing", false);
+        ForceInstantCleanEnemyArray ();
 
         Game.CrossfadeMusic (Game.game.constructionMusic, 2f);
         SetPortals (false);
@@ -680,7 +626,7 @@ public class EnemyManager : MonoBehaviour {
         UpdateAmountModifier ();
 
         if (finished && Datastream.healthAmount > 0) {
-            Game.credits += 25 * externalWaveNumber;
+            Game.credits += 25 * ExternalWaveNumber;
             PlayerInput.ChangeFlushTimer (-1);
             Game.game.SaveGame ("autosave");
             Datastream.healthAmount = Mathf.Min (Datastream.healthAmount + Datastream.healPerWave, Datastream.STARTING_HEALTH);
@@ -688,10 +634,10 @@ public class EnemyManager : MonoBehaviour {
         }
 
         if (waves.Count >= waveNumber + 1) {
-			UpdateUpcomingWaveScreen (waves [waveNumber], externalWaveNumber, upcomingWindow);
+			UpdateUpcomingWaveScreen (waves [waveNumber], ExternalWaveNumber, upcomingWindow);
 		}
 
-        waveCounterIndicator.text = "Wave: " + externalWaveNumber.ToString();
+        waveCounterIndicator.text = "Wave: " + ExternalWaveNumber.ToString();
         if (Game.state == Game.State.Started)
             waveStartedIndicator.GetComponentInParent<HoverContextElement>().text = "Start wave " + (waveNumber + 1).ToString ();
         HoverContextElement.activeElement = null;
@@ -711,6 +657,7 @@ public class EnemyManager : MonoBehaviour {
                 e.SetActive (true);
 
                 Enemy ene = e.GetComponent<Enemy> ();
+                ene.active = true;
                 e.tag = ene.type.ToString ();
 
                 ene.spawnPoint = GetSpawnPosition (ene);

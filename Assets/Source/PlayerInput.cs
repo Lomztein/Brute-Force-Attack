@@ -11,6 +11,7 @@ public class PlayerInput : MonoBehaviour {
 	public float cameraMovementSpeed;
     public float cameraMargin;
 	public LayerMask turretLayer;
+    public static Vector2 worldMousePos;
 
 	public PurchaseMenu purchaseMenu;
 
@@ -218,7 +219,8 @@ public class PlayerInput : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         // Grap mouse position, and round it.
-        pos = RoundPos (Camera.main.ScreenToWorldPoint (Input.mousePosition), pModule ? pModule.moduleClass : 1);
+        worldMousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+        pos = RoundPos (worldMousePos, pModule ? pModule.moduleClass : 1);
 
         if (rangeIndicator)
             rangeIndicator.GetRange (0f);

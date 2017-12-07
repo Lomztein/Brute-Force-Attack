@@ -195,11 +195,12 @@ public class Module : MonoBehaviour {
     public bool IsAssemblyUpgradeable (int t) {
         Module.Type type = (Module.Type)t;
         bool upgradeable = true;
+        bool anyOfModule = false;
 
         if (t >= 0) {
             for (int i = 0; i < modules.Count; i++) {
                 if (modules[i].moduleType == type && !modules[i].IsUpgradeable()) {
-                    upgradeable = !upgradeable;
+                    upgradeable = false;
                     break;
                 }
             }

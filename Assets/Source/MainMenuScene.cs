@@ -26,9 +26,6 @@ public class MainMenuScene : MonoBehaviour {
 	public void Play () {
         SceneManager.LoadScene ("pv_play");
         Game.currentScene = Scene.Play;
-
-        if (PlayerPrefs.HasKey ("fMusicVolume"))
-            audioSource.volume = PlayerPrefs.GetFloat ("fMusicVolume");
     }
 
     public void ToggleLoadGameMenu () {
@@ -94,6 +91,16 @@ public class MainMenuScene : MonoBehaviour {
         }
 
         progress += Time.fixedDeltaTime;
+    }
+
+    public void InitializeAudioSettings() {
+        if (PlayerPrefs.HasKey ("fMusicVolume")) {
+            settingsScreen.musicSlider.value = PlayerPrefs.GetFloat ("fMusicVolume");
+            UpdateAudioSettings ();
+        }
+    }
+
+    public void UpdateAudioSettings() {
         audioSource.volume = settingsScreen.musicSlider.value;
     }
 }

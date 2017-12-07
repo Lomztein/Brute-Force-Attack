@@ -82,6 +82,7 @@ public class HoverContext : MonoBehaviour {
             if (HoverContextElement.activeElement == hoverHit && Input.GetMouseButtonDown (0)) {
                 hit.collider.SendMessage ("OnMouseDownElement", SendMessageOptions.DontRequireReceiver);
             }
+
         } else if (HoverContextElement.activeElement) {
             HoverContextElement.activeElement.SendMessage ("OnMouseExitElement", SendMessageOptions.DontRequireReceiver);
             HoverContextElement.activeElement = null;
@@ -91,13 +92,13 @@ public class HoverContext : MonoBehaviour {
         }
     }
 
-    void LateUpdate () {
+    void LateUpdate() {
         SetPos ();
     }
 
     void SetPos () {
-		Vector3 mousePos = Input.mousePosition;
-		transform.position = mousePos + new Vector3 (rectTransform.rect.width / 2f ,rectTransform.rect.height / 2);
+        Vector3 mousePos = Input.mousePosition; 
+        transform.position = mousePos + new Vector3 (rectTransform.rect.width / 2f, rectTransform.rect.height / 2);
         if (mousePos.y > Screen.height - rectTransform.rect.height) {
             transform.position += Vector3.down * rectTransform.rect.height;
         }

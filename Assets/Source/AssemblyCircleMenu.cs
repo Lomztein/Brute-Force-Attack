@@ -91,7 +91,9 @@ public class AssemblyCircleMenu : MonoBehaviour {
 
     public static void UpdateButtons () {
         if (cur && cur.gameObject.activeSelf && cur.module) {
-            if (Game.credits >= cur.module.GetFullUpgradeCost()) {
+            bool upgradeable = cur.module.IsAssemblyUpgradeable (-1);
+
+            if (Game.credits >= cur.module.GetFullUpgradeCost() && upgradeable) {
                 cur.upgradeElement.GetComponent<Button>().interactable = true;
             } else {
                 cur.upgradeElement.GetComponent<Button>().interactable = false;

@@ -277,13 +277,14 @@ public class Game : MonoBehaviour {
         game = this;
         ResetStatics ();
         ResearchMenu.InitializeAllStatics ();
-        assemblyContextMenu.Initialize ();
         darkOverlayActive = true;
         InitializeBasics ();
 
         ModuleMod.currentMenu = new GameObject[ModuleMod.MAX_DEPTH];
 
         if (currentScene == Scene.Play) {
+            assemblyContextMenu.Initialize ();
+
             for (int i = 0; i < purchaseMenu.all.Count; i++) {
                 Module mod = purchaseMenu.all[i].GetComponent<Module> ();
                 if (mod.moduleType == Module.Type.Weapon) {
@@ -917,7 +918,7 @@ public class Game : MonoBehaviour {
     }
 
     void Update () {
-        HoverContext.StaticUpdate();
+        HoverContext.StaticUpdate ();
 
         if (isPaused) {
             mainAudioSource.volume = SettingsMenu.musicVolume;
@@ -1105,9 +1106,8 @@ public class Game : MonoBehaviour {
         Datastream.healthAmount = sg.health;
         PostInitialization ();
 
-        EnemyManager.cur.waveMastery = sg.masteryNumber;
+        EnemyManager.cur.waveMasteryIndex = sg.masteryNumber;
         EnemyManager.cur.waveNumber = sg.waveNumber;
-        EnemyManager.externalWaveNumber = sg.totalWaveNumber;
         EnemyManager.gameProgress = sg.gameProgress;
         EnemyManager.cur.enemiesKilled = sg.enemiesKilled;
 
@@ -1158,8 +1158,8 @@ public class Game : MonoBehaviour {
         saved.flushTimer = PlayerInput.flushTimer;
 
         saved.waveNumber = EnemyManager.cur.waveNumber;
-        saved.totalWaveNumber = EnemyManager.externalWaveNumber;
-        saved.masteryNumber = EnemyManager.cur.waveMastery;
+        saved.totalWaveNumber = EnemyManager.ExternalWaveNumber;
+        saved.masteryNumber = EnemyManager.cur.waveMasteryIndex;
         saved.gameProgress = EnemyManager.gameProgress;
         saved.enemiesKilled = EnemyManager.cur.enemiesKilled;
 

@@ -24,28 +24,36 @@ public class SettingsMenu : MonoBehaviour {
 	public static void LoadSettings () {
         if (PlayerPrefs.HasKey ("fMusicVolume")) {
             musicVolume = PlayerPrefs.GetFloat ("fMusicVolume");
-            cur.musicSlider.value = SettingsMenu.musicVolume;
-        }
+        } else
+            musicVolume = 1f;
+
+        cur.musicSlider.value = musicVolume;
 
         if (PlayerPrefs.HasKey ("fSoundVolume")) {
             soundVolume = PlayerPrefs.GetFloat ("fSoundVolume");
-            cur.soundSlider.value = SettingsMenu.soundVolume;
-        }
+        } else
+            soundVolume = 1f;
+
+        cur.soundSlider.value = soundVolume;
 
         if (PlayerPrefs.HasKey ("bSoftBloom")) {
             softBloomEnabled = bool.Parse (PlayerPrefs.GetString ("bSoftBloom"));
-            cur.UpdateBloom ();
-        }
+        } else
+            softBloomEnabled = true;
+
+        cur.UpdateBloom ();
+        cur.OnDisable ();
     }
 
     void OnDisable () {
         PlayerPrefs.SetFloat ("fMusicVolume", musicVolume);
         PlayerPrefs.SetFloat ("fSoundVolume", soundVolume);
         PlayerPrefs.SetString ("bSoftBloom", softBloomEnabled.ToString ());
+        PlayerPrefs.Save ();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
         musicVolume = musicSlider.value;
         soundVolume = soundSlider.value;
     }

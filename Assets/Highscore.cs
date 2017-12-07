@@ -31,7 +31,7 @@ public class Highscore : MonoBehaviour {
         if (IsInputEmpty ()) {
             Game.game.QuitToMenu ();
         } else {
-            Add (inputName.text, EnemyManager.externalWaveNumber);
+            Add (inputName.text, EnemyManager.ExternalWaveNumber);
             inputName.interactable = false;
             Display (names, scores);
         }

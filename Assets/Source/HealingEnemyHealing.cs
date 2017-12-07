@@ -8,7 +8,7 @@ public class HealingEnemyHealing : MonoBehaviour {
 	public float healSpeed;
     [Range (0, 1)]
     public float healMax;
-    public int startHealth;
+    public long startHealth;
 
 	public Enemy enemy;
 	private float healProgress;
@@ -26,7 +26,7 @@ public class HealingEnemyHealing : MonoBehaviour {
                 healProgress = 0f;
 			}
 		}else{
-            enemy.health = Mathf.Max (Mathf.RoundToInt (startHealth * healMax), enemy.health);
+            enemy.health = (long)(startHealth * healMax);
 		}
 	}
 
