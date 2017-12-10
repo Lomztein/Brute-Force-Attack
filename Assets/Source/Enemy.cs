@@ -136,7 +136,7 @@ public class Enemy : MonoBehaviour, IDamagable {
     }
 
 	public void OnTakeDamage (Projectile.Damage damage) {
-		if (damage.effectiveAgainst == type) {
+		if (damage.effectiveAgainst == type || damage.effectiveAgainst == Colour.None) {
 			health -= damage.damage;
 		}else{
 			health -= Mathf.RoundToInt (damage.damage * Game.difficulty.weaponDamageToDifferentColor);
@@ -147,9 +147,7 @@ public class Enemy : MonoBehaviour, IDamagable {
 			if (!isDead) {
 				isDead = true;
                 Game.credits += GetValue (value, EnemyManager.ExternalWaveNumber);
-				if (upcomingElement) upcomingElement.Decrease ();
 				SendMessage ("OnDeath", SendMessageOptions.DontRequireReceiver);
-                active = false;
 
                 if (damage.weapon)
                     damage.weapon.AddKill ();
@@ -168,10 +166,8 @@ public class Enemy : MonoBehaviour, IDamagable {
                         EnemyManager.spawnedResearch++;
                     }
                 }
-                EnemyManager.cur.OnEnemyDeath ();
                 EnemyManager.AddKill (enemyName);
             }
-            if (healthSlider) healthSlider.transform.SetParent (transform);
             gameObject.SetActive (false);
         }
     }
@@ -180,19 +176,28 @@ public class Enemy : MonoBehaviour, IDamagable {
         deathParticle.gameObject.SetActive (false);
     }
 
-	void OnCollisionEnter (Collision col) {
+    void OnDeath() {
+        if (upcomingElement)
+            upcomingElement.Decrease ();
+        if (healthSlider)
+            healthSlider.transform.SetParent (transform);
+
+        EnemyManager.cur.OnEnemyDeath ();
+        active = false;
+    }
+
+    void OnCollisionEnter (Collision col) {
 
         Datastream stream = Datastream.cur;
 
 		if (Datastream.enableFirewall)
-			damage = Mathf.RoundToInt ((float)damage * 0.4f);
+			damage = Mathf.CeilToInt ((float)damage * 0.1f);
 
         Datastream.healthAmount -= damage;
         stream.EmitCorruptionParticles (transform.position, damage / 10f);
 
-        if (healthSlider) healthSlider.transform.SetParent (transform);
         gameObject.SetActive (false);
-		EnemyManager.cur.OnEnemyDeath ();
+        OnDeath ();
 
         SplitterEnemySplit split = GetComponent<SplitterEnemySplit>();
         if (split)

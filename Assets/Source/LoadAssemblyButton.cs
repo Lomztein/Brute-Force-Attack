@@ -66,7 +66,7 @@ public class LoadAssemblyButton : MonoBehaviour {
 	}
 
     void OnMouseDownElement () {
-        if (!button.interactable) {
+        if (!button.interactable && !allModulesResearched) {
             assembly.ChangeHighlightRequiredResearch (true);
             Game.game.researchMenu.ToggleResearchMenu ();
         }

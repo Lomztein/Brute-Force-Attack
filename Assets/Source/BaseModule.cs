@@ -82,9 +82,11 @@ public class BaseModule : Module {
 
 	void FindTarget () {
 		target = targetFinder.FindTarget (transform.position, GetRange (), targetLayer, priorities.ToArray (), ignore.ToArray (), sortType);
-        if (target)
-			targetPos = target.position;
-	}
+        if (target) {
+            targetPos = target.position;
+            prevPos = targetPos;
+        }
+    }
 
     public void OnToggleModBlue (int newIndex) {
         ChangePriority (Colour.Blue, newIndex);

@@ -308,8 +308,6 @@ public class Game : MonoBehaviour {
         if (saveToLoad != null && saveToLoad.Length > 0) {
             Debug.Log ("Loading save: " + saveToLoad);
             StartCoroutine (LoadSaveOnSceneStart ());
-        }else {
-            DeleteAutosave ();
         }
     }
 
@@ -381,12 +379,6 @@ public class Game : MonoBehaviour {
 		EnemyManager.gameProgress = 1f;
 	}
 
-    public void DeleteAutosave () {
-        string path = SAVED_GAME_DIRECTORY + "autosave.dat";
-        if (File.Exists (path))
-            File.Delete (path);
-    }
-
     public void QuitToMenu () {
         SceneManager.LoadScene (0);
         if (isPaused)
@@ -397,7 +389,6 @@ public class Game : MonoBehaviour {
     public void OpenHighscore () {
         gameOverIndicator.SetActive (false);
         highscoreMenu.InstanceDisplay ();
-        DeleteAutosave ();
     }
 
     public static void ToggleFastGameSpeed () {

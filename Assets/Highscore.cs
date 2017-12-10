@@ -9,22 +9,27 @@ public class Highscore : MonoBehaviour {
     public static Highscore instance;
     public Text names;
     public Text scores;
+    public Text header;
 
     public InputField inputName;
     public Button submitButton;
 
     public static void Add ( string playerName, int score) {
-        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (instance.GetFileName ());
+        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (GetFileName ());
         if (entries == null)
             entries = new List<Entry> ();
 
         entries.Add (new Entry (playerName, score));
         entries.Sort (new Entry.Comparer ());
-        Utility.SaveObjectToFile (instance.GetFileName (), entries);
+        Utility.SaveObjectToFile (GetFileName (), entries);
     }
 
-    private string GetFileName() {
+    private static string GetFileName() {
         return Game.GAME_DATA_DIRECTORY + Game.difficulty.name + "_" + Game.game.battlefieldName + ".dat";
+    }
+
+    private static string GetHeaderName() {
+        return Game.game.battlefieldName + " - " +Game.difficulty.name;
     }
 
     public void AddPlayer () {
@@ -33,7 +38,7 @@ public class Highscore : MonoBehaviour {
         } else {
             Add (inputName.text, EnemyManager.ExternalWaveNumber);
             inputName.interactable = false;
-            Display (names, scores);
+            Display (header, names, scores);
         }
         OnInputNameChanged ();
     }
@@ -41,17 +46,18 @@ public class Highscore : MonoBehaviour {
     public void InstanceDisplay () {
         instance = this;
         gameObject.SetActive (true);
-        Display (names, scores);
+        Display (header, names, scores);
         OnInputNameChanged ();
     }
 
-    public static void Display (Text names, Text scores) {
-        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (instance.GetFileName ());
+    public static void Display (Text header, Text names, Text scores) {
+        List<Entry> entries = Utility.LoadObjectFromFile<List<Entry>> (GetFileName ());
         if (entries == null)
             entries = new List<Entry> ();
 
         string nameText = "";
         string scoreText = "";
+        
 
         for (int i = 0; i < Mathf.Min (entries.Count, 10); i++) {
             nameText += (i+1) + " - " + entries[i].playerName + "\n\n";
@@ -61,6 +67,7 @@ public class Highscore : MonoBehaviour {
             nameText += (i + 1) + " - N/A\n\n";
         }
 
+        header.text = GetHeaderName ();
         names.text = nameText;
         scores.text = scoreText;
     }

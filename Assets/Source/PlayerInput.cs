@@ -139,18 +139,21 @@ public class PlayerInput : MonoBehaviour {
 	}
 
     // Returns true if something was cancelled.
-    public bool CancelAll () {
+    public bool CancelAll (bool ignorePurchase = false, bool ignoreWalls = false, bool ignoreUpgrading = false) {
         bool somethingCancelled = false;
 
         if (placementParent.childCount != 0)
             somethingCancelled = true;
 
-        CancelPurchase ();
-		if (isEditingWalls) {
+        if (ignorePurchase == false)
+            CancelPurchase ();
+
+		if (isEditingWalls && !ignoreWalls) {
             EditWalls (true);
             somethingCancelled = true;
         }
-        if (isUpgrading) {
+
+        if (isUpgrading && !ignoreUpgrading) {
             ToggleUpgrading (true);
             somethingCancelled = true;
         }
@@ -196,20 +199,22 @@ public class PlayerInput : MonoBehaviour {
 		contextMenu.OpenAssembly (focusRoot);
 	}
 
-	public void EditWalls (bool fromCancelAll) {
-		if (!fromCancelAll)
-            CancelAll ();
+    public void EditWalls(bool fromCancelAll) {
+        if (!fromCancelAll) {
+            CancelAll (false, true, false);
+        }
 
-		isEditingWalls = !isEditingWalls;
-		wallDragGraphic.enabled = isEditingWalls;
+        isEditingWalls = !isEditingWalls;
+        Debug.Log (isEditingWalls);
 
-		if (!isEditingWalls) {
-            wallDragStart = new Vector3(10000, 0, 0);
-            wallGraphicStart = new Vector3(10000, 0, 0);
-            wallGraphicEnd = new Vector3(10000, 0, 0);
+        wallDragGraphic.enabled = isEditingWalls;
+        if (!isEditingWalls) {
+            wallDragStart = new Vector3 (10000, 0, 0);
+            wallGraphicStart = new Vector3 (10000, 0, 0);
+            wallGraphicEnd = new Vector3 (10000, 0, 0);
             wallDragStatus = WallDragStatus.Inactive;
-		}
-	}
+        }
+    }
 
     void LateUpdate () {
         if (Game.currentScene != Scene.AssemblyBuilder)

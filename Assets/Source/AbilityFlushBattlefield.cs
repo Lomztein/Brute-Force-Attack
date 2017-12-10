@@ -5,8 +5,6 @@ public class AbilityFlushBattlefield : Ability {
 
 	public float explosionDelay;
 	public GameObject explosion;
-	public Transform crosshair;
-	public int damage;
 
 	// Use this for initialization
 	void Start () {

@@ -325,7 +325,7 @@ public class EnemyManager : MonoBehaviour {
     }
 
 	public IEnumerator ReadyWave () {
-        if (Game.state == Game.State.Started) {
+        if (Game.state == Game.State.Started && waveStartedIndicator.GetComponentInParent<Button>().interactable == true) { // Hacked? Not even remotely lol pffth what are you on about please donn't hurt me :(
             if (!waveStarted && !wavePrebbing) {
                 Game.ChangeButtons (false);
                 PlayerInput.cur.CancelAll ();
